@@ -1,0 +1,15 @@
+{
+    "watch": [
+        "src"
+    ],
+    "ignore": [
+        "**/*.test.ts",
+        "**/*.spec.ts",
+        ".git",
+        "node_modules"
+    ],
+    "ext": "ts, js, json",
+    "execMap": {
+        "ts": "tsx -r dotenv/config -r tsconfig-paths/register -r ts-node/register/transpile-only"
+    }
+}
