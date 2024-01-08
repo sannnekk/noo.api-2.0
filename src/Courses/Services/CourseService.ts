@@ -1,15 +1,8 @@
 import { UserRepository } from '@modules/Users/Data/UserRepository'
 import { CourseRepository } from './../Data/CourseRepository'
 import { Course } from '../Data/Course'
-import {
-	AlreadyExistError,
-	NotFoundError,
-	Pagination,
-	Transliteration,
-	ULID,
-} from '@core'
+import { AlreadyExistError, NotFoundError, Pagination } from '@core'
 import { QueryFailedError } from 'typeorm'
-import { CourseChapterModel } from '../Data/Relations/CourseChapterModel'
 import { CourseModel } from '../Data/CourseModel'
 
 export class CourseService {

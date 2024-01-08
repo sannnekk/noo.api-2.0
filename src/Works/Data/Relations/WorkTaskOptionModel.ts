@@ -6,7 +6,6 @@ import {
 	Entity,
 	ManyToMany,
 	ManyToOne,
-	OneToMany,
 	RelationId,
 } from 'typeorm'
 import { WorkTaskModel } from './WorkTaskModel'
