@@ -21,7 +21,9 @@ export class UserModel extends Model implements User {
 		if (data) {
 			this.set(data)
 
-			this.slug = this.sluggify(this.username)
+			if (!data.slug && data.username) {
+				this.slug = this.sluggify(this.username)
+			}
 		}
 	}
 
@@ -59,7 +61,7 @@ export class UserModel extends Model implements User {
 	})
 	email!: string
 
-	@OneToMany(() => UserModel, (user) => user.id, { eager: true })
+	@OneToMany(() => UserModel, (user) => user.mentor)
 	students?: User[]
 
 	@RelationId((user: UserModel) => user.mentor)

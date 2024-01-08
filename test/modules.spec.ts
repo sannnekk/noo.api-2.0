@@ -1,11 +1,12 @@
 import request from 'supertest'
 import app from '../src/main'
-import fs from 'fs'
 
 let userToken: string
 let teacherToken: string
+let mentorToken: string
 let userId: string
-let teacherId = '01HJNGKPMFH5P93669W9J6HEFA'
+let teacherId = '01HKKEXYKT40052C0F6B3MF3W1'
+let mentorId: string
 
 describe('User module', function () {
 	it('Registering user with a short password', function (done) {
@@ -144,6 +145,36 @@ describe('User module', function () {
 			.end(function (err, res) {
 				if (err) return done(err)
 				teacherToken = res.body.token
+				done()
+			})
+	})
+
+	it('Creating a mentor as a teacher', function (done) {
+		request(app)
+			.post('/user')
+			.set('Authorization', `Bearer ${teacherToken}`)
+			.send({
+				username: 'test_mentor',
+				name: 'Test Mentor',
+				email: 'ment@or.da',
+				password: '12345678',
+				role: 'mentor',
+			})
+			.expect(201, done)
+	})
+
+	it('Logging in as a mentor', function (done) {
+		request(app)
+			.post('/user/login')
+			.send({
+				username: 'test_mentor',
+				password: '12345678',
+			})
+			.expect(200)
+			.end(function (err, res) {
+				if (err) return done(err)
+				mentorToken = res.body.token
+				mentorId = res.body.user.id
 				done()
 			})
 	})
@@ -421,6 +452,7 @@ describe('Works module', function () {
 				tasks: [
 					{
 						name: 'Test Task',
+						type: 'text',
 						content: {
 							ops: [
 								{
@@ -429,6 +461,67 @@ describe('Works module', function () {
 							],
 						},
 						highestScore: 10,
+					},
+					{
+						name: 'Test Task 2',
+						type: 'one_choice',
+						content: {
+							ops: [
+								{
+									insert: 'Test Task Content 2',
+								},
+							],
+						},
+						options: [
+							{
+								name: 'First Option',
+								isCorrect: true,
+							},
+							{
+								name: 'Second Option',
+								isCorrect: false,
+							},
+						],
+						highestScore: 8,
+					},
+					{
+						name: 'Test Task 3',
+						type: 'multiple_choice',
+						content: {
+							ops: [
+								{
+									insert: 'Test Task Content 3',
+								},
+							],
+						},
+						options: [
+							{
+								name: 'First Option 2',
+								isCorrect: true,
+							},
+							{
+								name: 'Second Option 2',
+								isCorrect: false,
+							},
+							{
+								name: 'Third Option 2',
+								isCorrect: true,
+							},
+						],
+						highestScore: 6,
+					},
+					{
+						name: 'Test Task 4',
+						type: 'word',
+						content: {
+							ops: [
+								{
+									insert: 'Test Task Content 4',
+								},
+							],
+						},
+						rightAnswer: 'biology',
+						highestScore: 4,
 					},
 				],
 			})
@@ -508,6 +601,8 @@ describe('Works module', function () {
 	})
 })
 
+let assignedWorkId: string
+
 describe('Assigned Works module', function () {
 	it('Creating an assigned work as a student', function (done) {
 		request(app)
@@ -530,6 +625,145 @@ describe('Assigned Works module', function () {
 			})
 			.expect(403, done)
 	})
+
+	it('Creating an assigned work as a mentor and student that arent together', function (done) {
+		request(app)
+			.post('/assigned-work')
+			.set('Authorization', `Bearer ${mentorToken}`)
+			.send({
+				workId,
+				studentId: userId,
+			})
+			.expect(400, done)
+	})
+
+	it('Assigning a student to a mentor', function (done) {
+		request(app)
+			.patch(`/user/${userId}/assign-mentor/${mentorId}`)
+			.set('Authorization', `Bearer ${teacherToken}`)
+			.expect(204, done)
+	})
+
+	it('Creating an assigned work as a mentor', function (done) {
+		request(app)
+			.post('/assigned-work')
+			.set('Authorization', `Bearer ${mentorToken}`)
+			.send({
+				workId,
+				studentId: userId,
+			})
+			.expect(201, done)
+	})
+
+	let tasks: any[]
+
+	it('Getting all the assigned works', function (done) {
+		request(app)
+			.get('/assigned-work')
+			.set('Authorization', `Bearer ${userToken}`)
+			.expect(200)
+			.end(function (err, res) {
+				if (err) return done(err)
+				if (res.body.length === 0)
+					return done('No assigned works found')
+				assignedWorkId = res.body[0].id
+				tasks = res.body[0].work.tasks
+				done()
+			})
+	})
+
+	it('Solving the work as a student', function (done) {
+		request(app)
+			.patch(`/assigned-work/${assignedWorkId}/solve`)
+			.set('Authorization', `Bearer ${userToken}`)
+			.send({
+				id: assignedWorkId,
+				answers: [
+					{
+						taskId: tasks.find((task) => task.type === 'text')!.id,
+						content: {
+							ops: [
+								{
+									insert: 'Test Answer Content',
+								},
+							],
+						},
+					},
+					{
+						taskId: tasks.find((task) => task.type === 'word')!.id,
+						word: 'Test Word',
+					},
+					{
+						taskId: tasks.find((task) => task.type === 'one_choice')!
+							.id,
+						chosenTaskOptionIds: [
+							tasks.find((task) => task.type === 'one_choice')!
+								.optionIds[0],
+						],
+					},
+				],
+			})
+			.expect(204, done)
+	})
+
+	it('Checking the work as a teacher', function (done) {
+		request(app)
+			.patch(`/assigned-work/${assignedWorkId}/check`)
+			.set('Authorization', `Bearer ${mentorToken}`)
+			.send({
+				id: assignedWorkId,
+				comments: [
+					{
+						content: {
+							ops: [
+								{
+									insert: 'Cool!\n',
+								},
+							],
+						},
+						score: 1,
+						taskId: tasks.find((task) => task.type === 'one_choice')!
+							.id,
+					},
+					{
+						content: {
+							ops: [
+								{
+									insert: 'Why empty?\n',
+								},
+							],
+						},
+						score: 0,
+						taskId: tasks.find(
+							(task) => task.type === 'multiple_choice'
+						)!.id,
+					},
+					{
+						content: {
+							ops: [
+								{
+									insert: 'This is not a word...\n',
+								},
+							],
+						},
+						score: 4,
+						taskId: tasks.find((task) => task.type === 'word')!.id,
+					},
+					{
+						content: {
+							ops: [
+								{
+									insert: 'This is not a text...\n',
+								},
+							],
+						},
+						score: 7,
+						taskId: tasks.find((task) => task.type === 'text')!.id,
+					},
+				],
+			})
+			.expect(204, done)
+	})
 })
 
 describe('Deleting a work', function () {
@@ -548,11 +782,18 @@ describe('Deleting a work', function () {
 	})
 })
 
-describe('Deleting a user', function () {
-	it('Deleting a user', function (done) {
+describe('Deleting users', function () {
+	it('Deleting a student', function (done) {
 		request(app)
 			.delete(`/user/${userId}`)
 			.set('Authorization', `Bearer ${userToken}`)
+			.expect(204, done)
+	})
+
+	it('Deleting a mentor', function (done) {
+		request(app)
+			.delete(`/user/${mentorId}`)
+			.set('Authorization', `Bearer ${mentorToken}`)
 			.expect(204, done)
 	})
 })

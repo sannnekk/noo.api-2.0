@@ -1,4 +1,4 @@
-import { NotFoundError, Pagination } from '@core'
+import { NotFoundError, Pagination, UnauthorizedError } from '@core'
 import { AssignedWorkRepository } from '../Data/AssignedWorkRepository'
 import { AssignedWork } from '../Data/AssignedWork'
 import { AssignedWorkModel } from '../Data/AssignedWorkModel'
@@ -12,13 +12,17 @@ import { SolveDeadlineNotSetError } from '../Errors/SolveDeadlineNotSetError'
 import { CheckDeadlineNotSetError } from '../Errors/CheckDeadlineNotSetError'
 import { UserRepository } from '@modules/Users/Data/UserRepository'
 import { StudentFromAnotherMentorError } from '../Errors/StudentFromAnotherMentorError'
+import { WorkRepository } from '@modules/Works/Data/WorkRepository'
+import { AssignedWorkComment } from '../Data/Relations/AssignedWorkComment'
 
 export class AssignedWorkService {
 	private readonly assignedWorkRepository: AssignedWorkRepository
+	private readonly workRepository: WorkRepository
 	private readonly userRepository: UserRepository
 
 	constructor() {
 		this.assignedWorkRepository = new AssignedWorkRepository()
+		this.workRepository = new WorkRepository()
 		this.userRepository = new UserRepository()
 	}
 
@@ -29,10 +33,10 @@ export class AssignedWorkService {
 	) {
 		const condition =
 			userRole == 'student'
-				? { studentId: userId }
+				? { student: { id: userId } }
 				: { mentors: { id: userId } }
 
-		return this.assignedWorkRepository.find(
+		return await this.assignedWorkRepository.find(
 			condition as any,
 			undefined,
 			pagination
@@ -59,20 +63,35 @@ export class AssignedWorkService {
 		return work
 	}
 
-	public async createWork(work: AssignedWork, mentorId: User['id']) {
-		const mentor = await this.userRepository.findOne({ id: mentorId })
+	public async createWork(
+		assignedWork: AssignedWork,
+		mentorId: User['id']
+	) {
+		const mentor = await this.userRepository.findOne({ id: mentorId }, {
+			students: true,
+		} as any)
+		const work = await this.workRepository.findOne({
+			id: assignedWork.workId,
+		})
 
 		if (
 			!mentor!.students?.some(
-				(student) => student.id === work.studentId
+				(student) => student.id === assignedWork.studentId
 			)
 		) {
 			throw new StudentFromAnotherMentorError()
 		}
 
-		work.maxScore = this.getMaxScore(work.work.tasks || [])
+		if (!work) {
+			throw new NotFoundError()
+		}
 
-		return this.assignedWorkRepository.create(work)
+		assignedWork.student = { id: assignedWork.studentId as any } as any
+		assignedWork.mentors = [{ id: mentorId } as any]
+		assignedWork.work = { id: assignedWork.workId as any } as any
+		assignedWork.maxScore = this.getMaxScore(work.tasks || [])
+
+		return this.assignedWorkRepository.create(assignedWork)
 	}
 
 	public async solveWork(work: AssignedWork) {
@@ -149,6 +168,7 @@ export class AssignedWorkService {
 
 		work.checkStatus = checkStatus
 		work.checkedAt = new Date()
+		work.score = this.getScore(work.comments)
 
 		const newWork = new AssignedWorkModel({ ...foundWork, ...work })
 
@@ -184,7 +204,8 @@ export class AssignedWorkService {
 	public async shiftDeadline(
 		id: AssignedWork['id'],
 		days: number,
-		role: Exclude<User['role'], 'teacher' | 'admin'>
+		role: Exclude<User['role'], 'teacher' | 'admin'>,
+		userId: User['id']
 	) {
 		const work = await this.assignedWorkRepository.findOne({ id })
 
@@ -193,6 +214,10 @@ export class AssignedWorkService {
 		}
 
 		if (role == 'student') {
+			if (work.studentId !== userId) {
+				throw new UnauthorizedError()
+			}
+
 			if (!work.solveDeadlineAt) {
 				throw new SolveDeadlineNotSetError()
 			}
@@ -201,6 +226,10 @@ export class AssignedWorkService {
 				work.solveDeadlineAt.getDate() + days
 			)
 		} else {
+			if (!work.mentors!.some((mentor) => mentor.id === userId)) {
+				throw new UnauthorizedError()
+			}
+
 			if (!work.checkDeadlineAt) {
 				throw new CheckDeadlineNotSetError()
 			}
@@ -213,11 +242,18 @@ export class AssignedWorkService {
 		return this.assignedWorkRepository.update(work)
 	}
 
-	public async deleteWork(id: AssignedWork['id']) {
+	public async deleteWork(
+		id: AssignedWork['id'],
+		mentorId: User['id']
+	) {
 		const foundWork = await this.assignedWorkRepository.findOne({ id })
 
 		if (!foundWork) {
 			throw new NotFoundError()
+		}
+
+		if (!foundWork.mentors!.some((mentor) => mentor.id === mentorId)) {
+			throw new UnauthorizedError()
 		}
 
 		return this.assignedWorkRepository.delete(id)
@@ -225,5 +261,9 @@ export class AssignedWorkService {
 
 	private getMaxScore(tasks: AssignedWork['work']['tasks']) {
 		return tasks.reduce((acc, task) => acc + task.highestScore, 0)
+	}
+
+	private getScore(comments: AssignedWorkComment[]) {
+		return comments.reduce((acc, comment) => acc + comment.score, 0)
 	}
 }

@@ -4,6 +4,7 @@ import { WorkTask } from './WorkTask'
 import {
 	Column,
 	Entity,
+	ManyToMany,
 	ManyToOne,
 	OneToMany,
 	RelationId,
@@ -50,7 +51,7 @@ export class WorkTaskOptionModel
 	@RelationId((option: WorkTaskOptionModel) => option.task)
 	taskId!: WorkTask['id']
 
-	@OneToMany(
+	@ManyToMany(
 		() => AssignedWorkAnswerModel,
 		(answer) => answer.chosenTaskOptions
 	)

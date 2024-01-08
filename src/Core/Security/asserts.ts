@@ -7,32 +7,62 @@ import { JWTPayload } from './jwt'
 
 export function student(
 	context: Context
-): asserts context is Context & { credentials: JWTPayload } {
+): asserts context is Context & {
+	credentials: JWTPayload & { role: 'student' }
+} {
 	if (context.credentials?.role !== 'student') {
 		throw new WrongRoleError()
 	}
 }
 
-export function mentor(
-	context: Context
-): asserts context is Context & { credentials: JWTPayload } {
+export function mentor(context: Context): asserts context is Context & {
+	credentials: JWTPayload & { role: 'mentor' }
+} {
 	if (context.credentials?.role !== 'mentor') {
+		throw new WrongRoleError()
+	}
+}
+
+export function mentorOrStudent(
+	context: Context
+): asserts context is Context & {
+	credentials: JWTPayload & { role: 'mentor' | 'student' }
+} {
+	if (
+		context.credentials?.role !== 'mentor' &&
+		context.credentials?.role !== 'student'
+	) {
 		throw new WrongRoleError()
 	}
 }
 
 export function teacher(
 	context: Context
-): asserts context is Context & { credentials: JWTPayload } {
+): asserts context is Context & {
+	credentials: JWTPayload & { role: 'teacher' }
+} {
 	if (context.credentials?.role !== 'teacher') {
 		throw new WrongRoleError()
 	}
 }
 
-export function admin(
-	context: Context
-): asserts context is Context & { credentials: JWTPayload } {
+export function admin(context: Context): asserts context is Context & {
+	credentials: JWTPayload & { role: 'admin' }
+} {
 	if (context.credentials?.role !== 'admin') {
+		throw new WrongRoleError()
+	}
+}
+
+export function teacherOrAdmin(
+	context: Context
+): asserts context is Context & {
+	credentials: JWTPayload & { role: 'teacher' | 'admin' }
+} {
+	if (
+		context.credentials?.role !== 'teacher' &&
+		context.credentials?.role !== 'admin'
+	) {
 		throw new WrongRoleError()
 	}
 }

@@ -12,6 +12,12 @@ export class WorkValidator extends Validator {
 					name: z.string(),
 					content: z.any(),
 					highestScore: z.number().int().positive(),
+					type: z.enum([
+						'text',
+						'one_choice',
+						'multiple_choice',
+						'word',
+					]),
 					options: z
 						.array(
 							z.object({
@@ -38,22 +44,22 @@ export class WorkValidator extends Validator {
 				.array(
 					z.object({
 						id: z.string().ulid().optional(),
-						name: z.string(),
-						content: z.any(),
-						highestScore: z.number().int().positive(),
-					})
-				)
-				.optional(),
-			type: z
-				.enum(['text', 'one_choice', 'multiple_choice', 'word'])
-				.optional(),
-			rightAnswer: z.string().optional(),
-			options: z
-				.array(
-					z.object({
-						id: z.string().ulid().optional(),
-						name: z.string(),
-						isCorrect: z.boolean(),
+						name: z.string().optional(),
+						content: z.any().optional(),
+						type: z
+							.enum(['text', 'one_choice', 'multiple_choice', 'word'])
+							.optional(),
+						rightAnswer: z.string().optional(),
+						options: z
+							.array(
+								z.object({
+									id: z.string().ulid().optional(),
+									name: z.string().optional(),
+									isCorrect: z.boolean().optional(),
+								})
+							)
+							.optional(),
+						highestScore: z.number().int().positive().optional(),
 					})
 				)
 				.optional(),

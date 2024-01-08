@@ -35,7 +35,10 @@ export class AssignedWorkController {
 
 			return new ControllerResponse(works, StatusCodes.OK)
 		} catch (error: any) {
-			return new ControllerResponse(null, error.code)
+			return new ControllerResponse(
+				null,
+				error.code || StatusCodes.BAD_REQUEST
+			)
 		}
 	}
 
@@ -57,7 +60,10 @@ export class AssignedWorkController {
 
 			return new ControllerResponse(work, StatusCodes.OK)
 		} catch (error: any) {
-			return new ControllerResponse(null, error.code)
+			return new ControllerResponse(
+				null,
+				error.code || StatusCodes.BAD_REQUEST
+			)
 		}
 	}
 
@@ -73,9 +79,12 @@ export class AssignedWorkController {
 				context.credentials.userId
 			)
 
-			return new ControllerResponse(null, StatusCodes.NO_CONTENT)
+			return new ControllerResponse(null, StatusCodes.CREATED)
 		} catch (error: any) {
-			return new ControllerResponse(null, error.code)
+			return new ControllerResponse(
+				null,
+				error.code || StatusCodes.BAD_REQUEST
+			)
 		}
 	}
 
@@ -91,7 +100,11 @@ export class AssignedWorkController {
 
 			return new ControllerResponse(null, StatusCodes.NO_CONTENT)
 		} catch (error: any) {
-			return new ControllerResponse(null, error.code)
+			console.log(error)
+			return new ControllerResponse(
+				null,
+				error.code || StatusCodes.BAD_REQUEST
+			)
 		}
 	}
 
@@ -107,7 +120,10 @@ export class AssignedWorkController {
 
 			return new ControllerResponse(null, StatusCodes.NO_CONTENT)
 		} catch (error: any) {
-			return new ControllerResponse(null, error.code)
+			return new ControllerResponse(
+				null,
+				error.code || StatusCodes.BAD_REQUEST
+			)
 		}
 	}
 
@@ -126,7 +142,10 @@ export class AssignedWorkController {
 
 			return new ControllerResponse(null, StatusCodes.NO_CONTENT)
 		} catch (error: any) {
-			return new ControllerResponse(null, error.code)
+			return new ControllerResponse(
+				null,
+				error.code || StatusCodes.BAD_REQUEST
+			)
 		}
 	}
 
@@ -135,16 +154,44 @@ export class AssignedWorkController {
 		context: Context
 	): Promise<ControllerResponse> {
 		try {
+			Asserts.isAuthenticated(context)
+			Asserts.mentorOrStudent(context)
+			this.assignedWorkValidator.validateId(context.params.id)
+
+			await this.assignedWorkService.shiftDeadline(
+				context.params.id,
+				3,
+				context.credentials.role,
+				context.credentials.id
+			)
+
+			return new ControllerResponse(null, StatusCodes.NO_CONTENT)
 		} catch (error: any) {
-			return new ControllerResponse(null, error.code)
+			return new ControllerResponse(
+				null,
+				error.code || StatusCodes.BAD_REQUEST
+			)
 		}
 	}
 
 	@Delete('/:id')
 	public async delete(context: Context): Promise<ControllerResponse> {
 		try {
+			Asserts.isAuthenticated(context)
+			Asserts.mentor(context)
+			this.assignedWorkValidator.validateId(context.params.id)
+
+			await this.assignedWorkService.deleteWork(
+				context.params.id,
+				context.credentials.id
+			)
+
+			return new ControllerResponse(null, StatusCodes.NO_CONTENT)
 		} catch (error: any) {
-			return new ControllerResponse(null, error.code)
+			return new ControllerResponse(
+				null,
+				error.code || StatusCodes.BAD_REQUEST
+			)
 		}
 	}
 }

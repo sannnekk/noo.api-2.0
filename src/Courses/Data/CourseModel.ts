@@ -57,7 +57,6 @@ export class CourseModel extends Model implements Course {
 	@OneToMany(() => CourseChapterModel, (chapter) => chapter.course, {
 		eager: true,
 		cascade: true,
-		onDelete: 'CASCADE',
 	})
 	chapters!: CourseChapter[]
 

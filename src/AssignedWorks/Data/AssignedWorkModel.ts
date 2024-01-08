@@ -50,7 +50,9 @@ export class AssignedWorkModel extends Model implements AssignedWork {
 	})
 	slug!: string
 
-	@ManyToMany(() => UserModel, (user) => user.assignedWorksAsMentor)
+	@ManyToMany(() => UserModel, (user) => user.assignedWorksAsMentor, {
+		eager: true,
+	})
 	@JoinTable()
 	mentors?: User[] | undefined
 
@@ -95,8 +97,8 @@ export class AssignedWorkModel extends Model implements AssignedWork {
 		enum: [
 			'not-checked',
 			'in-progress',
-			'made-in-deadline',
-			'made-after-deadline',
+			'checked-in-deadline',
+			'checked-after-deadline',
 		],
 		default: 'not-checked',
 	})

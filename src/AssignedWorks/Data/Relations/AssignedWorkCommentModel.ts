@@ -20,6 +20,10 @@ export class AssignedWorkCommentModel
 			if (!data.slug) {
 				this.slug = this.sluggify()
 			}
+
+			if (data.taskId) {
+				this.task = { id: data.taskId } as any
+			}
 		}
 	}
 

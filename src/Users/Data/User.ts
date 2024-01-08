@@ -14,4 +14,5 @@ export interface User extends BaseModel {
 	isBlocked: boolean
 	forbidden?: number
 	mentorId?: ULID.Ulid
+	mentor?: User
 }

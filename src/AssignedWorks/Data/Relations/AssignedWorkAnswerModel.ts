@@ -5,6 +5,7 @@ import { WorkTaskOption } from '@modules/Works/Data/Relations/WorkTaskOption'
 import {
 	Column,
 	Entity,
+	JoinTable,
 	ManyToMany,
 	ManyToOne,
 	RelationId,
@@ -27,6 +28,10 @@ export class AssignedWorkAnswerModel
 
 			if (!data.slug) {
 				this.slug = this.sluggify()
+			}
+
+			if (data.taskId) {
+				this.task = { id: data.taskId } as any
 			}
 
 			this.chosenTaskOptions = (data.chosenTaskOptions || []).map(
@@ -58,12 +63,17 @@ export class AssignedWorkAnswerModel
 	@ManyToMany(
 		() => WorkTaskOptionModel,
 		(option) => option.assignedWorkAnswers,
-		{ eager: true }
+		{ eager: true, cascade: true }
 	)
+	@JoinTable()
 	chosenTaskOptions?: WorkTaskOption[] | undefined
 
 	get chosenTaskOptionIds(): string[] | undefined {
 		return (this.chosenTaskOptions || []).map((option) => option.id)
+	}
+
+	set chosenTaskOptionIds(ids: WorkTaskOption['id'][]) {
+		this.chosenTaskOptions = ids.map((id) => ({ id })) as any[]
 	}
 
 	@ManyToOne(() => WorkTaskModel, (task) => task.assignedWorkAnswers, {

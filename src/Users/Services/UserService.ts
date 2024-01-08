@@ -30,6 +30,22 @@ export class UserService {
 		}
 	}
 
+	public async assignMentor(
+		studentId: User['id'],
+		mentorId: User['id']
+	) {
+		const student = await this.userRepository.findOne({ id: studentId })
+		const mentor = await this.userRepository.findOne({ id: mentorId })
+
+		if (!student || !mentor) {
+			throw new NotFoundError()
+		}
+
+		student.mentor = mentorId as any
+
+		await this.userRepository.update(student)
+	}
+
 	public async login(credentials: {
 		username: string
 		password: string

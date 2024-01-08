@@ -11,6 +11,7 @@ import { Context, CoreDataSource } from '@core'
 import '@modules/Users/UserController'
 import '@modules/Courses/CourseController'
 import '@modules/Works/WorkController'
+import '@modules/AssignedWorks/AssignedWorkController'
 
 await CoreDataSource.initialize()
 
