@@ -9,7 +9,6 @@ export class WorkValidator extends Validator {
 			description: z.string(),
 			tasks: z.array(
 				z.object({
-					name: z.string(),
 					content: z.any(),
 					highestScore: z.number().int().positive(),
 					type: z.enum([
@@ -18,6 +17,7 @@ export class WorkValidator extends Validator {
 						'multiple_choice',
 						'word',
 					]),
+					rightAnswer: z.string().optional(),
 					options: z
 						.array(
 							z.object({
@@ -28,8 +28,6 @@ export class WorkValidator extends Validator {
 						.optional(),
 				})
 			),
-			type: z.enum(['text', 'one_choice', 'multiple_choice', 'word']),
-			rightAnswer: z.string().optional(),
 		})
 
 		schema.parse(data)
@@ -49,7 +47,7 @@ export class WorkValidator extends Validator {
 						type: z
 							.enum(['text', 'one_choice', 'multiple_choice', 'word'])
 							.optional(),
-						rightAnswer: z.string().optional(),
+						rightAnswer: z.string().optional().nullable(),
 						options: z
 							.array(
 								z.object({

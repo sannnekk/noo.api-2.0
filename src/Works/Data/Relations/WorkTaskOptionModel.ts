@@ -59,4 +59,6 @@ export class WorkTaskOptionModel
 	get assignedWorkAnswerIds(): string[] {
 		return (this.assignedWorkAnswers || []).map((answer) => answer.id)
 	}
+
+	set assignedWorkAnswerIds(ids: string[]) {}
 }

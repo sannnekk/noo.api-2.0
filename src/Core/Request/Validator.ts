@@ -9,6 +9,7 @@ export abstract class Validator {
 			limit: z.number().int().positive().optional(),
 			sort: z.string().optional(),
 			order: z.string().optional(),
+			search: z.any().optional(),
 		})
 
 		schema.parse(data)

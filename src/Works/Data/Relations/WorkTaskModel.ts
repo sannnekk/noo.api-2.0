@@ -100,6 +100,8 @@ export class WorkTaskModel extends Model implements WorkTask {
 		return this.options?.map((option) => option.id)
 	}
 
+	set optionIds(ids: string[] | undefined) {}
+
 	@OneToMany(() => AssignedWorkAnswerModel, (answer) => answer.task)
 	assignedWorkAnswers?: AssignedWorkAnswer[] | undefined
 
@@ -107,12 +109,16 @@ export class WorkTaskModel extends Model implements WorkTask {
 		return this.assignedWorkAnswers?.map((answer) => answer.id)
 	}
 
+	set assignedWorkAnswerIds(ids: string[] | undefined) {}
+
 	@OneToMany(() => AssignedWorkCommentModel, (comment) => comment.task)
 	assignedWorkComments?: AssignedWorkComment[] | undefined
 
 	get assignedWorkCommentIds(): string[] | undefined {
 		return this.assignedWorkComments?.map((comment) => comment.id)
 	}
+
+	set assignedWorkCommentIds(ids: string[] | undefined) {}
 
 	private sluggify(text: string): string {
 		return ULID.generate() + '-' + Transliteration.sluggify(text)

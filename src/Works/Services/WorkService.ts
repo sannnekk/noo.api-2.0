@@ -11,7 +11,14 @@ export class WorkService {
 	}
 
 	public async getWorks(pagination?: Pagination) {
-		return this.workRepository.find(undefined, undefined, pagination)
+		pagination = new Pagination().assign(pagination)
+		pagination.entriesToSearch = ['name', 'description']
+
+		return await this.workRepository.find(
+			undefined,
+			['materials'],
+			pagination
+		)
 	}
 
 	public async getWorkBySlug(slug: Work['slug']) {

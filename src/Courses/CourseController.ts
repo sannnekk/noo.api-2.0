@@ -24,9 +24,13 @@ export class CourseController {
 	@Get()
 	public async get(context: Context): Promise<ControllerResponse> {
 		try {
-			this.courseValidator.validatePagination(context.body)
+			this.courseValidator.validatePagination(context.query)
 			Asserts.isAuthenticated(context)
-			const courses = await this.courseService.get(context.body)
+			const courses = await this.courseService.get(
+				context.query,
+				context.credentials.userId,
+				context.credentials.role
+			)
 			return new ControllerResponse(courses, StatusCodes.OK)
 		} catch (error: any) {
 			return new ControllerResponse(
@@ -47,6 +51,28 @@ export class CourseController {
 				context.params.slug
 			)
 			return new ControllerResponse(course, StatusCodes.OK)
+		} catch (error: any) {
+			return new ControllerResponse(
+				null,
+				error.code || StatusCodes.BAD_REQUEST
+			)
+		}
+	}
+
+	@Get('/material/:slug/assigned-work')
+	public async getAssignedWork(
+		context: Context
+	): Promise<ControllerResponse> {
+		try {
+			this.courseValidator.validateSlug(context.params.slug)
+			Asserts.isAuthenticated(context)
+			Asserts.student(context)
+			const assignedWork =
+				await this.courseService.getAssignedWorkToMaterial(
+					context.params.slug,
+					context.credentials.userId
+				)
+			return new ControllerResponse(assignedWork, StatusCodes.OK)
 		} catch (error: any) {
 			return new ControllerResponse(
 				null,
@@ -85,6 +111,51 @@ export class CourseController {
 		} catch (error: any) {
 			return new ControllerResponse(
 				error,
+				error.code || StatusCodes.BAD_REQUEST
+			)
+		}
+	}
+
+	@Patch('/:materialSlug/assign-work/:workId')
+	public async assignWorkToMaterial(
+		context: Context
+	): Promise<ControllerResponse> {
+		try {
+			Asserts.isAuthenticated(context)
+			Asserts.teacher(context)
+			this.courseValidator.validateSlug(context.params.materialSlug)
+			this.courseValidator.validateId(context.params.workId)
+			await this.courseService.assignWorkToMaterial(
+				context.params.materialSlug,
+				context.params.workId
+			)
+
+			return new ControllerResponse(null, StatusCodes.NO_CONTENT)
+		} catch (error: any) {
+			return new ControllerResponse(
+				null,
+				error.code || StatusCodes.BAD_REQUEST
+			)
+		}
+	}
+
+	@Patch('/:courseSlug/assign-students')
+	public async assignStudents(
+		context: Context
+	): Promise<ControllerResponse> {
+		try {
+			Asserts.isAuthenticated(context)
+			Asserts.teacher(context)
+			this.courseValidator.validateSlug(context.params.courseSlug)
+			this.courseValidator.validateStudentIds(context.body)
+			await this.courseService.assignStudents(
+				context.params.courseSlug,
+				context.body.studentIds
+			)
+			return new ControllerResponse(null, StatusCodes.NO_CONTENT)
+		} catch (error: any) {
+			return new ControllerResponse(
+				null,
 				error.code || StatusCodes.BAD_REQUEST
 			)
 		}

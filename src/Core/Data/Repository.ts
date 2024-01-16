@@ -3,6 +3,7 @@ import { CoreDataSource } from './DataSource'
 import { Pagination } from './Pagination'
 import { NotFoundError } from '../Errors/NotFoundError'
 import TypeORM from 'typeorm'
+import { AlreadyExistError } from '../Errors/AlreadyExistError'
 
 type ConstructableModel = { new (data?: Partial<Model>): Model }
 
@@ -17,10 +18,14 @@ export abstract class Repository<T extends BaseModel> {
 
 	async create(data: T): Promise<void> {
 		const model = new this.model(data)
-		await this.repository.save(model)
+		try {
+			await this.repository.save(model)
+		} catch (error) {
+			throw new AlreadyExistError()
+		}
 	}
 
-	async update(data: T): Promise<void> {
+	async update(data: Partial<T> & { id: T['id'] }): Promise<void> {
 		const item = await this.repository.findOne({
 			where: {
 				id: data.id,
@@ -33,7 +38,11 @@ export abstract class Repository<T extends BaseModel> {
 
 		const newItem = new this.model({ ...item, ...data, id: item.id })
 
-		await this.repository.save(newItem)
+		try {
+			await this.repository.save(newItem)
+		} catch (error) {
+			throw new AlreadyExistError()
+		}
 	}
 
 	async delete(id: string): Promise<void> {
@@ -55,11 +64,13 @@ export abstract class Repository<T extends BaseModel> {
 		relations?: (keyof Partial<T>)[],
 		pagination: Pagination = new Pagination()
 	): Promise<T[]> {
-		return this.repository.find({
+		return (await this.repository.find({
 			relations: (relations as string[]) || undefined,
-			where: conditions,
-			...pagination,
-		}) as unknown as Promise<T[]>
+			where: pagination.getCondition(conditions),
+			order: pagination.orderOptions,
+			skip: pagination.offset,
+			take: pagination.take,
+		})) as unknown as Promise<T[]>
 	}
 
 	async findOne(

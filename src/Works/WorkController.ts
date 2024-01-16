@@ -25,8 +25,8 @@ export class WorkController {
 	public async getWorks(context: Context): Promise<ControllerResponse> {
 		try {
 			Asserts.isAuthenticated(context)
-			this.workValidator.validatePagination(context.body)
-			const works = await this.workService.getWorks(context.body)
+			this.workValidator.validatePagination(context.query)
+			const works = await this.workService.getWorks(context.query)
 
 			return new ControllerResponse(works, StatusCodes.OK)
 		} catch (e: any) {

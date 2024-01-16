@@ -23,7 +23,9 @@ export interface AssignedWork extends BaseModel {
 		| 'checked-in-deadline'
 		| 'checked-after-deadline'
 	solveDeadlineAt?: Date
+	solveDeadlineShifted: boolean
 	checkDeadlineAt?: Date
+	checkDeadlineShifted: boolean
 	solvedAt?: Date
 	checkedAt?: Date
 	answers: AssignedWorkAnswer[]

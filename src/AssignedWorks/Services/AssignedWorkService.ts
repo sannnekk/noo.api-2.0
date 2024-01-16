@@ -14,6 +14,7 @@ import { UserRepository } from '@modules/Users/Data/UserRepository'
 import { StudentFromAnotherMentorError } from '../Errors/StudentFromAnotherMentorError'
 import { WorkRepository } from '@modules/Works/Data/WorkRepository'
 import { AssignedWorkComment } from '../Data/Relations/AssignedWorkComment'
+import { DeadlineAlreadyShiftedError } from '../Errors/DeadlineAlreadyShiftedError'
 
 export class AssignedWorkService {
 	private readonly assignedWorkRepository: AssignedWorkRepository
@@ -36,6 +37,9 @@ export class AssignedWorkService {
 				? { student: { id: userId } }
 				: { mentors: { id: userId } }
 
+		pagination = new Pagination().assign(pagination)
+		pagination.entriesToSearch = []
+
 		return await this.assignedWorkRepository.find(
 			condition as any,
 			undefined,
@@ -54,7 +58,10 @@ export class AssignedWorkService {
 	}
 
 	public async getWorkById(id: AssignedWork['id']) {
-		const work = await this.assignedWorkRepository.findOne({ id })
+		const work = await this.assignedWorkRepository.findOne({ id }, [
+			'mentors',
+			'student',
+		])
 
 		if (!work) {
 			throw new NotFoundError()
@@ -67,27 +74,20 @@ export class AssignedWorkService {
 		assignedWork: AssignedWork,
 		mentorId: User['id']
 	) {
-		const mentor = await this.userRepository.findOne({ id: mentorId }, {
-			students: true,
-		} as any)
 		const work = await this.workRepository.findOne({
 			id: assignedWork.workId,
 		})
 
-		if (
-			!mentor!.students?.some(
-				(student) => student.id === assignedWork.studentId
-			)
-		) {
-			throw new StudentFromAnotherMentorError()
-		}
+		const student = await this.userRepository.findOne({
+			id: assignedWork.studentId,
+		})
 
-		if (!work) {
+		if (!work || !student) {
 			throw new NotFoundError()
 		}
 
 		assignedWork.student = { id: assignedWork.studentId as any } as any
-		assignedWork.mentors = [{ id: mentorId } as any]
+		assignedWork.mentors = [{ id: student.mentorId } as any]
 		assignedWork.work = { id: assignedWork.workId as any } as any
 		assignedWork.maxScore = this.getMaxScore(work.tasks || [])
 
@@ -111,19 +111,15 @@ export class AssignedWorkService {
 			throw new WorkAlreadySolvedError()
 		}
 
-		// check if its been solved in deadline
-		let solveStatus: AssignedWork['solveStatus']
-
 		if (
 			foundWork.solveDeadlineAt &&
 			new Date() > foundWork.solveDeadlineAt
 		) {
-			solveStatus = 'made-after-deadline'
+			work.solveStatus = 'made-after-deadline'
 		} else {
-			solveStatus = 'made-in-deadline'
+			work.solveStatus = 'made-in-deadline'
 		}
 
-		work.solveStatus = solveStatus
 		work.solvedAt = new Date()
 
 		const newWork = new AssignedWorkModel({ ...foundWork, ...work })
@@ -154,19 +150,15 @@ export class AssignedWorkService {
 			throw new WorkIsNotSolvedYetError()
 		}
 
-		// check if its been solved in deadline
-		let checkStatus: AssignedWork['checkStatus']
-
 		if (
 			foundWork.checkDeadlineAt &&
 			new Date() > foundWork.checkDeadlineAt
 		) {
-			checkStatus = 'checked-after-deadline'
+			work.checkStatus = 'checked-after-deadline'
 		} else {
-			checkStatus = 'checked-in-deadline'
+			work.checkStatus = 'checked-in-deadline'
 		}
 
-		work.checkStatus = checkStatus
 		work.checkedAt = new Date()
 		work.score = this.getScore(work.comments)
 
@@ -222,9 +214,14 @@ export class AssignedWorkService {
 				throw new SolveDeadlineNotSetError()
 			}
 
+			if (work.solveDeadlineShifted) {
+				throw new DeadlineAlreadyShiftedError()
+			}
+
 			work.solveDeadlineAt.setDate(
 				work.solveDeadlineAt.getDate() + days
 			)
+			work.solveDeadlineShifted = true
 		} else {
 			if (!work.mentors!.some((mentor) => mentor.id === userId)) {
 				throw new UnauthorizedError()
@@ -234,9 +231,14 @@ export class AssignedWorkService {
 				throw new CheckDeadlineNotSetError()
 			}
 
+			if (work.checkDeadlineShifted) {
+				throw new DeadlineAlreadyShiftedError()
+			}
+
 			work.checkDeadlineAt.setDate(
 				work.checkDeadlineAt.getDate() + days
 			)
+			work.checkDeadlineShifted = true
 		}
 
 		return this.assignedWorkRepository.update(work)

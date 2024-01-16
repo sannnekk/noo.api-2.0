@@ -9,7 +9,7 @@ export interface Work extends BaseModel {
 	name: string
 	description: string
 	materialId?: string
-	material?: CourseMaterial
+	materials?: CourseMaterial[]
 	tasks: WorkTask[]
 	taskIds: string[]
 	assignedWorks: AssignedWork[]

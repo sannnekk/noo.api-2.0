@@ -15,6 +15,16 @@ export function student(
 	}
 }
 
+export function notStudent(
+	context: Context
+): asserts context is Context & {
+	credentials: JWTPayload & { role: 'mentor' | 'teacher' | 'admin' }
+} {
+	if (context.credentials?.role === 'student') {
+		throw new WrongRoleError()
+	}
+}
+
 export function mentor(context: Context): asserts context is Context & {
 	credentials: JWTPayload & { role: 'mentor' }
 } {
@@ -84,7 +94,7 @@ export function isAuthorized(
 		!id.some((_id) => context.credentials?.userId === _id)
 	) {
 		throw new UnauthorizedError()
-	} else if (context.credentials?.userId !== id) {
+	} else if (!Array.isArray(id) && context.credentials?.userId !== id) {
 		throw new UnauthorizedError()
 	}
 }

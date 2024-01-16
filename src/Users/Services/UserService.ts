@@ -1,3 +1,4 @@
+import { Pagination } from './../../Core/Data/Pagination'
 import {
 	NotFoundError,
 	UnauthenticatedError,
@@ -5,6 +6,7 @@ import {
 	Hash,
 	AlreadyExistError,
 	UnknownError,
+	WrongRoleError,
 } from '@core'
 import { User } from '../Data/User'
 import { UserRepository } from '../Data/UserRepository'
@@ -28,6 +30,11 @@ export class UserService {
 
 			throw new UnknownError()
 		}
+	}
+
+	public async register(user: User): Promise<void> {
+		user.role = 'student'
+		await this.create(user)
 	}
 
 	public async assignMentor(
@@ -54,7 +61,10 @@ export class UserService {
 			username: credentials.username,
 		})
 
-		if (!user) {
+		if (
+			!user ||
+			!(await Hash.compare(credentials.password, user.password!))
+		) {
 			throw new UnauthenticatedError()
 		}
 
@@ -64,13 +74,18 @@ export class UserService {
 				username: user.username,
 				role: user.role,
 				permissions: user.forbidden || 0,
+				isBlocked: user.isBlocked,
 			}),
 			user,
 		}
 	}
 
 	public async getBySlug(slug: string): Promise<User> {
-		const user = await this.userRepository.findOne({ slug })
+		const user = await this.userRepository.findOne({ slug }, [
+			'students',
+			'courses',
+			'mentor',
+		])
 
 		if (!user) {
 			throw new NotFoundError()
@@ -81,7 +96,67 @@ export class UserService {
 		return user
 	}
 
-	public async update(user: User): Promise<void> {
+	public async getUsers(
+		pagination: Pagination | undefined,
+		role: User['role'],
+		userId: User['id']
+	): Promise<User[]> {
+		let condition: Record<string, any> | undefined
+
+		switch (role) {
+			case 'admin':
+			case 'teacher':
+				condition = undefined
+				break
+			case 'mentor':
+				condition = { mentor: { id: userId } }
+				break
+			default:
+				throw new WrongRoleError()
+		}
+
+		pagination = new Pagination().assign(pagination)
+		pagination.entriesToSearch = ['username', 'name', 'email']
+
+		const users = await this.userRepository.find(
+			condition,
+			['students', 'courses'],
+			pagination
+		)
+
+		return users.map((user) => {
+			user.password = undefined
+			return user
+		})
+	}
+
+	public async getMentors(
+		pagination: Pagination | undefined
+	): Promise<User[]> {
+		pagination = new Pagination().assign(pagination)
+		pagination.entriesToSearch = ['username', 'name', 'email']
+
+		return await this.userRepository.find(
+			{ role: 'mentor' },
+			['students'],
+			pagination
+		)
+	}
+
+	public async getStudents(
+		pagination: Pagination | undefined
+	): Promise<User[]> {
+		pagination = new Pagination().assign(pagination)
+		pagination.entriesToSearch = ['username', 'name', 'email']
+
+		return await this.userRepository.find(
+			{ role: 'student' },
+			['mentor'],
+			pagination
+		)
+	}
+
+	public async update(user: Partial<User>): Promise<void> {
 		const existingUser = await this.userRepository.findOne({
 			id: user.id,
 		})
@@ -90,7 +165,17 @@ export class UserService {
 			throw new NotFoundError()
 		}
 
-		await this.userRepository.update(user)
+		if (user.password) user.password = await Hash.hash(user.password!)
+
+		user.createdAt = undefined
+		user.updatedAt = undefined
+		user.slug = undefined
+
+		if (existingUser.role !== 'student') {
+			user.role = undefined
+		}
+
+		await this.userRepository.update(<User>user)
 	}
 
 	public async delete(id: string): Promise<void> {

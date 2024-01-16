@@ -25,12 +25,12 @@ export class AssignedWorkController {
 	public async get(context: Context): Promise<ControllerResponse> {
 		try {
 			Asserts.isAuthenticated(context)
-			this.assignedWorkValidator.validatePagination(context.body)
+			this.assignedWorkValidator.validatePagination(context.query)
 
 			const works = await this.assignedWorkService.getWorks(
 				context.credentials.userId,
 				context.credentials.role,
-				context.body
+				context.query
 			)
 
 			return new ControllerResponse(works, StatusCodes.OK)
@@ -42,14 +42,14 @@ export class AssignedWorkController {
 		}
 	}
 
-	@Get('/:slug')
+	@Get('/:id')
 	public async getOne(context: Context): Promise<ControllerResponse> {
 		try {
 			Asserts.isAuthenticated(context)
-			this.assignedWorkValidator.validateSlug(context.params.slug)
+			this.assignedWorkValidator.validateId(context.params.id)
 
-			const work = await this.assignedWorkService.getWorkBySlug(
-				context.params.slug
+			const work = await this.assignedWorkService.getWorkById(
+				context.params.id
 			)
 
 			if (context.credentials.role == 'student') {
@@ -71,7 +71,7 @@ export class AssignedWorkController {
 	public async create(context: Context): Promise<ControllerResponse> {
 		try {
 			Asserts.isAuthenticated(context)
-			Asserts.mentor(context)
+			Asserts.teacher(context)
 			this.assignedWorkValidator.validateCreation(context.body)
 
 			await this.assignedWorkService.createWork(
@@ -100,7 +100,6 @@ export class AssignedWorkController {
 
 			return new ControllerResponse(null, StatusCodes.NO_CONTENT)
 		} catch (error: any) {
-			console.log(error)
 			return new ControllerResponse(
 				null,
 				error.code || StatusCodes.BAD_REQUEST
@@ -162,7 +161,7 @@ export class AssignedWorkController {
 				context.params.id,
 				3,
 				context.credentials.role,
-				context.credentials.id
+				context.credentials.userId
 			)
 
 			return new ControllerResponse(null, StatusCodes.NO_CONTENT)

@@ -48,8 +48,8 @@ export class WorkModel extends Model implements Work {
 	})
 	description!: string
 
-	@OneToOne(() => CourseMaterialModel, (material) => material.work)
-	material?: CourseMaterial | undefined
+	@OneToMany(() => CourseMaterialModel, (material) => material.work)
+	materials?: CourseMaterial[] | undefined
 
 	@OneToMany(() => WorkTaskModel, (task) => task.work, {
 		eager: true,
@@ -60,6 +60,8 @@ export class WorkModel extends Model implements Work {
 	get taskIds(): string[] {
 		return (this.tasks || []).map((task) => task.id)
 	}
+
+	set taskIds(ids: string[]) {}
 
 	@OneToMany(
 		() => AssignedWorkModel,
@@ -73,6 +75,8 @@ export class WorkModel extends Model implements Work {
 			(assignedWork) => assignedWork.id
 		)
 	}
+
+	set assignedWorkIds(ids: string[]) {}
 
 	private sluggify(text: string): string {
 		return ULID.generate() + '-' + Transliteration.sluggify(text)

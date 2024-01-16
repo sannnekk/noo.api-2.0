@@ -7,6 +7,7 @@ export interface JWTPayload extends jwtlib.JwtPayload {
 	userId: ULID
 	role: UserRoleType
 	permissions: number
+	isBlocked: boolean
 }
 
 export type JWT = string

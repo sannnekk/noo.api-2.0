@@ -1,4 +1,6 @@
 import { UserRoleType, BaseModel, ULID } from '@core'
+import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
+import { Course } from '@modules/Courses/Data/Course'
 
 export interface User extends BaseModel {
 	slug: string
@@ -15,4 +17,7 @@ export interface User extends BaseModel {
 	forbidden?: number
 	mentorId?: ULID.Ulid
 	mentor?: User
+	courses?: Course[]
+	coursesAsStudent?: Course[]
+	assignedWorksAsStudent?: AssignedWork[] | undefined
 }

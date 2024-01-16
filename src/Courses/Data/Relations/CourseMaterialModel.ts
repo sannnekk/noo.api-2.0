@@ -65,8 +65,7 @@ export class CourseMaterialModel
 	@RelationId((material: CourseMaterialModel) => material.chapter)
 	chapterId!: CourseChapter['id']
 
-	@OneToOne(() => WorkModel, (work) => work.material)
-	@JoinColumn()
+	@ManyToOne(() => WorkModel, (work) => work.materials)
 	work?: WorkModel | undefined
 
 	@RelationId((material: CourseMaterialModel) => material.work)

@@ -116,11 +116,25 @@ export class AssignedWorkModel extends Model implements AssignedWork {
 	solveDeadlineAt?: Date | undefined
 
 	@Column({
+		name: 'solve_deadline_shifted',
+		type: 'boolean',
+		default: false,
+	})
+	solveDeadlineShifted: boolean = false
+
+	@Column({
 		name: 'check_deadline_at',
 		type: 'timestamp',
 		nullable: true,
 	})
 	checkDeadlineAt?: Date | undefined
+
+	@Column({
+		name: 'check_deadline_shifted',
+		type: 'boolean',
+		default: false,
+	})
+	checkDeadlineShifted: boolean = false
 
 	@Column({
 		name: 'solved_at',

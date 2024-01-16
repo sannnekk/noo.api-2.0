@@ -55,4 +55,14 @@ export class CourseValidator extends Validator {
 
 		schema.parse(course)
 	}
+
+	public validateStudentIds(
+		body: unknown
+	): asserts body is { studentIds: string[] } {
+		const schema = z.object({
+			studentIds: z.array(z.string().ulid()),
+		})
+
+		schema.parse(body)
+	}
 }

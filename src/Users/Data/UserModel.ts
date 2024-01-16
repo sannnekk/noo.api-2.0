@@ -1,6 +1,7 @@
 import {
 	Column,
 	Entity,
+	JoinTable,
 	ManyToMany,
 	ManyToOne,
 	OneToMany,
@@ -58,6 +59,7 @@ export class UserModel extends Model implements User {
 	@Column({
 		name: 'email',
 		type: 'varchar',
+		unique: true,
 	})
 	email!: string
 
@@ -72,6 +74,10 @@ export class UserModel extends Model implements User {
 
 	@OneToMany(() => CourseModel, (course) => course.author)
 	courses?: Course[]
+
+	@ManyToMany(() => CourseModel, (course) => course.students)
+	@JoinTable()
+	coursesAsStudent?: Course[]
 
 	@ManyToMany(
 		() => AssignedWorkModel,

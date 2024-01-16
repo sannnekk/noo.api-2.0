@@ -5,6 +5,8 @@ import { User } from '@modules/Users/Data/User'
 import {
 	Column,
 	Entity,
+	JoinTable,
+	ManyToMany,
 	ManyToOne,
 	OneToMany,
 	RelationId,
@@ -47,6 +49,17 @@ export class CourseModel extends Model implements Course {
 
 	@RelationId((course: CourseModel) => course.author)
 	authorId!: User['id']
+
+	@ManyToMany(() => UserModel, (user) => user.coursesAsStudent, {
+		cascade: true,
+	})
+	students?: User[]
+
+	get studentIds(): User['id'][] {
+		return this.students?.map((student) => student.id) || []
+	}
+
+	set studentIds(ids: User['id'][]) {}
 
 	@Column({
 		name: 'description',

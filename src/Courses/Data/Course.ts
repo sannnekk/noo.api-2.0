@@ -8,6 +8,8 @@ export interface Course extends BaseModel {
 	// image: Media
 	author: User
 	authorId: User['id']
+	students?: User[]
+	studentIds?: User['id'][]
 	description: string
 	chapters?: CourseChapter[]
 }
