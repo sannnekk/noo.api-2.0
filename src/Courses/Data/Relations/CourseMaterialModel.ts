@@ -53,6 +53,13 @@ export class CourseMaterialModel
 	})
 	content!: DeltaContentType
 
+	@Column({
+		name: 'order',
+		type: 'int',
+		default: 0,
+	})
+	order: number = 0
+
 	@ManyToOne(
 		() => CourseChapterModel,
 		(chapter: CourseChapter) => chapter.materials,

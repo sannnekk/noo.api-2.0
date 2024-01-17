@@ -116,7 +116,9 @@ export class CourseService {
 
 	public async assignWorkToMaterial(
 		materialSlug: string,
-		workId: string
+		workId: string,
+		solveDeadline?: Date | undefined,
+		checkDeadline?: Date | undefined
 	) {
 		const material = await this.materialRepository.findOne(
 			{
@@ -138,6 +140,8 @@ export class CourseService {
 				{
 					studentId: student.id,
 					workId,
+					solveDeadlineAt: solveDeadline,
+					checkDeadlineAt: checkDeadline,
 				} as AssignedWork,
 				student.mentorId
 			)

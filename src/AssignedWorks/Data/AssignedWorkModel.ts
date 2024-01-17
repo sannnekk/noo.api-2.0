@@ -60,6 +60,8 @@ export class AssignedWorkModel extends Model implements AssignedWork {
 		return (this.mentors || []).map((mentor) => mentor.id)
 	}
 
+	set mentorIds(ids: string[]) {}
+
 	@ManyToOne(() => UserModel, (user) => user.assignedWorksAsStudent)
 	student!: User | undefined
 
@@ -161,6 +163,8 @@ export class AssignedWorkModel extends Model implements AssignedWork {
 		return (this.answers || []).map((answer) => answer.id)
 	}
 
+	set answerIds(ids: string[]) {}
+
 	@OneToMany(
 		() => AssignedWorkCommentModel,
 		(comment) => comment.assignedWork,
@@ -171,6 +175,8 @@ export class AssignedWorkModel extends Model implements AssignedWork {
 	get commentIds(): string[] {
 		return (this.comments || []).map((comment) => comment.id)
 	}
+
+	set commentIds(ids: string[]) {}
 
 	@Column({
 		name: 'score',

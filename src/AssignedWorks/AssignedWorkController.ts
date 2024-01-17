@@ -119,6 +119,7 @@ export class AssignedWorkController {
 
 			return new ControllerResponse(null, StatusCodes.NO_CONTENT)
 		} catch (error: any) {
+			console.log(error)
 			return new ControllerResponse(
 				null,
 				error.code || StatusCodes.BAD_REQUEST

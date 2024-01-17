@@ -65,4 +65,16 @@ export class CourseValidator extends Validator {
 
 		schema.parse(body)
 	}
+
+	public validateAssignWork(data: unknown): asserts data is {
+		checkDeadline: Date | undefined
+		solveDeadline: Date | undefined
+	} {
+		const schema = z.object({
+			checkDeadline: z.date().optional(),
+			solveDeadline: z.date().optional(),
+		})
+
+		schema.parse(data)
+	}
 }

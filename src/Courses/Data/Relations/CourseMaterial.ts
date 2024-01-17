@@ -8,6 +8,7 @@ export interface CourseMaterial {
 	name: string
 	description: string
 	content: DeltaContentType
+	order: number
 	chapterId: string
 	chapter?: CourseChapter
 	work?: Work
