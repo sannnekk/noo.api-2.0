@@ -6,7 +6,7 @@ export class CourseValidator extends Validator {
 	public validateCreation(course: unknown): asserts course is Course {
 		const schema = z.object({
 			name: z.string().min(3).max(255),
-			description: z.string().max(255),
+			description: z.string().max(255).optional(),
 			chapters: z
 				.array(
 					z.object({
