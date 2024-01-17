@@ -7,10 +7,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne, RelationId, } from 'typeorm';
-import { Model, Transliteration, ULID } from '../../../core/index';
+import { Column, Entity, ManyToOne, RelationId, } from 'typeorm';
+import { Model, Transliteration, ULID } from '@core';
 import { CourseChapterModel } from './CourseChapterModel';
-import { WorkModel } from '../../../Works/Data/WorkModel';
+import { WorkModel } from '@modules/Works/Data/WorkModel';
 let CourseMaterialModel = class CourseMaterialModel extends Model {
     constructor(data) {
         super();
@@ -72,8 +72,7 @@ __decorate([
     __metadata("design:type", Object)
 ], CourseMaterialModel.prototype, "chapterId", void 0);
 __decorate([
-    OneToOne(() => WorkModel, (work) => work.material),
-    JoinColumn(),
+    ManyToOne(() => WorkModel, (work) => work.materials),
     __metadata("design:type", Object)
 ], CourseMaterialModel.prototype, "work", void 0);
 __decorate([

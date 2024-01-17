@@ -1,4 +1,4 @@
-import { Validator } from '../core/index';
+import { Validator } from '@core';
 import { z } from 'zod';
 export class CourseValidator extends Validator {
     validateCreation(course) {
@@ -41,5 +41,11 @@ export class CourseValidator extends Validator {
                 .optional(),
         });
         schema.parse(course);
+    }
+    validateStudentIds(body) {
+        const schema = z.object({
+            studentIds: z.array(z.string().ulid()),
+        });
+        schema.parse(body);
     }
 }

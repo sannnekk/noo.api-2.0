@@ -1,6 +1,7 @@
 import { CoreDataSource } from './DataSource';
 import { Pagination } from './Pagination';
 import { NotFoundError } from '../Errors/NotFoundError';
+import { AlreadyExistError } from '../Errors/AlreadyExistError';
 export class Repository {
     model;
     repository;
@@ -10,7 +11,12 @@ export class Repository {
     }
     async create(data) {
         const model = new this.model(data);
-        await this.repository.save(model);
+        try {
+            await this.repository.save(model);
+        }
+        catch (error) {
+            throw new AlreadyExistError();
+        }
     }
     async update(data) {
         const item = await this.repository.findOne({
@@ -22,7 +28,12 @@ export class Repository {
             throw new NotFoundError();
         }
         const newItem = new this.model({ ...item, ...data, id: item.id });
-        await this.repository.save(newItem);
+        try {
+            await this.repository.save(newItem);
+        }
+        catch (error) {
+            throw new AlreadyExistError();
+        }
     }
     async delete(id) {
         const exists = await this.repository.exist({
@@ -36,11 +47,13 @@ export class Repository {
         await this.repository.delete(id);
     }
     async find(conditions, relations, pagination = new Pagination()) {
-        return this.repository.find({
+        return (await this.repository.find({
             relations: relations || undefined,
-            where: conditions,
-            ...pagination,
-        });
+            where: pagination.getCondition(conditions),
+            order: pagination.orderOptions,
+            skip: pagination.offset,
+            take: pagination.take,
+        }));
     }
     async findOne(conditions, relations) {
         return this.repository.findOne({

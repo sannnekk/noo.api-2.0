@@ -179,6 +179,20 @@ export class UserService {
 	}
 
 	public async delete(id: string): Promise<void> {
-		await this.userRepository.delete(id)
+		const user = await this.userRepository.findOne({ id })
+
+		if (!user) {
+			throw new NotFoundError()
+		}
+
+		user.name = 'Deleted User'
+		user.username = user.slug =
+			'deleted-' + Math.random().toString(36).substr(2, 9)
+		user.email = ''
+		user.isBlocked = true
+		user.telegramId = undefined
+		user.telegramUsername = undefined
+
+		await this.userRepository.update(user)
 	}
 }

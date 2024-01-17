@@ -1,4 +1,4 @@
-import { Repository } from '../../core/index';
+import { Repository } from '@core';
 import { UserModel } from './UserModel';
 export class UserRepository extends Repository {
     constructor() {

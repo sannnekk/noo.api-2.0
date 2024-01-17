@@ -7,10 +7,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Column, Entity, ManyToMany, ManyToOne, OneToMany, RelationId, } from 'typeorm';
-import { Model } from '../../core/index';
-import { CourseModel } from '../../Courses/Data/CourseModel';
-import { AssignedWorkModel } from '../../AssignedWorks/Data/AssignedWorkModel';
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, RelationId, } from 'typeorm';
+import { Model } from '@core';
+import { CourseModel } from '@modules/Courses/Data/CourseModel';
+import { AssignedWorkModel } from '@modules/AssignedWorks/Data/AssignedWorkModel';
 let UserModel = class UserModel extends Model {
     constructor(data) {
         super();
@@ -30,6 +30,7 @@ let UserModel = class UserModel extends Model {
     mentorId;
     mentor;
     courses;
+    coursesAsStudent;
     assignedWorksAsMentor;
     assignedWorksAsStudent;
     telegramId;
@@ -77,6 +78,7 @@ __decorate([
     Column({
         name: 'email',
         type: 'varchar',
+        unique: true,
     }),
     __metadata("design:type", String)
 ], UserModel.prototype, "email", void 0);
@@ -96,6 +98,11 @@ __decorate([
     OneToMany(() => CourseModel, (course) => course.author),
     __metadata("design:type", Array)
 ], UserModel.prototype, "courses", void 0);
+__decorate([
+    ManyToMany(() => CourseModel, (course) => course.students),
+    JoinTable(),
+    __metadata("design:type", Array)
+], UserModel.prototype, "coursesAsStudent", void 0);
 __decorate([
     ManyToMany(() => AssignedWorkModel, (assignedWork) => assignedWork.mentors),
     __metadata("design:type", Array)

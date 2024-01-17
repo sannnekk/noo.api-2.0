@@ -10,7 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 import { Controller, ControllerResponse, Delete, Get, Patch, Post, } from 'express-controller-decorator';
 import { WorkService } from './Services/WorkService';
 import { WorkValidator } from './WorkValidator';
-import { Asserts, Context } from '../core/index';
+import { Asserts, Context } from '@core';
 import { StatusCodes } from 'http-status-codes';
 let WorkController = class WorkController {
     workService;
@@ -22,8 +22,8 @@ let WorkController = class WorkController {
     async getWorks(context) {
         try {
             Asserts.isAuthenticated(context);
-            this.workValidator.validatePagination(context.body);
-            const works = await this.workService.getWorks(context.body);
+            this.workValidator.validatePagination(context.query);
+            const works = await this.workService.getWorks(context.query);
             return new ControllerResponse(works, StatusCodes.OK);
         }
         catch (e) {

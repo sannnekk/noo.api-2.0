@@ -1,4 +1,4 @@
-import { Validator } from '../core/index';
+import { Validator } from '@core';
 import { z } from 'zod';
 export class WorkValidator extends Validator {
     validateCreation(data) {
@@ -6,7 +6,6 @@ export class WorkValidator extends Validator {
             name: z.string().min(1).max(100),
             description: z.string(),
             tasks: z.array(z.object({
-                name: z.string(),
                 content: z.any(),
                 highestScore: z.number().int().positive(),
                 type: z.enum([
@@ -15,6 +14,7 @@ export class WorkValidator extends Validator {
                     'multiple_choice',
                     'word',
                 ]),
+                rightAnswer: z.string().optional(),
                 options: z
                     .array(z.object({
                     name: z.string(),
@@ -22,8 +22,6 @@ export class WorkValidator extends Validator {
                 }))
                     .optional(),
             })),
-            type: z.enum(['text', 'one_choice', 'multiple_choice', 'word']),
-            rightAnswer: z.string().optional(),
         });
         schema.parse(data);
     }
@@ -40,7 +38,7 @@ export class WorkValidator extends Validator {
                 type: z
                     .enum(['text', 'one_choice', 'multiple_choice', 'word'])
                     .optional(),
-                rightAnswer: z.string().optional(),
+                rightAnswer: z.string().optional().nullable(),
                 options: z
                     .array(z.object({
                     id: z.string().ulid().optional(),

@@ -10,7 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 import { Controller, ControllerResponse, Delete, Get, Patch, Post, } from 'express-controller-decorator';
 import { AssignedWorkValidator } from './AssignedWorkValidator';
 import { AssignedWorkService } from './Services/AssignedWorkService';
-import { Asserts, Context } from '../core/index';
+import { Asserts, Context } from '@core';
 import { StatusCodes } from 'http-status-codes';
 let AssignedWorkController = class AssignedWorkController {
     assignedWorkService;
@@ -22,8 +22,8 @@ let AssignedWorkController = class AssignedWorkController {
     async get(context) {
         try {
             Asserts.isAuthenticated(context);
-            this.assignedWorkValidator.validatePagination(context.body);
-            const works = await this.assignedWorkService.getWorks(context.credentials.userId, context.credentials.role, context.body);
+            this.assignedWorkValidator.validatePagination(context.query);
+            const works = await this.assignedWorkService.getWorks(context.credentials.userId, context.credentials.role, context.query);
             return new ControllerResponse(works, StatusCodes.OK);
         }
         catch (error) {
@@ -33,8 +33,8 @@ let AssignedWorkController = class AssignedWorkController {
     async getOne(context) {
         try {
             Asserts.isAuthenticated(context);
-            this.assignedWorkValidator.validateSlug(context.params.slug);
-            const work = await this.assignedWorkService.getWorkBySlug(context.params.slug);
+            this.assignedWorkValidator.validateId(context.params.id);
+            const work = await this.assignedWorkService.getWorkById(context.params.id);
             if (context.credentials.role == 'student') {
                 Asserts.isAuthorized(context, work.studentId);
             }
@@ -50,7 +50,7 @@ let AssignedWorkController = class AssignedWorkController {
     async create(context) {
         try {
             Asserts.isAuthenticated(context);
-            Asserts.mentor(context);
+            Asserts.teacher(context);
             this.assignedWorkValidator.validateCreation(context.body);
             await this.assignedWorkService.createWork(context.body, context.credentials.userId);
             return new ControllerResponse(null, StatusCodes.CREATED);
@@ -69,7 +69,6 @@ let AssignedWorkController = class AssignedWorkController {
             return new ControllerResponse(null, StatusCodes.NO_CONTENT);
         }
         catch (error) {
-            console.log(error);
             return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
         }
     }
@@ -104,7 +103,7 @@ let AssignedWorkController = class AssignedWorkController {
             Asserts.isAuthenticated(context);
             Asserts.mentorOrStudent(context);
             this.assignedWorkValidator.validateId(context.params.id);
-            await this.assignedWorkService.shiftDeadline(context.params.id, 3, context.credentials.role, context.credentials.id);
+            await this.assignedWorkService.shiftDeadline(context.params.id, 3, context.credentials.role, context.credentials.userId);
             return new ControllerResponse(null, StatusCodes.NO_CONTENT);
         }
         catch (error) {
@@ -131,7 +130,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AssignedWorkController.prototype, "get", null);
 __decorate([
-    Get('/:slug'),
+    Get('/:id'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)

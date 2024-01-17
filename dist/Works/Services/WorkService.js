@@ -1,4 +1,4 @@
-import { NotFoundError } from '../../core/index';
+import { NotFoundError, Pagination } from '@core';
 import { WorkRepository } from '../Data/WorkRepository';
 import { WorkModel } from '../Data/WorkModel';
 export class WorkService {
@@ -7,7 +7,9 @@ export class WorkService {
         this.workRepository = new WorkRepository();
     }
     async getWorks(pagination) {
-        return this.workRepository.find(undefined, undefined, pagination);
+        pagination = new Pagination().assign(pagination);
+        pagination.entriesToSearch = ['name', 'description'];
+        return await this.workRepository.find(undefined, ['materials'], pagination);
     }
     async getWorkBySlug(slug) {
         const work = await this.workRepository.findOne({ slug });

@@ -7,9 +7,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model, Transliteration, ULID } from '../../core/index';
-import { UserModel } from '../../Users/Data/UserModel';
-import { Column, Entity, ManyToOne, OneToMany, RelationId, } from 'typeorm';
+import { Model, Transliteration, ULID } from '@core';
+import { UserModel } from '@modules/Users/Data/UserModel';
+import { Column, Entity, ManyToMany, ManyToOne, OneToMany, RelationId, } from 'typeorm';
 import { CourseChapterModel } from './Relations/CourseChapterModel';
 let CourseModel = class CourseModel extends Model {
     constructor(data) {
@@ -26,6 +26,11 @@ let CourseModel = class CourseModel extends Model {
     name;
     author;
     authorId;
+    students;
+    get studentIds() {
+        return this.students?.map((student) => student.id) || [];
+    }
+    set studentIds(ids) { }
     description;
     chapters;
     sluggify(text) {
@@ -54,6 +59,12 @@ __decorate([
     RelationId((course) => course.author),
     __metadata("design:type", Object)
 ], CourseModel.prototype, "authorId", void 0);
+__decorate([
+    ManyToMany(() => UserModel, (user) => user.coursesAsStudent, {
+        cascade: true,
+    }),
+    __metadata("design:type", Array)
+], CourseModel.prototype, "students", void 0);
 __decorate([
     Column({
         name: 'description',

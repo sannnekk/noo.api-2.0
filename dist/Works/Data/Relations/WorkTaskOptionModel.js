@@ -7,10 +7,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model } from '../../../core/index';
+import { Model } from '@core';
 import { Column, Entity, ManyToMany, ManyToOne, RelationId, } from 'typeorm';
 import { WorkTaskModel } from './WorkTaskModel';
-import { AssignedWorkAnswerModel } from '../../../AssignedWorks/Data/Relations/AssignedWorkAnswerModel';
+import { AssignedWorkAnswerModel } from '@modules/AssignedWorks/Data/Relations/AssignedWorkAnswerModel';
 let WorkTaskOptionModel = class WorkTaskOptionModel extends Model {
     constructor(data) {
         super();
@@ -27,6 +27,7 @@ let WorkTaskOptionModel = class WorkTaskOptionModel extends Model {
     get assignedWorkAnswerIds() {
         return (this.assignedWorkAnswers || []).map((answer) => answer.id);
     }
+    set assignedWorkAnswerIds(ids) { }
 };
 __decorate([
     Column({

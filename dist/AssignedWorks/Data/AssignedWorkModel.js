@@ -7,10 +7,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model, ULID } from '../../core/index';
+import { Model, ULID } from '@core';
 import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, RelationId, } from 'typeorm';
-import { UserModel } from '../../Users/Data/UserModel';
-import { WorkModel } from '../../Works/Data/WorkModel';
+import { UserModel } from '@modules/Users/Data/UserModel';
+import { WorkModel } from '@modules/Works/Data/WorkModel';
 import { AssignedWorkAnswerModel } from './Relations/AssignedWorkAnswerModel';
 import { AssignedWorkCommentModel } from './Relations/AssignedWorkCommentModel';
 let AssignedWorkModel = class AssignedWorkModel extends Model {
@@ -38,7 +38,9 @@ let AssignedWorkModel = class AssignedWorkModel extends Model {
     solveStatus = 'not-started';
     checkStatus = 'not-checked';
     solveDeadlineAt;
+    solveDeadlineShifted = false;
     checkDeadlineAt;
+    checkDeadlineShifted = false;
     solvedAt;
     checkedAt;
     answers;
@@ -125,12 +127,28 @@ __decorate([
 ], AssignedWorkModel.prototype, "solveDeadlineAt", void 0);
 __decorate([
     Column({
+        name: 'solve_deadline_shifted',
+        type: 'boolean',
+        default: false,
+    }),
+    __metadata("design:type", Boolean)
+], AssignedWorkModel.prototype, "solveDeadlineShifted", void 0);
+__decorate([
+    Column({
         name: 'check_deadline_at',
         type: 'timestamp',
         nullable: true,
     }),
     __metadata("design:type", Object)
 ], AssignedWorkModel.prototype, "checkDeadlineAt", void 0);
+__decorate([
+    Column({
+        name: 'check_deadline_shifted',
+        type: 'boolean',
+        default: false,
+    }),
+    __metadata("design:type", Boolean)
+], AssignedWorkModel.prototype, "checkDeadlineShifted", void 0);
 __decorate([
     Column({
         name: 'solved_at',

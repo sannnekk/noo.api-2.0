@@ -1,4 +1,5 @@
-import { NotFoundError, UnauthenticatedError, JWT, Hash, AlreadyExistError, UnknownError, } from '../../core/index';
+import { Pagination } from './../../Core/Data/Pagination';
+import { NotFoundError, UnauthenticatedError, JWT, Hash, AlreadyExistError, UnknownError, WrongRoleError, } from '@core';
 import { UserRepository } from '../Data/UserRepository';
 export class UserService {
     userRepository;
@@ -17,6 +18,10 @@ export class UserService {
             throw new UnknownError();
         }
     }
+    async register(user) {
+        user.role = 'student';
+        await this.create(user);
+    }
     async assignMentor(studentId, mentorId) {
         const student = await this.userRepository.findOne({ id: studentId });
         const mentor = await this.userRepository.findOne({ id: mentorId });
@@ -30,7 +35,8 @@ export class UserService {
         const user = await this.userRepository.findOne({
             username: credentials.username,
         });
-        if (!user) {
+        if (!user ||
+            !(await Hash.compare(credentials.password, user.password))) {
             throw new UnauthenticatedError();
         }
         return {
@@ -39,17 +45,53 @@ export class UserService {
                 username: user.username,
                 role: user.role,
                 permissions: user.forbidden || 0,
+                isBlocked: user.isBlocked,
             }),
             user,
         };
     }
     async getBySlug(slug) {
-        const user = await this.userRepository.findOne({ slug });
+        const user = await this.userRepository.findOne({ slug }, [
+            'students',
+            'courses',
+            'mentor',
+        ]);
         if (!user) {
             throw new NotFoundError();
         }
         user.password = undefined;
         return user;
+    }
+    async getUsers(pagination, role, userId) {
+        let condition;
+        switch (role) {
+            case 'admin':
+            case 'teacher':
+                condition = undefined;
+                break;
+            case 'mentor':
+                condition = { mentor: { id: userId } };
+                break;
+            default:
+                throw new WrongRoleError();
+        }
+        pagination = new Pagination().assign(pagination);
+        pagination.entriesToSearch = ['username', 'name', 'email'];
+        const users = await this.userRepository.find(condition, ['students', 'courses'], pagination);
+        return users.map((user) => {
+            user.password = undefined;
+            return user;
+        });
+    }
+    async getMentors(pagination) {
+        pagination = new Pagination().assign(pagination);
+        pagination.entriesToSearch = ['username', 'name', 'email'];
+        return await this.userRepository.find({ role: 'mentor' }, ['students'], pagination);
+    }
+    async getStudents(pagination) {
+        pagination = new Pagination().assign(pagination);
+        pagination.entriesToSearch = ['username', 'name', 'email'];
+        return await this.userRepository.find({ role: 'student' }, ['mentor'], pagination);
     }
     async update(user) {
         const existingUser = await this.userRepository.findOne({
@@ -58,9 +100,28 @@ export class UserService {
         if (!existingUser) {
             throw new NotFoundError();
         }
+        if (user.password)
+            user.password = await Hash.hash(user.password);
+        user.createdAt = undefined;
+        user.updatedAt = undefined;
+        user.slug = undefined;
+        if (existingUser.role !== 'student') {
+            user.role = undefined;
+        }
         await this.userRepository.update(user);
     }
     async delete(id) {
-        await this.userRepository.delete(id);
+        const user = await this.userRepository.findOne({ id });
+        if (!user) {
+            throw new NotFoundError();
+        }
+        user.name = 'Deleted User';
+        user.username = user.slug =
+            'deleted-' + Math.random().toString(36).substr(2, 9);
+        user.email = '';
+        user.isBlocked = true;
+        user.telegramId = undefined;
+        user.telegramUsername = undefined;
+        await this.userRepository.update(user);
     }
 }

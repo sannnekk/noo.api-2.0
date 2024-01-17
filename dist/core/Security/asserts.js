@@ -6,6 +6,11 @@ export function student(context) {
         throw new WrongRoleError();
     }
 }
+export function notStudent(context) {
+    if (context.credentials?.role === 'student') {
+        throw new WrongRoleError();
+    }
+}
 export function mentor(context) {
     if (context.credentials?.role !== 'mentor') {
         throw new WrongRoleError();
@@ -43,7 +48,7 @@ export function isAuthorized(context, id) {
         !id.some((_id) => context.credentials?.userId === _id)) {
         throw new UnauthorizedError();
     }
-    else if (context.credentials?.userId !== id) {
+    else if (!Array.isArray(id) && context.credentials?.userId !== id) {
         throw new UnauthorizedError();
     }
 }

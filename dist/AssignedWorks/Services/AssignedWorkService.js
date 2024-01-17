@@ -1,4 +1,4 @@
-import { NotFoundError, UnauthorizedError } from '../../core/index';
+import { NotFoundError, Pagination, UnauthorizedError } from '@core';
 import { AssignedWorkRepository } from '../Data/AssignedWorkRepository';
 import { AssignedWorkModel } from '../Data/AssignedWorkModel';
 import { WorkAlreadySolvedError } from '../Errors/WorkAlreadySolvedError';
@@ -8,9 +8,9 @@ import { WorkAlreadyAssignedToThisMentorError } from '../Errors/WorkAlreadyAssig
 import { WorkAlreadyAssignedToEnoughMentorsError } from '../Errors/WorkAlreadyAssignedToEnoughMentorsError';
 import { SolveDeadlineNotSetError } from '../Errors/SolveDeadlineNotSetError';
 import { CheckDeadlineNotSetError } from '../Errors/CheckDeadlineNotSetError';
-import { UserRepository } from '../../Users/Data/UserRepository';
-import { StudentFromAnotherMentorError } from '../Errors/StudentFromAnotherMentorError';
-import { WorkRepository } from '../../Works/Data/WorkRepository';
+import { UserRepository } from '@modules/Users/Data/UserRepository';
+import { WorkRepository } from '@modules/Works/Data/WorkRepository';
+import { DeadlineAlreadyShiftedError } from '../Errors/DeadlineAlreadyShiftedError';
 export class AssignedWorkService {
     assignedWorkRepository;
     workRepository;
@@ -24,6 +24,8 @@ export class AssignedWorkService {
         const condition = userRole == 'student'
             ? { student: { id: userId } }
             : { mentors: { id: userId } };
+        pagination = new Pagination().assign(pagination);
+        pagination.entriesToSearch = [];
         return await this.assignedWorkRepository.find(condition, undefined, pagination);
     }
     async getWorkBySlug(slug) {
@@ -34,27 +36,27 @@ export class AssignedWorkService {
         return work;
     }
     async getWorkById(id) {
-        const work = await this.assignedWorkRepository.findOne({ id });
+        const work = await this.assignedWorkRepository.findOne({ id }, [
+            'mentors',
+            'student',
+        ]);
         if (!work) {
             throw new NotFoundError();
         }
         return work;
     }
     async createWork(assignedWork, mentorId) {
-        const mentor = await this.userRepository.findOne({ id: mentorId }, {
-            students: true,
-        });
         const work = await this.workRepository.findOne({
             id: assignedWork.workId,
         });
-        if (!mentor.students?.some((student) => student.id === assignedWork.studentId)) {
-            throw new StudentFromAnotherMentorError();
-        }
-        if (!work) {
+        const student = await this.userRepository.findOne({
+            id: assignedWork.studentId,
+        });
+        if (!work || !student) {
             throw new NotFoundError();
         }
         assignedWork.student = { id: assignedWork.studentId };
-        assignedWork.mentors = [{ id: mentorId }];
+        assignedWork.mentors = [{ id: student.mentorId }];
         assignedWork.work = { id: assignedWork.workId };
         assignedWork.maxScore = this.getMaxScore(work.tasks || []);
         return this.assignedWorkRepository.create(assignedWork);
@@ -69,16 +71,13 @@ export class AssignedWorkService {
         if (['made-in-deadline', 'made-after-deadline'].includes(foundWork.solveStatus)) {
             throw new WorkAlreadySolvedError();
         }
-        // check if its been solved in deadline
-        let solveStatus;
         if (foundWork.solveDeadlineAt &&
             new Date() > foundWork.solveDeadlineAt) {
-            solveStatus = 'made-after-deadline';
+            work.solveStatus = 'made-after-deadline';
         }
         else {
-            solveStatus = 'made-in-deadline';
+            work.solveStatus = 'made-in-deadline';
         }
-        work.solveStatus = solveStatus;
         work.solvedAt = new Date();
         const newWork = new AssignedWorkModel({ ...foundWork, ...work });
         return this.assignedWorkRepository.update(newWork);
@@ -96,16 +95,13 @@ export class AssignedWorkService {
         if (['not-started', 'in-progress'].includes(foundWork.solveStatus)) {
             throw new WorkIsNotSolvedYetError();
         }
-        // check if its been solved in deadline
-        let checkStatus;
         if (foundWork.checkDeadlineAt &&
             new Date() > foundWork.checkDeadlineAt) {
-            checkStatus = 'checked-after-deadline';
+            work.checkStatus = 'checked-after-deadline';
         }
         else {
-            checkStatus = 'checked-in-deadline';
+            work.checkStatus = 'checked-in-deadline';
         }
-        work.checkStatus = checkStatus;
         work.checkedAt = new Date();
         work.score = this.getScore(work.comments);
         const newWork = new AssignedWorkModel({ ...foundWork, ...work });
@@ -140,7 +136,11 @@ export class AssignedWorkService {
             if (!work.solveDeadlineAt) {
                 throw new SolveDeadlineNotSetError();
             }
+            if (work.solveDeadlineShifted) {
+                throw new DeadlineAlreadyShiftedError();
+            }
             work.solveDeadlineAt.setDate(work.solveDeadlineAt.getDate() + days);
+            work.solveDeadlineShifted = true;
         }
         else {
             if (!work.mentors.some((mentor) => mentor.id === userId)) {
@@ -149,7 +149,11 @@ export class AssignedWorkService {
             if (!work.checkDeadlineAt) {
                 throw new CheckDeadlineNotSetError();
             }
+            if (work.checkDeadlineShifted) {
+                throw new DeadlineAlreadyShiftedError();
+            }
             work.checkDeadlineAt.setDate(work.checkDeadlineAt.getDate() + days);
+            work.checkDeadlineShifted = true;
         }
         return this.assignedWorkRepository.update(work);
     }

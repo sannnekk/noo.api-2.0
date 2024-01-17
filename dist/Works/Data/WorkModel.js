@@ -7,11 +7,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model, Transliteration, ULID } from '../../core/index';
-import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
-import { CourseMaterialModel } from '../../Courses/Data/Relations/CourseMaterialModel';
+import { Model, Transliteration, ULID } from '@core';
+import { Column, Entity, OneToMany } from 'typeorm';
+import { CourseMaterialModel } from '@modules/Courses/Data/Relations/CourseMaterialModel';
 import { WorkTaskModel } from './Relations/WorkTaskModel';
-import { AssignedWorkModel } from '../../AssignedWorks/Data/AssignedWorkModel';
+import { AssignedWorkModel } from '@modules/AssignedWorks/Data/AssignedWorkModel';
 let WorkModel = class WorkModel extends Model {
     constructor(data) {
         super();
@@ -27,15 +27,17 @@ let WorkModel = class WorkModel extends Model {
     slug;
     name;
     description;
-    material;
+    materials;
     tasks;
     get taskIds() {
         return (this.tasks || []).map((task) => task.id);
     }
+    set taskIds(ids) { }
     assignedWorks;
     get assignedWorkIds() {
         return (this.assignedWorks || []).map((assignedWork) => assignedWork.id);
     }
+    set assignedWorkIds(ids) { }
     sluggify(text) {
         return ULID.generate() + '-' + Transliteration.sluggify(text);
     }
@@ -62,9 +64,9 @@ __decorate([
     __metadata("design:type", String)
 ], WorkModel.prototype, "description", void 0);
 __decorate([
-    OneToOne(() => CourseMaterialModel, (material) => material.work),
+    OneToMany(() => CourseMaterialModel, (material) => material.work),
     __metadata("design:type", Object)
-], WorkModel.prototype, "material", void 0);
+], WorkModel.prototype, "materials", void 0);
 __decorate([
     OneToMany(() => WorkTaskModel, (task) => task.work, {
         eager: true,

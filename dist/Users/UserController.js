@@ -8,10 +8,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { Controller, ControllerResponse, Delete, Get, Patch, Post, } from 'express-controller-decorator';
-import { Context } from '../core/index';
+import { Context } from '@core';
 import { UserService } from './Services/UserService';
 import { UserValidator } from './UserValidator';
-import { Asserts } from '../core/index';
+import { Asserts } from '@core';
 import { StatusCodes } from 'http-status-codes';
 let UserController = class UserController {
     userValidator;
@@ -45,12 +45,11 @@ let UserController = class UserController {
     async register(context) {
         try {
             this.userValidator.validateRegister(context.body);
-            context.body.role = 'student';
-            await this.userService.create(context.body);
+            await this.userService.register(context.body);
             return new ControllerResponse(null, StatusCodes.CREATED);
         }
         catch (error) {
-            return new ControllerResponse(error, error.code || StatusCodes.BAD_REQUEST);
+            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
         }
     }
     async getBySlug(context) {
@@ -64,16 +63,55 @@ let UserController = class UserController {
             return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
         }
     }
+    async getMentors(context) {
+        try {
+            Asserts.isAuthenticated(context);
+            Asserts.notStudent(context);
+            this.userValidator.validatePagination(context.query);
+            const mentors = await this.userService.getMentors(context.query);
+            return new ControllerResponse(mentors);
+        }
+        catch (error) {
+            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+        }
+    }
+    async getStudents(context) {
+        try {
+            Asserts.isAuthenticated(context);
+            Asserts.notStudent(context);
+            this.userValidator.validatePagination(context.query);
+            const students = await this.userService.getStudents(context.query);
+            return new ControllerResponse(students);
+        }
+        catch (error) {
+            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+        }
+    }
+    async getUsers(context) {
+        try {
+            Asserts.isAuthenticated(context);
+            Asserts.notStudent(context);
+            this.userValidator.validatePagination(context.query);
+            const users = await this.userService.getUsers(context.query, context.credentials.role, context.credentials.userId);
+            return new ControllerResponse(users);
+        }
+        catch (error) {
+            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+        }
+    }
     async update(context) {
         try {
+            Asserts.isAuthenticated(context);
             this.userValidator.validateId(context.params.id);
             this.userValidator.validateUpdate(context.body);
-            Asserts.isAuthorized(context, context.params.id);
+            if (!['teacher', 'admin'].includes(context.credentials.role)) {
+                Asserts.isAuthorized(context, context.params.id);
+            }
             await this.userService.update(context.body);
             return new ControllerResponse(null, StatusCodes.NO_CONTENT);
         }
         catch (error) {
-            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+            return new ControllerResponse(error, error.code || StatusCodes.BAD_REQUEST);
         }
     }
     async assignMentor(context) {
@@ -90,8 +128,11 @@ let UserController = class UserController {
     }
     async delete(context) {
         try {
+            Asserts.isAuthenticated(context);
             this.userValidator.validateId(context.params.id);
-            Asserts.isAuthorized(context, context.params.id);
+            if (!['teacher', 'admin'].includes(context.credentials.role)) {
+                Asserts.isAuthorized(context, context.params.id);
+            }
             await this.userService.delete(context.params.id);
             return new ControllerResponse(null, StatusCodes.NO_CONTENT);
         }
@@ -124,6 +165,24 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "getBySlug", null);
+__decorate([
+    Get('/mentor/search'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "getMentors", null);
+__decorate([
+    Get('/student/search'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "getStudents", null);
+__decorate([
+    Get(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "getUsers", null);
 __decorate([
     Patch('/:id'),
     __metadata("design:type", Function),

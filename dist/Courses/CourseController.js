@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 import { Controller, ControllerResponse, Delete, Get, Patch, Post, } from 'express-controller-decorator';
 import { CourseService } from './Services/CourseService';
-import { Asserts, Context } from '../core/index';
+import { Asserts, Context } from '@core';
 import { CourseValidator } from './CourseValidator';
 import { StatusCodes } from 'http-status-codes';
 let CourseController = class CourseController {
@@ -21,9 +21,9 @@ let CourseController = class CourseController {
     }
     async get(context) {
         try {
-            this.courseValidator.validatePagination(context.body);
+            this.courseValidator.validatePagination(context.query);
             Asserts.isAuthenticated(context);
-            const courses = await this.courseService.get(context.body);
+            const courses = await this.courseService.get(context.query, context.credentials.userId, context.credentials.role);
             return new ControllerResponse(courses, StatusCodes.OK);
         }
         catch (error) {
@@ -36,6 +36,18 @@ let CourseController = class CourseController {
             Asserts.isAuthenticated(context);
             const course = await this.courseService.getBySlug(context.params.slug);
             return new ControllerResponse(course, StatusCodes.OK);
+        }
+        catch (error) {
+            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+        }
+    }
+    async getAssignedWork(context) {
+        try {
+            this.courseValidator.validateSlug(context.params.slug);
+            Asserts.isAuthenticated(context);
+            Asserts.student(context);
+            const assignedWork = await this.courseService.getAssignedWorkToMaterial(context.params.slug, context.credentials.userId);
+            return new ControllerResponse(assignedWork, StatusCodes.OK);
         }
         catch (error) {
             return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
@@ -65,6 +77,32 @@ let CourseController = class CourseController {
             return new ControllerResponse(error, error.code || StatusCodes.BAD_REQUEST);
         }
     }
+    async assignWorkToMaterial(context) {
+        try {
+            Asserts.isAuthenticated(context);
+            Asserts.teacher(context);
+            this.courseValidator.validateSlug(context.params.materialSlug);
+            this.courseValidator.validateId(context.params.workId);
+            await this.courseService.assignWorkToMaterial(context.params.materialSlug, context.params.workId);
+            return new ControllerResponse(null, StatusCodes.NO_CONTENT);
+        }
+        catch (error) {
+            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+        }
+    }
+    async assignStudents(context) {
+        try {
+            Asserts.isAuthenticated(context);
+            Asserts.teacher(context);
+            this.courseValidator.validateSlug(context.params.courseSlug);
+            this.courseValidator.validateStudentIds(context.body);
+            await this.courseService.assignStudents(context.params.courseSlug, context.body.studentIds);
+            return new ControllerResponse(null, StatusCodes.NO_CONTENT);
+        }
+        catch (error) {
+            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+        }
+    }
     async delete(context) {
         try {
             this.courseValidator.validateId(context.params.id);
@@ -91,6 +129,12 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "getBySlug", null);
 __decorate([
+    Get('/material/:slug/assigned-work'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "getAssignedWork", null);
+__decorate([
     Post(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Context]),
@@ -102,6 +146,18 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "update", null);
+__decorate([
+    Patch('/:materialSlug/assign-work/:workId'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "assignWorkToMaterial", null);
+__decorate([
+    Patch('/:courseSlug/assign-students'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "assignStudents", null);
 __decorate([
     Delete('/:id'),
     __metadata("design:type", Function),
