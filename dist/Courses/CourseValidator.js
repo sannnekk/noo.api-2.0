@@ -48,4 +48,11 @@ export class CourseValidator extends Validator {
         });
         schema.parse(body);
     }
+    validateAssignWork(data) {
+        const schema = z.object({
+            checkDeadline: z.date().optional(),
+            solveDeadline: z.date().optional(),
+        });
+        schema.parse(data);
+    }
 }

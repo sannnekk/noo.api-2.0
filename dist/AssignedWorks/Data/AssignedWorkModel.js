@@ -31,6 +31,7 @@ let AssignedWorkModel = class AssignedWorkModel extends Model {
     get mentorIds() {
         return (this.mentors || []).map((mentor) => mentor.id);
     }
+    set mentorIds(ids) { }
     student;
     studentId;
     work;
@@ -47,10 +48,12 @@ let AssignedWorkModel = class AssignedWorkModel extends Model {
     get answerIds() {
         return (this.answers || []).map((answer) => answer.id);
     }
+    set answerIds(ids) { }
     comments;
     get commentIds() {
         return (this.comments || []).map((comment) => comment.id);
     }
+    set commentIds(ids) { }
     score;
     maxScore;
     sluggify() {

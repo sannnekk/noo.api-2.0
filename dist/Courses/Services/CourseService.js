@@ -66,7 +66,7 @@ export class CourseService {
         course.students = students;
         await this.courseRepository.update(course);
     }
-    async assignWorkToMaterial(materialSlug, workId) {
+    async assignWorkToMaterial(materialSlug, workId, solveDeadline, checkDeadline) {
         const material = await this.materialRepository.findOne({
             slug: materialSlug,
         }, ['chapter.course.students.mentor']);
@@ -80,6 +80,8 @@ export class CourseService {
             await this.assignedWorkService.createWork({
                 studentId: student.id,
                 workId,
+                solveDeadlineAt: solveDeadline,
+                checkDeadlineAt: checkDeadline,
             }, student.mentorId);
         }
         await this.materialRepository.update(material);

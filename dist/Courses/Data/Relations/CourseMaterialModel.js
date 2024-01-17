@@ -25,6 +25,7 @@ let CourseMaterialModel = class CourseMaterialModel extends Model {
     name;
     description;
     content;
+    order = 0;
     chapter;
     chapterId;
     work;
@@ -61,6 +62,14 @@ __decorate([
     }),
     __metadata("design:type", Object)
 ], CourseMaterialModel.prototype, "content", void 0);
+__decorate([
+    Column({
+        name: 'order',
+        type: 'int',
+        default: 0,
+    }),
+    __metadata("design:type", Number)
+], CourseMaterialModel.prototype, "order", void 0);
 __decorate([
     ManyToOne(() => CourseChapterModel, (chapter) => chapter.materials, {
         onDelete: 'CASCADE',

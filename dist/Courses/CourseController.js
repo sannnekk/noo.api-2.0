@@ -83,7 +83,8 @@ let CourseController = class CourseController {
             Asserts.teacher(context);
             this.courseValidator.validateSlug(context.params.materialSlug);
             this.courseValidator.validateId(context.params.workId);
-            await this.courseService.assignWorkToMaterial(context.params.materialSlug, context.params.workId);
+            this.courseValidator.validateAssignWork(context.body);
+            await this.courseService.assignWorkToMaterial(context.params.materialSlug, context.params.workId, context.body.solveDeadline, context.body.checkDeadline);
             return new ControllerResponse(null, StatusCodes.NO_CONTENT);
         }
         catch (error) {
