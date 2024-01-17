@@ -1,5 +1,5 @@
 import { Pagination } from './../../Core/Data/Pagination';
-import { NotFoundError, UnauthenticatedError, JWT, Hash, AlreadyExistError, UnknownError, WrongRoleError, } from '@core';
+import { NotFoundError, UnauthenticatedError, JWT, Hash, AlreadyExistError, UnknownError, WrongRoleError, } from '../../core/index';
 import { UserRepository } from '../Data/UserRepository';
 export class UserService {
     userRepository;

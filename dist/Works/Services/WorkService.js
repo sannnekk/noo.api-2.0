@@ -1,4 +1,4 @@
-import { NotFoundError, Pagination } from '@core';
+import { NotFoundError, Pagination } from '../../core/index';
 import { WorkRepository } from '../Data/WorkRepository';
 import { WorkModel } from '../Data/WorkModel';
 export class WorkService {

@@ -10,7 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 import { Controller, ControllerResponse, Delete, Get, Patch, Post, } from 'express-controller-decorator';
 import { WorkService } from './Services/WorkService';
 import { WorkValidator } from './WorkValidator';
-import { Asserts, Context } from '@core';
+import { Asserts, Context } from '../core/index';
 import { StatusCodes } from 'http-status-codes';
 let WorkController = class WorkController {
     workService;

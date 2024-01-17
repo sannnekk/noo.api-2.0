@@ -1,4 +1,4 @@
-import { Validator } from '@core';
+import { Validator } from '../core/index';
 import { z } from 'zod';
 export class WorkValidator extends Validator {
     validateCreation(data) {

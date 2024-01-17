@@ -1,10 +1,10 @@
-import { UserRepository } from '@modules/Users/Data/UserRepository';
+import { UserRepository } from '../../Users/Data/UserRepository';
 import { CourseRepository } from './../Data/CourseRepository';
-import { AlreadyExistError, NotFoundError, Pagination } from '@core';
+import { AlreadyExistError, NotFoundError, Pagination } from '../../core/index';
 import { QueryFailedError } from 'typeorm';
 import { CourseModel } from '../Data/CourseModel';
 import { CourseMaterialRepository } from '../Data/CourseMaterialRepository';
-import { AssignedWorkService } from '@modules/AssignedWorks/Services/AssignedWorkService';
+import { AssignedWorkService } from '../../AssignedWorks/Services/AssignedWorkService';
 export class CourseService {
     courseRepository;
     materialRepository;

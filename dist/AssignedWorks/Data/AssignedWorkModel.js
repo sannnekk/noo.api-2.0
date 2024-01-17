@@ -7,10 +7,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model, ULID } from '@core';
+import { Model, ULID } from '../../core/index';
 import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, RelationId, } from 'typeorm';
-import { UserModel } from '@modules/Users/Data/UserModel';
-import { WorkModel } from '@modules/Works/Data/WorkModel';
+import { UserModel } from '../../Users/Data/UserModel';
+import { WorkModel } from '../../Works/Data/WorkModel';
 import { AssignedWorkAnswerModel } from './Relations/AssignedWorkAnswerModel';
 import { AssignedWorkCommentModel } from './Relations/AssignedWorkCommentModel';
 let AssignedWorkModel = class AssignedWorkModel extends Model {

@@ -20,8 +20,6 @@
 		"forceConsistentCasingInFileNames": false,
 		"baseUrl": "src",
 		"noImplicitAny": true,
-		"noUnusedParameters": true,
-		"noUnusedLocals": true,
 		"paths": {
 			"@core": ["core/index"],
 			"@modules/*": ["*"]

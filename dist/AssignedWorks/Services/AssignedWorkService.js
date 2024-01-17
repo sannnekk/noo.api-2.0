@@ -1,4 +1,4 @@
-import { NotFoundError, Pagination, UnauthorizedError } from '@core';
+import { NotFoundError, Pagination, UnauthorizedError } from '../../core/index';
 import { AssignedWorkRepository } from '../Data/AssignedWorkRepository';
 import { AssignedWorkModel } from '../Data/AssignedWorkModel';
 import { WorkAlreadySolvedError } from '../Errors/WorkAlreadySolvedError';
@@ -8,8 +8,8 @@ import { WorkAlreadyAssignedToThisMentorError } from '../Errors/WorkAlreadyAssig
 import { WorkAlreadyAssignedToEnoughMentorsError } from '../Errors/WorkAlreadyAssignedToEnoughMentorsError';
 import { SolveDeadlineNotSetError } from '../Errors/SolveDeadlineNotSetError';
 import { CheckDeadlineNotSetError } from '../Errors/CheckDeadlineNotSetError';
-import { UserRepository } from '@modules/Users/Data/UserRepository';
-import { WorkRepository } from '@modules/Works/Data/WorkRepository';
+import { UserRepository } from '../../Users/Data/UserRepository';
+import { WorkRepository } from '../../Works/Data/WorkRepository';
 import { DeadlineAlreadyShiftedError } from '../Errors/DeadlineAlreadyShiftedError';
 export class AssignedWorkService {
     assignedWorkRepository;

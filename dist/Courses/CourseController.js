@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 import { Controller, ControllerResponse, Delete, Get, Patch, Post, } from 'express-controller-decorator';
 import { CourseService } from './Services/CourseService';
-import { Asserts, Context } from '@core';
+import { Asserts, Context } from '../core/index';
 import { CourseValidator } from './CourseValidator';
 import { StatusCodes } from 'http-status-codes';
 let CourseController = class CourseController {

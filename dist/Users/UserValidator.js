@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { UserRoles, Validator } from '@core';
+import { UserRoles, Validator } from '../core/index';
 export class UserValidator extends Validator {
     validateCreation(user) {
         const schema = z.object({
