@@ -1,6 +1,6 @@
-import { Pagination } from './../../Core/Data/Pagination';
-import { NotFoundError, UnauthenticatedError, JWT, Hash, AlreadyExistError, UnknownError, WrongRoleError, } from '../../core/index';
-import { UserRepository } from '../Data/UserRepository';
+import { Pagination } from './../../Core/Data/Pagination.js';
+import { NotFoundError, UnauthenticatedError, JWT, Hash, AlreadyExistError, UnknownError, WrongRoleError, } from '../../core/index.js';
+import { UserRepository } from '../Data/UserRepository.js';
 export class UserService {
     userRepository;
     constructor() {

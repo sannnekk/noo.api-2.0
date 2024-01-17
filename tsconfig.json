@@ -26,5 +26,8 @@
 		}
 	},
 	"include": ["*.d.ts", "src/**/*.ts"],
-	"exclude": ["node_modules"]
+	"exclude": ["node_modules"],
+	"tsc-alias": {
+		"resolveFullPaths": true
+	}
 }

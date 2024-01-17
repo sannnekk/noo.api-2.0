@@ -2,12 +2,12 @@ import express from 'express';
 import cors from 'cors';
 import 'reflect-metadata';
 import { injectControllers, setContextClass, } from 'express-controller-decorator';
-import { Context, CoreDataSource } from './core/index';
+import { Context, CoreDataSource } from './core/index.js';
 // import modules
-import './Users/UserController';
-import './Courses/CourseController';
-import './Works/WorkController';
-import './AssignedWorks/AssignedWorkController';
+import './Users/UserController.js';
+import './Courses/CourseController.js';
+import './Works/WorkController.js';
+import './AssignedWorks/AssignedWorkController.js';
 await CoreDataSource.initialize();
 const app = express();
 app.use(cors());

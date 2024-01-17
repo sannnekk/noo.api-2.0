@@ -8,9 +8,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, RelationId, } from 'typeorm';
-import { Model } from '../../core/index';
-import { CourseModel } from '../../Courses/Data/CourseModel';
-import { AssignedWorkModel } from '../../AssignedWorks/Data/AssignedWorkModel';
+import { Model } from '../../core/index.js';
+import { CourseModel } from '../../Courses/Data/CourseModel.js';
+import { AssignedWorkModel } from '../../AssignedWorks/Data/AssignedWorkModel.js';
 let UserModel = class UserModel extends Model {
     constructor(data) {
         super();

@@ -1,4 +1,4 @@
-import { Validator } from '../core/index';
+import { Validator } from '../core/index.js';
 import { z } from 'zod';
 export class CourseValidator extends Validator {
     validateCreation(course) {

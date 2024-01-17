@@ -7,10 +7,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model, Transliteration, ULID } from '../../core/index';
-import { UserModel } from '../../Users/Data/UserModel';
+import { Model, Transliteration, ULID } from '../../core/index.js';
+import { UserModel } from '../../Users/Data/UserModel.js';
 import { Column, Entity, ManyToMany, ManyToOne, OneToMany, RelationId, } from 'typeorm';
-import { CourseChapterModel } from './Relations/CourseChapterModel';
+import { CourseChapterModel } from './Relations/CourseChapterModel.js';
 let CourseModel = class CourseModel extends Model {
     constructor(data) {
         super();

@@ -1,10 +1,10 @@
-import { UserRepository } from '../../Users/Data/UserRepository';
-import { CourseRepository } from './../Data/CourseRepository';
-import { AlreadyExistError, NotFoundError, Pagination } from '../../core/index';
+import { UserRepository } from '../../Users/Data/UserRepository.js';
+import { CourseRepository } from './../Data/CourseRepository.js';
+import { AlreadyExistError, NotFoundError, Pagination } from '../../core/index.js';
 import { QueryFailedError } from 'typeorm';
-import { CourseModel } from '../Data/CourseModel';
-import { CourseMaterialRepository } from '../Data/CourseMaterialRepository';
-import { AssignedWorkService } from '../../AssignedWorks/Services/AssignedWorkService';
+import { CourseModel } from '../Data/CourseModel.js';
+import { CourseMaterialRepository } from '../Data/CourseMaterialRepository.js';
+import { AssignedWorkService } from '../../AssignedWorks/Services/AssignedWorkService.js';
 export class CourseService {
     courseRepository;
     materialRepository;
