@@ -8,6 +8,7 @@ import './Users/UserController.js';
 import './Courses/CourseController.js';
 import './Works/WorkController.js';
 import './AssignedWorks/AssignedWorkController.js';
+import './Media/MediaController.js';
 await CoreDataSource.initialize();
 const app = express();
 app.use(cors());
