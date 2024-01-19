@@ -7,10 +7,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Column, Entity, ManyToOne, RelationId, } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, RelationId, } from 'typeorm';
 import { Model, Transliteration, ULID } from '../../../core/index.js';
 import { CourseChapterModel } from './CourseChapterModel.js';
 import { WorkModel } from '../../../Works/Data/WorkModel.js';
+import { MediaModel } from '../../../Media/Data/MediaModel.js';
 let CourseMaterialModel = class CourseMaterialModel extends Model {
     constructor(data) {
         super();
@@ -30,6 +31,7 @@ let CourseMaterialModel = class CourseMaterialModel extends Model {
     chapterId;
     work;
     workId;
+    files;
     sluggify(text) {
         return ULID.generate() + '-' + Transliteration.sluggify(text);
     }
@@ -88,6 +90,12 @@ __decorate([
     RelationId((material) => material.work),
     __metadata("design:type", Object)
 ], CourseMaterialModel.prototype, "workId", void 0);
+__decorate([
+    OneToMany(() => MediaModel, (media) => media.courseMaterial, {
+        eager: true,
+    }),
+    __metadata("design:type", Array)
+], CourseMaterialModel.prototype, "files", void 0);
 CourseMaterialModel = __decorate([
     Entity('course_material'),
     __metadata("design:paramtypes", [Object])

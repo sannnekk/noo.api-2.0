@@ -18,6 +18,15 @@ export class Repository {
             throw new AlreadyExistError();
         }
     }
+    async createMany(data) {
+        const models = data.map((item) => new this.model(item));
+        try {
+            await this.repository.save(models);
+        }
+        catch (error) {
+            throw new AlreadyExistError();
+        }
+    }
     async update(data) {
         const item = await this.repository.findOne({
             where: {
