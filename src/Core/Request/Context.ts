@@ -20,6 +20,10 @@ export class Context {
 			return
 		}
 
+		if (req.files) {
+			this.body = req.files
+		}
+
 		this.credentials = parseHeader(authHeader)
 
 		if (!this.credentials) {

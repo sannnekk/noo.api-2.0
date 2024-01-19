@@ -1,6 +1,7 @@
 import { DataSource } from 'typeorm'
 
 // Models
+import { MediaModel } from '@modules/Media/Data/MediaModel'
 import { UserModel } from '@modules/Users/Data/UserModel'
 import { CourseModel } from '@modules/Courses/Data/CourseModel'
 import { CourseChapterModel } from '@modules/Courses/Data/Relations/CourseChapterModel'
@@ -22,6 +23,7 @@ export const CoreDataSource = new DataSource({
 	synchronize: true,
 	logging: false,
 	entities: [
+		MediaModel,
 		UserModel,
 		CourseModel,
 		CourseChapterModel,

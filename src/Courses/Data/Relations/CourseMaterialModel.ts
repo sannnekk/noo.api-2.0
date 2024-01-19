@@ -3,6 +3,7 @@ import {
 	Entity,
 	JoinColumn,
 	ManyToOne,
+	OneToMany,
 	OneToOne,
 	RelationId,
 } from 'typeorm'
@@ -11,6 +12,7 @@ import { CourseMaterial } from './CourseMaterial'
 import { DeltaContentType, Model, Transliteration, ULID } from '@core'
 import { CourseChapterModel } from './CourseChapterModel'
 import { WorkModel } from '@modules/Works/Data/WorkModel'
+import { MediaModel } from '@modules/Media/Data/MediaModel'
 
 @Entity('course_material')
 export class CourseMaterialModel
@@ -77,6 +79,11 @@ export class CourseMaterialModel
 
 	@RelationId((material: CourseMaterialModel) => material.work)
 	workId?: string | undefined
+
+	@OneToMany(() => MediaModel, (media) => media.courseMaterial, {
+		eager: true,
+	})
+	files!: MediaModel[]
 
 	private sluggify(text: string): string {
 		return ULID.generate() + '-' + Transliteration.sluggify(text)

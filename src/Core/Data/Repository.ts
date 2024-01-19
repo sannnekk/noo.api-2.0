@@ -25,6 +25,16 @@ export abstract class Repository<T extends BaseModel> {
 		}
 	}
 
+	async createMany(data: T[]): Promise<void> {
+		const models = data.map((item) => new this.model(item))
+
+		try {
+			await this.repository.save(models)
+		} catch (error) {
+			throw new AlreadyExistError()
+		}
+	}
+
 	async update(data: Partial<T> & { id: T['id'] }): Promise<void> {
 		const item = await this.repository.findOne({
 			where: {
