@@ -17,6 +17,6 @@ export class MediaMiddleware implements Middleware {
 
 				callback(null, true)
 			},
-		}).array('photos')(request, response, next)
+		}).array('files')(request, response, next)
 	}
 }

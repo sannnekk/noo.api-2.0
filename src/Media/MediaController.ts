@@ -2,6 +2,7 @@ import {
 	ControllerResponse,
 	Delete,
 	Get,
+	Post,
 } from 'express-controller-decorator'
 import { MediaMiddleware } from './MediaMiddleware'
 import { MediaService } from './Services/MediaService'
@@ -16,7 +17,7 @@ export class MediaController {
 		this.mediaService = new MediaService()
 	}
 
-	@Get('', new MediaMiddleware())
+	@Post('', new MediaMiddleware())
 	public async get(context: Context): Promise<ControllerResponse> {
 		try {
 			Asserts.isAuthenticated(context)
