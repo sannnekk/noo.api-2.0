@@ -12,6 +12,6 @@ export class MediaMiddleware {
                 }
                 callback(null, true);
             },
-        }).array('photos')(request, response, next);
+        }).array('files')(request, response, next);
     }
 }

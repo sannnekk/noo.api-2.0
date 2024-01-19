@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { ControllerResponse, Delete, Get, } from 'express-controller-decorator';
+import { ControllerResponse, Delete, Get, Post, } from 'express-controller-decorator';
 import { MediaMiddleware } from './MediaMiddleware.js';
 import { MediaService } from './Services/MediaService.js';
 import { StatusCodes } from 'http-status-codes';
@@ -41,7 +41,7 @@ let MediaController = class MediaController {
     }
 };
 __decorate([
-    Get('', new MediaMiddleware()),
+    Post('', new MediaMiddleware()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
