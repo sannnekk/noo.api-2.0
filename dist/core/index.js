@@ -14,6 +14,7 @@ export { UnknownError } from './Errors/UnknownError.js';
 // Request
 export { Context } from './Request/Context.js';
 export { Validator } from './Request/Validator.js';
+export { MediaMiddleware } from './Request/MediaMiddleware.js';
 // Security
 export * as Hash from './Security/hash.js';
 export * as JWT from './Security/jwt.js';

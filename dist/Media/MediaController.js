@@ -7,8 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { ControllerResponse, Delete, Get, Post, } from 'express-controller-decorator';
-import { MediaMiddleware } from './MediaMiddleware.js';
+import { Controller, ControllerResponse, Delete, Post, } from 'express-controller-decorator';
 import { MediaService } from './Services/MediaService.js';
 import { StatusCodes } from 'http-status-codes';
 import { Asserts, Context } from '../core/index.js';
@@ -21,8 +20,8 @@ let MediaController = class MediaController {
         try {
             Asserts.isAuthenticated(context);
             Asserts.teacherOrAdmin(context);
-            await this.mediaService.upload(context.body);
-            return new ControllerResponse(null, StatusCodes.NO_CONTENT);
+            const links = await this.mediaService.upload(context._express.req.files);
+            return new ControllerResponse({ links }, StatusCodes.OK);
         }
         catch (e) {
             return new ControllerResponse(null, e.code || StatusCodes.BAD_REQUEST);
@@ -41,7 +40,7 @@ let MediaController = class MediaController {
     }
 };
 __decorate([
-    Post('', new MediaMiddleware()),
+    Post(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
@@ -53,7 +52,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], MediaController.prototype, "delete", null);
 MediaController = __decorate([
-    Get('/media'),
+    Controller('/media'),
     __metadata("design:paramtypes", [])
 ], MediaController);
 export { MediaController };

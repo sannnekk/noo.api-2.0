@@ -62,6 +62,7 @@ let CourseController = class CourseController {
             return new ControllerResponse(course, StatusCodes.CREATED);
         }
         catch (error) {
+            console.log(error);
             return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
         }
     }

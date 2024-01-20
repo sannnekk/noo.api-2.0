@@ -11,12 +11,14 @@ import { Model, Transliteration, ULID } from '../../core/index.js';
 import { UserModel } from '../../Users/Data/UserModel.js';
 import { Column, Entity, ManyToMany, ManyToOne, OneToMany, RelationId, } from 'typeorm';
 import { CourseChapterModel } from './Relations/CourseChapterModel.js';
+import { MediaModel } from '../../Media/Data/MediaModel.js';
 let CourseModel = class CourseModel extends Model {
     constructor(data) {
         super();
         if (data) {
             this.set(data);
             this.chapters = (data.chapters || []).map((chapter) => new CourseChapterModel(chapter));
+            this.images = (data.images || []).map((image) => new MediaModel(image));
             if (!data.slug) {
                 this.slug = this.sluggify(this.name);
             }
@@ -33,6 +35,7 @@ let CourseModel = class CourseModel extends Model {
     set studentIds(ids) { }
     description;
     chapters;
+    images;
     sluggify(text) {
         return ULID.generate() + '-' + Transliteration.sluggify(text);
     }
@@ -79,6 +82,13 @@ __decorate([
     }),
     __metadata("design:type", Array)
 ], CourseModel.prototype, "chapters", void 0);
+__decorate([
+    OneToMany(() => MediaModel, (media) => media.course, {
+        eager: true,
+        cascade: true,
+    }),
+    __metadata("design:type", Array)
+], CourseModel.prototype, "images", void 0);
 CourseModel = __decorate([
     Entity('course'),
     __metadata("design:paramtypes", [Object])

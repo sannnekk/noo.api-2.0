@@ -6,16 +6,21 @@ export class Context {
     credentials;
     permissionResolver;
     query;
-    constructor(req) {
+    _express = {
+        req: null,
+        res: null,
+        next: null,
+    };
+    constructor(req, res, next) {
+        this._express.req = req;
+        this._express.res = res;
+        this._express.next = next;
         this.body = this.parseBody(req.body);
         this.params = req.params;
         this.query = req.query;
         const authHeader = req.headers.authorization;
         if (!authHeader) {
             return;
-        }
-        if (req.files) {
-            this.body = req.files;
         }
         this.credentials = parseHeader(authHeader);
         if (!this.credentials) {
@@ -26,6 +31,9 @@ export class Context {
             return;
         }
         this.permissionResolver = new PermissionResolver(this.credentials.permissions);
+        if (req.files) {
+            req.body = req.files;
+        }
     }
     isAuthenticated() {
         return !!this.credentials;

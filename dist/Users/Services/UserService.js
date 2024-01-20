@@ -54,6 +54,7 @@ export class UserService {
         const user = await this.userRepository.findOne({ slug }, [
             'students',
             'courses',
+            'courses.students',
             'mentor',
         ]);
         if (!user) {

@@ -93,6 +93,7 @@ __decorate([
 __decorate([
     OneToMany(() => MediaModel, (media) => media.courseMaterial, {
         eager: true,
+        cascade: true,
     }),
     __metadata("design:type", Array)
 ], CourseMaterialModel.prototype, "files", void 0);
