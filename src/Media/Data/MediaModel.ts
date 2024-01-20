@@ -1,8 +1,9 @@
 import { Course } from '@modules/Courses/Data/Course'
-import { Column, Entity, ManyToOne } from 'typeorm'
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm'
 import { Media } from './Media'
 import { Model } from '@core'
 import { CourseMaterialModel } from '@modules/Courses/Data/Relations/CourseMaterialModel'
+import { CourseModel } from '@modules/Courses/Data/CourseModel'
 
 @Entity('media')
 export class MediaModel extends Model implements Media {
@@ -18,7 +19,6 @@ export class MediaModel extends Model implements Media {
 		name: 'src',
 		type: 'varchar',
 		length: 1024,
-		unique: true,
 	})
 	src!: string
 
@@ -35,4 +35,9 @@ export class MediaModel extends Model implements Media {
 		{ onDelete: 'CASCADE' }
 	)
 	courseMaterial!: CourseMaterialModel
+
+	@ManyToOne(() => CourseModel, (course) => course.images, {
+		onDelete: 'CASCADE',
+	})
+	course?: CourseModel
 }

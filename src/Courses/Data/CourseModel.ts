@@ -13,6 +13,8 @@ import {
 } from 'typeorm'
 import { CourseChapterModel } from './Relations/CourseChapterModel'
 import { CourseChapter } from './Relations/CourseChapter'
+import { MediaModel } from '@modules/Media/Data/MediaModel'
+import { Media } from '@modules/Media/Data/Media'
 
 @Entity('course')
 export class CourseModel extends Model implements Course {
@@ -24,6 +26,10 @@ export class CourseModel extends Model implements Course {
 
 			this.chapters = (data.chapters || []).map(
 				(chapter) => new CourseChapterModel(chapter)
+			)
+
+			this.images = (data.images || []).map(
+				(image) => new MediaModel(image)
 			)
 
 			if (!data.slug) {
@@ -72,6 +78,12 @@ export class CourseModel extends Model implements Course {
 		cascade: true,
 	})
 	chapters!: CourseChapter[]
+
+	@OneToMany(() => MediaModel, (media) => media.course, {
+		eager: true,
+		cascade: true,
+	})
+	images!: Media[]
 
 	private sluggify(text: string): string {
 		return ULID.generate() + '-' + Transliteration.sluggify(text)

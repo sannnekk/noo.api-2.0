@@ -1,15 +1,15 @@
 import {
+	Controller,
 	ControllerResponse,
 	Delete,
 	Get,
 	Post,
 } from 'express-controller-decorator'
-import { MediaMiddleware } from './MediaMiddleware'
 import { MediaService } from './Services/MediaService'
 import { StatusCodes } from 'http-status-codes'
 import { Asserts, Context } from '@core'
 
-@Get('/media')
+@Controller('/media')
 export class MediaController {
 	private readonly mediaService: MediaService
 
@@ -17,17 +17,17 @@ export class MediaController {
 		this.mediaService = new MediaService()
 	}
 
-	@Post('', new MediaMiddleware())
+	@Post()
 	public async get(context: Context): Promise<ControllerResponse> {
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.teacherOrAdmin(context)
 
-			await this.mediaService.upload(
-				context.body as Express.Multer.File[]
+			const links = await this.mediaService.upload(
+				context._express.req!.files as Express.Multer.File[]
 			)
 
-			return new ControllerResponse(null, StatusCodes.NO_CONTENT)
+			return new ControllerResponse({ links }, StatusCodes.OK)
 		} catch (e: any) {
 			return new ControllerResponse(
 				null,

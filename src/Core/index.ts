@@ -17,6 +17,7 @@ export { UnknownError } from './Errors/UnknownError'
 // Request
 export { Context } from './Request/Context'
 export { Validator } from './Request/Validator'
+export { MediaMiddleware } from './Request/MediaMiddleware'
 
 // Security
 export * as Hash from './Security/hash'

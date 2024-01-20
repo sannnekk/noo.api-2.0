@@ -82,6 +82,7 @@ export class CourseMaterialModel
 
 	@OneToMany(() => MediaModel, (media) => media.courseMaterial, {
 		eager: true,
+		cascade: true,
 	})
 	files!: MediaModel[]
 

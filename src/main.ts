@@ -5,7 +5,7 @@ import {
 	injectControllers,
 	setContextClass,
 } from 'express-controller-decorator'
-import { Context, CoreDataSource } from '@core'
+import { Context, CoreDataSource, MediaMiddleware } from '@core'
 
 // import modules
 import '@modules/Users/UserController'
@@ -20,6 +20,8 @@ const app = express()
 
 app.use(cors())
 app.use(express.json({ limit: '50mb' }))
+
+app.use(MediaMiddleware)
 
 setContextClass(Context)
 injectControllers(app)

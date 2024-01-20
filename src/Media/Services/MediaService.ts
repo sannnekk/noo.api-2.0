@@ -10,8 +10,8 @@ export class MediaService {
 		this.mediaRepository = new MediaRepository()
 	}
 
-	async upload(files: Express.Multer.File[]): Promise<void> {
-		try {
+	async upload(files: Express.Multer.File[]): Promise<string[]> {
+		/* try {
 			await this.mediaRepository.createMany(
 				files.map(
 					(file) =>
@@ -27,7 +27,9 @@ export class MediaService {
 			}
 
 			throw new UnknownError()
-		}
+		} */
+
+		return files.map((file) => file.filename)
 	}
 
 	async remove(src: string): Promise<void> {

@@ -1,6 +1,7 @@
 import { DeltaContentType, ULID } from '@core'
 import { CourseChapter } from './CourseChapter'
 import { Work } from '@modules/Works/Data/Work'
+import { Media } from '@modules/Media/Data/Media'
 
 export interface CourseMaterial {
 	id: ULID.Ulid
@@ -13,6 +14,7 @@ export interface CourseMaterial {
 	chapter?: CourseChapter
 	work?: Work
 	workId?: string
+	files: Media[]
 	createdAt: Date
 	updatedAt: Date
 }
