@@ -20,6 +20,7 @@ let CourseMaterialModel = class CourseMaterialModel extends Model {
             if (!data.slug) {
                 this.slug = this.sluggify(this.name);
             }
+            this.files = (data.files || []).map((file) => new MediaModel(file));
         }
     }
     slug;

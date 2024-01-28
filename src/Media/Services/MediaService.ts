@@ -1,6 +1,5 @@
-import { AlreadyExistError, NotFoundError, UnknownError } from '@core'
+import { NotFoundError } from '@core'
 import { MediaRepository } from '../Data/MediaRepository'
-import { MediaModel } from '../Data/MediaModel'
 import fs from 'fs'
 
 export class MediaService {
