@@ -92,7 +92,7 @@ export abstract class Repository<T extends BaseModel> {
 	}
 
 	async findOne(
-		conditions: Record<string, unknown>,
+		conditions: Record<string, unknown> | Record<string, unknown>[],
 		relations?: (keyof Partial<T>)[]
 	): Promise<T | null> {
 		return this.repository.findOne({

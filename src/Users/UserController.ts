@@ -26,8 +26,8 @@ export class UserController {
 	async create(context: Context): Promise<ControllerResponse> {
 		try {
 			this.userValidator.validateCreation(context.body)
-			//Asserts.isAuthenticated(context)
-			//Asserts.teacherOrAdmin(context)
+			Asserts.isAuthenticated(context)
+			Asserts.teacherOrAdmin(context)
 			await this.userService.create(context.body)
 		} catch (error: any) {
 			return new ControllerResponse(

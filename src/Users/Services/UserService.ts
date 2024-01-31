@@ -10,6 +10,7 @@ import {
 } from '@core'
 import { User } from '../Data/User'
 import { UserRepository } from '../Data/UserRepository'
+import { LoginCredentials } from '../Data/LoginCredentials'
 
 export class UserService {
 	private readonly userRepository: UserRepository
@@ -53,13 +54,20 @@ export class UserService {
 		await this.userRepository.update(student)
 	}
 
-	public async login(credentials: {
-		username: string
-		password: string
-	}): Promise<{ token: JWT.JWT; user: Partial<User> }> {
-		const user = await this.userRepository.findOne({
-			username: credentials.username,
-		})
+	public async login(
+		credentials: LoginCredentials
+	): Promise<{ token: JWT.JWT; user: Partial<User> }> {
+		const user = await this.userRepository.findOne(
+			[
+				{
+					username: credentials.usernameOrEmail,
+				},
+				{
+					email: credentials.usernameOrEmail,
+				},
+			],
+			['students', 'mentor']
+		)
 
 		if (
 			!user ||

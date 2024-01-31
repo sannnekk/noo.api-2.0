@@ -22,7 +22,7 @@ export class UserValidator extends Validator {
 		user: unknown
 	): asserts user is LoginCredentials {
 		const schema = z.object({
-			username: z.string().min(3).max(32),
+			usernameOrEmail: z.string().min(3).max(32),
 			password: z.string().min(8).max(255),
 		})
 
