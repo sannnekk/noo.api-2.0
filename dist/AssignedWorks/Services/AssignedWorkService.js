@@ -26,10 +26,13 @@ export class AssignedWorkService {
             : { mentors: { id: userId } };
         pagination = new Pagination().assign(pagination);
         pagination.entriesToSearch = [];
-        return await this.assignedWorkRepository.find(condition, undefined, pagination);
+        return await this.assignedWorkRepository.find(condition, ['student'], pagination);
     }
     async getWorkBySlug(slug) {
-        const work = await this.assignedWorkRepository.findOne({ slug });
+        const work = await this.assignedWorkRepository.findOne({ slug }, [
+            'student',
+            'mentors',
+        ]);
         if (!work) {
             throw new NotFoundError();
         }

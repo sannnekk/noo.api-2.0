@@ -41,13 +41,16 @@ export class AssignedWorkService {
 
 		return await this.assignedWorkRepository.find(
 			condition as any,
-			undefined,
+			['student'],
 			pagination
 		)
 	}
 
 	public async getWorkBySlug(slug: AssignedWork['slug']) {
-		const work = await this.assignedWorkRepository.findOne({ slug })
+		const work = await this.assignedWorkRepository.findOne({ slug }, [
+			'student',
+			'mentors',
+		])
 
 		if (!work) {
 			throw new NotFoundError()
