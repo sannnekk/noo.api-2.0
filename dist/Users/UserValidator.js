@@ -15,7 +15,7 @@ export class UserValidator extends Validator {
     }
     validateLogin(user) {
         const schema = z.object({
-            username: z.string().min(3).max(32),
+            usernameOrEmail: z.string().min(3).max(32),
             password: z.string().min(8).max(255),
         });
         schema.parse(user);

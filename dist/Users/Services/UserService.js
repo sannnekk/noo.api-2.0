@@ -32,9 +32,14 @@ export class UserService {
         await this.userRepository.update(student);
     }
     async login(credentials) {
-        const user = await this.userRepository.findOne({
-            username: credentials.username,
-        });
+        const user = await this.userRepository.findOne([
+            {
+                username: credentials.usernameOrEmail,
+            },
+            {
+                email: credentials.usernameOrEmail,
+            },
+        ], ['students', 'mentor']);
         if (!user ||
             !(await Hash.compare(credentials.password, user.password))) {
             throw new UnauthenticatedError();

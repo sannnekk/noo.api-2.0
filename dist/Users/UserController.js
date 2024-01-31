@@ -23,8 +23,8 @@ let UserController = class UserController {
     async create(context) {
         try {
             this.userValidator.validateCreation(context.body);
-            //Asserts.isAuthenticated(context)
-            //Asserts.teacherOrAdmin(context)
+            Asserts.isAuthenticated(context);
+            Asserts.teacherOrAdmin(context);
             await this.userService.create(context.body);
         }
         catch (error) {
