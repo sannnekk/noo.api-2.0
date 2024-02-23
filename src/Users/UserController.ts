@@ -61,13 +61,15 @@ export class UserController {
 		}
 	}
 
-	@Get('/:slug')
-	async getBySlug(context: Context): Promise<ApiResponse> {
+	@Get('/:username')
+	async getByUsername(context: Context): Promise<ApiResponse> {
 		try {
 			Asserts.isAuthenticated(context)
-			this.userValidator.validateSlug(context.params.slug)
+			this.userValidator.validateSlug(context.params.username)
 
-			const user = await this.userService.getBySlug(context.params.slug)
+			const user = await this.userService.getByUsername(
+				context.params.username
+			)
 
 			return new ApiResponse({ data: user })
 		} catch (error: any) {

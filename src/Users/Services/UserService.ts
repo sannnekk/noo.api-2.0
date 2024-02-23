@@ -93,8 +93,8 @@ export class UserService extends Service<User> {
 		}
 	}
 
-	public async getBySlug(slug: string): Promise<User> {
-		const user = await this.userRepository.findOne({ slug }, [
+	public async getByUsername(username: string): Promise<User> {
+		const user = await this.userRepository.findOne({ username }, [
 			'students',
 			'courses',
 			'courses.students' as any,
@@ -104,8 +104,6 @@ export class UserService extends Service<User> {
 		if (!user) {
 			throw new NotFoundError()
 		}
-
-		user.password = undefined
 
 		return user
 	}

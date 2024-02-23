@@ -17,7 +17,7 @@ export class Pagination {
 	) {
 		this.page = page
 		this.limit = limit
-		this.sort = sort
+		this.sort = sort = 'id'
 		this.order = order === 'ASC' ? 'ASC' : 'DESC'
 		this.search = search
 	}
