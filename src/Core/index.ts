@@ -13,11 +13,19 @@ export { UnauthenticatedError } from './Errors/UnauthenticatedError'
 export { AlreadyExistError } from './Errors/AlreadyExistError'
 export { UnauthorizedError } from './Errors/UnauthorizedError'
 export { UnknownError } from './Errors/UnknownError'
+export { InvalidRequestError } from './Errors/InvalidRequestError'
 
 // Request
 export { Context } from './Request/Context'
 export { Validator } from './Request/Validator'
 export { MediaMiddleware } from './Request/MediaMiddleware'
+export { ErrorConverter } from './Request/ValidatorDecorator'
+
+// Decorators
+export { Catch } from './Decorators/CatchDecorator'
+
+// Response
+export { ApiResponse, type Response } from './Response/ApiResponse'
 
 // Security
 export * as Hash from './Security/hash'
@@ -29,6 +37,9 @@ export {
 	type UserRoleType,
 	type UserRolesType,
 } from './Security/roles'
+
+// Services
+export { Service } from './Services/Service'
 
 // Utils
 export * as Transliteration from './Utils/transliteration'

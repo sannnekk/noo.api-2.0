@@ -1,12 +1,11 @@
 import {
 	Controller,
-	ControllerResponse,
 	Delete,
 	Get,
 	Patch,
 	Post,
 } from 'express-controller-decorator'
-import { Context } from '@core'
+import { ApiResponse, Context } from '@core'
 import { UserService } from './Services/UserService'
 import { UserValidator } from './UserValidator'
 import { Asserts } from '@core'
@@ -23,69 +22,61 @@ export class UserController {
 	}
 
 	@Post()
-	async create(context: Context): Promise<ControllerResponse> {
+	async create(context: Context): Promise<ApiResponse> {
 		try {
 			this.userValidator.validateCreation(context.body)
 			Asserts.isAuthenticated(context)
 			Asserts.teacherOrAdmin(context)
-			await this.userService.create(context.body)
-		} catch (error: any) {
-			return new ControllerResponse(
-				null,
-				error.code || StatusCodes.BAD_REQUEST
-			)
-		}
 
-		return new ControllerResponse(null, StatusCodes.CREATED)
+			await this.userService.create(context.body)
+
+			return new ApiResponse(null)
+		} catch (error: any) {
+			return new ApiResponse(error)
+		}
 	}
 
 	@Post('/login')
-	async login(context: Context): Promise<ControllerResponse> {
+	async login(context: Context): Promise<ApiResponse> {
 		try {
 			this.userValidator.validateLogin(context.body)
+
 			const payload = await this.userService.login(context.body)
 
-			return new ControllerResponse(payload, StatusCodes.OK)
+			return new ApiResponse({ data: payload })
 		} catch (error: any) {
-			return new ControllerResponse(
-				null,
-				error.code || StatusCodes.BAD_REQUEST
-			)
+			return new ApiResponse(error)
 		}
 	}
 
 	@Post('/register')
-	async register(context: Context): Promise<ControllerResponse> {
+	async register(context: Context): Promise<ApiResponse> {
 		try {
 			this.userValidator.validateRegister(context.body)
 			await this.userService.register(context.body)
 
-			return new ControllerResponse(null, StatusCodes.CREATED)
+			return new ApiResponse(null)
 		} catch (error: any) {
-			return new ControllerResponse(
-				null,
-				error.code || StatusCodes.BAD_REQUEST
-			)
+			return new ApiResponse(error)
 		}
 	}
 
 	@Get('/:slug')
-	async getBySlug(context: Context): Promise<ControllerResponse> {
+	async getBySlug(context: Context): Promise<ApiResponse> {
 		try {
 			Asserts.isAuthenticated(context)
 			this.userValidator.validateSlug(context.params.slug)
+
 			const user = await this.userService.getBySlug(context.params.slug)
-			return new ControllerResponse(user)
+
+			return new ApiResponse({ data: user })
 		} catch (error: any) {
-			return new ControllerResponse(
-				null,
-				error.code || StatusCodes.BAD_REQUEST
-			)
+			return new ApiResponse(error)
 		}
 	}
 
 	@Get('/mentor/search')
-	async getMentors(context: Context): Promise<ControllerResponse> {
+	async getMentors(context: Context): Promise<ApiResponse> {
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.notStudent(context)
@@ -93,17 +84,16 @@ export class UserController {
 
 			const mentors = await this.userService.getMentors(context.query)
 
-			return new ControllerResponse(mentors)
+			const meta = await this.userService.getLastRequestMeta()
+
+			return new ApiResponse({ data: mentors, meta })
 		} catch (error: any) {
-			return new ControllerResponse(
-				null,
-				error.code || StatusCodes.BAD_REQUEST
-			)
+			return new ApiResponse(error)
 		}
 	}
 
 	@Get('/student/search')
-	async getStudents(context: Context): Promise<ControllerResponse> {
+	async getStudents(context: Context): Promise<ApiResponse> {
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.notStudent(context)
@@ -111,37 +101,37 @@ export class UserController {
 
 			const students = await this.userService.getStudents(context.query)
 
-			return new ControllerResponse(students)
+			const meta = await this.userService.getLastRequestMeta()
+
+			return new ApiResponse({ data: students, meta })
 		} catch (error: any) {
-			return new ControllerResponse(
-				null,
-				error.code || StatusCodes.BAD_REQUEST
-			)
+			return new ApiResponse(error)
 		}
 	}
 
 	@Get()
-	async getUsers(context: Context): Promise<ControllerResponse> {
+	async getUsers(context: Context): Promise<ApiResponse> {
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.notStudent(context)
 			this.userValidator.validatePagination(context.query)
+
 			const users = await this.userService.getUsers(
 				context.query,
 				context.credentials.role,
 				context.credentials.userId
 			)
-			return new ControllerResponse(users)
+
+			const meta = await this.userService.getLastRequestMeta()
+
+			return new ApiResponse({ data: users, meta })
 		} catch (error: any) {
-			return new ControllerResponse(
-				null,
-				error.code || StatusCodes.BAD_REQUEST
-			)
+			return new ApiResponse(error)
 		}
 	}
 
 	@Patch('/:id')
-	async update(context: Context): Promise<ControllerResponse> {
+	async update(context: Context): Promise<ApiResponse> {
 		try {
 			Asserts.isAuthenticated(context)
 			this.userValidator.validateId(context.params.id)
@@ -153,17 +143,14 @@ export class UserController {
 
 			await this.userService.update(context.body)
 
-			return new ControllerResponse(null, StatusCodes.NO_CONTENT)
+			return new ApiResponse(null)
 		} catch (error: any) {
-			return new ControllerResponse(
-				error,
-				error.code || StatusCodes.BAD_REQUEST
-			)
+			return new ApiResponse(error)
 		}
 	}
 
 	@Patch('/:studentId/assign-mentor/:mentorId')
-	async assignMentor(context: Context): Promise<ControllerResponse> {
+	async assignMentor(context: Context): Promise<ApiResponse> {
 		try {
 			Asserts.teacherOrAdmin(context)
 			this.userValidator.validateId(context.params.studentId)
@@ -174,17 +161,14 @@ export class UserController {
 				context.params.mentorId
 			)
 
-			return new ControllerResponse(null, StatusCodes.NO_CONTENT)
+			return new ApiResponse(null)
 		} catch (error: any) {
-			return new ControllerResponse(
-				null,
-				error.code || StatusCodes.BAD_REQUEST
-			)
+			return new ApiResponse(error)
 		}
 	}
 
 	@Delete('/:id')
-	async delete(context: Context): Promise<ControllerResponse> {
+	async delete(context: Context): Promise<ApiResponse> {
 		try {
 			Asserts.isAuthenticated(context)
 			this.userValidator.validateId(context.params.id)
@@ -195,12 +179,9 @@ export class UserController {
 
 			await this.userService.delete(context.params.id)
 
-			return new ControllerResponse(null, StatusCodes.NO_CONTENT)
+			return new ApiResponse(null)
 		} catch (error: any) {
-			return new ControllerResponse(
-				null,
-				error.code || StatusCodes.BAD_REQUEST
-			)
+			return new ApiResponse(error)
 		}
 	}
 }

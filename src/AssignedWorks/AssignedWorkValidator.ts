@@ -1,7 +1,13 @@
-import { Validator } from '@core'
+import {
+	Catch,
+	InvalidRequestError,
+	Validator,
+	ErrorConverter,
+} from '@core'
 import { AssignedWork } from './Data/AssignedWork'
 import { z } from 'zod'
 
+@ErrorConverter()
 export class AssignedWorkValidator extends Validator {
 	public validateCreation(data: unknown): asserts data is AssignedWork {
 		const schema = z.object({

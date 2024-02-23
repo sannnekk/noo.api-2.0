@@ -85,6 +85,10 @@ export class CourseModel extends Model implements Course {
 	})
 	images!: Media[]
 
+	static entriesToSearch() {
+		return ['name', 'description']
+	}
+
 	private sluggify(text: string): string {
 		return ULID.generate() + '-' + Transliteration.sluggify(text)
 	}

@@ -1,4 +1,3 @@
-import { Pagination } from './../../Core/Data/Pagination'
 import {
 	NotFoundError,
 	UnauthenticatedError,
@@ -7,15 +6,20 @@ import {
 	AlreadyExistError,
 	UnknownError,
 	WrongRoleError,
+	Pagination,
+	Service,
 } from '@core'
 import { User } from '../Data/User'
 import { UserRepository } from '../Data/UserRepository'
 import { LoginCredentials } from '../Data/LoginCredentials'
+import { UserModel } from '../Data/UserModel'
 
-export class UserService {
+export class UserService extends Service<User> {
 	private readonly userRepository: UserRepository
 
 	constructor() {
+		super()
+
 		this.userRepository = new UserRepository()
 	}
 
@@ -34,6 +38,7 @@ export class UserService {
 	}
 
 	public async register(user: User): Promise<void> {
+		// every user is a student at the moment of registration
 		user.role = 'student'
 		await this.create(user)
 	}
@@ -110,59 +115,89 @@ export class UserService {
 		role: User['role'],
 		userId: User['id']
 	): Promise<User[]> {
-		let condition: Record<string, any> | undefined
+		let conditions: Record<string, any> | undefined
 
 		switch (role) {
 			case 'admin':
 			case 'teacher':
-				condition = undefined
+				conditions = undefined
 				break
 			case 'mentor':
-				condition = { mentor: { id: userId } }
+				conditions = { mentor: { id: userId } }
 				break
 			default:
 				throw new WrongRoleError()
 		}
 
 		pagination = new Pagination().assign(pagination)
-		pagination.entriesToSearch = ['username', 'name', 'email']
+		pagination.entriesToSearch = UserModel.entriesToSearch()
+
+		const relations = ['students' as const, 'courses' as const]
 
 		const users = await this.userRepository.find(
-			condition,
-			['students', 'courses'],
+			conditions,
+			relations,
 			pagination
 		)
 
-		return users.map((user) => {
-			user.password = undefined
-			return user
-		})
+		this.storeRequestMeta(
+			this.userRepository,
+			conditions,
+			relations,
+			pagination
+		)
+
+		return users
 	}
 
 	public async getMentors(
 		pagination: Pagination | undefined
 	): Promise<User[]> {
 		pagination = new Pagination().assign(pagination)
-		pagination.entriesToSearch = ['username', 'name', 'email']
+		pagination.entriesToSearch = UserModel.entriesToSearch()
 
-		return await this.userRepository.find(
-			{ role: 'mentor' },
-			['students'],
+		const relations = ['students' as const]
+		const conditions = { role: 'mentor' as const }
+
+		const mentors = await this.userRepository.find(
+			conditions,
+			relations,
 			pagination
 		)
+
+		this.storeRequestMeta(
+			this.userRepository,
+			conditions,
+			relations,
+			pagination
+		)
+
+		return mentors
 	}
 
 	public async getStudents(
 		pagination: Pagination | undefined
 	): Promise<User[]> {
 		pagination = new Pagination().assign(pagination)
-		pagination.entriesToSearch = ['username', 'name', 'email']
+		pagination.entriesToSearch = UserModel.entriesToSearch()
 
-		return await this.userRepository.find(
-			{ role: 'student' },
-			['mentor'],
+		const relations = ['mentor' as const]
+		const conditions = { role: 'student' as const }
+
+		const students = await this.userRepository.find(
+			conditions,
+			relations,
 			pagination
 		)
+
+		this.storeRequestMeta(
+			this.userRepository,
+			conditions,
+			relations,
+			pagination
+		)
+
+		return students
 	}
 
 	public async update(user: Partial<User>): Promise<void> {
@@ -182,6 +217,9 @@ export class UserService {
 
 		if (existingUser.role !== 'student') {
 			user.role = undefined
+		} else if (user.role) {
+			user.coursesAsStudent = []
+			user.mentor = null as any
 		}
 
 		await this.userRepository.update(<User>user)

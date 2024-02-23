@@ -1,6 +1,5 @@
 import {
 	Controller,
-	ControllerResponse,
 	Delete,
 	Get,
 	Patch,
@@ -8,8 +7,7 @@ import {
 } from 'express-controller-decorator'
 import { WorkService } from './Services/WorkService'
 import { WorkValidator } from './WorkValidator'
-import { Asserts, Context } from '@core'
-import { StatusCodes } from 'http-status-codes'
+import { ApiResponse, Asserts, Context } from '@core'
 
 @Controller('/work')
 export class WorkController {
@@ -22,96 +20,84 @@ export class WorkController {
 	}
 
 	@Get()
-	public async getWorks(context: Context): Promise<ControllerResponse> {
+	public async getWorks(context: Context): Promise<ApiResponse> {
 		try {
 			Asserts.isAuthenticated(context)
-			this.workValidator.validatePagination(context.query)
-			const works = await this.workService.getWorks(context.query)
 
-			return new ControllerResponse(works, StatusCodes.OK)
-		} catch (e: any) {
-			return new ControllerResponse(
-				null,
-				e.code || StatusCodes.BAD_REQUEST
-			)
+			this.workValidator.validatePagination(context.query)
+
+			const works = await this.workService.getWorks(context.query)
+			const meta = await this.workService.getLastRequestMeta()
+
+			return new ApiResponse({ data: works, meta })
+		} catch (error: any) {
+			return new ApiResponse(error)
 		}
 	}
 
 	@Get('/:slug')
-	public async getWorkBySlug(
-		context: Context
-	): Promise<ControllerResponse> {
+	public async getWorkBySlug(context: Context): Promise<ApiResponse> {
 		try {
 			Asserts.isAuthenticated(context)
+
 			this.workValidator.validateSlug(context.params.slug)
+
 			const work = await this.workService.getWorkBySlug(
 				context.params.slug
 			)
 
-			return new ControllerResponse(work, StatusCodes.OK)
-		} catch (e: any) {
-			return new ControllerResponse(
-				null,
-				e.code || StatusCodes.BAD_REQUEST
-			)
+			return new ApiResponse({ data: work })
+		} catch (error: any) {
+			return new ApiResponse(error)
 		}
 	}
 
 	@Post()
-	public async createWork(
-		context: Context
-	): Promise<ControllerResponse> {
+	public async createWork(context: Context): Promise<ApiResponse> {
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
+
 			this.workValidator.validateCreation(context.body)
+
 			await this.workService.createWork(context.body)
 
-			return new ControllerResponse(null, StatusCodes.CREATED)
+			return new ApiResponse(null)
 		} catch (error: any) {
-			return new ControllerResponse(
-				error,
-				error.code || StatusCodes.BAD_REQUEST
-			)
+			return new ApiResponse(error)
 		}
 	}
 
 	@Patch('/:id')
-	public async updateWork(
-		context: Context
-	): Promise<ControllerResponse> {
+	public async updateWork(context: Context): Promise<ApiResponse> {
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
+
 			this.workValidator.validateUpdate(context.body)
 			this.workValidator.validateId(context.params.id)
+
 			await this.workService.updateWork(context.body)
 
-			return new ControllerResponse(null, StatusCodes.NO_CONTENT)
-		} catch (e: any) {
-			return new ControllerResponse(
-				null,
-				e.code || StatusCodes.BAD_REQUEST
-			)
+			return new ApiResponse(null)
+		} catch (error: any) {
+			return new ApiResponse(error)
 		}
 	}
 
 	@Delete('/:id')
-	public async deleteWork(
-		context: Context
-	): Promise<ControllerResponse> {
+	public async deleteWork(context: Context): Promise<ApiResponse> {
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
+
 			this.workValidator.validateId(context.params.id)
+
 			await this.workService.deleteWork(context.params.id)
 
-			return new ControllerResponse(null, StatusCodes.NO_CONTENT)
-		} catch (e: any) {
-			return new ControllerResponse(
-				null,
-				e.code || StatusCodes.BAD_REQUEST
-			)
+			return new ApiResponse(null)
+		} catch (error: any) {
+			return new ApiResponse(error)
 		}
 	}
 }

@@ -1,4 +1,9 @@
-import { NotFoundError, Pagination, UnauthorizedError } from '@core'
+import {
+	NotFoundError,
+	Pagination,
+	Service,
+	UnauthorizedError,
+} from '@core'
 import { AssignedWorkRepository } from '../Data/AssignedWorkRepository'
 import { AssignedWork } from '../Data/AssignedWork'
 import { AssignedWorkModel } from '../Data/AssignedWorkModel'
@@ -15,12 +20,14 @@ import { WorkRepository } from '@modules/Works/Data/WorkRepository'
 import { AssignedWorkComment } from '../Data/Relations/AssignedWorkComment'
 import { DeadlineAlreadyShiftedError } from '../Errors/DeadlineAlreadyShiftedError'
 
-export class AssignedWorkService {
+export class AssignedWorkService extends Service<AssignedWork> {
 	private readonly assignedWorkRepository: AssignedWorkRepository
 	private readonly workRepository: WorkRepository
 	private readonly userRepository: UserRepository
 
 	constructor() {
+		super()
+
 		this.assignedWorkRepository = new AssignedWorkRepository()
 		this.workRepository = new WorkRepository()
 		this.userRepository = new UserRepository()
@@ -31,19 +38,31 @@ export class AssignedWorkService {
 		userRole: User['role'],
 		pagination?: Pagination
 	) {
-		const condition =
+		const conditions: any =
 			userRole == 'student'
 				? { student: { id: userId } }
 				: { mentors: { id: userId } }
 
 		pagination = new Pagination().assign(pagination)
+		// TODO: entries to search
 		pagination.entriesToSearch = []
 
-		return await this.assignedWorkRepository.find(
-			condition as any,
-			['student'],
+		const relations = ['student' as const]
+
+		const assignedWorks = await this.assignedWorkRepository.find(
+			conditions,
+			relations,
 			pagination
 		)
+
+		this.storeRequestMeta(
+			this.assignedWorkRepository,
+			conditions,
+			relations,
+			pagination
+		)
+
+		return assignedWorks
 	}
 
 	public async getWorkBySlug(slug: AssignedWork['slug']) {

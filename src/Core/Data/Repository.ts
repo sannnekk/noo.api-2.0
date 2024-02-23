@@ -100,4 +100,13 @@ export abstract class Repository<T extends BaseModel> {
 			where: conditions,
 		}) as Promise<T | null>
 	}
+
+	async count(
+		conditions?: Record<string, unknown> | Record<string, unknown>[],
+		pagination?: Pagination
+	): Promise<number> {
+		return this.repository.count({
+			where: pagination?.getCondition(conditions),
+		})
+	}
 }

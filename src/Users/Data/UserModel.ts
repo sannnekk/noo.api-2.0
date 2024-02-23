@@ -128,6 +128,10 @@ export class UserModel extends Model implements User {
 	})
 	forbidden: number = 0
 
+	static entriesToSearch(): string[] {
+		return ['username', 'name', 'email', 'telegramUsername']
+	}
+
 	private sluggify(username: string): string {
 		return username.toLowerCase().replace(/\s/g, '-')
 	}

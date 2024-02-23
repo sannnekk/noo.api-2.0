@@ -1,13 +1,6 @@
-import {
-	Controller,
-	ControllerResponse,
-	Delete,
-	Get,
-	Post,
-} from 'express-controller-decorator'
+import { Controller, Delete, Post } from 'express-controller-decorator'
 import { MediaService } from './Services/MediaService'
-import { StatusCodes } from 'http-status-codes'
-import { Asserts, Context } from '@core'
+import { ApiResponse, Asserts, Context } from '@core'
 
 @Controller('/media')
 export class MediaController {
@@ -18,7 +11,7 @@ export class MediaController {
 	}
 
 	@Post()
-	public async get(context: Context): Promise<ControllerResponse> {
+	public async get(context: Context): Promise<ApiResponse> {
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.teacherOrAdmin(context)
@@ -27,29 +20,23 @@ export class MediaController {
 				context._express.req!.files as Express.Multer.File[]
 			)
 
-			return new ControllerResponse({ links }, StatusCodes.OK)
-		} catch (e: any) {
-			return new ControllerResponse(
-				null,
-				e.code || StatusCodes.BAD_REQUEST
-			)
+			return new ApiResponse({ data: { links } })
+		} catch (error: any) {
+			return new ApiResponse(error)
 		}
 	}
 
 	@Delete()
-	public async delete(context: Context): Promise<ControllerResponse> {
+	public async delete(context: Context): Promise<ApiResponse> {
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.teacherOrAdmin(context)
 
 			await this.mediaService.remove(context.query.src as string)
 
-			return new ControllerResponse(null, StatusCodes.NO_CONTENT)
-		} catch (e: any) {
-			return new ControllerResponse(
-				null,
-				e.code || StatusCodes.BAD_REQUEST
-			)
+			return new ApiResponse(null)
+		} catch (error: any) {
+			return new ApiResponse(error)
 		}
 	}
 }

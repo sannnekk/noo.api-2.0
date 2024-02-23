@@ -1,7 +1,12 @@
 import { UserRepository } from '@modules/Users/Data/UserRepository'
 import { CourseRepository } from './../Data/CourseRepository'
 import { Course } from '../Data/Course'
-import { AlreadyExistError, NotFoundError, Pagination } from '@core'
+import {
+	AlreadyExistError,
+	NotFoundError,
+	Pagination,
+	Service,
+} from '@core'
 import { QueryFailedError } from 'typeorm'
 import { CourseModel } from '../Data/CourseModel'
 import { CourseMaterialRepository } from '../Data/CourseMaterialRepository'
@@ -9,13 +14,15 @@ import { User } from '@modules/Users/Data/User'
 import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
 import { AssignedWorkService } from '@modules/AssignedWorks/Services/AssignedWorkService'
 
-export class CourseService {
+export class CourseService extends Service<Course> {
 	private readonly courseRepository: CourseRepository
 	private readonly materialRepository: CourseMaterialRepository
 	private readonly userRepository: UserRepository
 	private readonly assignedWorkService: AssignedWorkService
 
 	constructor() {
+		super()
+
 		this.courseRepository = new CourseRepository()
 		this.userRepository = new UserRepository()
 		this.materialRepository = new CourseMaterialRepository()
@@ -28,21 +35,32 @@ export class CourseService {
 		userRole: User['role']
 	): Promise<Course[]> {
 		pagination = new Pagination().assign(pagination)
-		pagination.entriesToSearch = ['name', 'description']
+		pagination.entriesToSearch = CourseModel.entriesToSearch()
+
+		let conditions = undefined
 
 		if (userRole !== 'student') {
-			return await this.courseRepository.find(
-				undefined,
-				undefined,
-				pagination
-			)
+			conditions = {
+				students: {
+					id: userId,
+				} as any,
+			}
 		}
 
-		const user = await this.userRepository.findOne({ id: userId }, [
-			'coursesAsStudent',
-		])
+		const courses = await this.courseRepository.find(
+			conditions,
+			undefined,
+			pagination
+		)
 
-		return user?.coursesAsStudent || []
+		this.storeRequestMeta(
+			this.courseRepository,
+			conditions,
+			[],
+			pagination
+		)
+
+		return courses
 	}
 
 	public async getBySlug(slug: string): Promise<Course> {

@@ -78,6 +78,10 @@ export class WorkModel extends Model implements Work {
 
 	set assignedWorkIds(ids: string[]) {}
 
+	static entriesToSearch() {
+		return ['name', 'description']
+	}
+
 	private sluggify(text: string): string {
 		return ULID.generate() + '-' + Transliteration.sluggify(text)
 	}

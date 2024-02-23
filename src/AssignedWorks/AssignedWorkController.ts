@@ -1,6 +1,5 @@
 import {
 	Controller,
-	ControllerResponse,
 	Delete,
 	Get,
 	Patch,
@@ -8,7 +7,7 @@ import {
 } from 'express-controller-decorator'
 import { AssignedWorkValidator } from './AssignedWorkValidator'
 import { AssignedWorkService } from './Services/AssignedWorkService'
-import { Asserts, Context } from '@core'
+import { Asserts, Context, ApiResponse } from '@core'
 import { StatusCodes } from 'http-status-codes'
 
 @Controller('/assigned-work')
@@ -22,7 +21,7 @@ export class AssignedWorkController {
 	}
 
 	@Get()
-	public async get(context: Context): Promise<ControllerResponse> {
+	public async get(context: Context): Promise<ApiResponse> {
 		try {
 			Asserts.isAuthenticated(context)
 			this.assignedWorkValidator.validatePagination(context.query)
@@ -33,17 +32,16 @@ export class AssignedWorkController {
 				context.query
 			)
 
-			return new ControllerResponse(works, StatusCodes.OK)
+			const meta = await this.assignedWorkService.getLastRequestMeta()
+
+			return new ApiResponse({ data: works, meta })
 		} catch (error: any) {
-			return new ControllerResponse(
-				null,
-				error.code || StatusCodes.BAD_REQUEST
-			)
+			return new ApiResponse(error)
 		}
 	}
 
 	@Get('/:id')
-	public async getOne(context: Context): Promise<ControllerResponse> {
+	public async getOne(context: Context): Promise<ApiResponse> {
 		try {
 			Asserts.isAuthenticated(context)
 			this.assignedWorkValidator.validateId(context.params.id)
@@ -58,17 +56,14 @@ export class AssignedWorkController {
 				Asserts.isAuthorized(context, work.mentorIds)
 			}
 
-			return new ControllerResponse(work, StatusCodes.OK)
+			return new ApiResponse({ data: work })
 		} catch (error: any) {
-			return new ControllerResponse(
-				null,
-				error.code || StatusCodes.BAD_REQUEST
-			)
+			return new ApiResponse(error)
 		}
 	}
 
 	@Post()
-	public async create(context: Context): Promise<ControllerResponse> {
+	public async create(context: Context): Promise<ApiResponse> {
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
@@ -79,17 +74,14 @@ export class AssignedWorkController {
 				context.credentials.userId
 			)
 
-			return new ControllerResponse(null, StatusCodes.CREATED)
+			return new ApiResponse(null)
 		} catch (error: any) {
-			return new ControllerResponse(
-				null,
-				error.code || StatusCodes.BAD_REQUEST
-			)
+			return new ApiResponse(error)
 		}
 	}
 
 	@Patch('/:id/solve')
-	public async solve(context: Context): Promise<ControllerResponse> {
+	public async solve(context: Context): Promise<ApiResponse> {
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.student(context)
@@ -98,17 +90,14 @@ export class AssignedWorkController {
 
 			await this.assignedWorkService.solveWork(context.body)
 
-			return new ControllerResponse(null, StatusCodes.NO_CONTENT)
+			return new ApiResponse(null)
 		} catch (error: any) {
-			return new ControllerResponse(
-				null,
-				error.code || StatusCodes.BAD_REQUEST
-			)
+			return new ApiResponse(error)
 		}
 	}
 
 	@Patch('/:id/check')
-	public async check(context: Context): Promise<ControllerResponse> {
+	public async check(context: Context): Promise<ApiResponse> {
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.mentor(context)
@@ -117,18 +106,14 @@ export class AssignedWorkController {
 
 			await this.assignedWorkService.checkWork(context.body)
 
-			return new ControllerResponse(null, StatusCodes.NO_CONTENT)
+			return new ApiResponse(null)
 		} catch (error: any) {
-			console.log(error)
-			return new ControllerResponse(
-				null,
-				error.code || StatusCodes.BAD_REQUEST
-			)
+			return new ApiResponse(error)
 		}
 	}
 
 	@Patch('/:workId/transfer/:mentorId')
-	public async transfer(context: Context): Promise<ControllerResponse> {
+	public async transfer(context: Context): Promise<ApiResponse> {
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.mentor(context)
@@ -140,19 +125,14 @@ export class AssignedWorkController {
 				context.params.mentorId
 			)
 
-			return new ControllerResponse(null, StatusCodes.NO_CONTENT)
+			return new ApiResponse(null)
 		} catch (error: any) {
-			return new ControllerResponse(
-				null,
-				error.code || StatusCodes.BAD_REQUEST
-			)
+			return new ApiResponse(error)
 		}
 	}
 
 	@Patch('/:id/shift-deadline')
-	public async shiftDeadline(
-		context: Context
-	): Promise<ControllerResponse> {
+	public async shiftDeadline(context: Context): Promise<ApiResponse> {
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.mentorOrStudent(context)
@@ -165,17 +145,14 @@ export class AssignedWorkController {
 				context.credentials.userId
 			)
 
-			return new ControllerResponse(null, StatusCodes.NO_CONTENT)
+			return new ApiResponse(null)
 		} catch (error: any) {
-			return new ControllerResponse(
-				null,
-				error.code || StatusCodes.BAD_REQUEST
-			)
+			return new ApiResponse(error)
 		}
 	}
 
 	@Delete('/:id')
-	public async delete(context: Context): Promise<ControllerResponse> {
+	public async delete(context: Context): Promise<ApiResponse> {
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.mentor(context)
@@ -186,12 +163,9 @@ export class AssignedWorkController {
 				context.credentials.id
 			)
 
-			return new ControllerResponse(null, StatusCodes.NO_CONTENT)
+			return new ApiResponse(null)
 		} catch (error: any) {
-			return new ControllerResponse(
-				null,
-				error.code || StatusCodes.BAD_REQUEST
-			)
+			return new ApiResponse(error)
 		}
 	}
 }

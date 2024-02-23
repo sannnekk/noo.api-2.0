@@ -1,7 +1,8 @@
-import { Validator } from '@core'
+import { Validator, ErrorConverter } from '@core'
 import { z } from 'zod'
 import { Course } from './Data/Course'
 
+@ErrorConverter()
 export class CourseValidator extends Validator {
 	public validateCreation(course: unknown): asserts course is Course {
 		const schema = z.object({

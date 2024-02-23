@@ -1,13 +1,18 @@
 import { z } from 'zod'
-import { UserRoles, Validator } from '@core'
+import { ErrorConverter, UserRoles, Validator } from '@core'
 import { User } from './Data/User'
 import { LoginCredentials } from './Data/LoginCredentials'
 
+@ErrorConverter()
 export class UserValidator extends Validator {
 	public validateCreation(user: unknown): asserts user is User {
 		const schema = z.object({
 			name: z.string().min(3).max(255),
-			username: z.string().min(3).max(32),
+			username: z
+				.string()
+				.min(3)
+				.max(32)
+				.regex(/^[A-Za-z0-9_-]+$/i),
 			email: z.string().email(),
 			role: z.enum(Object.keys(UserRoles) as any),
 			password: z.string().min(8).max(255),
@@ -32,7 +37,11 @@ export class UserValidator extends Validator {
 	public validateRegister(user: unknown): asserts user is User {
 		const schema = z.object({
 			name: z.string().min(3).max(255),
-			username: z.string().min(3).max(32),
+			username: z
+				.string()
+				.min(3)
+				.max(32)
+				.regex(/^[A-Za-z0-9_-]+$/i),
 			email: z.string().email(),
 			password: z.string().min(8).max(255),
 		})
@@ -45,7 +54,12 @@ export class UserValidator extends Validator {
 			id: z.string().ulid(),
 			slug: z.string().min(3).max(32).optional(),
 			name: z.string().min(3).max(255).optional(),
-			username: z.string().min(3).max(32).optional(),
+			username: z
+				.string()
+				.min(3)
+				.max(32)
+				.regex(/^[A-Za-z0-9_-]+$/i)
+				.optional(),
 			email: z.string().email().optional(),
 			role: z.enum(Object.keys(UserRoles) as any).optional(),
 			password: z.string().min(8).max(255).optional(),

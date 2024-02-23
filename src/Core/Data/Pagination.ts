@@ -8,9 +8,9 @@ export class Pagination {
 	private search: string
 	private entries: string[] = []
 
-	constructor(
+	public constructor(
 		page: number = 1,
-		limit: number = 10,
+		limit: number = 25,
 		sort: string = 'id',
 		order: string = 'ASC',
 		search: string = ''
@@ -22,34 +22,34 @@ export class Pagination {
 		this.search = search
 	}
 
-	assign(data: Partial<Pagination> | undefined): typeof this {
+	public assign(data: Partial<Pagination> | undefined): typeof this {
 		Object.assign(this, data)
 		return this
 	}
 
-	get offset(): number {
+	public get offset(): number {
 		return (this.page - 1) * this.limit
 	}
 
-	get take(): number {
+	public get take(): number {
 		return this.limit
 	}
 
-	get orderOptions(): Record<string, 'ASC' | 'DESC'> {
+	public get orderOptions(): Record<string, 'ASC' | 'DESC'> {
 		return {
 			[this.sort]: this.order,
 		}
 	}
 
-	set entriesToSearch(entries: string[]) {
+	public set entriesToSearch(entries: string[]) {
 		this.entries = entries
 	}
 
-	get entriesToSearch(): string[] {
+	public get entriesToSearch(): string[] {
 		return this.entries
 	}
 
-	getCondition(
+	public getCondition(
 		conditions?: Record<string, any>
 	):
 		| Record<string, string | number>
