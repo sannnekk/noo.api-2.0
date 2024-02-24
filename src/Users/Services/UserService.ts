@@ -93,6 +93,16 @@ export class UserService extends Service<User> {
 		}
 	}
 
+	public async forgotPassword(email: string): Promise<void> {
+		const user = await this.userRepository.findOne({ email })
+
+		if (!user) {
+			throw new NotFoundError()
+		}
+
+		// TODO: send email with reset password link
+	}
+
 	public async getByUsername(username: string): Promise<User> {
 		const user = await this.userRepository.findOne({ username }, [
 			'students',

@@ -61,6 +61,18 @@ export class UserController {
 		}
 	}
 
+	@Post('/forgot-password')
+	async forgotPassword(context: Context): Promise<ApiResponse> {
+		try {
+			this.userValidator.validateForgotPassword(context.body)
+			await this.userService.forgotPassword(context.body.email)
+
+			return new ApiResponse(null)
+		} catch (error: any) {
+			return new ApiResponse(error)
+		}
+	}
+
 	@Get('/:username')
 	async getByUsername(context: Context): Promise<ApiResponse> {
 		try {

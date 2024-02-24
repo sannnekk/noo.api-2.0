@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { ErrorConverter, UserRoles, Validator } from '@core'
 import { User } from './Data/User'
 import { LoginCredentials } from './Data/LoginCredentials'
+import { ForgotPasswordCredentials } from './Data/ForgotPasswordCredentials'
 
 @ErrorConverter()
 export class UserValidator extends Validator {
@@ -70,5 +71,15 @@ export class UserValidator extends Validator {
 		})
 
 		schema.parse(user)
+	}
+
+	public validateForgotPassword(
+		data: unknown
+	): asserts data is ForgotPasswordCredentials {
+		const schema = z.object({
+			email: z.string().email(),
+		})
+
+		schema.parse(data)
 	}
 }
