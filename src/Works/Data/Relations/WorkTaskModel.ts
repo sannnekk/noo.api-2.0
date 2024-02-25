@@ -49,6 +49,12 @@ export class WorkTaskModel extends Model implements WorkTask {
 	slug!: string
 
 	@Column({
+		name: 'order',
+		type: 'int',
+	})
+	order!: number
+
+	@Column({
 		name: 'name',
 		type: 'varchar',
 	})

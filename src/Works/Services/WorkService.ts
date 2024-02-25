@@ -41,7 +41,7 @@ export class WorkService extends Service<Work> {
 			throw new NotFoundError()
 		}
 
-		return work
+		return this.sortTasks(work)
 	}
 
 	public async getWorkById(id: Work['id']) {
@@ -51,7 +51,7 @@ export class WorkService extends Service<Work> {
 			throw new NotFoundError()
 		}
 
-		return work
+		return this.sortTasks(work)
 	}
 
 	public async createWork(work: Work) {
@@ -78,5 +78,11 @@ export class WorkService extends Service<Work> {
 		}
 
 		return this.workRepository.delete(id)
+	}
+
+	private sortTasks(work: Work) {
+		work.tasks = work.tasks.sort((a, b) => a.order - b.order)
+
+		return work
 	}
 }

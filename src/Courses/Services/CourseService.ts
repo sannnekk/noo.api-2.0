@@ -73,7 +73,7 @@ export class CourseService extends Service<Course> {
 			throw new NotFoundError()
 		}
 
-		return course
+		return this.sortMaterials(course)
 	}
 
 	public async getAssignedWorkToMaterial(
@@ -187,5 +187,21 @@ export class CourseService extends Service<Course> {
 
 	public async delete(id: Course['id']): Promise<void> {
 		await this.courseRepository.delete(id)
+	}
+
+	private sortMaterials(course: Course): Course {
+		if (!course.chapters) return course
+
+		course.chapters = course.chapters.map((chapter) => {
+			if (!chapter.materials) return chapter
+
+			chapter.materials = chapter.materials.sort(
+				(a, b) => a.order - b.order
+			)
+
+			return chapter
+		})
+
+		return course
 	}
 }
