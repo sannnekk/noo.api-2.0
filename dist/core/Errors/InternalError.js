@@ -1,6 +1,6 @@
-import HttpStatusCode from 'express-controller-decorator/lib/decorators/HTTPStatusCodes';
+import { StatusCodes } from 'http-status-codes';
 export class InternalError extends Error {
-    code = HttpStatusCode.INTERNAL_SERVER_ERROR;
+    code = StatusCodes.INTERNAL_SERVER_ERROR;
     message;
     constructor(message = 'Internal Server Error') {
         super();
