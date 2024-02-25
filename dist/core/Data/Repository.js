@@ -76,4 +76,9 @@ export class Repository {
             where: conditions,
         });
     }
+    async count(conditions, pagination) {
+        return this.repository.count({
+            where: pagination?.getCondition(conditions),
+        });
+    }
 }

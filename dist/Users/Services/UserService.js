@@ -1,9 +1,10 @@
-import { Pagination } from './../../Core/Data/Pagination.js';
-import { NotFoundError, UnauthenticatedError, JWT, Hash, AlreadyExistError, UnknownError, WrongRoleError, } from '../../core/index.js';
+import { NotFoundError, UnauthenticatedError, JWT, Hash, AlreadyExistError, UnknownError, WrongRoleError, Pagination, Service, } from '../../core/index.js';
 import { UserRepository } from '../Data/UserRepository.js';
-export class UserService {
+import { UserModel } from '../Data/UserModel.js';
+export class UserService extends Service {
     userRepository;
     constructor() {
+        super();
         this.userRepository = new UserRepository();
     }
     async create(user) {
@@ -19,6 +20,7 @@ export class UserService {
         }
     }
     async register(user) {
+        // every user is a student at the moment of registration
         user.role = 'student';
         await this.create(user);
     }
@@ -55,8 +57,15 @@ export class UserService {
             user,
         };
     }
-    async getBySlug(slug) {
-        const user = await this.userRepository.findOne({ slug }, [
+    async forgotPassword(email) {
+        const user = await this.userRepository.findOne({ email });
+        if (!user) {
+            throw new NotFoundError();
+        }
+        // TODO: send email with reset password link
+    }
+    async getByUsername(username) {
+        const user = await this.userRepository.findOne({ username }, [
             'students',
             'courses',
             'courses.students',
@@ -65,39 +74,45 @@ export class UserService {
         if (!user) {
             throw new NotFoundError();
         }
-        user.password = undefined;
         return user;
     }
     async getUsers(pagination, role, userId) {
-        let condition;
+        let conditions;
         switch (role) {
             case 'admin':
             case 'teacher':
-                condition = undefined;
+                conditions = undefined;
                 break;
             case 'mentor':
-                condition = { mentor: { id: userId } };
+                conditions = { mentor: { id: userId } };
                 break;
             default:
                 throw new WrongRoleError();
         }
         pagination = new Pagination().assign(pagination);
-        pagination.entriesToSearch = ['username', 'name', 'email'];
-        const users = await this.userRepository.find(condition, ['students', 'courses'], pagination);
-        return users.map((user) => {
-            user.password = undefined;
-            return user;
-        });
+        pagination.entriesToSearch = UserModel.entriesToSearch();
+        const relations = ['students', 'courses'];
+        const users = await this.userRepository.find(conditions, relations, pagination);
+        this.storeRequestMeta(this.userRepository, conditions, relations, pagination);
+        return users;
     }
     async getMentors(pagination) {
         pagination = new Pagination().assign(pagination);
-        pagination.entriesToSearch = ['username', 'name', 'email'];
-        return await this.userRepository.find({ role: 'mentor' }, ['students'], pagination);
+        pagination.entriesToSearch = UserModel.entriesToSearch();
+        const relations = ['students'];
+        const conditions = { role: 'mentor' };
+        const mentors = await this.userRepository.find(conditions, relations, pagination);
+        this.storeRequestMeta(this.userRepository, conditions, relations, pagination);
+        return mentors;
     }
     async getStudents(pagination) {
         pagination = new Pagination().assign(pagination);
-        pagination.entriesToSearch = ['username', 'name', 'email'];
-        return await this.userRepository.find({ role: 'student' }, ['mentor'], pagination);
+        pagination.entriesToSearch = UserModel.entriesToSearch();
+        const relations = ['mentor'];
+        const conditions = { role: 'student' };
+        const students = await this.userRepository.find(conditions, relations, pagination);
+        this.storeRequestMeta(this.userRepository, conditions, relations, pagination);
+        return students;
     }
     async update(user) {
         const existingUser = await this.userRepository.findOne({
@@ -113,6 +128,10 @@ export class UserService {
         user.slug = undefined;
         if (existingUser.role !== 'student') {
             user.role = undefined;
+        }
+        else if (user.role) {
+            user.coursesAsStudent = [];
+            user.mentor = null;
         }
         await this.userRepository.update(user);
     }

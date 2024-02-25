@@ -27,6 +27,7 @@ let WorkTaskModel = class WorkTaskModel extends Model {
         }
     }
     slug;
+    order;
     name;
     content;
     highestScore;
@@ -60,6 +61,13 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], WorkTaskModel.prototype, "slug", void 0);
+__decorate([
+    Column({
+        name: 'order',
+        type: 'int',
+    }),
+    __metadata("design:type", Number)
+], WorkTaskModel.prototype, "order", void 0);
 __decorate([
     Column({
         name: 'name',

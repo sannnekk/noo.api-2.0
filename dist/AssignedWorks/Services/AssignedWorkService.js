@@ -1,4 +1,4 @@
-import { NotFoundError, Pagination, UnauthorizedError } from '../../core/index.js';
+import { NotFoundError, Pagination, Service, UnauthorizedError, } from '../../core/index.js';
 import { AssignedWorkRepository } from '../Data/AssignedWorkRepository.js';
 import { AssignedWorkModel } from '../Data/AssignedWorkModel.js';
 import { WorkAlreadySolvedError } from '../Errors/WorkAlreadySolvedError.js';
@@ -11,22 +11,27 @@ import { CheckDeadlineNotSetError } from '../Errors/CheckDeadlineNotSetError.js'
 import { UserRepository } from '../../Users/Data/UserRepository.js';
 import { WorkRepository } from '../../Works/Data/WorkRepository.js';
 import { DeadlineAlreadyShiftedError } from '../Errors/DeadlineAlreadyShiftedError.js';
-export class AssignedWorkService {
+export class AssignedWorkService extends Service {
     assignedWorkRepository;
     workRepository;
     userRepository;
     constructor() {
+        super();
         this.assignedWorkRepository = new AssignedWorkRepository();
         this.workRepository = new WorkRepository();
         this.userRepository = new UserRepository();
     }
     async getWorks(userId, userRole, pagination) {
-        const condition = userRole == 'student'
+        const conditions = userRole == 'student'
             ? { student: { id: userId } }
             : { mentors: { id: userId } };
         pagination = new Pagination().assign(pagination);
+        // TODO: entries to search
         pagination.entriesToSearch = [];
-        return await this.assignedWorkRepository.find(condition, ['student'], pagination);
+        const relations = ['student'];
+        const assignedWorks = await this.assignedWorkRepository.find(conditions, relations, pagination);
+        this.storeRequestMeta(this.assignedWorkRepository, conditions, relations, pagination);
+        return assignedWorks;
     }
     async getWorkBySlug(slug) {
         const work = await this.assignedWorkRepository.findOne({ slug }, [

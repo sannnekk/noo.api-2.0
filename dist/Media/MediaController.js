@@ -7,10 +7,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Controller, ControllerResponse, Delete, Post, } from 'express-controller-decorator';
+import { Controller, Delete, Post } from 'express-controller-decorator';
 import { MediaService } from './Services/MediaService.js';
-import { StatusCodes } from 'http-status-codes';
-import { Asserts, Context } from '../core/index.js';
+import { ApiResponse, Asserts, Context } from '../core/index.js';
 let MediaController = class MediaController {
     mediaService;
     constructor() {
@@ -21,10 +20,10 @@ let MediaController = class MediaController {
             Asserts.isAuthenticated(context);
             Asserts.teacherOrAdmin(context);
             const links = await this.mediaService.upload(context._express.req.files);
-            return new ControllerResponse({ links }, StatusCodes.OK);
+            return new ApiResponse({ data: { links } });
         }
-        catch (e) {
-            return new ControllerResponse(null, e.code || StatusCodes.BAD_REQUEST);
+        catch (error) {
+            return new ApiResponse(error);
         }
     }
     async delete(context) {
@@ -32,10 +31,10 @@ let MediaController = class MediaController {
             Asserts.isAuthenticated(context);
             Asserts.teacherOrAdmin(context);
             await this.mediaService.remove(context.query.src);
-            return new ControllerResponse(null, StatusCodes.NO_CONTENT);
+            return new ApiResponse(null);
         }
-        catch (e) {
-            return new ControllerResponse(null, e.code || StatusCodes.BAD_REQUEST);
+        catch (error) {
+            return new ApiResponse(error);
         }
     }
 };

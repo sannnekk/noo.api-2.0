@@ -7,11 +7,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Controller, ControllerResponse, Delete, Get, Patch, Post, } from 'express-controller-decorator';
+import { Controller, Delete, Get, Patch, Post, } from 'express-controller-decorator';
 import { WorkService } from './Services/WorkService.js';
 import { WorkValidator } from './WorkValidator.js';
-import { Asserts, Context } from '../core/index.js';
-import { StatusCodes } from 'http-status-codes';
+import { ApiResponse, Asserts, Context } from '../core/index.js';
 let WorkController = class WorkController {
     workService;
     workValidator;
@@ -24,10 +23,11 @@ let WorkController = class WorkController {
             Asserts.isAuthenticated(context);
             this.workValidator.validatePagination(context.query);
             const works = await this.workService.getWorks(context.query);
-            return new ControllerResponse(works, StatusCodes.OK);
+            const meta = await this.workService.getLastRequestMeta();
+            return new ApiResponse({ data: works, meta });
         }
-        catch (e) {
-            return new ControllerResponse(null, e.code || StatusCodes.BAD_REQUEST);
+        catch (error) {
+            return new ApiResponse(error);
         }
     }
     async getWorkBySlug(context) {
@@ -35,10 +35,10 @@ let WorkController = class WorkController {
             Asserts.isAuthenticated(context);
             this.workValidator.validateSlug(context.params.slug);
             const work = await this.workService.getWorkBySlug(context.params.slug);
-            return new ControllerResponse(work, StatusCodes.OK);
+            return new ApiResponse({ data: work });
         }
-        catch (e) {
-            return new ControllerResponse(null, e.code || StatusCodes.BAD_REQUEST);
+        catch (error) {
+            return new ApiResponse(error);
         }
     }
     async createWork(context) {
@@ -47,10 +47,10 @@ let WorkController = class WorkController {
             Asserts.teacher(context);
             this.workValidator.validateCreation(context.body);
             await this.workService.createWork(context.body);
-            return new ControllerResponse(null, StatusCodes.CREATED);
+            return new ApiResponse(null);
         }
         catch (error) {
-            return new ControllerResponse(error, error.code || StatusCodes.BAD_REQUEST);
+            return new ApiResponse(error);
         }
     }
     async updateWork(context) {
@@ -60,10 +60,10 @@ let WorkController = class WorkController {
             this.workValidator.validateUpdate(context.body);
             this.workValidator.validateId(context.params.id);
             await this.workService.updateWork(context.body);
-            return new ControllerResponse(null, StatusCodes.NO_CONTENT);
+            return new ApiResponse(null);
         }
-        catch (e) {
-            return new ControllerResponse(null, e.code || StatusCodes.BAD_REQUEST);
+        catch (error) {
+            return new ApiResponse(error);
         }
     }
     async deleteWork(context) {
@@ -72,10 +72,10 @@ let WorkController = class WorkController {
             Asserts.teacher(context);
             this.workValidator.validateId(context.params.id);
             await this.workService.deleteWork(context.params.id);
-            return new ControllerResponse(null, StatusCodes.NO_CONTENT);
+            return new ApiResponse(null);
         }
-        catch (e) {
-            return new ControllerResponse(null, e.code || StatusCodes.BAD_REQUEST);
+        catch (error) {
+            return new ApiResponse(error);
         }
     }
 };

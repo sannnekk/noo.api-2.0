@@ -36,6 +36,9 @@ let CourseModel = class CourseModel extends Model {
     description;
     chapters;
     images;
+    static entriesToSearch() {
+        return ['name', 'description'];
+    }
     sluggify(text) {
         return ULID.generate() + '-' + Transliteration.sluggify(text);
     }

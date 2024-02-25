@@ -1,6 +1,8 @@
 export class UnknownError extends Error {
     code = 500;
-    constructor() {
+    message;
+    constructor(message = 'An unknown server error occurred') {
         super();
+        this.message = message;
     }
 }

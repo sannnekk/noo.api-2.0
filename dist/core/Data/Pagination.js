@@ -6,10 +6,10 @@ export class Pagination {
     order;
     search;
     entries = [];
-    constructor(page = 1, limit = 10, sort = 'id', order = 'ASC', search = '') {
+    constructor(page = 1, limit = 25, sort = 'id', order = 'ASC', search = '') {
         this.page = page;
         this.limit = limit;
-        this.sort = sort;
+        this.sort = sort = 'id';
         this.order = order === 'ASC' ? 'ASC' : 'DESC';
         this.search = search;
     }

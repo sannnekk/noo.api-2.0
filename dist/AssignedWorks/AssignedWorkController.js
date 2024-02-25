@@ -7,11 +7,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Controller, ControllerResponse, Delete, Get, Patch, Post, } from 'express-controller-decorator';
+import { Controller, Delete, Get, Patch, Post, } from 'express-controller-decorator';
 import { AssignedWorkValidator } from './AssignedWorkValidator.js';
 import { AssignedWorkService } from './Services/AssignedWorkService.js';
-import { Asserts, Context } from '../core/index.js';
-import { StatusCodes } from 'http-status-codes';
+import { Asserts, Context, ApiResponse } from '../core/index.js';
 let AssignedWorkController = class AssignedWorkController {
     assignedWorkService;
     assignedWorkValidator;
@@ -24,10 +23,11 @@ let AssignedWorkController = class AssignedWorkController {
             Asserts.isAuthenticated(context);
             this.assignedWorkValidator.validatePagination(context.query);
             const works = await this.assignedWorkService.getWorks(context.credentials.userId, context.credentials.role, context.query);
-            return new ControllerResponse(works, StatusCodes.OK);
+            const meta = await this.assignedWorkService.getLastRequestMeta();
+            return new ApiResponse({ data: works, meta });
         }
         catch (error) {
-            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+            return new ApiResponse(error);
         }
     }
     async getOne(context) {
@@ -41,10 +41,10 @@ let AssignedWorkController = class AssignedWorkController {
             else {
                 Asserts.isAuthorized(context, work.mentorIds);
             }
-            return new ControllerResponse(work, StatusCodes.OK);
+            return new ApiResponse({ data: work });
         }
         catch (error) {
-            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+            return new ApiResponse(error);
         }
     }
     async create(context) {
@@ -53,10 +53,10 @@ let AssignedWorkController = class AssignedWorkController {
             Asserts.teacher(context);
             this.assignedWorkValidator.validateCreation(context.body);
             await this.assignedWorkService.createWork(context.body, context.credentials.userId);
-            return new ControllerResponse(null, StatusCodes.CREATED);
+            return new ApiResponse(null);
         }
         catch (error) {
-            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+            return new ApiResponse(error);
         }
     }
     async solve(context) {
@@ -66,10 +66,10 @@ let AssignedWorkController = class AssignedWorkController {
             this.assignedWorkValidator.validateId(context.params.id);
             this.assignedWorkValidator.validateUpdate(context.body);
             await this.assignedWorkService.solveWork(context.body);
-            return new ControllerResponse(null, StatusCodes.NO_CONTENT);
+            return new ApiResponse(null);
         }
         catch (error) {
-            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+            return new ApiResponse(error);
         }
     }
     async check(context) {
@@ -79,11 +79,10 @@ let AssignedWorkController = class AssignedWorkController {
             this.assignedWorkValidator.validateId(context.params.id);
             this.assignedWorkValidator.validateUpdate(context.body);
             await this.assignedWorkService.checkWork(context.body);
-            return new ControllerResponse(null, StatusCodes.NO_CONTENT);
+            return new ApiResponse(null);
         }
         catch (error) {
-            console.log(error);
-            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+            return new ApiResponse(error);
         }
     }
     async transfer(context) {
@@ -93,10 +92,10 @@ let AssignedWorkController = class AssignedWorkController {
             this.assignedWorkValidator.validateId(context.params.workId);
             this.assignedWorkValidator.validateId(context.params.mentorId);
             await this.assignedWorkService.transferWorkToAnotherMentor(context.params.workId, context.params.mentorId);
-            return new ControllerResponse(null, StatusCodes.NO_CONTENT);
+            return new ApiResponse(null);
         }
         catch (error) {
-            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+            return new ApiResponse(error);
         }
     }
     async shiftDeadline(context) {
@@ -105,10 +104,10 @@ let AssignedWorkController = class AssignedWorkController {
             Asserts.mentorOrStudent(context);
             this.assignedWorkValidator.validateId(context.params.id);
             await this.assignedWorkService.shiftDeadline(context.params.id, 3, context.credentials.role, context.credentials.userId);
-            return new ControllerResponse(null, StatusCodes.NO_CONTENT);
+            return new ApiResponse(null);
         }
         catch (error) {
-            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+            return new ApiResponse(error);
         }
     }
     async delete(context) {
@@ -117,10 +116,10 @@ let AssignedWorkController = class AssignedWorkController {
             Asserts.mentor(context);
             this.assignedWorkValidator.validateId(context.params.id);
             await this.assignedWorkService.deleteWork(context.params.id, context.credentials.id);
-            return new ControllerResponse(null, StatusCodes.NO_CONTENT);
+            return new ApiResponse(null);
         }
         catch (error) {
-            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+            return new ApiResponse(error);
         }
     }
 };

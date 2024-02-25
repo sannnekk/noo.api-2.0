@@ -7,12 +7,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Controller, ControllerResponse, Delete, Get, Patch, Post, } from 'express-controller-decorator';
-import { Context } from '../core/index.js';
+import { Controller, Delete, Get, Patch, Post, } from 'express-controller-decorator';
+import { ApiResponse, Context } from '../core/index.js';
 import { UserService } from './Services/UserService.js';
 import { UserValidator } from './UserValidator.js';
 import { Asserts } from '../core/index.js';
-import { StatusCodes } from 'http-status-codes';
 let UserController = class UserController {
     userValidator;
     userService;
@@ -26,41 +25,51 @@ let UserController = class UserController {
             Asserts.isAuthenticated(context);
             Asserts.teacherOrAdmin(context);
             await this.userService.create(context.body);
+            return new ApiResponse(null);
         }
         catch (error) {
-            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+            return new ApiResponse(error);
         }
-        return new ControllerResponse(null, StatusCodes.CREATED);
     }
     async login(context) {
         try {
             this.userValidator.validateLogin(context.body);
             const payload = await this.userService.login(context.body);
-            return new ControllerResponse(payload, StatusCodes.OK);
+            return new ApiResponse({ data: payload });
         }
         catch (error) {
-            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+            return new ApiResponse(error);
         }
     }
     async register(context) {
         try {
             this.userValidator.validateRegister(context.body);
             await this.userService.register(context.body);
-            return new ControllerResponse(null, StatusCodes.CREATED);
+            return new ApiResponse(null);
         }
         catch (error) {
-            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+            return new ApiResponse(error);
         }
     }
-    async getBySlug(context) {
+    async forgotPassword(context) {
         try {
-            Asserts.isAuthenticated(context);
-            this.userValidator.validateSlug(context.params.slug);
-            const user = await this.userService.getBySlug(context.params.slug);
-            return new ControllerResponse(user);
+            this.userValidator.validateForgotPassword(context.body);
+            await this.userService.forgotPassword(context.body.email);
+            return new ApiResponse(null);
         }
         catch (error) {
-            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+            return new ApiResponse(error);
+        }
+    }
+    async getByUsername(context) {
+        try {
+            Asserts.isAuthenticated(context);
+            this.userValidator.validateSlug(context.params.username);
+            const user = await this.userService.getByUsername(context.params.username);
+            return new ApiResponse({ data: user });
+        }
+        catch (error) {
+            return new ApiResponse(error);
         }
     }
     async getMentors(context) {
@@ -69,10 +78,11 @@ let UserController = class UserController {
             Asserts.notStudent(context);
             this.userValidator.validatePagination(context.query);
             const mentors = await this.userService.getMentors(context.query);
-            return new ControllerResponse(mentors);
+            const meta = await this.userService.getLastRequestMeta();
+            return new ApiResponse({ data: mentors, meta });
         }
         catch (error) {
-            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+            return new ApiResponse(error);
         }
     }
     async getStudents(context) {
@@ -81,10 +91,11 @@ let UserController = class UserController {
             Asserts.notStudent(context);
             this.userValidator.validatePagination(context.query);
             const students = await this.userService.getStudents(context.query);
-            return new ControllerResponse(students);
+            const meta = await this.userService.getLastRequestMeta();
+            return new ApiResponse({ data: students, meta });
         }
         catch (error) {
-            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+            return new ApiResponse(error);
         }
     }
     async getUsers(context) {
@@ -93,10 +104,11 @@ let UserController = class UserController {
             Asserts.notStudent(context);
             this.userValidator.validatePagination(context.query);
             const users = await this.userService.getUsers(context.query, context.credentials.role, context.credentials.userId);
-            return new ControllerResponse(users);
+            const meta = await this.userService.getLastRequestMeta();
+            return new ApiResponse({ data: users, meta });
         }
         catch (error) {
-            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+            return new ApiResponse(error);
         }
     }
     async update(context) {
@@ -108,10 +120,10 @@ let UserController = class UserController {
                 Asserts.isAuthorized(context, context.params.id);
             }
             await this.userService.update(context.body);
-            return new ControllerResponse(null, StatusCodes.NO_CONTENT);
+            return new ApiResponse(null);
         }
         catch (error) {
-            return new ControllerResponse(error, error.code || StatusCodes.BAD_REQUEST);
+            return new ApiResponse(error);
         }
     }
     async assignMentor(context) {
@@ -120,10 +132,10 @@ let UserController = class UserController {
             this.userValidator.validateId(context.params.studentId);
             this.userValidator.validateId(context.params.mentorId);
             await this.userService.assignMentor(context.params.studentId, context.params.mentorId);
-            return new ControllerResponse(null, StatusCodes.NO_CONTENT);
+            return new ApiResponse(null);
         }
         catch (error) {
-            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+            return new ApiResponse(error);
         }
     }
     async delete(context) {
@@ -134,10 +146,10 @@ let UserController = class UserController {
                 Asserts.isAuthorized(context, context.params.id);
             }
             await this.userService.delete(context.params.id);
-            return new ControllerResponse(null, StatusCodes.NO_CONTENT);
+            return new ApiResponse(null);
         }
         catch (error) {
-            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+            return new ApiResponse(error);
         }
     }
 };
@@ -160,11 +172,17 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "register", null);
 __decorate([
-    Get('/:slug'),
+    Post('/forgot-password'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
-], UserController.prototype, "getBySlug", null);
+], UserController.prototype, "forgotPassword", null);
+__decorate([
+    Get('/:username'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "getByUsername", null);
 __decorate([
     Get('/mentor/search'),
     __metadata("design:type", Function),

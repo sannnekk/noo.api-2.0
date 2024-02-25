@@ -1,8 +1,9 @@
 import { StatusCodes } from 'http-status-codes';
 export class NotFoundError extends Error {
     code = StatusCodes.NOT_FOUND;
-    constructor() {
+    message;
+    constructor(message = 'The requested resource was not found') {
         super();
-        this.name = 'NotFoundError';
+        this.message = message;
     }
 }

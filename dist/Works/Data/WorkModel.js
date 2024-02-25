@@ -38,6 +38,9 @@ let WorkModel = class WorkModel extends Model {
         return (this.assignedWorks || []).map((assignedWork) => assignedWork.id);
     }
     set assignedWorkIds(ids) { }
+    static entriesToSearch() {
+        return ['name', 'description'];
+    }
     sluggify(text) {
         return ULID.generate() + '-' + Transliteration.sluggify(text);
     }

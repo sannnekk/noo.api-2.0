@@ -7,11 +7,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Controller, ControllerResponse, Delete, Get, Patch, Post, } from 'express-controller-decorator';
+import { Controller, Delete, Get, Patch, Post, } from 'express-controller-decorator';
 import { CourseService } from './Services/CourseService.js';
-import { Asserts, Context } from '../core/index.js';
+import { Asserts, Context, ApiResponse } from '../core/index.js';
 import { CourseValidator } from './CourseValidator.js';
-import { StatusCodes } from 'http-status-codes';
 let CourseController = class CourseController {
     courseService;
     courseValidator;
@@ -24,10 +23,11 @@ let CourseController = class CourseController {
             this.courseValidator.validatePagination(context.query);
             Asserts.isAuthenticated(context);
             const courses = await this.courseService.get(context.query, context.credentials.userId, context.credentials.role);
-            return new ControllerResponse(courses, StatusCodes.OK);
+            const meta = await this.courseService.getLastRequestMeta();
+            return new ApiResponse({ data: courses, meta });
         }
         catch (error) {
-            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+            return new ApiResponse(error);
         }
     }
     async getBySlug(context) {
@@ -35,10 +35,10 @@ let CourseController = class CourseController {
             this.courseValidator.validateSlug(context.params.slug);
             Asserts.isAuthenticated(context);
             const course = await this.courseService.getBySlug(context.params.slug);
-            return new ControllerResponse(course, StatusCodes.OK);
+            return new ApiResponse({ data: course });
         }
         catch (error) {
-            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+            return new ApiResponse(error);
         }
     }
     async getAssignedWork(context) {
@@ -47,10 +47,10 @@ let CourseController = class CourseController {
             Asserts.isAuthenticated(context);
             Asserts.student(context);
             const assignedWork = await this.courseService.getAssignedWorkToMaterial(context.params.slug, context.credentials.userId);
-            return new ControllerResponse(assignedWork, StatusCodes.OK);
+            return new ApiResponse({ data: assignedWork });
         }
         catch (error) {
-            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+            return new ApiResponse(error);
         }
     }
     async create(context) {
@@ -58,12 +58,11 @@ let CourseController = class CourseController {
             this.courseValidator.validateCreation(context.body);
             Asserts.isAuthenticated(context);
             Asserts.teacher(context);
-            const course = await this.courseService.create(context.body, context.credentials.userId);
-            return new ControllerResponse(course, StatusCodes.CREATED);
+            await this.courseService.create(context.body, context.credentials.userId);
+            return new ApiResponse(null);
         }
         catch (error) {
-            console.log(error);
-            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+            return new ApiResponse(error);
         }
     }
     async update(context) {
@@ -71,11 +70,11 @@ let CourseController = class CourseController {
             this.courseValidator.validateUpdate(context.body);
             Asserts.isAuthenticated(context);
             Asserts.teacher(context);
-            const course = await this.courseService.update(context.body);
-            return new ControllerResponse(course, StatusCodes.NO_CONTENT);
+            await this.courseService.update(context.body);
+            return new ApiResponse(null);
         }
         catch (error) {
-            return new ControllerResponse(error, error.code || StatusCodes.BAD_REQUEST);
+            return new ApiResponse(error);
         }
     }
     async assignWorkToMaterial(context) {
@@ -86,10 +85,10 @@ let CourseController = class CourseController {
             this.courseValidator.validateId(context.params.workId);
             this.courseValidator.validateAssignWork(context.body);
             await this.courseService.assignWorkToMaterial(context.params.materialSlug, context.params.workId, context.body.solveDeadline, context.body.checkDeadline);
-            return new ControllerResponse(null, StatusCodes.NO_CONTENT);
+            return new ApiResponse(null);
         }
         catch (error) {
-            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+            return new ApiResponse(error);
         }
     }
     async assignStudents(context) {
@@ -99,10 +98,10 @@ let CourseController = class CourseController {
             this.courseValidator.validateSlug(context.params.courseSlug);
             this.courseValidator.validateStudentIds(context.body);
             await this.courseService.assignStudents(context.params.courseSlug, context.body.studentIds);
-            return new ControllerResponse(null, StatusCodes.NO_CONTENT);
+            return new ApiResponse(null);
         }
         catch (error) {
-            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+            return new ApiResponse(error);
         }
     }
     async delete(context) {
@@ -111,10 +110,10 @@ let CourseController = class CourseController {
             Asserts.isAuthenticated(context);
             Asserts.teacher(context);
             await this.courseService.delete(context.params.id);
-            return new ControllerResponse(null, StatusCodes.NO_CONTENT);
+            return new ApiResponse(null);
         }
         catch (error) {
-            return new ControllerResponse(null, error.code || StatusCodes.BAD_REQUEST);
+            return new ApiResponse(error);
         }
     }
 };

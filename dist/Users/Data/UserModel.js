@@ -38,6 +38,9 @@ let UserModel = class UserModel extends Model {
     password;
     isBlocked = false;
     forbidden = 0;
+    static entriesToSearch() {
+        return ['username', 'name', 'email', 'telegramUsername'];
+    }
     sluggify(username) {
         return username.toLowerCase().replace(/\s/g, '-');
     }

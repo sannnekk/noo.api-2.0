@@ -1,16 +1,17 @@
 import { UserRepository } from '../../Users/Data/UserRepository.js';
 import { CourseRepository } from './../Data/CourseRepository.js';
-import { AlreadyExistError, NotFoundError, Pagination } from '../../core/index.js';
+import { AlreadyExistError, NotFoundError, Pagination, Service, } from '../../core/index.js';
 import { QueryFailedError } from 'typeorm';
 import { CourseModel } from '../Data/CourseModel.js';
 import { CourseMaterialRepository } from '../Data/CourseMaterialRepository.js';
 import { AssignedWorkService } from '../../AssignedWorks/Services/AssignedWorkService.js';
-export class CourseService {
+export class CourseService extends Service {
     courseRepository;
     materialRepository;
     userRepository;
     assignedWorkService;
     constructor() {
+        super();
         this.courseRepository = new CourseRepository();
         this.userRepository = new UserRepository();
         this.materialRepository = new CourseMaterialRepository();
@@ -18,14 +19,18 @@ export class CourseService {
     }
     async get(pagination, userId, userRole) {
         pagination = new Pagination().assign(pagination);
-        pagination.entriesToSearch = ['name', 'description'];
+        pagination.entriesToSearch = CourseModel.entriesToSearch();
+        let conditions = undefined;
         if (userRole !== 'student') {
-            return await this.courseRepository.find(undefined, undefined, pagination);
+            conditions = {
+                students: {
+                    id: userId,
+                },
+            };
         }
-        const user = await this.userRepository.findOne({ id: userId }, [
-            'coursesAsStudent',
-        ]);
-        return user?.coursesAsStudent || [];
+        const courses = await this.courseRepository.find(conditions, undefined, pagination);
+        this.storeRequestMeta(this.courseRepository, conditions, [], pagination);
+        return courses;
     }
     async getBySlug(slug) {
         const course = await this.courseRepository.findOne({ slug }, [
@@ -35,7 +40,7 @@ export class CourseService {
         if (!course) {
             throw new NotFoundError();
         }
-        return course;
+        return this.sortMaterials(course);
     }
     async getAssignedWorkToMaterial(materialSlug, userId) {
         const user = await this.userRepository.findOne({
@@ -100,5 +105,16 @@ export class CourseService {
     }
     async delete(id) {
         await this.courseRepository.delete(id);
+    }
+    sortMaterials(course) {
+        if (!course.chapters)
+            return course;
+        course.chapters = course.chapters.map((chapter) => {
+            if (!chapter.materials)
+                return chapter;
+            chapter.materials = chapter.materials.sort((a, b) => a.order - b.order);
+            return chapter;
+        });
+        return course;
     }
 }
