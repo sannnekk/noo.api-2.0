@@ -5,7 +5,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 import { z } from 'zod';
-import { ErrorConverter, UserRoles, Validator } from '../core/index.js';
+import { ErrorConverter, UserRoles, Validator } from '@core';
 let UserValidator = class UserValidator extends Validator {
     validateCreation(user) {
         const schema = z.object({

@@ -8,7 +8,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { PrimaryColumn, CreateDateColumn, UpdateDateColumn, } from 'typeorm';
-import { generate } from './Ulid.js';
+import { generate } from './Ulid';
 export class Model {
     set(data) {
         Object.assign(this, data);

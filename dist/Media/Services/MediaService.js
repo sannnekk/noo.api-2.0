@@ -1,5 +1,5 @@
-import { NotFoundError } from '../../core/index.js';
-import { MediaRepository } from '../Data/MediaRepository.js';
+import { NotFoundError } from '@core';
+import { MediaRepository } from '../Data/MediaRepository';
 import fs from 'fs';
 export class MediaService {
     mediaRepository;

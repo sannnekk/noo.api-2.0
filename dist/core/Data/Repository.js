@@ -1,7 +1,7 @@
-import { CoreDataSource } from './DataSource.js';
-import { Pagination } from './Pagination.js';
-import { NotFoundError } from '../Errors/NotFoundError.js';
-import { AlreadyExistError } from '../Errors/AlreadyExistError.js';
+import { CoreDataSource } from './DataSource';
+import { Pagination } from './Pagination';
+import { NotFoundError } from '../Errors/NotFoundError';
+import { AlreadyExistError } from '../Errors/AlreadyExistError';
 import util from 'util';
 export class Repository {
     model;

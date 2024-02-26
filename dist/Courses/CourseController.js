@@ -8,9 +8,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { Controller, Delete, Get, Patch, Post, } from 'express-controller-decorator';
-import { CourseService } from './Services/CourseService.js';
-import { Asserts, Context, ApiResponse } from '../core/index.js';
-import { CourseValidator } from './CourseValidator.js';
+import { CourseService } from './Services/CourseService';
+import { Asserts, Context, ApiResponse } from '@core';
+import { CourseValidator } from './CourseValidator';
 let CourseController = class CourseController {
     courseService;
     courseValidator;

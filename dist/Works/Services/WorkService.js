@@ -1,6 +1,6 @@
-import { NotFoundError, Pagination, Service } from '../../core/index.js';
-import { WorkRepository } from '../Data/WorkRepository.js';
-import { WorkModel } from '../Data/WorkModel.js';
+import { NotFoundError, Pagination, Service } from '@core';
+import { WorkRepository } from '../Data/WorkRepository';
+import { WorkModel } from '../Data/WorkModel';
 export class WorkService extends Service {
     workRepository;
     constructor() {

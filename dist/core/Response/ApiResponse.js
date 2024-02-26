@@ -1,5 +1,5 @@
 import { ControllerResponse } from 'express-controller-decorator';
-import { InternalError } from '../Errors/InternalError.js';
+import { InternalError } from '../Errors/InternalError';
 import { StatusCodes } from 'http-status-codes';
 export class ApiResponse extends ControllerResponse {
     /*

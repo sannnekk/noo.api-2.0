@@ -1,10 +1,10 @@
-import { UserRepository } from '../../Users/Data/UserRepository.js';
-import { CourseRepository } from './../Data/CourseRepository.js';
-import { AlreadyExistError, NotFoundError, Pagination, Service, } from '../../core/index.js';
+import { UserRepository } from '@modules/Users/Data/UserRepository';
+import { CourseRepository } from './../Data/CourseRepository';
+import { AlreadyExistError, NotFoundError, Pagination, Service, } from '@core';
 import { QueryFailedError } from 'typeorm';
-import { CourseModel } from '../Data/CourseModel.js';
-import { CourseMaterialRepository } from '../Data/CourseMaterialRepository.js';
-import { AssignedWorkService } from '../../AssignedWorks/Services/AssignedWorkService.js';
+import { CourseModel } from '../Data/CourseModel';
+import { CourseMaterialRepository } from '../Data/CourseMaterialRepository';
+import { AssignedWorkService } from '@modules/AssignedWorks/Services/AssignedWorkService';
 export class CourseService extends Service {
     courseRepository;
     materialRepository;
@@ -21,7 +21,7 @@ export class CourseService extends Service {
         pagination = new Pagination().assign(pagination);
         pagination.entriesToSearch = CourseModel.entriesToSearch();
         let conditions = undefined;
-        if (userRole !== 'student') {
+        if (userRole === 'student') {
             conditions = {
                 students: {
                     id: userId,
@@ -110,9 +110,7 @@ export class CourseService extends Service {
         if (!course.chapters)
             return course;
         course.chapters = course.chapters.map((chapter) => {
-            if (!chapter.materials)
-                return chapter;
-            chapter.materials = chapter.materials.sort((a, b) => a.order - b.order);
+            chapter.materials = (chapter.materials || []).sort((a, b) => a.order - b.order);
             return chapter;
         });
         return course;
