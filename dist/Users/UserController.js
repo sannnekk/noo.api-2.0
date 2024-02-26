@@ -76,8 +76,8 @@ let UserController = class UserController {
         try {
             Asserts.isAuthenticated(context);
             Asserts.notStudent(context);
-            this.userValidator.validatePagination(context.query);
-            const mentors = await this.userService.getMentors(context.query);
+            const pagination = this.userValidator.validatePagination(context.query);
+            const mentors = await this.userService.getMentors(pagination);
             const meta = await this.userService.getLastRequestMeta();
             return new ApiResponse({ data: mentors, meta });
         }
@@ -89,8 +89,8 @@ let UserController = class UserController {
         try {
             Asserts.isAuthenticated(context);
             Asserts.notStudent(context);
-            this.userValidator.validatePagination(context.query);
-            const students = await this.userService.getStudents(context.query);
+            const pagination = this.userValidator.validatePagination(context.query);
+            const students = await this.userService.getStudents(pagination);
             const meta = await this.userService.getLastRequestMeta();
             return new ApiResponse({ data: students, meta });
         }
@@ -102,8 +102,8 @@ let UserController = class UserController {
         try {
             Asserts.isAuthenticated(context);
             Asserts.notStudent(context);
-            this.userValidator.validatePagination(context.query);
-            const users = await this.userService.getUsers(context.query, context.credentials.role, context.credentials.userId);
+            const pagination = this.userValidator.validatePagination(context.query);
+            const users = await this.userService.getUsers(pagination, context.credentials.role, context.credentials.userId);
             const meta = await this.userService.getLastRequestMeta();
             return new ApiResponse({ data: users, meta });
         }

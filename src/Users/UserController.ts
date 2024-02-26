@@ -94,9 +94,11 @@ export class UserController {
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.notStudent(context)
-			this.userValidator.validatePagination(context.query)
+			const pagination = this.userValidator.validatePagination(
+				context.query
+			)
 
-			const mentors = await this.userService.getMentors(context.query)
+			const mentors = await this.userService.getMentors(pagination)
 
 			const meta = await this.userService.getLastRequestMeta()
 
@@ -111,9 +113,11 @@ export class UserController {
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.notStudent(context)
-			this.userValidator.validatePagination(context.query)
+			const pagination = this.userValidator.validatePagination(
+				context.query
+			)
 
-			const students = await this.userService.getStudents(context.query)
+			const students = await this.userService.getStudents(pagination)
 
 			const meta = await this.userService.getLastRequestMeta()
 
@@ -128,10 +132,12 @@ export class UserController {
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.notStudent(context)
-			this.userValidator.validatePagination(context.query)
+			const pagination = this.userValidator.validatePagination(
+				context.query
+			)
 
 			const users = await this.userService.getUsers(
-				context.query,
+				pagination,
 				context.credentials.role,
 				context.credentials.userId
 			)

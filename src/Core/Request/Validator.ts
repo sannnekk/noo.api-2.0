@@ -3,16 +3,24 @@ import { Ulid } from '../Data/Ulid'
 import { z } from 'zod'
 
 export abstract class Validator {
-	public validatePagination(data: unknown): asserts data is Pagination {
+	public validatePagination(data: unknown): Pagination {
 		const schema = z.object({
-			page: z.number().int().positive().optional(),
-			limit: z.number().int().positive().optional(),
+			page: z.coerce.number().int().positive().optional(),
+			limit: z.coerce.number().int().positive().optional(),
 			sort: z.string().optional(),
-			order: z.string().optional(),
-			search: z.any().optional(),
+			order: z.enum(['ASC', 'DESC']).optional(),
+			search: z.string().optional(),
 		})
 
-		schema.parse(data)
+		const pagination = schema.parse(data)
+
+		return new Pagination(
+			pagination.page,
+			pagination.limit,
+			pagination.sort,
+			pagination.order,
+			pagination.search
+		)
 	}
 
 	public validateId(id: unknown): asserts id is Ulid {

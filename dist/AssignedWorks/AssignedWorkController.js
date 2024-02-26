@@ -21,8 +21,8 @@ let AssignedWorkController = class AssignedWorkController {
     async get(context) {
         try {
             Asserts.isAuthenticated(context);
-            this.assignedWorkValidator.validatePagination(context.query);
-            const works = await this.assignedWorkService.getWorks(context.credentials.userId, context.credentials.role, context.query);
+            const pagination = this.assignedWorkValidator.validatePagination(context.query);
+            const works = await this.assignedWorkService.getWorks(context.credentials.userId, context.credentials.role, pagination);
             const meta = await this.assignedWorkService.getLastRequestMeta();
             return new ApiResponse({ data: works, meta });
         }

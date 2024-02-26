@@ -9,17 +9,17 @@ export class Pagination {
 	private entries: string[] = []
 
 	public constructor(
-		page: number = 1,
-		limit: number = 25,
-		sort: string = 'id',
-		order: string = 'ASC',
-		search: string = ''
+		page?: number | undefined,
+		limit?: number | undefined,
+		sort?: string | undefined,
+		order?: 'ASC' | 'DESC' | undefined,
+		search?: string | undefined
 	) {
-		this.page = page
-		this.limit = limit
-		this.sort = sort = 'id'
+		this.page = page || 1
+		this.limit = limit || 25
+		this.sort = sort || 'id'
 		this.order = order === 'ASC' ? 'ASC' : 'DESC'
-		this.search = search
+		this.search = search || ''
 	}
 
 	public assign(data: Partial<Pagination> | undefined): typeof this {

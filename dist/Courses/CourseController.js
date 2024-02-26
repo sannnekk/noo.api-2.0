@@ -20,9 +20,9 @@ let CourseController = class CourseController {
     }
     async get(context) {
         try {
-            this.courseValidator.validatePagination(context.query);
             Asserts.isAuthenticated(context);
-            const courses = await this.courseService.get(context.query, context.credentials.userId, context.credentials.role);
+            const pagination = this.courseValidator.validatePagination(context.query);
+            const courses = await this.courseService.get(pagination, context.credentials.userId, context.credentials.role);
             const meta = await this.courseService.getLastRequestMeta();
             return new ApiResponse({ data: courses, meta });
         }

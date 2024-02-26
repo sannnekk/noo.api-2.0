@@ -6,12 +6,12 @@ export class Pagination {
     order;
     search;
     entries = [];
-    constructor(page = 1, limit = 25, sort = 'id', order = 'ASC', search = '') {
-        this.page = page;
-        this.limit = limit;
-        this.sort = sort = 'id';
+    constructor(page, limit, sort, order, search) {
+        this.page = page || 1;
+        this.limit = limit || 25;
+        this.sort = sort || 'id';
         this.order = order === 'ASC' ? 'ASC' : 'DESC';
-        this.search = search;
+        this.search = search || '';
     }
     assign(data) {
         Object.assign(this, data);

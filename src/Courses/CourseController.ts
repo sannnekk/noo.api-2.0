@@ -23,11 +23,13 @@ export class CourseController {
 	@Get()
 	public async get(context: Context): Promise<ApiResponse> {
 		try {
-			this.courseValidator.validatePagination(context.query)
 			Asserts.isAuthenticated(context)
+			const pagination = this.courseValidator.validatePagination(
+				context.query
+			)
 
 			const courses = await this.courseService.get(
-				context.query,
+				pagination,
 				context.credentials.userId,
 				context.credentials.role
 			)

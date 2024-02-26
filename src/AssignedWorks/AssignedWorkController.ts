@@ -24,12 +24,14 @@ export class AssignedWorkController {
 	public async get(context: Context): Promise<ApiResponse> {
 		try {
 			Asserts.isAuthenticated(context)
-			this.assignedWorkValidator.validatePagination(context.query)
+			const pagination = this.assignedWorkValidator.validatePagination(
+				context.query
+			)
 
 			const works = await this.assignedWorkService.getWorks(
 				context.credentials.userId,
 				context.credentials.role,
-				context.query
+				pagination
 			)
 
 			const meta = await this.assignedWorkService.getLastRequestMeta()

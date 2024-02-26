@@ -24,9 +24,11 @@ export class WorkController {
 		try {
 			Asserts.isAuthenticated(context)
 
-			this.workValidator.validatePagination(context.query)
+			const pagination = this.workValidator.validatePagination(
+				context.query
+			)
 
-			const works = await this.workService.getWorks(context.query)
+			const works = await this.workService.getWorks(pagination)
 			const meta = await this.workService.getLastRequestMeta()
 
 			return new ApiResponse({ data: works, meta })
