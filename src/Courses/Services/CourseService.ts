@@ -39,7 +39,7 @@ export class CourseService extends Service<Course> {
 
 		let conditions = undefined
 
-		if (userRole !== 'student') {
+		if (userRole === 'student') {
 			conditions = {
 				students: {
 					id: userId,
@@ -193,9 +193,7 @@ export class CourseService extends Service<Course> {
 		if (!course.chapters) return course
 
 		course.chapters = course.chapters.map((chapter) => {
-			if (!chapter.materials) return chapter
-
-			chapter.materials = chapter.materials.sort(
+			chapter.materials = (chapter.materials || []).sort(
 				(a, b) => a.order - b.order
 			)
 

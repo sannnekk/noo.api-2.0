@@ -1,7 +1,9 @@
 import { Pagination } from '../Data/Pagination'
 import { Ulid } from '../Data/Ulid'
 import { z } from 'zod'
+import { ErrorConverter } from './ValidatorDecorator'
 
+@ErrorConverter()
 export abstract class Validator {
 	public validatePagination(data: unknown): Pagination {
 		const schema = z.object({
