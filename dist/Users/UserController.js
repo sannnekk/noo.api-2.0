@@ -8,10 +8,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { Controller, Delete, Get, Patch, Post, } from 'express-controller-decorator';
-import { ApiResponse, Context } from '@core';
-import { UserService } from './Services/UserService';
-import { UserValidator } from './UserValidator';
-import { Asserts } from '@core';
+import { ApiResponse, Context } from '../core/index.js';
+import { UserService } from './Services/UserService.js';
+import { UserValidator } from './UserValidator.js';
+import { Asserts } from '../core/index.js';
 let UserController = class UserController {
     userValidator;
     userService;

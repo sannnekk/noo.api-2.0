@@ -1,16 +1,16 @@
 import { DataSource } from 'typeorm';
 // Models
-import { MediaModel } from '@modules/Media/Data/MediaModel';
-import { UserModel } from '@modules/Users/Data/UserModel';
-import { CourseModel } from '@modules/Courses/Data/CourseModel';
-import { CourseChapterModel } from '@modules/Courses/Data/Relations/CourseChapterModel';
-import { CourseMaterialModel } from '@modules/Courses/Data/Relations/CourseMaterialModel';
-import { WorkModel } from '@modules/Works/Data/WorkModel';
-import { WorkTaskModel } from '@modules/Works/Data/Relations/WorkTaskModel';
-import { WorkTaskOptionModel } from '@modules/Works/Data/Relations/WorkTaskOptionModel';
-import { AssignedWorkModel } from '@modules/AssignedWorks/Data/AssignedWorkModel';
-import { AssignedWorkAnswerModel } from '@modules/AssignedWorks/Data/Relations/AssignedWorkAnswerModel';
-import { AssignedWorkCommentModel } from '@modules/AssignedWorks/Data/Relations/AssignedWorkCommentModel';
+import { MediaModel } from '../../Media/Data/MediaModel.js';
+import { UserModel } from '../../Users/Data/UserModel.js';
+import { CourseModel } from '../../Courses/Data/CourseModel.js';
+import { CourseChapterModel } from '../../Courses/Data/Relations/CourseChapterModel.js';
+import { CourseMaterialModel } from '../../Courses/Data/Relations/CourseMaterialModel.js';
+import { WorkModel } from '../../Works/Data/WorkModel.js';
+import { WorkTaskModel } from '../../Works/Data/Relations/WorkTaskModel.js';
+import { WorkTaskOptionModel } from '../../Works/Data/Relations/WorkTaskOptionModel.js';
+import { AssignedWorkModel } from '../../AssignedWorks/Data/AssignedWorkModel.js';
+import { AssignedWorkAnswerModel } from '../../AssignedWorks/Data/Relations/AssignedWorkAnswerModel.js';
+import { AssignedWorkCommentModel } from '../../AssignedWorks/Data/Relations/AssignedWorkCommentModel.js';
 export const CoreDataSource = new DataSource({
     type: 'mysql',
     host: process.env.DB_HOST,

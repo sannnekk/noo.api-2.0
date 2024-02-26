@@ -8,8 +8,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { Controller, Delete, Post } from 'express-controller-decorator';
-import { MediaService } from './Services/MediaService';
-import { ApiResponse, Asserts, Context } from '@core';
+import { MediaService } from './Services/MediaService.js';
+import { ApiResponse, Asserts, Context } from '../core/index.js';
 let MediaController = class MediaController {
     mediaService;
     constructor() {

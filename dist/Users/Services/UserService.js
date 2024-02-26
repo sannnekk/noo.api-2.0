@@ -1,6 +1,6 @@
-import { NotFoundError, UnauthenticatedError, JWT, Hash, AlreadyExistError, UnknownError, WrongRoleError, Pagination, Service, } from '@core';
-import { UserRepository } from '../Data/UserRepository';
-import { UserModel } from '../Data/UserModel';
+import { NotFoundError, UnauthenticatedError, JWT, Hash, AlreadyExistError, UnknownError, WrongRoleError, Pagination, Service, } from '../../core/index.js';
+import { UserRepository } from '../Data/UserRepository.js';
+import { UserModel } from '../Data/UserModel.js';
 export class UserService extends Service {
     userRepository;
     constructor() {

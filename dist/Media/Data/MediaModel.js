@@ -8,9 +8,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { Column, Entity, ManyToOne } from 'typeorm';
-import { Model } from '@core';
-import { CourseMaterialModel } from '@modules/Courses/Data/Relations/CourseMaterialModel';
-import { CourseModel } from '@modules/Courses/Data/CourseModel';
+import { Model } from '../../core/index.js';
+import { CourseMaterialModel } from '../../Courses/Data/Relations/CourseMaterialModel.js';
+import { CourseModel } from '../../Courses/Data/CourseModel.js';
 let MediaModel = class MediaModel extends Model {
     constructor(data) {
         super();
