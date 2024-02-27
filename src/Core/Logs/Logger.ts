@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 
 const logFile = `${new Date().toUTCString()}.txt`
-const logFolder = path.join(process.cwd(), logFile)
+const logFolder = path.join(process.cwd(), 'logs', logFile)
 
 function log(data: any) {
 	fs.appendFile(logFolder, toLog(data), (err) => {})
