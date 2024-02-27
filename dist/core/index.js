@@ -21,6 +21,8 @@ export { ErrorConverter } from './Request/ValidatorDecorator.js';
 export { Catch } from './Decorators/CatchDecorator.js';
 // Response
 export { ApiResponse } from './Response/ApiResponse.js';
+// logs
+export { log } from './Logs/Logger.js';
 // Security
 export * as Hash from './Security/hash.js';
 export * as JWT from './Security/jwt.js';

@@ -27,6 +27,9 @@ export { Catch } from './Decorators/CatchDecorator'
 // Response
 export { ApiResponse, type Response } from './Response/ApiResponse'
 
+// logs
+export { log } from './Logs/Logger'
+
 // Security
 export * as Hash from './Security/hash'
 export * as JWT from './Security/jwt'

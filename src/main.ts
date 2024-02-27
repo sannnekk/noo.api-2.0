@@ -13,6 +13,7 @@ import '@modules/Courses/CourseController'
 import '@modules/Works/WorkController'
 import '@modules/AssignedWorks/AssignedWorkController'
 import '@modules/Media/MediaController'
+import '@modules/CRM/CRMController'
 
 await CoreDataSource.initialize()
 
