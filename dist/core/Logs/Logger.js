@@ -7,6 +7,6 @@ function log(data) {
 }
 function toLog(data) {
     const str = typeof data === 'object' ? JSON.stringify(data, null, 2) : data;
-    return `${new Date().toUTCString()}: ${str}`;
+    return `${new Date().toUTCString()}: ${str} \n`;
 }
 export { log };
