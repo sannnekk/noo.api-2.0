@@ -23,6 +23,7 @@ export class WorkController {
 	public async getWorks(context: Context): Promise<ApiResponse> {
 		try {
 			Asserts.isAuthenticated(context)
+			Asserts.teacherOrAdmin(context)
 
 			const pagination = this.workValidator.validatePagination(
 				context.query
