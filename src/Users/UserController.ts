@@ -172,7 +172,7 @@ export class UserController {
 	@Patch('/:studentId/assign-mentor/:mentorId')
 	async assignMentor(context: Context): Promise<ApiResponse> {
 		try {
-			Asserts.teacherOrAdmin(context)
+			Asserts.notStudent(context)
 			this.userValidator.validateId(context.params.studentId)
 			this.userValidator.validateId(context.params.mentorId)
 
