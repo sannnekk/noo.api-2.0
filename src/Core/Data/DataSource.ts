@@ -12,6 +12,7 @@ import { WorkTaskOptionModel } from '@modules/Works/Data/Relations/WorkTaskOptio
 import { AssignedWorkModel } from '@modules/AssignedWorks/Data/AssignedWorkModel'
 import { AssignedWorkAnswerModel } from '@modules/AssignedWorks/Data/Relations/AssignedWorkAnswerModel'
 import { AssignedWorkCommentModel } from '@modules/AssignedWorks/Data/Relations/AssignedWorkCommentModel'
+import { CourseRequestModel } from '@modules/CRM/Data/CourseRequestModel'
 
 export const CoreDataSource = new DataSource({
 	type: 'mysql',
@@ -34,6 +35,7 @@ export const CoreDataSource = new DataSource({
 		AssignedWorkModel,
 		AssignedWorkAnswerModel,
 		AssignedWorkCommentModel,
+		CourseRequestModel,
 	],
 	subscribers: [],
 	migrations: [],

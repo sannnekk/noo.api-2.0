@@ -18,7 +18,9 @@ export class CRMController {
 
 			log('Deal created')
 			log(context._express.req)
-			//const deal = await this.dealsService.createDeal(context.body)
+			log(context.body)
+			log('Deal created end')
+			//const deal = await this.dealsService.create(context.body)
 		} catch (error: any) {
 			log('Deal creation error')
 			log(error)
@@ -34,7 +36,9 @@ export class CRMController {
 
 			log('Deal canceled')
 			log(context._express.req)
-			//const deal = await this.dealsService.createDeal(context.body)
+			log(context.body)
+			log('Deal canceled end')
+			//const deal = await this.dealsService.create(context.body)
 		} catch (error: any) {
 			log('Deal cancel error')
 			log(error)
