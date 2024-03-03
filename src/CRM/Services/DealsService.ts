@@ -4,7 +4,7 @@ import { CourseRequest } from '../Data/CourseRequest'
 import { CourseRequestRepository } from '../Data/CourseRequestRepository'
 
 export class DealsService extends Service<CourseRequestModel> {
-	private courseRequestRepository: CourseRequestRepository
+	private readonly courseRequestRepository: CourseRequestRepository
 
 	public constructor() {
 		super()
@@ -23,7 +23,7 @@ export class DealsService extends Service<CourseRequestModel> {
 
 	public async remove(email: string) {
 		const courseRequest = await this.courseRequestRepository.findOne({
-			where: { email },
+			email,
 		})
 
 		if (!courseRequest) {

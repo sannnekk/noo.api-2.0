@@ -14,6 +14,7 @@ import '@modules/Works/WorkController'
 import '@modules/AssignedWorks/AssignedWorkController'
 import '@modules/Media/MediaController'
 import '@modules/CRM/CRMController'
+import '@modules/Calender/CalenderController'
 
 await CoreDataSource.initialize()
 
