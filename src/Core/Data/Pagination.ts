@@ -1,9 +1,5 @@
 import TypeORM from 'typeorm'
 
-export type RawFilters = {
-	[key: `filter[${string}]`]: string
-}
-
 export type Filters = {
 	[key: string]: any
 }
@@ -23,14 +19,14 @@ export class Pagination {
 		sort?: string | undefined,
 		order?: 'ASC' | 'DESC' | undefined,
 		search?: string | undefined,
-		rawFilters?: RawFilters | undefined
+		filters?: Filters | undefined
 	) {
 		this.page = page || 1
 		this.limit = limit || 25
 		this.sort = sort || 'id'
 		this.order = order === 'ASC' ? 'ASC' : 'DESC'
 		this.search = search || ''
-		this.filters = rawFilters ? this.parseFilterValues(rawFilters) : {}
+		this.filters = filters ? this.parseFilterValues(filters) : {}
 	}
 
 	public assign(data: Partial<Pagination> | undefined): typeof this {
@@ -77,39 +73,39 @@ export class Pagination {
 		}))
 	}
 
-	private parseFilterValues(filters: RawFilters): Filters {
-		return Object.entries(filters)
-			.map(([key, value]) => {
-				const [_, field] = key.split('[')
-				const fieldName = field.slice(0, -1)
+	private parseFilterValues(filters: Filters): Filters {
+		const parsedFilters = {} as any
 
-				if (value === 'null') {
-					return { [fieldName]: null }
-				}
+		for (const key in filters) {
+			const value = filters[key]
 
-				if (/^range\([0-9.|]+\)$/.test(value)) {
-					const [min, max] = value
-						.slice(6, -1)
-						.split('|')
-						.map((v) => this.typeConvert(v))
+			if (value === 'null') {
+				parsedFilters[key] = null
+				continue
+			}
 
-					return { [fieldName]: TypeORM.Between(min, max) }
-				}
+			if (/^range\([0-9.|]+\)$/.test(value)) {
+				const [min, max] = value
+					.slice(6, -1)
+					.split('|')
+					.map((v: any) => this.typeConvert(v))
 
-				if (/^arr\([0-9a-bA-B\_|]+\)$/.test(value)) {
-					return {
-						[fieldName]: TypeORM.In(
-							value
-								.slice(4, -1)
-								.split('|')
-								.map((v) => this.typeConvert(v))
-						),
-					}
-				}
+				parsedFilters[key] = TypeORM.Between(min, max)
+				continue
+			}
 
-				return { [fieldName]: this.typeConvert(value) }
-			})
-			.reduce((acc, filter) => ({ ...acc, ...filter }), {} as Filters)
+			if (/^arr\([0-9a-bA-B\_|]+\)$/.test(value)) {
+				parsedFilters[key] = value
+					.slice(4, -1)
+					.split('|')
+					.map((v: any) => this.typeConvert(v))
+				continue
+			}
+
+			parsedFilters[key] = this.typeConvert(value)
+		}
+
+		return parsedFilters
 	}
 
 	private typeConvert(
