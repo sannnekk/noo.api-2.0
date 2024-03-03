@@ -84,7 +84,7 @@ export class Pagination {
 				continue
 			}
 
-			if (/^range\([0-9.|]+\)$/.test(value)) {
+			if (/^range\([0-9.|:\-\_a-zA-Z]+\)$/.test(value)) {
 				const [min, max] = value
 					.slice(6, -1)
 					.split('|')
@@ -94,7 +94,7 @@ export class Pagination {
 				continue
 			}
 
-			if (/^arr\([0-9a-bA-B\_|]+\)$/.test(value)) {
+			if (/^arr\([0-9.|:\-\_a-zA-Z]+\)$/.test(value)) {
 				parsedFilters[key] = value
 					.slice(4, -1)
 					.split('|')
