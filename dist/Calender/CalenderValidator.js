@@ -12,8 +12,8 @@ let CalenderValidator = class CalenderValidator extends Validator {
             title: z.string(),
             description: z.string(),
             date: z.date(),
-            to: z.string(),
-            private: z.boolean(),
+            url: z.string().url().optional(),
+            isPrivate: z.boolean(),
             type: z.enum([
                 'student-deadline',
                 'teacher-deadline',
