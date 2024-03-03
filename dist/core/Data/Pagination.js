@@ -89,9 +89,13 @@ export class Pagination {
         if (/^[0-9.]+$/.test(value)) {
             return parseFloat(value);
         }
-        if (new Date(value).toISOString() === value) {
-            return new Date(value);
+        try {
+            const date = new Date(value);
+            if (!isNaN(date.getTime())) {
+                return date;
+            }
         }
+        catch (error) { }
         return value;
     }
 }

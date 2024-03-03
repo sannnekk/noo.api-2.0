@@ -131,9 +131,13 @@ export class Pagination {
 			return parseFloat(value)
 		}
 
-		if (new Date(value).toISOString() === value) {
-			return new Date(value)
-		}
+		try {
+			const date = new Date(value)
+
+			if (!isNaN(date.getTime())) {
+				return date
+			}
+		} catch (error: any) {}
 
 		return value
 	}
