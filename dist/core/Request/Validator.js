@@ -9,23 +9,16 @@ import { z } from 'zod';
 import { ErrorConverter } from './ValidatorDecorator.js';
 let Validator = class Validator {
     validatePagination(data) {
-        // TODO: Better validation for filter's value
-        const filterValueSchema = z.string();
-        const filterSchema = z.custom((data) => {
-            return z
-                .record(z.string().regex(/^filter\[[a-zA-Z.]+\]$/), filterValueSchema)
-                .parse(data);
-        });
         const schema = z.object({
             page: z.coerce.number().int().positive().optional(),
             limit: z.coerce.number().int().positive().optional(),
             sort: z.string().optional(),
             order: z.enum(['ASC', 'DESC']).optional(),
             search: z.string().optional(),
+            filter: z.record(z.any()).optional(),
         });
         const pagination = schema.parse(data);
-        const rawFilters = filterSchema.parse(data);
-        return new Pagination(pagination.page, pagination.limit, pagination.sort, pagination.order, pagination.search, rawFilters);
+        return new Pagination(pagination.page, pagination.limit, pagination.sort, pagination.order, pagination.search, pagination.filter);
     }
     validateId(id) {
         const schema = z.string().ulid();
