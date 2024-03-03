@@ -12,6 +12,7 @@ import { AssignedWorkModel } from '../../AssignedWorks/Data/AssignedWorkModel.js
 import { AssignedWorkAnswerModel } from '../../AssignedWorks/Data/Relations/AssignedWorkAnswerModel.js';
 import { AssignedWorkCommentModel } from '../../AssignedWorks/Data/Relations/AssignedWorkCommentModel.js';
 import { CourseRequestModel } from '../../CRM/Data/CourseRequestModel.js';
+import { CalenderEventModel } from '../../Calender/Data/CalenderEventModel.js';
 export const CoreDataSource = new DataSource({
     type: 'mysql',
     host: process.env.DB_HOST,
@@ -34,6 +35,7 @@ export const CoreDataSource = new DataSource({
         AssignedWorkAnswerModel,
         AssignedWorkCommentModel,
         CourseRequestModel,
+        CalenderEventModel,
     ],
     subscribers: [],
     migrations: [],

@@ -13,6 +13,7 @@ import { AssignedWorkModel } from '@modules/AssignedWorks/Data/AssignedWorkModel
 import { AssignedWorkAnswerModel } from '@modules/AssignedWorks/Data/Relations/AssignedWorkAnswerModel'
 import { AssignedWorkCommentModel } from '@modules/AssignedWorks/Data/Relations/AssignedWorkCommentModel'
 import { CourseRequestModel } from '@modules/CRM/Data/CourseRequestModel'
+import { CalenderEventModel } from '@modules/Calender/Data/CalenderEventModel'
 
 export const CoreDataSource = new DataSource({
 	type: 'mysql',
@@ -36,6 +37,7 @@ export const CoreDataSource = new DataSource({
 		AssignedWorkAnswerModel,
 		AssignedWorkCommentModel,
 		CourseRequestModel,
+		CalenderEventModel,
 	],
 	subscribers: [],
 	migrations: [],
