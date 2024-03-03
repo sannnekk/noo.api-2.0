@@ -128,7 +128,7 @@ let UserController = class UserController {
     }
     async assignMentor(context) {
         try {
-            Asserts.teacherOrAdmin(context);
+            Asserts.notStudent(context);
             this.userValidator.validateId(context.params.studentId);
             this.userValidator.validateId(context.params.mentorId);
             await this.userService.assignMentor(context.params.studentId, context.params.mentorId);

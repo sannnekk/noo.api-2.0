@@ -20,8 +20,10 @@ let CRMController = class CRMController {
         try {
             CrmAsserts.hasSecret(context);
             log('Deal created');
+            log(context._express.req);
             log(context.body);
-            //const deal = await this.dealsService.createDeal(context.body)
+            log('Deal created end');
+            //const deal = await this.dealsService.create(context.body)
         }
         catch (error) {
             log('Deal creation error');
@@ -35,8 +37,10 @@ let CRMController = class CRMController {
         try {
             CrmAsserts.hasSecret(context);
             log('Deal canceled');
+            log(context._express.req);
             log(context.body);
-            //const deal = await this.dealsService.createDeal(context.body)
+            log('Deal canceled end');
+            //const deal = await this.dealsService.create(context.body)
         }
         catch (error) {
             log('Deal cancel error');

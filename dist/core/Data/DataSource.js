@@ -11,6 +11,7 @@ import { WorkTaskOptionModel } from '../../Works/Data/Relations/WorkTaskOptionMo
 import { AssignedWorkModel } from '../../AssignedWorks/Data/AssignedWorkModel.js';
 import { AssignedWorkAnswerModel } from '../../AssignedWorks/Data/Relations/AssignedWorkAnswerModel.js';
 import { AssignedWorkCommentModel } from '../../AssignedWorks/Data/Relations/AssignedWorkCommentModel.js';
+import { CourseRequestModel } from '../../CRM/Data/CourseRequestModel.js';
 export const CoreDataSource = new DataSource({
     type: 'mysql',
     host: process.env.DB_HOST,
@@ -32,6 +33,7 @@ export const CoreDataSource = new DataSource({
         AssignedWorkModel,
         AssignedWorkAnswerModel,
         AssignedWorkCommentModel,
+        CourseRequestModel,
     ],
     subscribers: [],
     migrations: [],

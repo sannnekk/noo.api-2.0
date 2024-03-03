@@ -21,6 +21,7 @@ let WorkController = class WorkController {
     async getWorks(context) {
         try {
             Asserts.isAuthenticated(context);
+            Asserts.teacherOrAdmin(context);
             const pagination = this.workValidator.validatePagination(context.query);
             const works = await this.workService.getWorks(pagination);
             const meta = await this.workService.getLastRequestMeta();

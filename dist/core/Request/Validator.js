@@ -9,6 +9,13 @@ import { z } from 'zod';
 import { ErrorConverter } from './ValidatorDecorator.js';
 let Validator = class Validator {
     validatePagination(data) {
+        // TODO: Better validation for filter's value
+        const filterValueSchema = z.string();
+        const filterSchema = z.custom((data) => {
+            return z
+                .record(z.string().regex(/^filter\[[a-zA-Z.]+\]$/), filterValueSchema)
+                .parse(data);
+        });
         const schema = z.object({
             page: z.coerce.number().int().positive().optional(),
             limit: z.coerce.number().int().positive().optional(),
@@ -17,7 +24,8 @@ let Validator = class Validator {
             search: z.string().optional(),
         });
         const pagination = schema.parse(data);
-        return new Pagination(pagination.page, pagination.limit, pagination.sort, pagination.order, pagination.search);
+        const rawFilters = filterSchema.parse(data);
+        return new Pagination(pagination.page, pagination.limit, pagination.sort, pagination.order, pagination.search, rawFilters);
     }
     validateId(id) {
         const schema = z.string().ulid();
