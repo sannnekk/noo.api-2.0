@@ -15,7 +15,7 @@ export class CalenderValidator extends Validator {
 			isPrivate: z.boolean(),
 			type: z.enum([
 				'student-deadline',
-				'teacher-deadline',
+				'mentor-deadline',
 				'work-checked',
 				'work-made',
 				'event',
