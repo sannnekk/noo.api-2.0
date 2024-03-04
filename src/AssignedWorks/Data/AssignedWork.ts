@@ -34,4 +34,5 @@ export interface AssignedWork extends BaseModel {
 	commentIds: AssignedWorkComment['id'][]
 	score?: number
 	maxScore: number
+	isArchived: boolean
 }

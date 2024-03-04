@@ -191,6 +191,13 @@ export class AssignedWorkModel extends Model implements AssignedWork {
 	})
 	maxScore!: number
 
+	@Column({
+		name: 'is_archived',
+		type: 'boolean',
+		default: false,
+	})
+	isArchived: boolean = false
+
 	private sluggify(): string {
 		return ULID.generate()
 	}
