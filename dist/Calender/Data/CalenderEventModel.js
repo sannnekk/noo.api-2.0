@@ -40,7 +40,7 @@ __decorate([
 __decorate([
     Column({
         name: 'date',
-        type: 'date',
+        type: 'timestamp',
     }),
     __metadata("design:type", Date)
 ], CalenderEventModel.prototype, "date", void 0);
