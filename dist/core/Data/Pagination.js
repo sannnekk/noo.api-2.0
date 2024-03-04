@@ -63,10 +63,10 @@ export class Pagination {
                 continue;
             }
             if (/^arr\([0-9.|:\-\_a-zA-Z]+\)$/.test(value)) {
-                parsedFilters[key] = value
+                parsedFilters[key] = TypeORM.In(value
                     .slice(4, -1)
                     .split('|')
-                    .map((v) => this.typeConvert(v));
+                    .map((v) => this.typeConvert(v)));
                 continue;
             }
             parsedFilters[key] = this.typeConvert(value);

@@ -56,6 +56,7 @@ let AssignedWorkModel = class AssignedWorkModel extends Model {
     set commentIds(ids) { }
     score;
     maxScore;
+    isArchived = false;
     sluggify() {
         return ULID.generate();
     }
@@ -191,6 +192,14 @@ __decorate([
     }),
     __metadata("design:type", Number)
 ], AssignedWorkModel.prototype, "maxScore", void 0);
+__decorate([
+    Column({
+        name: 'is_archived',
+        type: 'boolean',
+        default: false,
+    }),
+    __metadata("design:type", Boolean)
+], AssignedWorkModel.prototype, "isArchived", void 0);
 AssignedWorkModel = __decorate([
     Entity('assigned_work'),
     __metadata("design:paramtypes", [Object])

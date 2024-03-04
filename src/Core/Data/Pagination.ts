@@ -95,10 +95,12 @@ export class Pagination {
 			}
 
 			if (/^arr\([0-9.|:\-\_a-zA-Z]+\)$/.test(value)) {
-				parsedFilters[key] = value
-					.slice(4, -1)
-					.split('|')
-					.map((v: any) => this.typeConvert(v))
+				parsedFilters[key] = TypeORM.In(
+					value
+						.slice(4, -1)
+						.split('|')
+						.map((v: any) => this.typeConvert(v))
+				)
 				continue
 			}
 
