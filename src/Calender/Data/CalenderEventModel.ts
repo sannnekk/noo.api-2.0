@@ -63,4 +63,11 @@ export class CalenderEventModel extends Model implements CalenderEvent {
 		| 'work-checked'
 		| 'work-made'
 		| 'event' = 'event'
+
+	@Column({
+		name: 'username',
+		type: 'varchar',
+		nullable: false,
+	})
+	username!: string
 }

@@ -1,4 +1,5 @@
 import { BaseModel } from '@core'
+import { User } from '@modules/Users/Data/User'
 
 export interface CalenderEvent extends BaseModel {
 	title: string
@@ -12,4 +13,5 @@ export interface CalenderEvent extends BaseModel {
 		| 'work-checked'
 		| 'work-made'
 		| 'event'
+	username: User['username']
 }
