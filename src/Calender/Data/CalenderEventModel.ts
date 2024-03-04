@@ -26,7 +26,7 @@ export class CalenderEventModel extends Model implements CalenderEvent {
 
 	@Column({
 		name: 'date',
-		type: 'date',
+		type: 'timestamp',
 	})
 	date!: Date
 
