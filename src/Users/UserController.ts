@@ -127,6 +127,29 @@ export class UserController {
 		}
 	}
 
+	@Get('/student/search/own')
+	async getMyStudents(context: Context): Promise<ApiResponse> {
+		try {
+			Asserts.isAuthenticated(context)
+			Asserts.mentor(context)
+
+			const pagination = this.userValidator.validatePagination(
+				context.query
+			)
+
+			const students = await this.userService.getStudentsOf(
+				context.credentials.userId,
+				pagination
+			)
+
+			const meta = await this.userService.getLastRequestMeta()
+
+			return new ApiResponse({ data: students, meta })
+		} catch (error: any) {
+			return new ApiResponse(error)
+		}
+	}
+
 	@Get()
 	async getUsers(context: Context): Promise<ApiResponse> {
 		try {
@@ -145,29 +168,6 @@ export class UserController {
 			const meta = await this.userService.getLastRequestMeta()
 
 			return new ApiResponse({ data: users, meta })
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
-
-	@Get('/students/my')
-	async getMyStudents(context: Context): Promise<ApiResponse> {
-		try {
-			Asserts.isAuthenticated(context)
-			Asserts.mentor(context)
-
-			const pagination = this.userValidator.validatePagination(
-				context.query
-			)
-
-			const students = await this.userService.getStudentsOf(
-				context.credentials.userId,
-				pagination
-			)
-
-			const meta = await this.userService.getLastRequestMeta()
-
-			return new ApiResponse({ data: students, meta })
 		} catch (error: any) {
 			return new ApiResponse(error)
 		}
