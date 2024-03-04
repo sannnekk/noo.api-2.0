@@ -1,4 +1,4 @@
-import { Service } from '../../core/index.js';
+import { Service, UnauthorizedError } from '../../core/index.js';
 import { CalenderEventRepository } from '../Data/CalenderEventRepository.js';
 export class CalenderService extends Service {
     calenderEventRepository;
@@ -6,21 +6,39 @@ export class CalenderService extends Service {
         super();
         this.calenderEventRepository = new CalenderEventRepository();
     }
-    async create(event) {
-        await this.calenderEventRepository.create(event);
+    async create(event, username) {
+        await this.calenderEventRepository.create({ ...event, username });
     }
-    async get(pagination) {
-        const events = this.calenderEventRepository.find(undefined, undefined, pagination);
+    async get(username, pagination) {
+        const events = this.calenderEventRepository.find({
+            username,
+        }, undefined, pagination);
         this.storeRequestMeta(this.calenderEventRepository, undefined, undefined, pagination);
         return events;
     }
-    async getOne(id) {
-        return this.calenderEventRepository.findOne({ id });
+    async getOne(id, username) {
+        const event = await this.calenderEventRepository.findOne({ id });
+        if (event && event?.username !== username) {
+            throw new UnauthorizedError();
+        }
+        return event;
     }
-    async update(id, event) {
+    async update(id, event, username) {
+        const foundEvent = await this.calenderEventRepository.findOne({
+            id,
+        });
+        if (foundEvent && foundEvent?.username !== username) {
+            throw new UnauthorizedError();
+        }
         await this.calenderEventRepository.update({ ...event, id });
     }
-    async delete(id) {
+    async delete(id, username) {
+        const foundEvent = await this.calenderEventRepository.findOne({
+            id,
+        });
+        if (foundEvent && foundEvent?.username !== username) {
+            throw new UnauthorizedError();
+        }
         await this.calenderEventRepository.delete(id);
     }
 }

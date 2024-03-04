@@ -10,7 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 import { CalenderValidator } from './CalenderValidator.js';
 import { Controller, Delete, Get, Patch, Post, } from 'express-controller-decorator';
 import { CalenderService } from './Services/CalenderService.js';
-import { ApiResponse, Asserts, Context } from '../core/index.js';
+import { ApiResponse, Asserts, Context, UnauthorizedError } from '../core/index.js';
 let CalenderController = class CalenderController {
     calenderService;
     calenderValidator;
@@ -22,7 +22,7 @@ let CalenderController = class CalenderController {
         try {
             Asserts.isAuthenticated(context);
             this.calenderValidator.validateEventCreation(context.body);
-            await this.calenderService.create(context.body);
+            await this.calenderService.create(context.body, context.credentials.username);
             return new ApiResponse(null);
         }
         catch (error) {
@@ -33,7 +33,7 @@ let CalenderController = class CalenderController {
         try {
             Asserts.isAuthenticated(context);
             const pagination = this.calenderValidator.validatePagination(context.query);
-            const events = await this.calenderService.get(pagination);
+            const events = await this.calenderService.get(context.credentials.username, pagination);
             const meta = await this.calenderService.getLastRequestMeta();
             return new ApiResponse({ data: events, meta });
         }
@@ -45,7 +45,10 @@ let CalenderController = class CalenderController {
         try {
             Asserts.isAuthenticated(context);
             this.calenderValidator.validateId(context.params.id);
-            const event = await this.calenderService.getOne(context.params.id);
+            const event = await this.calenderService.getOne(context.params.id, context.credentials.username);
+            if (event?.username !== context.credentials.username) {
+                throw new UnauthorizedError();
+            }
             return new ApiResponse({ data: event });
         }
         catch (error) {
@@ -57,7 +60,7 @@ let CalenderController = class CalenderController {
             Asserts.isAuthenticated(context);
             this.calenderValidator.validateId(context.params.id);
             this.calenderValidator.validateEventCreation(context.body);
-            await this.calenderService.update(context.params.id, context.body);
+            await this.calenderService.update(context.params.id, context.body, context.credentials.username);
             return new ApiResponse(null);
         }
         catch (error) {
@@ -68,7 +71,7 @@ let CalenderController = class CalenderController {
         try {
             Asserts.isAuthenticated(context);
             this.calenderValidator.validateId(context.params.id);
-            await this.calenderService.delete(context.params.id);
+            await this.calenderService.delete(context.params.id, context.credentials.username);
             return new ApiResponse(null);
         }
         catch (error) {

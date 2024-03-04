@@ -22,6 +22,7 @@ let CalenderEventModel = class CalenderEventModel extends Model {
     url;
     isPrivate = false;
     type = 'event';
+    username;
 };
 __decorate([
     Column({
@@ -76,6 +77,14 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], CalenderEventModel.prototype, "type", void 0);
+__decorate([
+    Column({
+        name: 'username',
+        type: 'varchar',
+        nullable: false,
+    }),
+    __metadata("design:type", String)
+], CalenderEventModel.prototype, "username", void 0);
 CalenderEventModel = __decorate([
     Entity('calender_event'),
     __metadata("design:paramtypes", [Object])
