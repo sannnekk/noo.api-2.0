@@ -1,4 +1,4 @@
-import { NotFoundError, UnauthenticatedError, JWT, Hash, AlreadyExistError, UnknownError, WrongRoleError, Pagination, Service, } from '../../core/index.js';
+import { NotFoundError, UnauthenticatedError, JWT, Hash, AlreadyExistError, UnknownError, Pagination, Service, } from '../../core/index.js';
 import { UserRepository } from '../Data/UserRepository.js';
 import { UserModel } from '../Data/UserModel.js';
 export class UserService extends Service {
@@ -77,21 +77,21 @@ export class UserService extends Service {
         return user;
     }
     async getUsers(pagination, role, userId) {
-        let conditions;
-        switch (role) {
-            case 'admin':
-            case 'teacher':
-                conditions = undefined;
-                break;
-            case 'mentor':
-                conditions = { mentor: { id: userId } };
-                break;
-            default:
-                throw new WrongRoleError();
-        }
         pagination = new Pagination().assign(pagination);
         pagination.entriesToSearch = UserModel.entriesToSearch();
         const relations = ['students', 'courses'];
+        const users = await this.userRepository.find(undefined, relations, pagination);
+        this.storeRequestMeta(this.userRepository, undefined, relations, pagination);
+        return users;
+    }
+    async getStudentsOf(mentorId, pagination) {
+        pagination = new Pagination().assign(pagination);
+        pagination.entriesToSearch = UserModel.entriesToSearch();
+        const relations = ['students'];
+        const conditions = {
+            mentor: { id: mentorId },
+            role: 'student',
+        };
         const users = await this.userRepository.find(conditions, relations, pagination);
         this.storeRequestMeta(this.userRepository, conditions, relations, pagination);
         return users;

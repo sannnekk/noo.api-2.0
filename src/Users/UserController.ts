@@ -150,6 +150,29 @@ export class UserController {
 		}
 	}
 
+	@Get('/students/my')
+	async getMyStudents(context: Context): Promise<ApiResponse> {
+		try {
+			Asserts.isAuthenticated(context)
+			Asserts.mentor(context)
+
+			const pagination = this.userValidator.validatePagination(
+				context.query
+			)
+
+			const students = await this.userService.getStudentsOf(
+				context.credentials.userId,
+				pagination
+			)
+
+			const meta = await this.userService.getLastRequestMeta()
+
+			return new ApiResponse({ data: students, meta })
+		} catch (error: any) {
+			return new ApiResponse(error)
+		}
+	}
+
 	@Patch('/:id')
 	async update(context: Context): Promise<ApiResponse> {
 		try {

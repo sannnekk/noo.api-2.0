@@ -111,6 +111,19 @@ let UserController = class UserController {
             return new ApiResponse(error);
         }
     }
+    async getMyStudents(context) {
+        try {
+            Asserts.isAuthenticated(context);
+            Asserts.mentor(context);
+            const pagination = this.userValidator.validatePagination(context.query);
+            const students = await this.userService.getStudentsOf(context.credentials.userId, pagination);
+            const meta = await this.userService.getLastRequestMeta();
+            return new ApiResponse({ data: students, meta });
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
     async update(context) {
         try {
             Asserts.isAuthenticated(context);
@@ -201,6 +214,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "getUsers", null);
+__decorate([
+    Get('/students/my'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "getMyStudents", null);
 __decorate([
     Patch('/:id'),
     __metadata("design:type", Function),

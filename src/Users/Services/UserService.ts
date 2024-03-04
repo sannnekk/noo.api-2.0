@@ -123,24 +123,39 @@ export class UserService extends Service<User> {
 		role: User['role'],
 		userId: User['id']
 	): Promise<User[]> {
-		let conditions: Record<string, any> | undefined
-
-		switch (role) {
-			case 'admin':
-			case 'teacher':
-				conditions = undefined
-				break
-			case 'mentor':
-				conditions = { mentor: { id: userId } }
-				break
-			default:
-				throw new WrongRoleError()
-		}
-
 		pagination = new Pagination().assign(pagination)
 		pagination.entriesToSearch = UserModel.entriesToSearch()
 
 		const relations = ['students' as const, 'courses' as const]
+
+		const users = await this.userRepository.find(
+			undefined,
+			relations,
+			pagination
+		)
+
+		this.storeRequestMeta(
+			this.userRepository,
+			undefined,
+			relations,
+			pagination
+		)
+
+		return users
+	}
+
+	public async getStudentsOf(
+		mentorId: User['id'],
+		pagination?: Pagination
+	): Promise<User[]> {
+		pagination = new Pagination().assign(pagination)
+		pagination.entriesToSearch = UserModel.entriesToSearch()
+
+		const relations = ['students' as const]
+		const conditions: any = {
+			mentor: { id: mentorId } as any,
+			role: 'student',
+		}
 
 		const users = await this.userRepository.find(
 			conditions,
