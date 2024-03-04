@@ -9,7 +9,7 @@ export class CalenderValidator extends Validator {
 	): asserts event is CalenderEvent {
 		const schema = z.object({
 			title: z.string(),
-			description: z.string(),
+			description: z.string().optional(),
 			date: z.date(),
 			url: z.string().url().optional(),
 			isPrivate: z.boolean(),

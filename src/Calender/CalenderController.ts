@@ -1,6 +1,7 @@
 import { CalenderValidator } from './CalenderValidator'
 import {
 	Controller,
+	Delete,
 	Get,
 	Patch,
 	Post,
@@ -80,6 +81,22 @@ export class CalenderController {
 			this.calenderValidator.validateEventCreation(context.body)
 
 			await this.calenderService.update(context.params.id, context.body)
+
+			return new ApiResponse(null)
+		} catch (error: any) {
+			return new ApiResponse(error)
+		}
+	}
+
+	@Delete('/:id')
+	public async deleteCalenderEvent(
+		context: Context
+	): Promise<ApiResponse> {
+		try {
+			Asserts.isAuthenticated(context)
+			this.calenderValidator.validateId(context.params.id)
+
+			await this.calenderService.delete(context.params.id)
 
 			return new ApiResponse(null)
 		} catch (error: any) {

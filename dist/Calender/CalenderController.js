@@ -8,7 +8,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { CalenderValidator } from './CalenderValidator.js';
-import { Controller, Get, Patch, Post, } from 'express-controller-decorator';
+import { Controller, Delete, Get, Patch, Post, } from 'express-controller-decorator';
 import { CalenderService } from './Services/CalenderService.js';
 import { ApiResponse, Asserts, Context } from '../core/index.js';
 let CalenderController = class CalenderController {
@@ -64,6 +64,17 @@ let CalenderController = class CalenderController {
             return new ApiResponse(error);
         }
     }
+    async deleteCalenderEvent(context) {
+        try {
+            Asserts.isAuthenticated(context);
+            this.calenderValidator.validateId(context.params.id);
+            await this.calenderService.delete(context.params.id);
+            return new ApiResponse(null);
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
 };
 __decorate([
     Post(),
@@ -89,6 +100,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], CalenderController.prototype, "updateCalenderEvent", null);
+__decorate([
+    Delete('/:id'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], CalenderController.prototype, "deleteCalenderEvent", null);
 CalenderController = __decorate([
     Controller('/calender'),
     __metadata("design:paramtypes", [])

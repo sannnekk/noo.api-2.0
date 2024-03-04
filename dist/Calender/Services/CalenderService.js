@@ -20,4 +20,7 @@ export class CalenderService extends Service {
     async update(id, event) {
         await this.calenderEventRepository.update({ ...event, id });
     }
+    async delete(id) {
+        await this.calenderEventRepository.delete(id);
+    }
 }

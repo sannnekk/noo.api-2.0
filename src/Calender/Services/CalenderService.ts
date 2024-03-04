@@ -44,4 +44,8 @@ export class CalenderService extends Service<CalenderEvent> {
 	): Promise<void> {
 		await this.calenderEventRepository.update({ ...event, id })
 	}
+
+	public async delete(id: CalenderEvent['id']): Promise<void> {
+		await this.calenderEventRepository.delete(id)
+	}
 }
