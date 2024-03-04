@@ -95,6 +95,28 @@ export class WorkTaskModel extends Model implements WorkTask {
 	})
 	rightAnswer?: string | undefined
 
+	@Column({
+		name: 'solve_hint',
+		type: 'json',
+		nullable: true,
+	})
+	solveHint?: DeltaContentType | undefined
+
+	@Column({
+		name: 'check_hint',
+		type: 'json',
+		nullable: true,
+	})
+	checkHint?: DeltaContentType | undefined
+
+	@Column({
+		name: 'checking_strategy',
+		type: 'enum',
+		enum: ['type1', 'type2'],
+		nullable: true,
+	})
+	checkingStrategy?: 'type1' | 'type2' | undefined
+
 	@OneToMany(
 		() => WorkTaskOptionModel,
 		(taskOption) => taskOption.task,

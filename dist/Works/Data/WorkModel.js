@@ -26,6 +26,7 @@ let WorkModel = class WorkModel extends Model {
     }
     slug;
     name;
+    type = 'type1';
     description;
     materials;
     tasks;
@@ -59,6 +60,15 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], WorkModel.prototype, "name", void 0);
+__decorate([
+    Column({
+        name: 'type',
+        type: 'enum',
+        enum: ['type1', 'type2', 'type3'],
+        default: 'type1',
+    }),
+    __metadata("design:type", String)
+], WorkModel.prototype, "type", void 0);
 __decorate([
     Column({
         name: 'description',

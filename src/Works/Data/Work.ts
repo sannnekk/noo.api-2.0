@@ -7,6 +7,7 @@ export interface Work extends BaseModel {
 	id: string
 	slug: string
 	name: string
+	type: 'type1' | 'type2' | 'type3'
 	description: string
 	materialId?: string
 	materials?: CourseMaterial[]

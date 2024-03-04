@@ -43,6 +43,14 @@ export class WorkModel extends Model implements Work {
 	name!: string
 
 	@Column({
+		name: 'type',
+		type: 'enum',
+		enum: ['type1', 'type2', 'type3'],
+		default: 'type1',
+	})
+	type: 'type1' | 'type2' | 'type3' = 'type1'
+
+	@Column({
 		name: 'description',
 		type: 'text',
 	})

@@ -17,6 +17,9 @@ export interface WorkTask extends BaseModel {
 	assignedWorkId?: AssignedWork['id']
 	assignedWork?: AssignedWork
 	rightAnswer?: string
+	solveHint?: DeltaContentType
+	checkHint?: DeltaContentType
+	checkingStrategy?: 'type1' | 'type2'
 	options?: WorkTaskOption[]
 	optionsIds?: WorkTaskOption['id'][]
 	assignedWorkAnswers?: AssignedWorkAnswer[]

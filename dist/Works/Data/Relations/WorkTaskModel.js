@@ -35,6 +35,9 @@ let WorkTaskModel = class WorkTaskModel extends Model {
     work;
     workId;
     rightAnswer;
+    solveHint;
+    checkHint;
+    checkingStrategy;
     options;
     get optionIds() {
         return this.options?.map((option) => option.id);
@@ -116,6 +119,31 @@ __decorate([
     }),
     __metadata("design:type", Object)
 ], WorkTaskModel.prototype, "rightAnswer", void 0);
+__decorate([
+    Column({
+        name: 'solve_hint',
+        type: 'json',
+        nullable: true,
+    }),
+    __metadata("design:type", Object)
+], WorkTaskModel.prototype, "solveHint", void 0);
+__decorate([
+    Column({
+        name: 'check_hint',
+        type: 'json',
+        nullable: true,
+    }),
+    __metadata("design:type", Object)
+], WorkTaskModel.prototype, "checkHint", void 0);
+__decorate([
+    Column({
+        name: 'checking_strategy',
+        type: 'enum',
+        enum: ['type1', 'type2'],
+        nullable: true,
+    }),
+    __metadata("design:type", Object)
+], WorkTaskModel.prototype, "checkingStrategy", void 0);
 __decorate([
     OneToMany(() => WorkTaskOptionModel, (taskOption) => taskOption.task, { eager: true, cascade: true }),
     __metadata("design:type", Object)
