@@ -11,6 +11,7 @@ import { CheckDeadlineNotSetError } from '../Errors/CheckDeadlineNotSetError.js'
 import { UserRepository } from '../../Users/Data/UserRepository.js';
 import { WorkRepository } from '../../Works/Data/WorkRepository.js';
 import { DeadlineAlreadyShiftedError } from '../Errors/DeadlineAlreadyShiftedError.js';
+import { WorkIsArchived } from '../Errors/WorkIsArchived.js';
 export class AssignedWorkService extends Service {
     assignedWorkRepository;
     workRepository;
@@ -121,6 +122,9 @@ export class AssignedWorkService extends Service {
         });
         if (!foundWork) {
             throw new NotFoundError();
+        }
+        if (foundWork.isArchived) {
+            throw new WorkIsArchived();
         }
         if (role == 'student') {
             if (foundWork.solveStatus === 'made-in-deadline' ||

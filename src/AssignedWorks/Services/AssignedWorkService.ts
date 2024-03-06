@@ -19,6 +19,7 @@ import { UserRepository } from '@modules/Users/Data/UserRepository'
 import { WorkRepository } from '@modules/Works/Data/WorkRepository'
 import { AssignedWorkComment } from '../Data/Relations/AssignedWorkComment'
 import { DeadlineAlreadyShiftedError } from '../Errors/DeadlineAlreadyShiftedError'
+import { WorkIsArchived } from '../Errors/WorkIsArchived'
 
 export class AssignedWorkService extends Service<AssignedWork> {
 	private readonly assignedWorkRepository: AssignedWorkRepository
@@ -195,6 +196,10 @@ export class AssignedWorkService extends Service<AssignedWork> {
 
 		if (!foundWork) {
 			throw new NotFoundError()
+		}
+
+		if (foundWork.isArchived) {
+			throw new WorkIsArchived()
 		}
 
 		if (role == 'student') {
