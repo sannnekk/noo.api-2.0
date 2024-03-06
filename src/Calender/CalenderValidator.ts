@@ -12,7 +12,13 @@ export class CalenderValidator extends Validator {
 			description: z.string().optional(),
 			date: z.date(),
 			url: z.string().url().optional(),
-			isPrivate: z.boolean(),
+			visibility: z.enum([
+				'all',
+				'own-students',
+				'all-mentors',
+				'own-mentor',
+				'private',
+			]),
 			type: z.enum([
 				'student-deadline',
 				'mentor-deadline',

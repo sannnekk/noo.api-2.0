@@ -20,7 +20,7 @@ let CalenderEventModel = class CalenderEventModel extends Model {
     description;
     date;
     url;
-    isPrivate = false;
+    visibility = 'private';
     type = 'event';
     username;
 };
@@ -54,13 +54,19 @@ __decorate([
 ], CalenderEventModel.prototype, "url", void 0);
 __decorate([
     Column({
-        name: 'is_private',
-        type: 'boolean',
-        default: false,
-        nullable: false,
+        name: 'visibility',
+        type: 'enum',
+        enum: [
+            'all',
+            'own-students',
+            'all-mentors',
+            'own-mentor',
+            'private',
+        ],
+        default: 'private',
     }),
-    __metadata("design:type", Boolean)
-], CalenderEventModel.prototype, "isPrivate", void 0);
+    __metadata("design:type", Object)
+], CalenderEventModel.prototype, "visibility", void 0);
 __decorate([
     Column({
         name: 'type',

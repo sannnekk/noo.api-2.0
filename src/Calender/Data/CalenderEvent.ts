@@ -6,7 +6,12 @@ export interface CalenderEvent extends BaseModel {
 	description: string
 	date: Date
 	url: string
-	isPrivate: boolean
+	visibility:
+		| 'all'
+		| 'own-students'
+		| 'all-mentors'
+		| 'own-mentor'
+		| 'private'
 	type:
 		| 'student-deadline'
 		| 'mentor-deadline'

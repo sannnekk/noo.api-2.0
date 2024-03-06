@@ -37,12 +37,18 @@ export class CalenderEventModel extends Model implements CalenderEvent {
 	url!: string
 
 	@Column({
-		name: 'is_private',
-		type: 'boolean',
-		default: false,
-		nullable: false,
+		name: 'visibility',
+		type: 'enum',
+		enum: [
+			'all',
+			'own-students',
+			'all-mentors',
+			'own-mentor',
+			'private',
+		],
+		default: 'private',
 	})
-	isPrivate: boolean = false
+	visibility: CalenderEvent['visibility'] = 'private'
 
 	@Column({
 		name: 'type',
