@@ -158,7 +158,8 @@ export class AssignedWorkController {
 
 			await this.assignedWorkService.transferWorkToAnotherMentor(
 				context.params.workId,
-				context.params.mentorId
+				context.params.mentorId,
+				context.credentials.userId
 			)
 
 			return new ApiResponse(null)

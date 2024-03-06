@@ -116,7 +116,7 @@ let AssignedWorkController = class AssignedWorkController {
             Asserts.mentor(context);
             this.assignedWorkValidator.validateId(context.params.workId);
             this.assignedWorkValidator.validateId(context.params.mentorId);
-            await this.assignedWorkService.transferWorkToAnotherMentor(context.params.workId, context.params.mentorId);
+            await this.assignedWorkService.transferWorkToAnotherMentor(context.params.workId, context.params.mentorId, context.credentials.userId);
             return new ApiResponse(null);
         }
         catch (error) {

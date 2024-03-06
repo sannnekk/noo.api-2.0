@@ -154,7 +154,7 @@ export class AssignedWorkService extends Service {
         foundWork.isArchived = true;
         return this.assignedWorkRepository.update(foundWork);
     }
-    async transferWorkToAnotherMentor(workId, mentorId) {
+    async transferWorkToAnotherMentor(workId, mentorId, currentMentorId) {
         const foundWork = await this.assignedWorkRepository.findOne({
             id: workId,
         });
@@ -167,8 +167,14 @@ export class AssignedWorkService extends Service {
         if (foundWork.mentorIds.length >= 2) {
             throw new WorkAlreadyAssignedToEnoughMentorsError();
         }
-        // as any to trick ts because we need only the id not the entire entity
-        foundWork.mentors = [...foundWork.mentorIds, mentorId];
+        const mentor = await this.userRepository.findOne({ id: mentorId });
+        const newMentor = await this.userRepository.findOne({
+            id: currentMentorId,
+        });
+        if (!mentor || !newMentor) {
+            throw new NotFoundError();
+        }
+        foundWork.mentors = [mentor, newMentor];
         return this.assignedWorkRepository.update(foundWork);
     }
     async shiftDeadline(id, days, role, userId) {

@@ -246,7 +246,8 @@ export class AssignedWorkService extends Service<AssignedWork> {
 
 	public async transferWorkToAnotherMentor(
 		workId: AssignedWork['id'],
-		mentorId: AssignedWork['mentorIds'][0]
+		mentorId: AssignedWork['mentorIds'][0],
+		currentMentorId: User['id']
 	) {
 		const foundWork = await this.assignedWorkRepository.findOne({
 			id: workId,
@@ -264,8 +265,16 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			throw new WorkAlreadyAssignedToEnoughMentorsError()
 		}
 
-		// as any to trick ts because we need only the id not the entire entity
-		foundWork.mentors = [...foundWork.mentorIds, mentorId] as any[]
+		const mentor = await this.userRepository.findOne({ id: mentorId })
+		const newMentor = await this.userRepository.findOne({
+			id: currentMentorId,
+		})
+
+		if (!mentor || !newMentor) {
+			throw new NotFoundError()
+		}
+
+		foundWork.mentors = [mentor, newMentor]
 
 		return this.assignedWorkRepository.update(foundWork)
 	}
