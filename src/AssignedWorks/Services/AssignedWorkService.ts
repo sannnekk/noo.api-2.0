@@ -48,7 +48,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		// TODO: entries to search
 		pagination.entriesToSearch = []
 
-		const relations = ['student' as const]
+		const relations = ['student' as const, 'mentors' as const]
 
 		const assignedWorks = await this.assignedWorkRepository.find(
 			conditions,

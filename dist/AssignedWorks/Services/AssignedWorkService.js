@@ -29,7 +29,7 @@ export class AssignedWorkService extends Service {
         pagination = new Pagination().assign(pagination);
         // TODO: entries to search
         pagination.entriesToSearch = [];
-        const relations = ['student'];
+        const relations = ['student', 'mentors'];
         const assignedWorks = await this.assignedWorkRepository.find(conditions, relations, pagination);
         this.storeRequestMeta(this.assignedWorkRepository, conditions, relations, pagination);
         return assignedWorks;
