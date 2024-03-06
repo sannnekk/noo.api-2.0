@@ -45,10 +45,10 @@ export class WorkModel extends Model implements Work {
 	@Column({
 		name: 'type',
 		type: 'enum',
-		enum: ['type1', 'type2', 'type3'],
-		default: 'type1',
+		enum: ['trial-work', 'mini-test', 'test', 'second-part'],
+		default: 'test',
 	})
-	type: 'type1' | 'type2' | 'type3' = 'type1'
+	type: 'trial-work' | 'mini-test' | 'test' | 'second-part' = 'test'
 
 	@Column({
 		name: 'description',
