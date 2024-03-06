@@ -112,10 +112,10 @@ export class WorkTaskModel extends Model implements WorkTask {
 	@Column({
 		name: 'checking_strategy',
 		type: 'enum',
-		enum: ['type1', 'type2'],
+		enum: ['type1', 'type2', 'type3', 'type4'],
 		nullable: true,
 	})
-	checkingStrategy?: 'type1' | 'type2' | undefined
+	checkingStrategy?: 'type1' | 'type2' | 'type3' | 'type4' | undefined
 
 	@OneToMany(
 		() => WorkTaskOptionModel,

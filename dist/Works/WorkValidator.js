@@ -24,7 +24,9 @@ let WorkValidator = class WorkValidator extends Validator {
                 rightAnswer: z.string().optional(),
                 solveHint: z.any().optional(),
                 checkHint: z.any().optional(),
-                checkingStrategy: z.enum(['type1', 'type2']).optional(),
+                checkingStrategy: z
+                    .enum(['type1', 'type2', 'type3', 'type4'])
+                    .optional(),
                 options: z
                     .array(z.object({
                     name: z.string(),
@@ -52,7 +54,9 @@ let WorkValidator = class WorkValidator extends Validator {
                 rightAnswer: z.string().optional().nullable(),
                 solveHint: z.any().optional().nullable(),
                 checkHint: z.any().optional().nullable(),
-                checkingStrategy: z.enum(['type1', 'type2']).optional(),
+                checkingStrategy: z
+                    .enum(['type1', 'type2', 'type3', 'type4'])
+                    .optional(),
                 options: z
                     .array(z.object({
                     id: z.string().ulid().optional(),

@@ -139,7 +139,7 @@ __decorate([
     Column({
         name: 'checking_strategy',
         type: 'enum',
-        enum: ['type1', 'type2'],
+        enum: ['type1', 'type2', 'type3', 'type4'],
         nullable: true,
     }),
     __metadata("design:type", Object)
