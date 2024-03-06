@@ -114,6 +114,25 @@ export class AssignedWorkController {
 		}
 	}
 
+	@Patch('/:id/save')
+	public async save(context: Context): Promise<ApiResponse> {
+		try {
+			Asserts.isAuthenticated(context)
+			Asserts.mentorOrStudent(context)
+			this.assignedWorkValidator.validateId(context.params.id)
+			this.assignedWorkValidator.validateUpdate(context.body)
+
+			await this.assignedWorkService.saveProgress(
+				context.body,
+				context.credentials.role
+			)
+
+			return new ApiResponse(null)
+		} catch (error: any) {
+			return new ApiResponse(error)
+		}
+	}
+
 	@Patch('/:id/archive')
 	public async archive(context: Context): Promise<ApiResponse> {
 		try {

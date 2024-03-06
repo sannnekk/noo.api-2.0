@@ -18,7 +18,6 @@ let MediaController = class MediaController {
     async get(context) {
         try {
             Asserts.isAuthenticated(context);
-            Asserts.teacherOrAdmin(context);
             const links = await this.mediaService.upload(context._express.req.files);
             return new ApiResponse({ data: { links } });
         }

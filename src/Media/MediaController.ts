@@ -14,7 +14,6 @@ export class MediaController {
 	public async get(context: Context): Promise<ApiResponse> {
 		try {
 			Asserts.isAuthenticated(context)
-			Asserts.teacherOrAdmin(context)
 
 			const links = await this.mediaService.upload(
 				context._express.req!.files as Express.Multer.File[]

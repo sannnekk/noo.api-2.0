@@ -115,6 +115,33 @@ export class AssignedWorkService extends Service {
         const newWork = new AssignedWorkModel({ ...foundWork, ...work });
         return this.assignedWorkRepository.update(newWork);
     }
+    async saveProgress(work, role) {
+        const foundWork = await this.assignedWorkRepository.findOne({
+            id: work.id,
+        });
+        if (!foundWork) {
+            throw new NotFoundError();
+        }
+        if (role == 'student') {
+            if (foundWork.solveStatus === 'made-in-deadline' ||
+                foundWork.solveStatus === 'made-after-deadline') {
+                throw new WorkAlreadySolvedError();
+            }
+            foundWork.solveStatus = 'in-progress';
+        }
+        else if (role == 'mentor') {
+            if (foundWork.checkStatus === 'checked-in-deadline' ||
+                foundWork.checkStatus === 'checked-after-deadline') {
+                throw new WorkAlreadyCheckedError();
+            }
+            if (foundWork.solveStatus === 'not-started' ||
+                foundWork.solveStatus === 'in-progress') {
+                throw new WorkIsNotSolvedYetError();
+            }
+            foundWork.checkStatus = 'in-progress';
+        }
+        return this.assignedWorkRepository.update(work);
+    }
     async archiveWork(id) {
         const foundWork = await this.assignedWorkRepository.findOne({ id });
         if (!foundWork) {

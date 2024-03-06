@@ -188,6 +188,45 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		return this.assignedWorkRepository.update(newWork)
 	}
 
+	public async saveProgress(work: AssignedWork, role: User['role']) {
+		const foundWork = await this.assignedWorkRepository.findOne({
+			id: work.id,
+		})
+
+		if (!foundWork) {
+			throw new NotFoundError()
+		}
+
+		if (role == 'student') {
+			if (
+				foundWork.solveStatus === 'made-in-deadline' ||
+				foundWork.solveStatus === 'made-after-deadline'
+			) {
+				throw new WorkAlreadySolvedError()
+			}
+
+			foundWork.solveStatus = 'in-progress'
+		} else if (role == 'mentor') {
+			if (
+				foundWork.checkStatus === 'checked-in-deadline' ||
+				foundWork.checkStatus === 'checked-after-deadline'
+			) {
+				throw new WorkAlreadyCheckedError()
+			}
+
+			if (
+				foundWork.solveStatus === 'not-started' ||
+				foundWork.solveStatus === 'in-progress'
+			) {
+				throw new WorkIsNotSolvedYetError()
+			}
+
+			foundWork.checkStatus = 'in-progress'
+		}
+
+		return this.assignedWorkRepository.update(work)
+	}
+
 	public async archiveWork(id: AssignedWork['id']) {
 		const foundWork = await this.assignedWorkRepository.findOne({ id })
 

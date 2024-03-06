@@ -19,7 +19,7 @@ export interface WorkTask extends BaseModel {
 	rightAnswer?: string
 	solveHint?: DeltaContentType
 	checkHint?: DeltaContentType
-	checkingStrategy?: 'type1' | 'type2'
+	checkingStrategy?: 'type1' | 'type2' | 'type3' | 'type4'
 	options?: WorkTaskOption[]
 	optionsIds?: WorkTaskOption['id'][]
 	assignedWorkAnswers?: AssignedWorkAnswer[]

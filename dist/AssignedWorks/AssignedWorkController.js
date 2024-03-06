@@ -85,6 +85,19 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse(error);
         }
     }
+    async save(context) {
+        try {
+            Asserts.isAuthenticated(context);
+            Asserts.mentorOrStudent(context);
+            this.assignedWorkValidator.validateId(context.params.id);
+            this.assignedWorkValidator.validateUpdate(context.body);
+            await this.assignedWorkService.saveProgress(context.body, context.credentials.role);
+            return new ApiResponse(null);
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
     async archive(context) {
         try {
             Asserts.isAuthenticated(context);
@@ -165,6 +178,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], AssignedWorkController.prototype, "check", null);
+__decorate([
+    Patch('/:id/save'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], AssignedWorkController.prototype, "save", null);
 __decorate([
     Patch('/:id/archive'),
     __metadata("design:type", Function),
