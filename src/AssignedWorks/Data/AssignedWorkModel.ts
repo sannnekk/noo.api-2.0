@@ -52,6 +52,7 @@ export class AssignedWorkModel extends Model implements AssignedWork {
 
 	@ManyToMany(() => UserModel, (user) => user.assignedWorksAsMentor, {
 		eager: true,
+		cascade: true,
 	})
 	@JoinTable()
 	mentors?: User[] | undefined

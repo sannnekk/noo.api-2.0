@@ -71,6 +71,7 @@ __decorate([
 __decorate([
     ManyToMany(() => UserModel, (user) => user.assignedWorksAsMentor, {
         eager: true,
+        cascade: true,
     }),
     JoinTable(),
     __metadata("design:type", Object)

@@ -4,7 +4,6 @@ import { Pagination } from './Pagination'
 import { NotFoundError } from '../Errors/NotFoundError'
 import TypeORM from 'typeorm'
 import { AlreadyExistError } from '../Errors/AlreadyExistError'
-import util from 'util'
 
 type ConstructableModel = { new (data?: Partial<Model>): Model }
 
@@ -52,13 +51,6 @@ export abstract class Repository<T extends BaseModel> {
 		try {
 			await this.repository.save(newItem)
 		} catch (error) {
-			console.log(
-				util.inspect(newItem, {
-					depth: 8,
-					colors: true,
-				})
-			)
-			console.log(error)
 			throw new AlreadyExistError()
 		}
 	}

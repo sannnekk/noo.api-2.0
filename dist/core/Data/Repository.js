@@ -2,7 +2,6 @@ import { CoreDataSource } from './DataSource.js';
 import { Pagination } from './Pagination.js';
 import { NotFoundError } from '../Errors/NotFoundError.js';
 import { AlreadyExistError } from '../Errors/AlreadyExistError.js';
-import util from 'util';
 export class Repository {
     model;
     repository;
@@ -42,11 +41,6 @@ export class Repository {
             await this.repository.save(newItem);
         }
         catch (error) {
-            console.log(util.inspect(newItem, {
-                depth: 8,
-                colors: true,
-            }));
-            console.log(error);
             throw new AlreadyExistError();
         }
     }
