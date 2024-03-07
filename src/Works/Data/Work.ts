@@ -7,7 +7,7 @@ export interface Work extends BaseModel {
 	id: string
 	slug: string
 	name: string
-	type: 'trial-work' | 'mini-test' | 'test' | 'second-part'
+	type: 'trial-work' | 'phrase' | 'mini-test' | 'test' | 'second-part'
 	description: string
 	materialId?: string
 	materials?: CourseMaterial[]

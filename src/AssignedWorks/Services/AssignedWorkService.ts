@@ -265,9 +265,11 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			throw new WorkAlreadyAssignedToEnoughMentorsError()
 		}
 
-		const mentor = await this.userRepository.findOne({ id: mentorId })
-		const newMentor = await this.userRepository.findOne({
+		const mentor = await this.userRepository.findOne({
 			id: currentMentorId,
+		})
+		const newMentor = await this.userRepository.findOne({
+			id: mentorId,
 		})
 
 		if (!mentor || !newMentor) {
