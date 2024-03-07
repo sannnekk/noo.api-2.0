@@ -2,7 +2,7 @@ import { StatusCodes } from 'http-status-codes';
 export class WorkIsNotSolvedYetError extends Error {
     code = StatusCodes.CONFLICT;
     message;
-    constructor(message = 'The work is not solved yet') {
+    constructor(message = 'Работа еще не выполнена.') {
         super();
         this.message = message;
     }

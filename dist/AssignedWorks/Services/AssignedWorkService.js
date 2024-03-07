@@ -12,12 +12,15 @@ import { UserRepository } from '../../Users/Data/UserRepository.js';
 import { WorkRepository } from '../../Works/Data/WorkRepository.js';
 import { DeadlineAlreadyShiftedError } from '../Errors/DeadlineAlreadyShiftedError.js';
 import { WorkIsArchived } from '../Errors/WorkIsArchived.js';
+import { TaskService } from './TaskService.js';
 export class AssignedWorkService extends Service {
+    taskService;
     assignedWorkRepository;
     workRepository;
     userRepository;
     constructor() {
         super();
+        this.taskService = new TaskService();
         this.assignedWorkRepository = new AssignedWorkRepository();
         this.workRepository = new WorkRepository();
         this.userRepository = new UserRepository();
@@ -54,7 +57,7 @@ export class AssignedWorkService extends Service {
         }
         return work;
     }
-    async createWork(assignedWork, mentorId) {
+    async createWork(assignedWork) {
         const work = await this.workRepository.findOne({
             id: assignedWork.workId,
         });
@@ -88,6 +91,7 @@ export class AssignedWorkService extends Service {
             work.solveStatus = 'made-in-deadline';
         }
         work.solvedAt = new Date();
+        work.comments = this.taskService.automatedCheck(work.work.tasks, work.comments);
         const newWork = new AssignedWorkModel({ ...foundWork, ...work });
         return this.assignedWorkRepository.update(newWork);
     }
@@ -167,9 +171,11 @@ export class AssignedWorkService extends Service {
         if (foundWork.mentorIds.length >= 2) {
             throw new WorkAlreadyAssignedToEnoughMentorsError();
         }
-        const mentor = await this.userRepository.findOne({ id: mentorId });
-        const newMentor = await this.userRepository.findOne({
+        const mentor = await this.userRepository.findOne({
             id: currentMentorId,
+        });
+        const newMentor = await this.userRepository.findOne({
+            id: mentorId,
         });
         if (!mentor || !newMentor) {
             throw new NotFoundError();

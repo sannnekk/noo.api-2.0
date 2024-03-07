@@ -10,7 +10,13 @@ let WorkValidator = class WorkValidator extends Validator {
     validateCreation(data) {
         const schema = z.object({
             name: z.string().min(1).max(100),
-            type: z.enum(['trial-work', 'mini-test', 'test', 'second-part']),
+            type: z.enum([
+                'trial-work',
+                'phrase',
+                'mini-test',
+                'test',
+                'second-part',
+            ]),
             description: z.string(),
             tasks: z.array(z.object({
                 content: z.any(),
@@ -41,7 +47,13 @@ let WorkValidator = class WorkValidator extends Validator {
         const schema = z.object({
             id: z.string().ulid(),
             type: z
-                .enum(['trial-work', 'mini-test', 'test', 'second-part'])
+                .enum([
+                'trial-work',
+                'phrase',
+                'mini-test',
+                'test',
+                'second-part',
+            ])
                 .optional(),
             name: z.string().min(1).max(100).optional(),
             description: z.string().optional(),

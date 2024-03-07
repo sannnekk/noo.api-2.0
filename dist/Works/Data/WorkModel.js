@@ -64,7 +64,7 @@ __decorate([
     Column({
         name: 'type',
         type: 'enum',
-        enum: ['trial-work', 'mini-test', 'test', 'second-part'],
+        enum: ['trial-work', 'phrase', 'mini-test', 'test', 'second-part'],
         default: 'test',
     }),
     __metadata("design:type", String)

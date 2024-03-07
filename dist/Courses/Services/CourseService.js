@@ -87,7 +87,7 @@ export class CourseService extends Service {
                 workId,
                 solveDeadlineAt: solveDeadline,
                 checkDeadlineAt: checkDeadline,
-            }, student.mentorId);
+            });
         }
         await this.materialRepository.update(material);
     }

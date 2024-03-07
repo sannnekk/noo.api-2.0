@@ -20,8 +20,10 @@ import { WorkRepository } from '@modules/Works/Data/WorkRepository'
 import { AssignedWorkComment } from '../Data/Relations/AssignedWorkComment'
 import { DeadlineAlreadyShiftedError } from '../Errors/DeadlineAlreadyShiftedError'
 import { WorkIsArchived } from '../Errors/WorkIsArchived'
+import { TaskService } from './TaskService'
 
 export class AssignedWorkService extends Service<AssignedWork> {
+	private readonly taskService: TaskService
 	private readonly assignedWorkRepository: AssignedWorkRepository
 	private readonly workRepository: WorkRepository
 	private readonly userRepository: UserRepository
@@ -29,6 +31,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 	constructor() {
 		super()
 
+		this.taskService = new TaskService()
 		this.assignedWorkRepository = new AssignedWorkRepository()
 		this.workRepository = new WorkRepository()
 		this.userRepository = new UserRepository()
@@ -92,10 +95,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		return work
 	}
 
-	public async createWork(
-		assignedWork: AssignedWork,
-		mentorId: User['id']
-	) {
+	public async createWork(assignedWork: AssignedWork) {
 		const work = await this.workRepository.findOne({
 			id: assignedWork.workId,
 		})
@@ -143,6 +143,10 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		}
 
 		work.solvedAt = new Date()
+		work.comments = this.taskService.automatedCheck(
+			work.work.tasks!,
+			work.comments
+		)
 
 		const newWork = new AssignedWorkModel({ ...foundWork, ...work })
 

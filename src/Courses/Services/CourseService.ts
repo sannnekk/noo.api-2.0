@@ -154,15 +154,12 @@ export class CourseService extends Service<Course> {
 		for (const student of material.chapter?.course?.students || []) {
 			if (!student.mentorId) continue
 
-			await this.assignedWorkService.createWork(
-				{
-					studentId: student.id,
-					workId,
-					solveDeadlineAt: solveDeadline,
-					checkDeadlineAt: checkDeadline,
-				} as AssignedWork,
-				student.mentorId
-			)
+			await this.assignedWorkService.createWork({
+				studentId: student.id,
+				workId,
+				solveDeadlineAt: solveDeadline,
+				checkDeadlineAt: checkDeadline,
+			} as AssignedWork)
 		}
 
 		await this.materialRepository.update(material)

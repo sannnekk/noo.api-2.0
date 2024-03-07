@@ -52,7 +52,7 @@ let AssignedWorkController = class AssignedWorkController {
             Asserts.isAuthenticated(context);
             Asserts.teacher(context);
             this.assignedWorkValidator.validateCreation(context.body);
-            await this.assignedWorkService.createWork(context.body, context.credentials.userId);
+            await this.assignedWorkService.createWork(context.body);
             return new ApiResponse(null);
         }
         catch (error) {
