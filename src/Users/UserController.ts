@@ -159,11 +159,7 @@ export class UserController {
 				context.query
 			)
 
-			const users = await this.userService.getUsers(
-				pagination,
-				context.credentials.role,
-				context.credentials.userId
-			)
+			const users = await this.userService.getUsers(pagination)
 
 			const meta = await this.userService.getLastRequestMeta()
 

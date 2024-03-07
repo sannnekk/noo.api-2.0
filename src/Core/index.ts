@@ -21,6 +21,9 @@ export { Validator } from './Request/Validator'
 export { MediaMiddleware } from './Request/MediaMiddleware'
 export { ErrorConverter } from './Request/ValidatorDecorator'
 
+// Email
+export { EmailService } from './Email/EmailService'
+
 // Decorators
 export { Catch } from './Decorators/CatchDecorator'
 

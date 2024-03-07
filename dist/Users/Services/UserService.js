@@ -1,11 +1,13 @@
-import { NotFoundError, UnauthenticatedError, JWT, Hash, AlreadyExistError, UnknownError, Pagination, Service, } from '../../core/index.js';
+import { NotFoundError, UnauthenticatedError, JWT, Hash, AlreadyExistError, UnknownError, Pagination, Service, EmailService, } from '../../core/index.js';
 import { UserRepository } from '../Data/UserRepository.js';
 import { UserModel } from '../Data/UserModel.js';
 export class UserService extends Service {
     userRepository;
+    emailService;
     constructor() {
         super();
         this.userRepository = new UserRepository();
+        this.emailService = new EmailService();
     }
     async create(user) {
         user.password = await Hash.hash(user.password);
@@ -22,7 +24,19 @@ export class UserService extends Service {
     async register(user) {
         // every user is a student at the moment of registration
         user.role = 'student';
+        user.verificationToken = await Hash.hash(Math.random().toString());
         await this.create(user);
+        await this.emailService.sendVerificationEmail(user.email, user.name, user.verificationToken);
+    }
+    async verify(username, token) {
+        const user = await this.userRepository.findOne({
+            username: username,
+        });
+        if (!user) {
+            throw new NotFoundError();
+        }
+        user.verificationToken = null;
+        await this.userRepository.update(user);
     }
     async assignMentor(studentId, mentorId) {
         const student = await this.userRepository.findOne({ id: studentId });
@@ -46,6 +60,12 @@ export class UserService extends Service {
             !(await Hash.compare(credentials.password, user.password))) {
             throw new UnauthenticatedError();
         }
+        if (user.isBlocked) {
+            throw new UnauthenticatedError('Этот аккаунт заблокирован.');
+        }
+        if (user.verificationToken) {
+            throw new UnauthenticatedError('Этот аккаунт не подтвержден. Перейдите по ссылке в письме, отправленном на вашу почту, чтобы подтвердить регистрацию.');
+        }
         return {
             token: JWT.create({
                 userId: user.id,
@@ -62,7 +82,15 @@ export class UserService extends Service {
         if (!user) {
             throw new NotFoundError();
         }
-        // TODO: send email with reset password link
+        if (user.isBlocked) {
+            throw new UnauthenticatedError('Этот аккаунт заблокирован.');
+        }
+        if (user.verificationToken) {
+            throw new UnauthenticatedError('Этот аккаунт не подтвержден. Перейдите по ссылке в письме, отправленном на вашу почту, чтобы подтвердить регистрацию.');
+        }
+        const newPassword = Math.random().toString(36).slice(-12);
+        user.password = await Hash.hash(Math.random().toString());
+        await this.emailService.sendForgotPasswordEmail(user.email, user.name, newPassword);
     }
     async getByUsername(username) {
         const user = await this.userRepository.findOne({ username }, [
@@ -76,7 +104,7 @@ export class UserService extends Service {
         }
         return user;
     }
-    async getUsers(pagination, role, userId) {
+    async getUsers(pagination) {
         pagination = new Pagination().assign(pagination);
         pagination.entriesToSearch = UserModel.entriesToSearch();
         const relations = ['students', 'courses'];

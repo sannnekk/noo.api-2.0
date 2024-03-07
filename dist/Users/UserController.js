@@ -116,7 +116,7 @@ let UserController = class UserController {
             Asserts.isAuthenticated(context);
             Asserts.notStudent(context);
             const pagination = this.userValidator.validatePagination(context.query);
-            const users = await this.userService.getUsers(pagination, context.credentials.role, context.credentials.userId);
+            const users = await this.userService.getUsers(pagination);
             const meta = await this.userService.getLastRequestMeta();
             return new ApiResponse({ data: users, meta });
         }

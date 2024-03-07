@@ -38,6 +38,7 @@ let UserModel = class UserModel extends Model {
     password;
     isBlocked = false;
     forbidden = 0;
+    verificationToken;
     static entriesToSearch() {
         return ['username', 'name', 'email', 'telegramUsername'];
     }
@@ -156,6 +157,14 @@ __decorate([
     }),
     __metadata("design:type", Number)
 ], UserModel.prototype, "forbidden", void 0);
+__decorate([
+    Column({
+        name: 'verification_token',
+        type: 'varchar',
+        nullable: true,
+    }),
+    __metadata("design:type", String)
+], UserModel.prototype, "verificationToken", void 0);
 UserModel = __decorate([
     Entity('user'),
     __metadata("design:paramtypes", [Object])

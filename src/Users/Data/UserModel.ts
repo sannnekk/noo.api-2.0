@@ -128,6 +128,13 @@ export class UserModel extends Model implements User {
 	})
 	forbidden: number = 0
 
+	@Column({
+		name: 'verification_token',
+		type: 'varchar',
+		nullable: true,
+	})
+	verificationToken?: string
+
 	static entriesToSearch(): string[] {
 		return ['username', 'name', 'email', 'telegramUsername']
 	}

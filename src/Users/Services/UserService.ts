@@ -5,9 +5,9 @@ import {
 	Hash,
 	AlreadyExistError,
 	UnknownError,
-	WrongRoleError,
 	Pagination,
 	Service,
+	EmailService,
 } from '@core'
 import { User } from '../Data/User'
 import { UserRepository } from '../Data/UserRepository'
@@ -16,11 +16,13 @@ import { UserModel } from '../Data/UserModel'
 
 export class UserService extends Service<User> {
 	private readonly userRepository: UserRepository
+	private readonly emailService: EmailService
 
 	constructor() {
 		super()
 
 		this.userRepository = new UserRepository()
+		this.emailService = new EmailService()
 	}
 
 	public async create(user: User): Promise<void> {
@@ -40,7 +42,29 @@ export class UserService extends Service<User> {
 	public async register(user: User): Promise<void> {
 		// every user is a student at the moment of registration
 		user.role = 'student'
+		user.verificationToken = await Hash.hash(Math.random().toString())
+
 		await this.create(user)
+
+		await this.emailService.sendVerificationEmail(
+			user.email,
+			user.name,
+			user.verificationToken
+		)
+	}
+
+	public async verify(username: string, token: string): Promise<void> {
+		const user = await this.userRepository.findOne({
+			username: username,
+		})
+
+		if (!user) {
+			throw new NotFoundError()
+		}
+
+		user.verificationToken = null as any
+
+		await this.userRepository.update(user)
 	}
 
 	public async assignMentor(
@@ -81,6 +105,16 @@ export class UserService extends Service<User> {
 			throw new UnauthenticatedError()
 		}
 
+		if (user.isBlocked) {
+			throw new UnauthenticatedError('Этот аккаунт заблокирован.')
+		}
+
+		if (user.verificationToken) {
+			throw new UnauthenticatedError(
+				'Этот аккаунт не подтвержден. Перейдите по ссылке в письме, отправленном на вашу почту, чтобы подтвердить регистрацию.'
+			)
+		}
+
 		return {
 			token: JWT.create({
 				userId: user.id,
@@ -100,7 +134,25 @@ export class UserService extends Service<User> {
 			throw new NotFoundError()
 		}
 
-		// TODO: send email with reset password link
+		if (user.isBlocked) {
+			throw new UnauthenticatedError('Этот аккаунт заблокирован.')
+		}
+
+		if (user.verificationToken) {
+			throw new UnauthenticatedError(
+				'Этот аккаунт не подтвержден. Перейдите по ссылке в письме, отправленном на вашу почту, чтобы подтвердить регистрацию.'
+			)
+		}
+
+		const newPassword = Math.random().toString(36).slice(-12)
+
+		user.password = await Hash.hash(Math.random().toString())
+
+		await this.emailService.sendForgotPasswordEmail(
+			user.email,
+			user.name,
+			newPassword
+		)
 	}
 
 	public async getByUsername(username: string): Promise<User> {
@@ -119,9 +171,7 @@ export class UserService extends Service<User> {
 	}
 
 	public async getUsers(
-		pagination: Pagination | undefined,
-		role: User['role'],
-		userId: User['id']
+		pagination: Pagination | undefined
 	): Promise<User[]> {
 		pagination = new Pagination().assign(pagination)
 		pagination.entriesToSearch = UserModel.entriesToSearch()
