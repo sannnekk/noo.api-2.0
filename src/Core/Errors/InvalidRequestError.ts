@@ -4,7 +4,7 @@ export class InvalidRequestError extends Error {
 	code = StatusCodes.BAD_REQUEST
 	message: string
 
-	constructor(message = 'Invalid request data') {
+	constructor(message = 'Неверный запрос.') {
 		super(message)
 		this.message = message
 	}

@@ -5,7 +5,7 @@ export class WorkAlreadyAssignedToEnoughMentorsError extends Error {
 	message: string
 
 	constructor(
-		message = 'The work has already been assigned to enough mentors'
+		message = 'Работа уже назначена достаточному количеству кураторов.'
 	) {
 		super()
 		this.message = message

@@ -4,7 +4,7 @@ export class WorkIsNotSolvedYetError extends Error {
 	code = StatusCodes.CONFLICT
 	message: string
 
-	constructor(message = 'The work is not solved yet') {
+	constructor(message = 'Работа еще не выполнена.') {
 		super()
 		this.message = message
 	}

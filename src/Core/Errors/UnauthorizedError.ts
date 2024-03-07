@@ -5,7 +5,7 @@ export class UnauthorizedError extends Error {
 	message: string
 
 	constructor(
-		message = 'You are not authorized to perform this action'
+		message = 'У вас недостаточно прав для выполнения этого действия.'
 	) {
 		super()
 		this.message = message

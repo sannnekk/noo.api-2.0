@@ -4,7 +4,7 @@ export class WorkAlreadySolvedError extends Error {
 	code = StatusCodes.CONFLICT
 	message: string
 
-	constructor(message = 'The work has already been solved') {
+	constructor(message = 'Работа уже выполнена.') {
 		super()
 		this.message = message
 	}

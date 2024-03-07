@@ -4,7 +4,7 @@ export class StudentFromAnotherMentorError extends Error {
 	code = StatusCodes.BAD_REQUEST
 	message: string
 
-	constructor(message = 'The student is from another mentor') {
+	constructor(message = 'Ученик принадлежит другому куратору.') {
 		super()
 		this.message = message
 	}

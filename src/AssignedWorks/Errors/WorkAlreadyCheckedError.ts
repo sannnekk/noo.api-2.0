@@ -4,7 +4,7 @@ export class WorkAlreadyCheckedError extends Error {
 	code = StatusCodes.CONFLICT
 	message: string
 
-	constructor(message = 'The work has already been checked') {
+	constructor(message = 'Работа уже проверена.') {
 		super()
 		this.message = message
 	}

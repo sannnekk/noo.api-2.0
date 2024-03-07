@@ -4,9 +4,7 @@ export class WorkAlreadyAssignedToThisMentorError extends Error {
 	code = StatusCodes.CONFLICT
 	message: string
 
-	constructor(
-		message = 'The work has already been assigned to this mentor'
-	) {
+	constructor(message = 'Работа уже назначена этому куратору.') {
 		super()
 		this.message = message
 	}

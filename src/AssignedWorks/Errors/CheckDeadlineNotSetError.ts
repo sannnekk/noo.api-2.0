@@ -4,9 +4,7 @@ export class CheckDeadlineNotSetError extends Error {
 	code = StatusCodes.BAD_REQUEST
 	message: string
 
-	constructor(
-		message = 'The check deadline for this assigned work is not set'
-	) {
+	constructor(message = 'Дедлайн проверки задания не установлен.') {
 		super()
 		this.message = message
 	}

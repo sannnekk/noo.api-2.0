@@ -5,7 +5,7 @@ export class WrongRoleError extends Error {
 	message: string
 
 	constructor(
-		message = 'You do not have the right role to perform this action'
+		message = 'У вас недостаточно прав для выполнения этого действия.'
 	) {
 		super()
 		this.message = message

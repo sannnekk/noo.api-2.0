@@ -4,9 +4,7 @@ export class DeadlineAlreadyShiftedError extends Error {
 	code = StatusCodes.CONFLICT
 	message: string
 
-	constructor(
-		message = 'The deadline for this assigned work has already been shifted'
-	) {
+	constructor(message = 'Дедлайн уже был сдвинут.') {
 		super()
 		this.message = message
 	}
