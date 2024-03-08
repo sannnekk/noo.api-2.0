@@ -4,13 +4,15 @@ export class EmailService {
 	private readonly stylesTemplate = `
     <style>
       * {
-        font-family: Arial, sans-serif;
+        font-family: 'Montserrat', sans-serif;
       }
       h1 {
+        display: block;
         background-color: #defba1;
-        color: #181818;
-        pading: 1em;
+        color: #000;
+        padding: 1em;
         font-weight: normal;
+        font-size: 1.3rem;
         margin: 0;
       }
       p {
@@ -38,6 +40,7 @@ export class EmailService {
         margin: 4px 2px;
         cursor: pointer;
         border-radius: 100px;
+        border: 2px solid transparent;
       }
       .button:hover {
         border: 2px solid #181818;
@@ -47,6 +50,10 @@ export class EmailService {
         color: #181818;
         padding: 1em;
         margin: 0;
+      }
+      footer a {
+        color: inherit;
+        text-decoration: none;
       }
     </style>`
 
@@ -63,7 +70,12 @@ export class EmailService {
       <br><br>
       <i>Это письмо было отправлено автоматически. Пожалуйста, не отвечайте на него</i>
     </p>
-    <footer>&copy; ${new Date().getFullYear()} НОО</footer>
+    <div class="footer">
+      &copy; ${new Date().getFullYear()} НОО | 
+      <a href="https://noo-school.ru">noo-school.ru</a>
+      <a href="https://no-os.ru/confidentiality">Политика конфиденциальности</a> |
+      <a href="https://no-os.ru/oferta">Пользовательское соглашение</a>
+    </div>
   ` + this.stylesTemplate
 
 	private readonly forgotPasswordTemplate =
@@ -76,7 +88,12 @@ export class EmailService {
       <br><br>
       <i>Это письмо было отправлено автоматически. Пожалуйста, не отвечайте на него</i>
     </p>
-    <footer>&copy; ${new Date().getFullYear()} НОО</footer>
+    <div class="footer">
+      &copy; ${new Date().getFullYear()} НОО | 
+      <a href="https://noo-school.ru">noo-school.ru</a>
+      <a href="https://no-os.ru/confidentiality">Политика конфиденциальности</a> |
+      <a href="https://no-os.ru/oferta">Пользовательское соглашение</a>
+    </div>
   ` + this.stylesTemplate
 
 	public async sendForgotPasswordEmail(
@@ -112,8 +129,14 @@ export class EmailService {
 	): Promise<void> {
 		// Send email
 		const transport = Mailer.createTransport({
-			name: 'api.noo-school.ru',
-		})
+			host: process.env.SMTP_HOST, //'root04.hmnet.eu',
+			port: process.env.SMTP_PORT, // 465,
+			secure: true,
+			auth: {
+				user: process.env.SMTP_LOGIN, //'noreply@noo-school.ru',
+				pass: process.env.SMTP_PASSWORD, //'983dAb2x!'
+			},
+		} as any)
 
 		const mailOptions = {
 			from: 'noreply@noo-school.ru',
