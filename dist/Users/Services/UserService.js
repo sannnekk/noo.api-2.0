@@ -31,7 +31,7 @@ export class UserService extends Service {
     }
     async verify(username, token) {
         const user = await this.userRepository.findOne({
-            username: username,
+            username,
         });
         if (!user) {
             throw new NotFoundError();

@@ -44,15 +44,16 @@ export class EmailService {
       .button:hover {
         border: 2px solid #181818;
       }
-      footer {
+      .footer {
         background-color: #cdc9ff;
         color: #181818;
         padding: 1em;
         margin: 0;
       }
-      footer a {
+      .footer a {
         color: inherit;
         text-decoration: none;
+        font-size: 0.8rem;
       }
     </style>`;
     registrationTemplate = `
@@ -85,7 +86,7 @@ export class EmailService {
     </p>
     <div class="footer">
       &copy; ${new Date().getFullYear()} НОО | 
-      <a href="https://noo-school.ru">noo-school.ru</a>
+      <a href="https://noo-school.ru">noo-school.ru</a> |
       <a href="https://no-os.ru/confidentiality">Политика конфиденциальности</a> |
       <a href="https://no-os.ru/oferta">Пользовательское соглашение</a>
     </div>

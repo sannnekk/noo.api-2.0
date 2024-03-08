@@ -53,8 +53,8 @@ let UserController = class UserController {
     }
     async verify(context) {
         try {
-            this.userValidator.validateVerification(context.query);
-            await this.userService.verify(context.query.username, context.query.token);
+            this.userValidator.validateVerification(context.body);
+            await this.userService.verify(context.body.username, context.body.token);
             return new ApiResponse(null);
         }
         catch (error) {
@@ -183,25 +183,25 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "create", null);
 __decorate([
-    Post('/login'),
+    Post('/auth/login'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "login", null);
 __decorate([
-    Post('/register'),
+    Post('/auth/register'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "register", null);
 __decorate([
-    Get('/verify'),
+    Patch('/auth/verify'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "verify", null);
 __decorate([
-    Post('/forgot-password'),
+    Post('/auth/forgot-password'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)

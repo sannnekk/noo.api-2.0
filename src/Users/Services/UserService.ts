@@ -57,7 +57,7 @@ export class UserService extends Service<User> {
 
 	public async verify(username: string, token: string): Promise<void> {
 		const user = await this.userRepository.findOne({
-			username: username,
+			username,
 		})
 
 		if (!user) {

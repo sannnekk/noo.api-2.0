@@ -36,7 +36,7 @@ export class UserController {
 		}
 	}
 
-	@Post('/login')
+	@Post('/auth/login')
 	async login(context: Context): Promise<ApiResponse> {
 		try {
 			this.userValidator.validateLogin(context.body)
@@ -49,7 +49,7 @@ export class UserController {
 		}
 	}
 
-	@Post('/register')
+	@Post('/auth/register')
 	async register(context: Context): Promise<ApiResponse> {
 		try {
 			this.userValidator.validateRegister(context.body)
@@ -61,7 +61,7 @@ export class UserController {
 		}
 	}
 
-	@Patch('/verify')
+	@Patch('/auth/verify')
 	async verify(context: Context): Promise<ApiResponse> {
 		try {
 			this.userValidator.validateVerification(context.body)
@@ -77,7 +77,7 @@ export class UserController {
 		}
 	}
 
-	@Post('/forgot-password')
+	@Post('/auth/forgot-password')
 	async forgotPassword(context: Context): Promise<ApiResponse> {
 		try {
 			this.userValidator.validateForgotPassword(context.body)
