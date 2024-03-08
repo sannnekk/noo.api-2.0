@@ -1,6 +1,7 @@
 import { NotFoundError, UnauthenticatedError, JWT, Hash, AlreadyExistError, UnknownError, Pagination, Service, EmailService, } from '../../core/index.js';
 import { UserRepository } from '../Data/UserRepository.js';
 import { UserModel } from '../Data/UserModel.js';
+import { InvalidVerificationTokenError } from '../Errors/InvalidVerificationTokenError.js';
 export class UserService extends Service {
     userRepository;
     emailService;
@@ -26,7 +27,7 @@ export class UserService extends Service {
         user.role = 'student';
         user.verificationToken = await Hash.hash(Math.random().toString());
         await this.create(user);
-        await this.emailService.sendVerificationEmail(user.email, user.name, user.verificationToken);
+        await this.emailService.sendVerificationEmail(user.email, user.username, user.name, user.verificationToken);
     }
     async verify(username, token) {
         const user = await this.userRepository.findOne({
@@ -34,6 +35,9 @@ export class UserService extends Service {
         });
         if (!user) {
             throw new NotFoundError();
+        }
+        if (user.verificationToken !== token) {
+            throw new InvalidVerificationTokenError();
         }
         user.verificationToken = null;
         await this.userRepository.update(user);

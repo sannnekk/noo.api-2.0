@@ -30,6 +30,13 @@ let UserValidator = class UserValidator extends Validator {
         });
         schema.parse(user);
     }
+    validateVerification(data) {
+        const schema = z.object({
+            username: z.string().min(3).max(32),
+            token: z.string().min(8).max(255),
+        });
+        schema.parse(data);
+    }
     validateRegister(user) {
         const schema = z.object({
             name: z.string().min(3).max(255),

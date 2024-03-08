@@ -64,7 +64,7 @@ export class EmailService {
     <p>Здравствуйте, {{name}}!</p>
     <p>Для подтверждения регистрации на сайте noo-school.ru перейдите по ссылке:</p>
     <div class="button-container">
-      <a class="button" href="https://api.noo-school.ru/user/verify/?token={{token}}">Подтвердить регистрацию</a>
+      <a class="button" href="https://noo-school.ru/auth?verify=&token={{token}}&username={{username}}">Подтвердить регистрацию</a>
     </div>
     <p>
       <br><br>
@@ -111,6 +111,7 @@ export class EmailService {
 
 	public async sendVerificationEmail(
 		email: string,
+		username: string,
 		name: string,
 		token: string
 	): Promise<void> {
@@ -118,6 +119,7 @@ export class EmailService {
 		const htmlTemplate = this.registrationTemplate
 			.replaceAll('{{token}}', token)
 			.replaceAll('{{name}}', name)
+			.replaceAll('{{username}}', username)
 
 		await this.sendEmail(email, subject, htmlTemplate)
 	}

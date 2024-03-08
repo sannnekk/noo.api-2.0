@@ -61,7 +61,7 @@ export class EmailService {
     <p>Здравствуйте, {{name}}!</p>
     <p>Для подтверждения регистрации на сайте noo-school.ru перейдите по ссылке:</p>
     <div class="button-container">
-      <a class="button" href="https://api.noo-school.ru/user/verify/?token={{token}}">Подтвердить регистрацию</a>
+      <a class="button" href="https://noo-school.ru/auth?verify=&token={{token}}&username={{username}}">Подтвердить регистрацию</a>
     </div>
     <p>
       <br><br>
@@ -97,11 +97,12 @@ export class EmailService {
             .replaceAll('{{name}}', name);
         await this.sendEmail(email, subject, htmlTemplate);
     }
-    async sendVerificationEmail(email, name, token) {
+    async sendVerificationEmail(email, username, name, token) {
         const subject = 'НОО.Платформа - Подтверждение почты';
         const htmlTemplate = this.registrationTemplate
             .replaceAll('{{token}}', token)
-            .replaceAll('{{name}}', name);
+            .replaceAll('{{name}}', name)
+            .replaceAll('{{username}}', username);
         await this.sendEmail(email, subject, htmlTemplate);
     }
     async sendEmail(email, subject, htmlTemplate) {

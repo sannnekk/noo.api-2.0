@@ -13,6 +13,7 @@ import { User } from '../Data/User'
 import { UserRepository } from '../Data/UserRepository'
 import { LoginCredentials } from '../Data/LoginCredentials'
 import { UserModel } from '../Data/UserModel'
+import { InvalidVerificationTokenError } from '../Errors/InvalidVerificationTokenError'
 
 export class UserService extends Service<User> {
 	private readonly userRepository: UserRepository
@@ -48,6 +49,7 @@ export class UserService extends Service<User> {
 
 		await this.emailService.sendVerificationEmail(
 			user.email,
+			user.username,
 			user.name,
 			user.verificationToken
 		)
@@ -60,6 +62,10 @@ export class UserService extends Service<User> {
 
 		if (!user) {
 			throw new NotFoundError()
+		}
+
+		if (user.verificationToken !== token) {
+			throw new InvalidVerificationTokenError()
 		}
 
 		user.verificationToken = null as any

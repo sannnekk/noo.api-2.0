@@ -61,6 +61,22 @@ export class UserController {
 		}
 	}
 
+	@Patch('/verify')
+	async verify(context: Context): Promise<ApiResponse> {
+		try {
+			this.userValidator.validateVerification(context.body)
+
+			await this.userService.verify(
+				context.body.username,
+				context.body.token
+			)
+
+			return new ApiResponse(null)
+		} catch (error: any) {
+			return new ApiResponse(error)
+		}
+	}
+
 	@Post('/forgot-password')
 	async forgotPassword(context: Context): Promise<ApiResponse> {
 		try {
