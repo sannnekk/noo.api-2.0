@@ -89,7 +89,8 @@ export class UserService extends Service {
             throw new UnauthenticatedError('Этот аккаунт не подтвержден. Перейдите по ссылке в письме, отправленном на вашу почту, чтобы подтвердить регистрацию.');
         }
         const newPassword = Math.random().toString(36).slice(-12);
-        user.password = await Hash.hash(Math.random().toString());
+        user.password = await Hash.hash(newPassword);
+        await this.userRepository.update(user);
         await this.emailService.sendForgotPasswordEmail(user.email, user.name, newPassword);
     }
     async getByUsername(username) {

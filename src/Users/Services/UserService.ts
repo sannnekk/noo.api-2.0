@@ -146,7 +146,9 @@ export class UserService extends Service<User> {
 
 		const newPassword = Math.random().toString(36).slice(-12)
 
-		user.password = await Hash.hash(Math.random().toString())
+		user.password = await Hash.hash(newPassword)
+
+		await this.userRepository.update(user)
 
 		await this.emailService.sendForgotPasswordEmail(
 			user.email,
