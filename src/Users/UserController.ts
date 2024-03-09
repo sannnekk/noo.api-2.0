@@ -61,6 +61,18 @@ export class UserController {
 		}
 	}
 
+	@Post('/auth/resend-verification')
+	async resendVerification(context: Context): Promise<ApiResponse> {
+		try {
+			this.userValidator.validateResendVerification(context.body)
+			await this.userService.resendVerification(context.body.email)
+
+			return new ApiResponse(null)
+		} catch (error: any) {
+			return new ApiResponse(error)
+		}
+	}
+
 	@Patch('/auth/verify')
 	async verify(context: Context): Promise<ApiResponse> {
 		try {

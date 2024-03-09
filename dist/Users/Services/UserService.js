@@ -26,6 +26,18 @@ export class UserService extends Service {
         // every user is a student at the moment of registration
         user.role = 'student';
         user.verificationToken = await Hash.hash(Math.random().toString());
+        const existingUsername = await this.userRepository.findOne({
+            username: user.username,
+        });
+        if (existingUsername) {
+            throw new AlreadyExistError('Этот никнейм уже занят.');
+        }
+        const existingEmail = await this.userRepository.findOne({
+            email: user.email,
+        });
+        if (existingEmail) {
+            throw new AlreadyExistError('Польщователь с таким email уже существует.');
+        }
         await this.create(user);
         await this.emailService.sendVerificationEmail(user.email, user.username, user.name, user.verificationToken);
     }
@@ -41,6 +53,16 @@ export class UserService extends Service {
         }
         user.verificationToken = null;
         await this.userRepository.update(user);
+    }
+    async resendVerification(email) {
+        const user = await this.userRepository.findOne({ email });
+        if (!user) {
+            throw new NotFoundError('Пользователь с таким email не найден.');
+        }
+        if (!user.verificationToken) {
+            throw new UnauthenticatedError('Этот аккаунт уже подтвержден. Попробуйте войти или воспользуйтесь кнопкой "Забыл пароль".');
+        }
+        await this.emailService.sendVerificationEmail(user.email, user.username, user.name, user.verificationToken);
     }
     async assignMentor(studentId, mentorId) {
         const student = await this.userRepository.findOne({ id: studentId });

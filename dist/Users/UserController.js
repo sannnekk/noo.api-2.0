@@ -51,6 +51,16 @@ let UserController = class UserController {
             return new ApiResponse(error);
         }
     }
+    async resendVerification(context) {
+        try {
+            this.userValidator.validateResendVerification(context.body);
+            await this.userService.resendVerification(context.body.email);
+            return new ApiResponse(null);
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
     async verify(context) {
         try {
             this.userValidator.validateVerification(context.body);
@@ -194,6 +204,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "register", null);
+__decorate([
+    Post('/auth/resend-verification'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "resendVerification", null);
 __decorate([
     Patch('/auth/verify'),
     __metadata("design:type", Function),

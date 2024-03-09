@@ -45,6 +45,24 @@ export class UserService extends Service<User> {
 		user.role = 'student'
 		user.verificationToken = await Hash.hash(Math.random().toString())
 
+		const existingUsername = await this.userRepository.findOne({
+			username: user.username,
+		})
+
+		if (existingUsername) {
+			throw new AlreadyExistError('Этот никнейм уже занят.')
+		}
+
+		const existingEmail = await this.userRepository.findOne({
+			email: user.email,
+		})
+
+		if (existingEmail) {
+			throw new AlreadyExistError(
+				'Польщователь с таким email уже существует.'
+			)
+		}
+
 		await this.create(user)
 
 		await this.emailService.sendVerificationEmail(
@@ -71,6 +89,27 @@ export class UserService extends Service<User> {
 		user.verificationToken = null as any
 
 		await this.userRepository.update(user)
+	}
+
+	public async resendVerification(email: string): Promise<void> {
+		const user = await this.userRepository.findOne({ email })
+
+		if (!user) {
+			throw new NotFoundError('Пользователь с таким email не найден.')
+		}
+
+		if (!user.verificationToken) {
+			throw new UnauthenticatedError(
+				'Этот аккаунт уже подтвержден. Попробуйте войти или воспользуйтесь кнопкой "Забыл пароль".'
+			)
+		}
+
+		await this.emailService.sendVerificationEmail(
+			user.email,
+			user.username,
+			user.name,
+			user.verificationToken
+		)
 	}
 
 	public async assignMentor(
