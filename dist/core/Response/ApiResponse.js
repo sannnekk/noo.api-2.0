@@ -47,11 +47,6 @@ export class ApiResponse extends ControllerResponse {
             else if (typeof error.message === 'undefined') {
                 message = 'Internal Server Error';
             }
-            else if (Array.isArray(error.message)) {
-                message = error.message
-                    .map((e) => e.message)
-                    .join(', ');
-            }
             else if (typeof error.message === 'object') {
                 message = JSON.stringify(error.message);
             }
