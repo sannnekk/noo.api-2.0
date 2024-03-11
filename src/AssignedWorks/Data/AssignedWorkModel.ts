@@ -199,6 +199,15 @@ export class AssignedWorkModel extends Model implements AssignedWork {
 	})
 	isArchived: boolean = false
 
+	static entriesToSearch() {
+		return [
+			'work.name',
+			'work.description',
+			'student.name',
+			'mentors.name',
+		]
+	}
+
 	private sluggify(): string {
 		return ULID.generate()
 	}

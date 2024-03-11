@@ -30,8 +30,7 @@ export class AssignedWorkService extends Service {
             ? { student: { id: userId } }
             : { mentors: { id: userId } };
         pagination = new Pagination().assign(pagination);
-        // TODO: entries to search
-        pagination.entriesToSearch = [];
+        pagination.entriesToSearch = AssignedWorkModel.entriesToSearch();
         const relations = ['student', 'mentors'];
         const assignedWorks = await this.assignedWorkRepository.find(conditions, relations, pagination);
         this.storeRequestMeta(this.assignedWorkRepository, conditions, relations, pagination);
@@ -45,6 +44,7 @@ export class AssignedWorkService extends Service {
         if (!work) {
             throw new NotFoundError();
         }
+        work.work = this.sortTasks(work.work);
         return work;
     }
     async getWorkById(id) {
@@ -55,6 +55,7 @@ export class AssignedWorkService extends Service {
         if (!work) {
             throw new NotFoundError();
         }
+        work.work = this.sortTasks(work.work);
         return work;
     }
     async createWork(assignedWork) {
@@ -237,5 +238,9 @@ export class AssignedWorkService extends Service {
     }
     getScore(comments) {
         return comments.reduce((acc, comment) => acc + comment.score, 0);
+    }
+    sortTasks(work) {
+        work.tasks = work.tasks.sort((a, b) => a.order - b.order);
+        return work;
     }
 }

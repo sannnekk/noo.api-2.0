@@ -17,6 +17,8 @@ export class TaskService {
                 score: this.checkAnswer(answer, relatedTask),
                 task: answer.taskId,
                 taskId: answer.taskId,
+                createdAt: new Date(),
+                updatedAt: new Date(),
             };
             comments.push(comment);
         }

@@ -21,6 +21,7 @@ import { AssignedWorkComment } from '../Data/Relations/AssignedWorkComment'
 import { DeadlineAlreadyShiftedError } from '../Errors/DeadlineAlreadyShiftedError'
 import { WorkIsArchived } from '../Errors/WorkIsArchived'
 import { TaskService } from './TaskService'
+import { Work } from '@modules/Works/Data/Work'
 
 export class AssignedWorkService extends Service<AssignedWork> {
 	private readonly taskService: TaskService
@@ -48,8 +49,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 				: { mentors: { id: userId } }
 
 		pagination = new Pagination().assign(pagination)
-		// TODO: entries to search
-		pagination.entriesToSearch = []
+		pagination.entriesToSearch = AssignedWorkModel.entriesToSearch()
 
 		const relations = ['student' as const, 'mentors' as const]
 
@@ -79,6 +79,8 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			throw new NotFoundError()
 		}
 
+		work.work = this.sortTasks(work.work)
+
 		return work
 	}
 
@@ -91,6 +93,8 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		if (!work) {
 			throw new NotFoundError()
 		}
+
+		work.work = this.sortTasks(work.work)
 
 		return work
 	}
@@ -370,5 +374,11 @@ export class AssignedWorkService extends Service<AssignedWork> {
 
 	private getScore(comments: AssignedWorkComment[]) {
 		return comments.reduce((acc, comment) => acc + comment.score, 0)
+	}
+
+	private sortTasks(work: Work) {
+		work.tasks = work.tasks.sort((a, b) => a.order - b.order)
+
+		return work
 	}
 }

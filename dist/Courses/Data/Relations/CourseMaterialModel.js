@@ -27,6 +27,8 @@ let CourseMaterialModel = class CourseMaterialModel extends Model {
     name;
     description;
     content;
+    workSolveDeadline;
+    workCheckDeadline;
     order = 0;
     chapter;
     chapterId;
@@ -65,6 +67,22 @@ __decorate([
     }),
     __metadata("design:type", Object)
 ], CourseMaterialModel.prototype, "content", void 0);
+__decorate([
+    Column({
+        name: 'work_solve_deadline',
+        type: 'timestamp',
+        nullable: true,
+    }),
+    __metadata("design:type", Date)
+], CourseMaterialModel.prototype, "workSolveDeadline", void 0);
+__decorate([
+    Column({
+        name: 'work_check_deadline',
+        type: 'timestamp',
+        nullable: true,
+    }),
+    __metadata("design:type", Date)
+], CourseMaterialModel.prototype, "workCheckDeadline", void 0);
 __decorate([
     Column({
         name: 'order',

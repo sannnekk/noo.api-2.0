@@ -14,6 +14,8 @@ export interface CourseMaterial {
 	chapter?: CourseChapter
 	work?: Work
 	workId?: string
+	workSolveDeadline?: Date
+	workCheckDeadline?: Date
 	files: Media[]
 	createdAt: Date
 	updatedAt: Date

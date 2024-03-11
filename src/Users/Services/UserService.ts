@@ -355,7 +355,12 @@ export class UserService extends Service<User> {
 		user.name = 'Deleted User'
 		user.username = user.slug =
 			'deleted-' + Math.random().toString(36).substr(2, 9)
-		user.email = ''
+		user.email =
+			'deleted-' +
+			Math.random().toString(36).substr(2, 9) +
+			'@' +
+			Math.random().toString(36).substr(2, 9) +
+			'.com'
 		user.isBlocked = true
 		user.telegramId = undefined
 		user.telegramUsername = undefined

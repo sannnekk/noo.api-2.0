@@ -74,8 +74,25 @@ export class Pagination {
 
 		return this.entries.map((entry) => ({
 			...allConditions,
-			[entry]: TypeORM.ILike(`%${this.search}%`),
+			...this.getSearchCondition(entry, this.search),
 		}))
+	}
+
+	private getSearchCondition(
+		entry: string,
+		search: string
+	): Record<string, any> {
+		if (entry.includes('.')) {
+			const [relation] = entry.split('.')
+			const rest = entry.slice(relation.length + 1)
+			return {
+				[relation]: {
+					...this.getSearchCondition(rest, search),
+				},
+			}
+		}
+
+		return { [entry]: TypeORM.ILike(`%${this.search}%`) }
 	}
 
 	private parseFilterValues(filters: Filters): Filters {

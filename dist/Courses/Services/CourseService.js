@@ -81,6 +81,8 @@ export class CourseService extends Service {
             throw new NotFoundError();
         }
         material.work = workId;
+        material.workSolveDeadline = solveDeadline;
+        material.workCheckDeadline = checkDeadline;
         for (const student of material.chapter?.course?.students || []) {
             if (!student.mentorId)
                 continue;

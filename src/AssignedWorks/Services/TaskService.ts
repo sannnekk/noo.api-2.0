@@ -20,7 +20,7 @@ export class TaskService {
 				continue
 			}
 
-			const comment: AssignedWorkComment = {
+			const comment: Omit<AssignedWorkComment, 'id' | 'slug'> = {
 				content: {
 					ops: [
 						{
@@ -31,9 +31,11 @@ export class TaskService {
 				score: this.checkAnswer(answer, relatedTask),
 				task: answer.taskId as any,
 				taskId: answer.taskId,
-			} as any
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			}
 
-			comments.push(comment)
+			comments.push(<AssignedWorkComment>comment)
 		}
 
 		return comments

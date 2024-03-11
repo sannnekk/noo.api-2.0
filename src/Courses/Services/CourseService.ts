@@ -13,6 +13,7 @@ import { CourseMaterialRepository } from '../Data/CourseMaterialRepository'
 import { User } from '@modules/Users/Data/User'
 import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
 import { AssignedWorkService } from '@modules/AssignedWorks/Services/AssignedWorkService'
+import { CourseMaterial } from '../Data/Relations/CourseMaterial'
 
 export class CourseService extends Service<Course> {
 	private readonly courseRepository: CourseRepository
@@ -153,6 +154,8 @@ export class CourseService extends Service<Course> {
 		}
 
 		material.work = workId as any
+		material.workSolveDeadline = solveDeadline
+		material.workCheckDeadline = checkDeadline
 
 		for (const student of material.chapter?.course?.students || []) {
 			if (!student.mentorId) continue

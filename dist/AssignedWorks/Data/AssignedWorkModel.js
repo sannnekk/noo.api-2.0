@@ -57,6 +57,14 @@ let AssignedWorkModel = class AssignedWorkModel extends Model {
     score;
     maxScore;
     isArchived = false;
+    static entriesToSearch() {
+        return [
+            'work.name',
+            'work.description',
+            'student.name',
+            'mentors.name',
+        ];
+    }
     sluggify() {
         return ULID.generate();
     }

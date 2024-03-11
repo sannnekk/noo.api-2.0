@@ -8,7 +8,6 @@ import {
 import { CourseService } from './Services/CourseService'
 import { Asserts, Context, ApiResponse } from '@core'
 import { CourseValidator } from './CourseValidator'
-import { StatusCodes } from 'http-status-codes'
 
 @Controller('/course')
 export class CourseController {

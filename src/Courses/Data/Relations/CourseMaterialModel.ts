@@ -60,6 +60,20 @@ export class CourseMaterialModel
 	content!: DeltaContentType
 
 	@Column({
+		name: 'work_solve_deadline',
+		type: 'timestamp',
+		nullable: true,
+	})
+	workSolveDeadline?: Date
+
+	@Column({
+		name: 'work_check_deadline',
+		type: 'timestamp',
+		nullable: true,
+	})
+	workCheckDeadline?: Date
+
+	@Column({
 		name: 'order',
 		type: 'int',
 		default: 0,
