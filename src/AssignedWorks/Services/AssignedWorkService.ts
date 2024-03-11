@@ -148,7 +148,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		work.solvedAt = new Date()
 		work.comments = this.taskService.automatedCheck(
 			foundWork.work.tasks,
-			work.comments
+			work.answers
 		)
 
 		if (work.comments.length === work.answers.length) {
