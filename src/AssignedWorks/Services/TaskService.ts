@@ -1,8 +1,6 @@
-import { Work } from '@modules/Works/Data/Work'
 import { AssignedWorkAnswer } from '../Data/Relations/AssignedWorkAnswer'
 import { AssignedWorkComment } from '../Data/Relations/AssignedWorkComment'
 import { WorkTask } from '@modules/Works/Data/Relations/WorkTask'
-import { AssignedWorkCommentModel } from '../Data/Relations/AssignedWorkCommentModel'
 
 export class TaskService {
 	public automatedCheck(
@@ -134,7 +132,7 @@ export class TaskService {
 		let score = maxScore - Math.abs(word.length - exact.length)
 		word = word.trim().toLowerCase().padEnd(exact.length, ' ')
 
-		for (let i = 0; i < word.length; i++) {
+		for (let i = 0; i < exact.length; i++) {
 			if (word[i] !== exact[i]) {
 				score--
 			}
