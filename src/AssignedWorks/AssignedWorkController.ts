@@ -87,9 +87,11 @@ export class AssignedWorkController {
 			this.assignedWorkValidator.validateId(context.params.id)
 			this.assignedWorkValidator.validateUpdate(context.body)
 
-			await this.assignedWorkService.solveWork(context.body)
+			const comments = await this.assignedWorkService.solveWork(
+				context.body
+			)
 
-			return new ApiResponse(null)
+			return new ApiResponse({ data: comments })
 		} catch (error: any) {
 			return new ApiResponse(error)
 		}

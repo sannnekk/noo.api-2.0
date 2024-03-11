@@ -76,7 +76,7 @@ export class AssignedWorkService extends Service {
     async solveWork(work) {
         const foundWork = await this.assignedWorkRepository.findOne({
             id: work.id,
-        });
+        }, ['work', 'comments', 'answers']);
         if (!foundWork) {
             throw new NotFoundError();
         }
@@ -98,7 +98,8 @@ export class AssignedWorkService extends Service {
             work.score = this.getScore(work.comments);
         }
         const newWork = new AssignedWorkModel({ ...foundWork, ...work });
-        return this.assignedWorkRepository.update(newWork);
+        await this.assignedWorkRepository.update(newWork);
+        return work.comments;
     }
     async checkWork(work) {
         const foundWork = await this.assignedWorkRepository.findOne({

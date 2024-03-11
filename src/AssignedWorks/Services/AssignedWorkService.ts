@@ -117,9 +117,12 @@ export class AssignedWorkService extends Service<AssignedWork> {
 	}
 
 	public async solveWork(work: AssignedWork) {
-		const foundWork = await this.assignedWorkRepository.findOne({
-			id: work.id,
-		})
+		const foundWork = await this.assignedWorkRepository.findOne(
+			{
+				id: work.id,
+			},
+			['work', 'comments', 'answers']
+		)
 
 		if (!foundWork) {
 			throw new NotFoundError()
@@ -156,7 +159,9 @@ export class AssignedWorkService extends Service<AssignedWork> {
 
 		const newWork = new AssignedWorkModel({ ...foundWork, ...work })
 
-		return this.assignedWorkRepository.update(newWork)
+		await this.assignedWorkRepository.update(newWork)
+
+		return work.comments
 	}
 
 	public async checkWork(work: AssignedWork) {
