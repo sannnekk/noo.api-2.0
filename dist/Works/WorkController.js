@@ -54,6 +54,18 @@ let WorkController = class WorkController {
             return new ApiResponse(error);
         }
     }
+    async copyWork(context) {
+        try {
+            Asserts.isAuthenticated(context);
+            Asserts.teacher(context);
+            this.workValidator.validateSlug(context.params.slug);
+            await this.workService.copyWork(context.params.slug);
+            return new ApiResponse(null);
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
     async updateWork(context) {
         try {
             Asserts.isAuthenticated(context);
@@ -98,6 +110,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], WorkController.prototype, "createWork", null);
+__decorate([
+    Post('/copy/:slug'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], WorkController.prototype, "copyWork", null);
 __decorate([
     Patch('/:id'),
     __metadata("design:type", Function),

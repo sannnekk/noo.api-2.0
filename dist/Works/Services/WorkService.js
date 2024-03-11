@@ -32,6 +32,24 @@ export class WorkService extends Service {
     async createWork(work) {
         return this.workRepository.create(work);
     }
+    async copyWork(workSlug) {
+        const work = await this.workRepository.findOne({ slug: workSlug });
+        if (!work) {
+            throw new NotFoundError('Работа не найдена');
+        }
+        const newWork = {
+            ...work,
+            name: `${work.name} [копия]`,
+            id: undefined,
+            slug: undefined,
+        };
+        newWork.tasks = newWork.tasks.map((task) => ({
+            ...task,
+            id: undefined,
+            workId: undefined,
+        }));
+        return this.workRepository.create(newWork);
+    }
     async updateWork(work) {
         const foundWork = await this.workRepository.findOne({ id: work.id });
         if (!foundWork) {

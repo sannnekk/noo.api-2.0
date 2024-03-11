@@ -71,6 +71,22 @@ export class WorkController {
 		}
 	}
 
+	@Post('/copy/:slug')
+	public async copyWork(context: Context): Promise<ApiResponse> {
+		try {
+			Asserts.isAuthenticated(context)
+			Asserts.teacher(context)
+
+			this.workValidator.validateSlug(context.params.slug)
+
+			await this.workService.copyWork(context.params.slug)
+
+			return new ApiResponse(null)
+		} catch (error: any) {
+			return new ApiResponse(error)
+		}
+	}
+
 	@Patch('/:id')
 	public async updateWork(context: Context): Promise<ApiResponse> {
 		try {
