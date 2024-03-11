@@ -147,7 +147,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 
 		work.solvedAt = new Date()
 		work.comments = this.taskService.automatedCheck(
-			work.work.tasks!,
+			foundWork.work.tasks,
 			work.comments
 		)
 
