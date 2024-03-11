@@ -92,6 +92,11 @@ export class AssignedWorkService extends Service {
         }
         work.solvedAt = new Date();
         work.comments = this.taskService.automatedCheck(work.work.tasks, work.comments);
+        if (work.comments.length === work.answers.length) {
+            work.checkStatus = 'checked-in-deadline';
+            work.checkedAt = new Date();
+            work.score = this.getScore(work.comments);
+        }
         const newWork = new AssignedWorkModel({ ...foundWork, ...work });
         return this.assignedWorkRepository.update(newWork);
     }

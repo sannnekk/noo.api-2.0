@@ -23,6 +23,8 @@ export class TaskService {
 			const comment = new AssignedWorkCommentModel()
 
 			comment.score = this.checkAnswer(answer, relatedTask)
+			comment.taskId = answer.taskId
+			comment.id = undefined as any
 
 			comments.push(comment)
 		}

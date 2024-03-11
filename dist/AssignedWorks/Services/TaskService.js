@@ -9,6 +9,8 @@ export class TaskService {
             }
             const comment = new AssignedWorkCommentModel();
             comment.score = this.checkAnswer(answer, relatedTask);
+            comment.taskId = answer.taskId;
+            comment.id = undefined;
             comments.push(comment);
         }
         return comments;
