@@ -37,6 +37,9 @@ export class Pagination {
         return this.entries;
     }
     getCondition(conditions) {
+        if (Array.isArray(conditions)) {
+            return conditions;
+        }
         const allConditions = { ...(conditions || {}), ...this.filters };
         if (!this.search.length || !this.entries.length) {
             return allConditions;

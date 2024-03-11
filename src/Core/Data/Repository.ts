@@ -76,9 +76,7 @@ export abstract class Repository<T extends BaseModel> {
 	): Promise<T[]> {
 		return (await this.repository.find({
 			relations: (relations as string[]) || undefined,
-			where: Array.isArray(conditions)
-				? conditions
-				: pagination.getCondition(conditions),
+			where: pagination.getCondition(conditions),
 			order: pagination.orderOptions,
 			skip: pagination.offset,
 			take: pagination.take,

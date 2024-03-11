@@ -1,4 +1,5 @@
 import TypeORM from 'typeorm'
+import { array } from 'zod'
 
 export type Filters = {
 	[key: string]: any
@@ -61,6 +62,10 @@ export class Pagination {
 	):
 		| Record<string, string | number>
 		| Record<string, string | number>[] {
+		if (Array.isArray(conditions)) {
+			return conditions
+		}
+
 		const allConditions = { ...(conditions || {}), ...this.filters }
 
 		if (!this.search.length || !this.entries.length) {

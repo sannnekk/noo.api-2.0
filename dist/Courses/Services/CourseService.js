@@ -65,7 +65,7 @@ export class CourseService extends Service {
             slug: courseSlug,
         });
         const students = await this.userRepository.find(studentIds.map((id) => ({ id })));
-        if (!course) {
+        if (!course || !students.length) {
             throw new NotFoundError();
         }
         course.students = students;
