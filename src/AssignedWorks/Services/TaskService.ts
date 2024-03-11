@@ -28,7 +28,7 @@ export class TaskService {
 						},
 					],
 				},
-				score: 0,
+				score: this.checkAnswer(answer, relatedTask),
 				task: answer.taskId as any,
 				taskId: answer.taskId,
 			} as any
