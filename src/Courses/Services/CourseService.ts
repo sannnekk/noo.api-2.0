@@ -126,7 +126,7 @@ export class CourseService extends Service<Course> {
 				  )
 				: []
 
-		if (!course || !students.length) {
+		if (!course) {
 			throw new NotFoundError()
 		}
 
