@@ -70,13 +70,15 @@ export abstract class Repository<T extends BaseModel> {
 	}
 
 	async find(
-		conditions?: Partial<T>,
+		conditions?: Partial<T> | Partial<T>[],
 		relations?: (keyof Partial<T>)[],
 		pagination: Pagination = new Pagination()
 	): Promise<T[]> {
 		return (await this.repository.find({
 			relations: (relations as string[]) || undefined,
-			where: pagination.getCondition(conditions),
+			where: Array.isArray(conditions)
+				? conditions
+				: pagination.getCondition(conditions),
 			order: pagination.orderOptions,
 			skip: pagination.offset,
 			take: pagination.take,

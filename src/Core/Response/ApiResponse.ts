@@ -60,7 +60,17 @@ export class ApiResponse extends ControllerResponse {
 		}
 
 		if ('message' in error) {
-			message = error.message.toString()
+			if (typeof error.message === 'string') {
+				message = error.message
+			} else if (typeof error.message === 'undefined') {
+				message = 'Internal Server Error'
+			} else if (Array.isArray(error.message)) {
+				message = (error.message as any[])
+					.map((e) => e.message)
+					.join(', ')
+			} else if (typeof error.message === 'object') {
+				message = JSON.stringify(error.message)
+			}
 		}
 
 		return {

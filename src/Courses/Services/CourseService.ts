@@ -123,7 +123,7 @@ export class CourseService extends Service<Course> {
 			studentIds.map((id) => ({ id })) as any
 		)
 
-		if (!course) {
+		if (!course || !students.length) {
 			throw new NotFoundError()
 		}
 
