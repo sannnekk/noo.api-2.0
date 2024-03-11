@@ -40,6 +40,8 @@ export class WorkService extends Service {
         const newWork = {
             ...work,
             name: `${work.name} [копия]`,
+            assignedWorks: [],
+            assignedWorkIds: [],
             id: undefined,
             slug: undefined,
         };
@@ -47,6 +49,10 @@ export class WorkService extends Service {
             ...task,
             id: undefined,
             workId: undefined,
+            assignedWorkAnswers: [],
+            assignedWorkAnswerIds: [],
+            assignedWorkComments: [],
+            assignedWorkCommentIds: [],
         }));
         return this.workRepository.create(newWork);
     }
