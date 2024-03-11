@@ -20,11 +20,18 @@ export class TaskService {
 				continue
 			}
 
-			const comment = new AssignedWorkCommentModel()
-
-			comment.score = this.checkAnswer(answer, relatedTask)
-			comment.task = answer.taskId as any
-			comment.id = undefined as any
+			const comment: AssignedWorkComment = {
+				content: {
+					ops: [
+						{
+							insert: 'Automated check',
+						},
+					],
+				},
+				score: 0,
+				task: answer.taskId as any,
+				taskId: answer.taskId,
+			} as any
 
 			comments.push(comment)
 		}

@@ -1,4 +1,3 @@
-import { AssignedWorkCommentModel } from '../Data/Relations/AssignedWorkCommentModel.js';
 export class TaskService {
     automatedCheck(tasks, answers) {
         const comments = [];
@@ -7,10 +6,18 @@ export class TaskService {
             if (!relatedTask || relatedTask.type === 'text') {
                 continue;
             }
-            const comment = new AssignedWorkCommentModel();
-            comment.score = this.checkAnswer(answer, relatedTask);
-            comment.taskId = answer.taskId;
-            comment.id = undefined;
+            const comment = {
+                content: {
+                    ops: [
+                        {
+                            insert: 'Automated check',
+                        },
+                    ],
+                },
+                score: 0,
+                task: answer.taskId,
+                taskId: answer.taskId,
+            };
             comments.push(comment);
         }
         return comments;
