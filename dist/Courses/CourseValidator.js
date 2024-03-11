@@ -19,8 +19,6 @@ let CourseValidator = class CourseValidator extends Validator {
                     name: z.string().max(255),
                     description: z.string().optional(),
                     content: z.any().optional(),
-                    workSolveDeadline: z.date().optional(),
-                    workCheckDeadline: z.date().optional(),
                 }))
                     .optional(),
             }))
@@ -43,8 +41,6 @@ let CourseValidator = class CourseValidator extends Validator {
                     name: z.string().max(255).optional(),
                     description: z.string().optional(),
                     content: z.any().optional(),
-                    workSolveDeadline: z.date().optional(),
-                    workCheckDeadline: z.date().optional(),
                 }))
                     .optional(),
             }))

@@ -42,6 +42,12 @@ export class CourseChapterModel extends Model implements CourseChapter {
 	})
 	slug!: string
 
+	@Column({
+		name: 'order',
+		type: 'int',
+	})
+	order!: number
+
 	@ManyToOne(() => CourseModel, (course: Course) => course.chapters, {
 		onDelete: 'CASCADE',
 	})

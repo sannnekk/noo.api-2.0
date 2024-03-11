@@ -195,13 +195,23 @@ export class CourseService extends Service<Course> {
 	private sortMaterials(course: Course): Course {
 		if (!course.chapters) return course
 
-		course.chapters = course.chapters.map((chapter) => {
-			chapter.materials = (chapter.materials || []).sort(
-				(a, b) => a.order - b.order
-			)
+		course.chapters = this.sortChapters(course).chapters!.map(
+			(chapter) => {
+				chapter.materials = (chapter.materials || []).sort(
+					(a, b) => a.order - b.order
+				)
 
-			return chapter
-		})
+				return chapter
+			}
+		)
+
+		return course
+	}
+
+	private sortChapters(course: Course): Course {
+		course.chapters = (course.chapters || []).sort(
+			(a, b) => a.order - b.order
+		)
 
 		return course
 	}

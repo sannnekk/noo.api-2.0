@@ -113,10 +113,14 @@ export class CourseService extends Service {
     sortMaterials(course) {
         if (!course.chapters)
             return course;
-        course.chapters = course.chapters.map((chapter) => {
+        course.chapters = this.sortChapters(course).chapters.map((chapter) => {
             chapter.materials = (chapter.materials || []).sort((a, b) => a.order - b.order);
             return chapter;
         });
+        return course;
+    }
+    sortChapters(course) {
+        course.chapters = (course.chapters || []).sort((a, b) => a.order - b.order);
         return course;
     }
 }

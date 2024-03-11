@@ -9,6 +9,7 @@ export interface CourseChapter {
 	courseId?: string
 	course?: Course
 	materials?: CourseMaterial[]
+	order: number
 	createdAt: Date
 	updatedAt: Date
 }

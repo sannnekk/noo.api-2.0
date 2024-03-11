@@ -24,6 +24,7 @@ let CourseChapterModel = class CourseChapterModel extends Model {
     }
     name;
     slug;
+    order;
     course;
     courseId;
     materials;
@@ -45,6 +46,13 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], CourseChapterModel.prototype, "slug", void 0);
+__decorate([
+    Column({
+        name: 'order',
+        type: 'int',
+    }),
+    __metadata("design:type", Number)
+], CourseChapterModel.prototype, "order", void 0);
 __decorate([
     ManyToOne(() => CourseModel, (course) => course.chapters, {
         onDelete: 'CASCADE',
