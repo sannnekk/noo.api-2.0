@@ -13,8 +13,8 @@ ENV NODE_ENV=production
 ENV APP_PORT=3000
 
 # Copy source
-COPY . .
+COPY /dist /dist
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start"]
+CMD ["node", "dist/index.cjs"]
