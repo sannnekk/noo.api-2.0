@@ -1,7 +1,7 @@
 FROM node:20 as base
 
 # Add package file
-COPY package.json ./
+COPY package*.json ./
 
 # Install deps
 RUN npm i --legacy-peer-deps
@@ -15,4 +15,4 @@ COPY . .
 
 EXPOSE 3000
 
-RUN npm run start
+CMD ["npm", "run", "start"]
