@@ -54,6 +54,10 @@ export class AssignedWorkController {
 
 			if (context.credentials.role == 'student') {
 				Asserts.isAuthorized(context, work.studentId)
+
+				if (work && work.checkStatus === 'in-progress') {
+					work.comments = []
+				}
 			} else {
 				Asserts.isAuthorized(context, work.mentorIds)
 			}
