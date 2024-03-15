@@ -42,6 +42,7 @@ __decorate([
     Column({
         name: 'date',
         type: 'timestamp',
+        default: () => 'CURRENT_TIMESTAMP',
     }),
     __metadata("design:type", Date)
 ], CalenderEventModel.prototype, "date", void 0);

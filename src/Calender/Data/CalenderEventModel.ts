@@ -27,6 +27,7 @@ export class CalenderEventModel extends Model implements CalenderEvent {
 	@Column({
 		name: 'date',
 		type: 'timestamp',
+		default: () => 'CURRENT_TIMESTAMP',
 	})
 	date!: Date
 
