@@ -31,6 +31,11 @@ export class WorkService extends Service<Work> {
 			pagination
 		)
 
+		// Clear tasks as they are not needed in the list
+		for (const work of works) {
+			work.tasks = []
+		}
+
 		return works
 	}
 
@@ -65,23 +70,35 @@ export class WorkService extends Service<Work> {
 			throw new NotFoundError('Работа не найдена')
 		}
 
-		const newWork = {
-			...work,
+		const newWork: Work = {
+			tasks: [],
+			taskIds: [],
+			type: work.type,
 			name: `${work.name} [копия]`,
+			description: work.description,
 			assignedWorks: [],
 			assignedWorkIds: [],
 			id: undefined as any,
 			slug: undefined as any,
+			createdAt: new Date(),
+			updatedAt: new Date(),
 		}
 
 		newWork.tasks = newWork.tasks.map((task) => ({
-			...task,
 			id: undefined as any,
+			slug: undefined as any,
 			workId: undefined as any,
+			name: task.name,
+			order: task.order,
+			content: task.content,
+			highestScore: task.highestScore,
+			type: task.type,
 			assignedWorkAnswers: [],
 			assignedWorkAnswerIds: [],
 			assignedWorkComments: [],
 			assignedWorkCommentIds: [],
+			createdAt: new Date(),
+			updatedAt: new Date(),
 		}))
 
 		return this.workRepository.create(newWork)

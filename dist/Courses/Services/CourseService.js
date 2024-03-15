@@ -30,6 +30,10 @@ export class CourseService extends Service {
         }
         const courses = await this.courseRepository.find(conditions, undefined, pagination);
         this.storeRequestMeta(this.courseRepository, conditions, [], pagination);
+        // Clear chapters and materials as they are not needed in the list
+        for (const course of courses) {
+            course.chapters = [];
+        }
         return courses;
     }
     async getBySlug(slug) {

@@ -13,6 +13,10 @@ export class WorkService extends Service {
         const relations = ['materials'];
         const works = await this.workRepository.find(undefined, relations, pagination);
         this.storeRequestMeta(this.workRepository, undefined, relations, pagination);
+        // Clear tasks as they are not needed in the list
+        for (const work of works) {
+            work.tasks = [];
+        }
         return works;
     }
     async getWorkBySlug(slug) {
@@ -38,21 +42,33 @@ export class WorkService extends Service {
             throw new NotFoundError('Работа не найдена');
         }
         const newWork = {
-            ...work,
+            tasks: [],
+            taskIds: [],
+            type: work.type,
             name: `${work.name} [копия]`,
+            description: work.description,
             assignedWorks: [],
             assignedWorkIds: [],
             id: undefined,
             slug: undefined,
+            createdAt: new Date(),
+            updatedAt: new Date(),
         };
         newWork.tasks = newWork.tasks.map((task) => ({
-            ...task,
             id: undefined,
+            slug: undefined,
             workId: undefined,
+            name: task.name,
+            order: task.order,
+            content: task.content,
+            highestScore: task.highestScore,
+            type: task.type,
             assignedWorkAnswers: [],
             assignedWorkAnswerIds: [],
             assignedWorkComments: [],
             assignedWorkCommentIds: [],
+            createdAt: new Date(),
+            updatedAt: new Date(),
         }));
         return this.workRepository.create(newWork);
     }
