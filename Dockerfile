@@ -1,5 +1,8 @@
 FROM node:18 as base
 
+RUN mkdir noo-cdn
+RUN mkdir noo-cdn/uploads
+
 # Add package file
 COPY package*.json ./
 

@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid';
 export const MediaMiddleware = multer({
     storage: multer.diskStorage({
         destination: function (req, file, cb) {
-            cb(null, '../noo-cdn/uploads');
+            cb(null, '/noo-cdn/uploads');
         },
         filename: function (req, file, cb) {
             let name = uuid();
