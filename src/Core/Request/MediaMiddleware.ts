@@ -39,4 +39,7 @@ export const MediaMiddleware = multer({
 
 		callback(null, true)
 	},
+	limits: {
+		fileSize: 1024 * 1024 * 15,
+	},
 }).array('files')
