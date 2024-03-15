@@ -15,6 +15,7 @@ ENV APP_PORT=3000
 # Copy source
 COPY /dist /dist
 
+EXPOSE 465
 EXPOSE 3000
 
 CMD ["node", "dist/index.cjs"]
