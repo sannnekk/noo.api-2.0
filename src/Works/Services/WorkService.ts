@@ -76,28 +76,21 @@ export class WorkService extends Service<Work> {
 			description: work.description,
 		} as Work
 
-		newWork.tasks = work.tasks.map((task) => ({
-			id: undefined as any,
-			slug: undefined as any,
-			workId: undefined as any,
-			name: task.name,
-			order: task.order,
-			content: task.content,
-			highestScore: task.highestScore,
-			type: task.type,
-			options: [],
-			checkingStrategy: task.checkingStrategy,
-			rightAnswer: task.rightAnswer,
-			solveHint: task.solveHint,
-			checkHint: task.checkHint,
-			assignedWorkId: undefined as any,
-			assignedWorkAnswers: [],
-			assignedWorkAnswerIds: [],
-			assignedWorkComments: [],
-			assignedWorkCommentIds: [],
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		}))
+		newWork.tasks = work.tasks.map(
+			(task) =>
+				({
+					name: task.name,
+					order: task.order,
+					content: task.content,
+					highestScore: task.highestScore,
+					type: task.type,
+					options: [],
+					checkingStrategy: task.checkingStrategy,
+					rightAnswer: task.rightAnswer,
+					solveHint: task.solveHint,
+					checkHint: task.checkHint,
+				} as unknown as Work['tasks'][0])
+		)
 
 		this.workRepository.create(newWork)
 	}

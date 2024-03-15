@@ -47,9 +47,6 @@ export class WorkService extends Service {
             description: work.description,
         };
         newWork.tasks = work.tasks.map((task) => ({
-            id: undefined,
-            slug: undefined,
-            workId: undefined,
             name: task.name,
             order: task.order,
             content: task.content,
@@ -60,13 +57,6 @@ export class WorkService extends Service {
             rightAnswer: task.rightAnswer,
             solveHint: task.solveHint,
             checkHint: task.checkHint,
-            assignedWorkId: undefined,
-            assignedWorkAnswers: [],
-            assignedWorkAnswerIds: [],
-            assignedWorkComments: [],
-            assignedWorkCommentIds: [],
-            createdAt: new Date(),
-            updatedAt: new Date(),
         }));
         this.workRepository.create(newWork);
     }
