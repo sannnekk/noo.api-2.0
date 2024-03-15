@@ -70,21 +70,13 @@ export class WorkService extends Service<Work> {
 			throw new NotFoundError('Работа не найдена')
 		}
 
-		const newWork: Work = {
-			tasks: [],
-			taskIds: [],
+		const newWork = {
 			type: work.type,
-			name: `${work.name} [копия]`,
+			name: `[копия] ${work.name}`,
 			description: work.description,
-			assignedWorks: [],
-			assignedWorkIds: [],
-			id: undefined as any,
-			slug: undefined as any,
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		}
+		} as Work
 
-		newWork.tasks = newWork.tasks.map((task) => ({
+		newWork.tasks = work.tasks.map((task) => ({
 			id: undefined as any,
 			slug: undefined as any,
 			workId: undefined as any,
@@ -93,6 +85,12 @@ export class WorkService extends Service<Work> {
 			content: task.content,
 			highestScore: task.highestScore,
 			type: task.type,
+			options: [],
+			checkingStrategy: task.checkingStrategy,
+			rightAnswer: task.rightAnswer,
+			solveHint: task.solveHint,
+			checkHint: task.checkHint,
+			assignedWorkId: undefined as any,
 			assignedWorkAnswers: [],
 			assignedWorkAnswerIds: [],
 			assignedWorkComments: [],
@@ -101,7 +99,7 @@ export class WorkService extends Service<Work> {
 			updatedAt: new Date(),
 		}))
 
-		return this.workRepository.create(newWork)
+		this.workRepository.create(newWork)
 	}
 
 	public async updateWork(work: Work) {
