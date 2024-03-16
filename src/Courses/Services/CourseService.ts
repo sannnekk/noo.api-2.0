@@ -125,7 +125,7 @@ export class CourseService extends Service<Course> {
 			{
 				slug: courseSlug,
 			},
-			['chapters.materials' as any]
+			['chapters.materials.work' as any]
 		)
 
 		if (!course) {

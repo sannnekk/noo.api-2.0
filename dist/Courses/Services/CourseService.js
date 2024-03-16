@@ -66,7 +66,7 @@ export class CourseService extends Service {
     async assignStudents(courseSlug, studentIds) {
         const course = await this.courseRepository.findOne({
             slug: courseSlug,
-        }, ['chapters.materials']);
+        }, ['chapters.materials.work']);
         if (!course) {
             throw new NotFoundError();
         }
