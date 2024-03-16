@@ -72,7 +72,7 @@ export class CourseService extends Service {
         }
         const newStudentIds = studentIds.filter((id) => !(course.studentIds || []).includes(id));
         course.students = studentIds.map((id) => ({ id }));
-        await this.courseRepository.update(course);
+        await this.courseRepository.updateRaw(course);
         const materials = (course.chapters || [])
             .flatMap((chapter) => chapter.materials)
             .filter(Boolean);

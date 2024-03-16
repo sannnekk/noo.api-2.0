@@ -44,6 +44,22 @@ export class Repository {
             throw new AlreadyExistError();
         }
     }
+    async updateRaw(data) {
+        const item = await this.repository.findOne({
+            where: {
+                id: data.id,
+            },
+        });
+        if (!item) {
+            throw new NotFoundError();
+        }
+        try {
+            await this.repository.save(data);
+        }
+        catch (error) {
+            throw new AlreadyExistError();
+        }
+    }
     async delete(id) {
         const exists = await this.repository.exist({
             where: {

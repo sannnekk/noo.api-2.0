@@ -138,7 +138,7 @@ export class CourseService extends Service<Course> {
 
 		course.students = studentIds.map((id) => ({ id } as User))
 
-		await this.courseRepository.update(course)
+		await this.courseRepository.updateRaw(course)
 
 		const materials = (course.chapters || [])
 			.flatMap((chapter) => chapter.materials)

@@ -45,6 +45,26 @@ export class TaskService {
 	): number {
 		const maxScore = task.highestScore
 
+		if (task.rightAnswer?.includes('|')) {
+			const rightAnswers = task.rightAnswer.split('|')
+
+			const scores = rightAnswers.map((rightAnswer) => {
+				switch (task.type) {
+					case 'word':
+						return this.checkWord(
+							answer.word,
+							rightAnswer,
+							maxScore,
+							task.checkingStrategy
+						)
+					default:
+						return 0
+				}
+			})
+
+			return Math.max(...scores)
+		}
+
 		switch (task.type) {
 			case 'word':
 				return this.checkWord(
