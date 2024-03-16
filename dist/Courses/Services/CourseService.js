@@ -71,6 +71,7 @@ export class CourseService extends Service {
             throw new NotFoundError();
         }
         const newStudentIds = studentIds.filter((id) => !(course.studentIds || []).includes(id));
+        course.students = studentIds.map((id) => ({ id }));
         try {
             await this.courseRepository.updateRaw(course);
         }

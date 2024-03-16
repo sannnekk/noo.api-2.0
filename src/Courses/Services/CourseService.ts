@@ -137,6 +137,8 @@ export class CourseService extends Service<Course> {
 			(id) => !(course.studentIds || []).includes(id)
 		)
 
+		course.students = studentIds.map((id) => ({ id } as User))
+
 		try {
 			await this.courseRepository.updateRaw(course)
 		} catch (e: any) {
