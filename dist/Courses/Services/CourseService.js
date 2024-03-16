@@ -1,6 +1,6 @@
 import { UserRepository } from '../../Users/Data/UserRepository.js';
 import { CourseRepository } from './../Data/CourseRepository.js';
-import { AlreadyExistError, NotFoundError, Pagination, Service, } from '../../core/index.js';
+import { AlreadyExistError, NotFoundError, Pagination, Service, UnknownError, } from '../../core/index.js';
 import { QueryFailedError } from 'typeorm';
 import { CourseModel } from '../Data/CourseModel.js';
 import { CourseMaterialRepository } from '../Data/CourseMaterialRepository.js';
@@ -71,8 +71,12 @@ export class CourseService extends Service {
             throw new NotFoundError();
         }
         const newStudentIds = studentIds.filter((id) => !(course.studentIds || []).includes(id));
-        course.students = studentIds.map((id) => ({ id }));
-        await this.courseRepository.updateRaw(course);
+        try {
+            await this.courseRepository.updateRaw(course);
+        }
+        catch (e) {
+            throw new UnknownError('Не удалось обновить список учеников');
+        }
         const materials = (course.chapters || [])
             .flatMap((chapter) => chapter.materials)
             .filter(Boolean);
@@ -97,12 +101,15 @@ export class CourseService extends Service {
     async assignWorkToStudent(studentId, material) {
         if (!material.work)
             return;
-        await this.assignedWorkService.createWork({
-            studentId,
-            workId: material.work.id,
-            solveDeadlineAt: material.workSolveDeadline,
-            checkDeadlineAt: material.workCheckDeadline,
-        });
+        try {
+            await this.assignedWorkService.createWork({
+                studentId,
+                workId: material.work.id,
+                solveDeadlineAt: material.workSolveDeadline,
+                checkDeadlineAt: material.workCheckDeadline,
+            });
+        }
+        catch (e) { }
     }
     async create(course, authorId) {
         const author = await this.userRepository.findOne({ id: authorId });

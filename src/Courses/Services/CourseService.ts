@@ -6,6 +6,7 @@ import {
 	NotFoundError,
 	Pagination,
 	Service,
+	UnknownError,
 } from '@core'
 import { QueryFailedError } from 'typeorm'
 import { CourseModel } from '../Data/CourseModel'
@@ -136,9 +137,11 @@ export class CourseService extends Service<Course> {
 			(id) => !(course.studentIds || []).includes(id)
 		)
 
-		course.students = studentIds.map((id) => ({ id } as User))
-
-		await this.courseRepository.updateRaw(course)
+		try {
+			await this.courseRepository.updateRaw(course)
+		} catch (e: any) {
+			throw new UnknownError('Не удалось обновить список учеников')
+		}
 
 		const materials = (course.chapters || [])
 			.flatMap((chapter) => chapter.materials)
@@ -195,12 +198,14 @@ export class CourseService extends Service<Course> {
 	) {
 		if (!material.work) return
 
-		await this.assignedWorkService.createWork({
-			studentId,
-			workId: material.work.id,
-			solveDeadlineAt: material.workSolveDeadline,
-			checkDeadlineAt: material.workCheckDeadline,
-		} as AssignedWork)
+		try {
+			await this.assignedWorkService.createWork({
+				studentId,
+				workId: material.work.id,
+				solveDeadlineAt: material.workSolveDeadline,
+				checkDeadlineAt: material.workCheckDeadline,
+			} as AssignedWork)
+		} catch (e: any) {}
 	}
 
 	public async create(

@@ -51,8 +51,8 @@ export class UserValidator extends Validator {
 				.min(3, {
 					message: 'Логин должен быть длиннее двух символов',
 				})
-				.max(32, {
-					message: 'Логин должен быть короче 32 символов',
+				.max(100, {
+					message: 'Логин должен быть короче 100 символов',
 				}),
 			password: z
 				.string()

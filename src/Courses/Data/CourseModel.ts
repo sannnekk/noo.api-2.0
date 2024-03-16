@@ -56,7 +56,7 @@ export class CourseModel extends Model implements Course {
 	authorId!: User['id']
 
 	@ManyToMany(() => UserModel, (user) => user.coursesAsStudent, {
-		cascade: true,
+		cascade: ['update'],
 	})
 	students?: User[]
 

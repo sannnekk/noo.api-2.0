@@ -64,7 +64,7 @@ __decorate([
 ], CourseModel.prototype, "authorId", void 0);
 __decorate([
     ManyToMany(() => UserModel, (user) => user.coursesAsStudent, {
-        cascade: true,
+        cascade: ['update'],
     }),
     __metadata("design:type", Array)
 ], CourseModel.prototype, "students", void 0);
