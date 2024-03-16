@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model, Transliteration, ULID } from '../../../core/index.js';
+import { Model, ULID } from '../../../core/index.js';
 import { Column, Entity, ManyToOne, OneToMany, RelationId, } from 'typeorm';
 import { WorkModel } from '../WorkModel.js';
 import { AssignedWorkAnswerModel } from '../../../AssignedWorks/Data/Relations/AssignedWorkAnswerModel.js';
@@ -20,13 +20,12 @@ let WorkTaskModel = class WorkTaskModel extends Model {
             this.assignedWorkAnswers = (data.assignedWorkAnswers || []).map((answer) => new AssignedWorkAnswerModel(answer));
             this.assignedWorkComments = (data.assignedWorkComments || []).map((comment) => new AssignedWorkCommentModel(comment));
             if (!data.slug) {
-                this.slug = this.sluggify(this.name);
+                this.slug = this.sluggify();
             }
         }
     }
     slug;
     order;
-    name;
     content;
     highestScore;
     type;
@@ -40,8 +39,8 @@ let WorkTaskModel = class WorkTaskModel extends Model {
     assignedWorkAnswerIds;
     assignedWorkComments;
     assignedWorkCommentIds;
-    sluggify(text) {
-        return ULID.generate() + '-' + Transliteration.sluggify(text);
+    sluggify() {
+        return ULID.generate();
     }
 };
 __decorate([
@@ -58,15 +57,6 @@ __decorate([
     }),
     __metadata("design:type", Number)
 ], WorkTaskModel.prototype, "order", void 0);
-__decorate([
-    Column({
-        name: 'name',
-        type: 'varchar',
-        default: 'Задание',
-        nullable: true,
-    }),
-    __metadata("design:type", String)
-], WorkTaskModel.prototype, "name", void 0);
 __decorate([
     Column({
         name: 'content',

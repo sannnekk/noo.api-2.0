@@ -74,7 +74,6 @@ export class WorkService extends Service<Work> {
 		newWork.tasks = work.tasks.map(
 			(task) =>
 				({
-					name: task.name,
 					order: task.order,
 					content: task.content,
 					highestScore: task.highestScore,

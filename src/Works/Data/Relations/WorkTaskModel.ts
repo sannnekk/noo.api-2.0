@@ -31,7 +31,7 @@ export class WorkTaskModel extends Model implements WorkTask {
 			)
 
 			if (!data.slug) {
-				this.slug = this.sluggify(this.name)
+				this.slug = this.sluggify()
 			}
 		}
 	}
@@ -47,14 +47,6 @@ export class WorkTaskModel extends Model implements WorkTask {
 		type: 'int',
 	})
 	order!: number
-
-	@Column({
-		name: 'name',
-		type: 'varchar',
-		default: 'Задание',
-		nullable: true,
-	})
-	name!: string
 
 	@Column({
 		name: 'content',
@@ -125,7 +117,7 @@ export class WorkTaskModel extends Model implements WorkTask {
 	@RelationId((task: WorkTaskModel) => task.assignedWorkComments)
 	assignedWorkCommentIds!: string[]
 
-	private sluggify(text: string): string {
-		return ULID.generate() + '-' + Transliteration.sluggify(text)
+	private sluggify(): string {
+		return ULID.generate()
 	}
 }

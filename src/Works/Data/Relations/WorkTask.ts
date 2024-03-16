@@ -6,7 +6,6 @@ import { AssignedWorkComment } from '@modules/AssignedWorks/Data/Relations/Assig
 
 export interface WorkTask extends BaseModel {
 	slug: string
-	name: string
 	order: number
 	content: DeltaContentType
 	highestScore: number
