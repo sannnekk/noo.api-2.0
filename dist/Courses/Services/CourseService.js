@@ -44,6 +44,13 @@ export class CourseService extends Service {
         if (!course) {
             throw new NotFoundError();
         }
+        for (const chapter of course.chapters || []) {
+            for (const material of chapter.materials || []) {
+                if (material.work) {
+                    material.work.tasks = [];
+                }
+            }
+        }
         return this.sortMaterials(course);
     }
     async getAssignedWorkToMaterial(materialSlug, userId) {
