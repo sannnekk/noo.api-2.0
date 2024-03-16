@@ -124,18 +124,12 @@ export class CourseService extends Service<Course> {
 		const course = await this.courseRepository.findOne({
 			slug: courseSlug,
 		})
-		const students =
-			studentIds.length > 0
-				? await this.userRepository.find(
-						studentIds.map((id) => ({ id })) as any
-				  )
-				: []
 
 		if (!course) {
 			throw new NotFoundError()
 		}
 
-		course.students = students
+		course.students = studentIds as any
 
 		await this.courseRepository.update(course)
 	}
