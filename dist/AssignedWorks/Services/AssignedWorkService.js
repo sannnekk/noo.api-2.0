@@ -68,7 +68,7 @@ export class AssignedWorkService extends Service {
     async createWork(assignedWork) {
         const work = await this.workRepository.findOne({
             id: assignedWork.workId,
-        });
+        }, ['tasks']);
         const student = await this.userRepository.findOne({
             id: assignedWork.studentId,
         });

@@ -107,9 +107,12 @@ export class AssignedWorkService extends Service<AssignedWork> {
 	}
 
 	public async createWork(assignedWork: AssignedWork) {
-		const work = await this.workRepository.findOne({
-			id: assignedWork.workId,
-		})
+		const work = await this.workRepository.findOne(
+			{
+				id: assignedWork.workId,
+			},
+			['tasks']
+		)
 
 		const student = await this.userRepository.findOne({
 			id: assignedWork.studentId,
