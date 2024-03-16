@@ -68,10 +68,13 @@ export class CourseService extends Service {
         const course = await this.courseRepository.findOne({
             slug: courseSlug,
         });
+        const students = studentIds.length > 0
+            ? await this.userRepository.find(studentIds.map((id) => ({ id })), undefined, new Pagination(undefined, 6000))
+            : [];
         if (!course) {
             throw new NotFoundError();
         }
-        course.students = studentIds;
+        course.students = students;
         await this.courseRepository.update(course);
     }
     async assignWorkToMaterial(materialSlug, workId, solveDeadline, checkDeadline) {
