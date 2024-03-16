@@ -21,7 +21,7 @@ export abstract class Repository<T extends BaseModel> {
 		try {
 			await this.repository.save(model)
 		} catch (error: any) {
-			throw new AlreadyExistError(JSON.stringify(error))
+			throw new AlreadyExistError()
 		}
 	}
 

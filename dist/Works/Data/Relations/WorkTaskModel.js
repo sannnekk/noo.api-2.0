@@ -62,6 +62,8 @@ __decorate([
     Column({
         name: 'name',
         type: 'varchar',
+        default: 'Задание',
+        nullable: true,
     }),
     __metadata("design:type", String)
 ], WorkTaskModel.prototype, "name", void 0);

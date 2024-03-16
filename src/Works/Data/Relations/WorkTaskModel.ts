@@ -51,6 +51,8 @@ export class WorkTaskModel extends Model implements WorkTask {
 	@Column({
 		name: 'name',
 		type: 'varchar',
+		default: 'Задание',
+		nullable: true,
 	})
 	name!: string
 
