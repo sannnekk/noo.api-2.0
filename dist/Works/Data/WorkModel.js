@@ -7,11 +7,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model, Transliteration, ULID } from '../../core/index.js';
-import { Column, Entity, OneToMany } from 'typeorm';
-import { CourseMaterialModel } from '../../Courses/Data/Relations/CourseMaterialModel.js';
-import { WorkTaskModel } from './Relations/WorkTaskModel.js';
-import { AssignedWorkModel } from '../../AssignedWorks/Data/AssignedWorkModel.js';
+import { Model, Transliteration, ULID } from '@core';
+import { Column, Entity, OneToMany, RelationId, } from 'typeorm';
+import { CourseMaterialModel } from '@modules/Courses/Data/Relations/CourseMaterialModel';
+import { WorkTaskModel } from './Relations/WorkTaskModel';
+import { AssignedWorkModel } from '@modules/AssignedWorks/Data/AssignedWorkModel';
 let WorkModel = class WorkModel extends Model {
     constructor(data) {
         super();
@@ -30,15 +30,9 @@ let WorkModel = class WorkModel extends Model {
     description;
     materials;
     tasks;
-    get taskIds() {
-        return (this.tasks || []).map((task) => task.id);
-    }
-    set taskIds(ids) { }
+    taskIds;
     assignedWorks;
-    get assignedWorkIds() {
-        return (this.assignedWorks || []).map((assignedWork) => assignedWork.id);
-    }
-    set assignedWorkIds(ids) { }
+    assignedWorkIds;
     static entriesToSearch() {
         return ['name', 'description'];
     }
@@ -82,15 +76,22 @@ __decorate([
 ], WorkModel.prototype, "materials", void 0);
 __decorate([
     OneToMany(() => WorkTaskModel, (task) => task.work, {
-        eager: true,
         cascade: true,
     }),
     __metadata("design:type", Array)
 ], WorkModel.prototype, "tasks", void 0);
 __decorate([
-    OneToMany(() => AssignedWorkModel, (assignedWork) => assignedWork.work, { cascade: true }),
+    RelationId((work) => work.tasks),
+    __metadata("design:type", Array)
+], WorkModel.prototype, "taskIds", void 0);
+__decorate([
+    OneToMany(() => AssignedWorkModel, (assignedWork) => assignedWork.work),
     __metadata("design:type", Array)
 ], WorkModel.prototype, "assignedWorks", void 0);
+__decorate([
+    RelationId((work) => work.assignedWorks),
+    __metadata("design:type", Array)
+], WorkModel.prototype, "assignedWorkIds", void 0);
 WorkModel = __decorate([
     Entity('work'),
     __metadata("design:paramtypes", [Object])

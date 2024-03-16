@@ -1,6 +1,6 @@
-import { NotFoundError, Pagination, Service } from '../../core/index.js';
-import { WorkRepository } from '../Data/WorkRepository.js';
-import { WorkModel } from '../Data/WorkModel.js';
+import { NotFoundError, Pagination, Service } from '@core';
+import { WorkRepository } from '../Data/WorkRepository';
+import { WorkModel } from '../Data/WorkModel';
 export class WorkService extends Service {
     workRepository;
     constructor() {
@@ -10,24 +10,19 @@ export class WorkService extends Service {
     async getWorks(pagination) {
         pagination = new Pagination().assign(pagination);
         pagination.entriesToSearch = WorkModel.entriesToSearch();
-        const relations = ['materials'];
-        const works = await this.workRepository.find(undefined, relations, pagination);
-        this.storeRequestMeta(this.workRepository, undefined, relations, pagination);
-        // Clear tasks as they are not needed in the list
-        for (const work of works) {
-            work.tasks = [];
-        }
+        const works = await this.workRepository.find(undefined, undefined, pagination);
+        this.storeRequestMeta(this.workRepository, undefined, undefined, pagination);
         return works;
     }
     async getWorkBySlug(slug) {
-        const work = await this.workRepository.findOne({ slug });
+        const work = await this.workRepository.findOne({ slug }, ['tasks']);
         if (!work) {
             throw new NotFoundError();
         }
         return this.sortTasks(work);
     }
     async getWorkById(id) {
-        const work = await this.workRepository.findOne({ id });
+        const work = await this.workRepository.findOne({ id }, ['tasks']);
         if (!work) {
             throw new NotFoundError();
         }
@@ -52,7 +47,6 @@ export class WorkService extends Service {
             content: task.content,
             highestScore: task.highestScore,
             type: task.type,
-            options: [],
             checkingStrategy: task.checkingStrategy,
             rightAnswer: task.rightAnswer,
             solveHint: task.solveHint,

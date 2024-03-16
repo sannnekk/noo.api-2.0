@@ -1,5 +1,5 @@
-import { Repository } from '../../core/index.js';
-import { AssignedWorkModel } from './AssignedWorkModel.js';
+import { Repository } from '@core';
+import { AssignedWorkModel } from './AssignedWorkModel';
 export class AssignedWorkRepository extends Repository {
     constructor() {
         super(AssignedWorkModel);

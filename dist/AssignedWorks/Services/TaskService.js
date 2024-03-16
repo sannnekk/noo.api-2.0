@@ -29,10 +29,8 @@ export class TaskService {
         switch (task.type) {
             case 'word':
                 return this.checkWord(answer.word, task.rightAnswer, maxScore, task.checkingStrategy);
-            case 'multiple_choice':
-            case 'one_choice':
             default:
-                return 0; //TODO: Implement this
+                return 0;
         }
     }
     checkWord(word, rightAnswer, maxScore, checkingStrategy) {

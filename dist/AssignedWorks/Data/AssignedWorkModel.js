@@ -7,12 +7,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model, ULID } from '../../core/index.js';
+import { Model, ULID } from '@core';
 import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, RelationId, } from 'typeorm';
-import { UserModel } from '../../Users/Data/UserModel.js';
-import { WorkModel } from '../../Works/Data/WorkModel.js';
-import { AssignedWorkAnswerModel } from './Relations/AssignedWorkAnswerModel.js';
-import { AssignedWorkCommentModel } from './Relations/AssignedWorkCommentModel.js';
+import { UserModel } from '@modules/Users/Data/UserModel';
+import { WorkModel } from '@modules/Works/Data/WorkModel';
+import { AssignedWorkAnswerModel } from './Relations/AssignedWorkAnswerModel';
+import { AssignedWorkCommentModel } from './Relations/AssignedWorkCommentModel';
 let AssignedWorkModel = class AssignedWorkModel extends Model {
     constructor(data) {
         super();
@@ -28,10 +28,7 @@ let AssignedWorkModel = class AssignedWorkModel extends Model {
     }
     slug;
     mentors;
-    get mentorIds() {
-        return (this.mentors || []).map((mentor) => mentor.id);
-    }
-    set mentorIds(ids) { }
+    mentorIds;
     student;
     studentId;
     work;
@@ -45,15 +42,9 @@ let AssignedWorkModel = class AssignedWorkModel extends Model {
     solvedAt;
     checkedAt;
     answers;
-    get answerIds() {
-        return (this.answers || []).map((answer) => answer.id);
-    }
-    set answerIds(ids) { }
+    answerIds;
     comments;
-    get commentIds() {
-        return (this.comments || []).map((comment) => comment.id);
-    }
-    set commentIds(ids) { }
+    commentIds;
     score;
     maxScore;
     isArchived = false;
@@ -84,6 +75,10 @@ __decorate([
     JoinTable(),
     __metadata("design:type", Object)
 ], AssignedWorkModel.prototype, "mentors", void 0);
+__decorate([
+    RelationId((assignedWork) => assignedWork.mentors),
+    __metadata("design:type", Array)
+], AssignedWorkModel.prototype, "mentorIds", void 0);
 __decorate([
     ManyToOne(() => UserModel, (user) => user.assignedWorksAsStudent),
     __metadata("design:type", Object)
@@ -179,13 +174,21 @@ __decorate([
     __metadata("design:type", Object)
 ], AssignedWorkModel.prototype, "checkedAt", void 0);
 __decorate([
-    OneToMany(() => AssignedWorkAnswerModel, (answer) => answer.assignedWork, { cascade: true, eager: true }),
+    OneToMany(() => AssignedWorkAnswerModel, (answer) => answer.assignedWork, { cascade: true }),
     __metadata("design:type", Array)
 ], AssignedWorkModel.prototype, "answers", void 0);
+__decorate([
+    RelationId((assignedWork) => assignedWork.answers),
+    __metadata("design:type", Array)
+], AssignedWorkModel.prototype, "answerIds", void 0);
 __decorate([
     OneToMany(() => AssignedWorkCommentModel, (comment) => comment.assignedWork, { cascade: true, eager: true }),
     __metadata("design:type", Array)
 ], AssignedWorkModel.prototype, "comments", void 0);
+__decorate([
+    RelationId((assignedWork) => assignedWork.comments),
+    __metadata("design:type", Array)
+], AssignedWorkModel.prototype, "commentIds", void 0);
 __decorate([
     Column({
         name: 'score',

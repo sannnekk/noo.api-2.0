@@ -1,5 +1,5 @@
-import { UnauthorizedError } from '../../core/index.js';
-import { InternalError } from '../../core/Errors/InternalError.js';
+import { UnauthorizedError } from '@core';
+import { InternalError } from '@modules/core/Errors/InternalError';
 function hasSecret(context) {
     if (process.env.WEBHOOK_SECRET === undefined) {
         throw new InternalError('Webhook secret is not set in environment variables');

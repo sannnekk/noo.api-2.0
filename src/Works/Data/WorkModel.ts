@@ -2,7 +2,13 @@ import { Model, Transliteration, ULID } from '@core'
 import { Work } from './Work'
 import { CourseMaterial } from '@modules/Courses/Data/Relations/CourseMaterial'
 import { WorkTask } from './Relations/WorkTask'
-import { Column, Entity, OneToMany, OneToOne } from 'typeorm'
+import {
+	Column,
+	Entity,
+	OneToMany,
+	OneToOne,
+	RelationId,
+} from 'typeorm'
 import { CourseMaterialModel } from '@modules/Courses/Data/Relations/CourseMaterialModel'
 import { WorkTaskModel } from './Relations/WorkTaskModel'
 import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
@@ -61,31 +67,21 @@ export class WorkModel extends Model implements Work {
 	materials?: CourseMaterial[] | undefined
 
 	@OneToMany(() => WorkTaskModel, (task) => task.work, {
-		eager: true,
 		cascade: true,
 	})
 	tasks!: WorkTask[]
 
-	get taskIds(): string[] {
-		return (this.tasks || []).map((task) => task.id)
-	}
-
-	set taskIds(ids: string[]) {}
+	@RelationId((work: WorkModel) => work.tasks)
+	taskIds!: string[]
 
 	@OneToMany(
 		() => AssignedWorkModel,
-		(assignedWork) => assignedWork.work,
-		{ cascade: true }
+		(assignedWork) => assignedWork.work
 	)
 	assignedWorks!: AssignedWork[]
 
-	get assignedWorkIds(): string[] {
-		return (this.assignedWorks || []).map(
-			(assignedWork) => assignedWork.id
-		)
-	}
-
-	set assignedWorkIds(ids: string[]) {}
+	@RelationId((work: WorkModel) => work.assignedWorks)
+	assignedWorkIds!: string[]
 
 	static entriesToSearch() {
 		return ['name', 'description']

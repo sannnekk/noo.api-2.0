@@ -53,10 +53,8 @@ export class TaskService {
 					maxScore,
 					task.checkingStrategy
 				)
-			case 'multiple_choice':
-			case 'one_choice':
 			default:
-				return 0 //TODO: Implement this
+				return 0
 		}
 	}
 

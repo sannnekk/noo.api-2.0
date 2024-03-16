@@ -13,6 +13,7 @@ import { CourseMaterialRepository } from '../Data/CourseMaterialRepository'
 import { User } from '@modules/Users/Data/User'
 import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
 import { AssignedWorkService } from '@modules/AssignedWorks/Services/AssignedWorkService'
+import { CourseMaterial } from '../Data/Relations/CourseMaterial'
 
 export class CourseService extends Service<Course> {
 	private readonly courseRepository: CourseRepository
@@ -71,19 +72,10 @@ export class CourseService extends Service<Course> {
 	public async getBySlug(slug: string): Promise<Course> {
 		const course = await this.courseRepository.findOne({ slug }, [
 			'chapters.materials.work' as any,
-			'students',
 		])
 
 		if (!course) {
 			throw new NotFoundError()
-		}
-
-		for (const chapter of course.chapters || []) {
-			for (const material of chapter.materials || []) {
-				if (material.work) {
-					material.work.tasks = []
-				}
-			}
 		}
 
 		return this.sortMaterials(course)
@@ -129,25 +121,36 @@ export class CourseService extends Service<Course> {
 		courseSlug: Course['slug'],
 		studentIds: User['id'][]
 	) {
-		const course = await this.courseRepository.findOne({
-			slug: courseSlug,
-		})
-		const students =
-			studentIds.length > 0
-				? await this.userRepository.find(
-						studentIds.map((id) => ({ id })) as any,
-						undefined,
-						new Pagination(undefined, 6000)
-				  )
-				: []
+		const course = await this.courseRepository.findOne(
+			{
+				slug: courseSlug,
+			},
+			['chapters.materials' as any]
+		)
 
 		if (!course) {
 			throw new NotFoundError()
 		}
 
-		course.students = students
+		console.log('Student Ids', course.studentIds, studentIds)
+
+		const newStudentIds = studentIds.filter(
+			(id) => !(course.studentIds || []).includes(id)
+		)
+
+		course.students = studentIds.map((id) => ({ id } as User))
 
 		await this.courseRepository.update(course)
+
+		const materials = (course.chapters || [])
+			.flatMap((chapter) => chapter.materials)
+			.filter(Boolean) as CourseMaterial[]
+
+		await Promise.all(
+			materials.map((material) =>
+				this.assignWorkToStudents(newStudentIds, material)
+			)
+		)
 	}
 
 	public async assignWorkToMaterial(
@@ -160,7 +163,7 @@ export class CourseService extends Service<Course> {
 			{
 				slug: materialSlug,
 			},
-			['chapter.course.students.mentor' as any]
+			['chapter.course' as any]
 		)
 
 		if (!material) {
@@ -171,18 +174,35 @@ export class CourseService extends Service<Course> {
 		material.workSolveDeadline = solveDeadline
 		material.workCheckDeadline = checkDeadline
 
-		for (const student of material.chapter?.course?.students || []) {
-			if (!student.mentorId) continue
-
-			await this.assignedWorkService.createWork({
-				studentId: student.id,
-				workId,
-				solveDeadlineAt: solveDeadline,
-				checkDeadlineAt: checkDeadline,
-			} as AssignedWork)
-		}
+		await this.assignWorkToStudents(
+			material.chapter?.course?.studentIds || [],
+			material
+		)
 
 		await this.materialRepository.update(material)
+	}
+
+	public async assignWorkToStudents(
+		studentIds: User['id'][],
+		material: CourseMaterial
+	): Promise<void> {
+		await Promise.all(
+			studentIds.map((id) => this.assignWorkToStudent(id, material))
+		)
+	}
+
+	public async assignWorkToStudent(
+		studentId: User['id'],
+		material: CourseMaterial
+	) {
+		if (!material.work) return
+
+		await this.assignedWorkService.createWork({
+			studentId,
+			workId: material.work.id,
+			solveDeadlineAt: material.workSolveDeadline,
+			checkDeadlineAt: material.workCheckDeadline,
+		} as AssignedWork)
 	}
 
 	public async create(

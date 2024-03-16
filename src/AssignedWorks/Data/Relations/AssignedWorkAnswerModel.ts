@@ -1,7 +1,6 @@
 import { DeltaContentType, Model, ULID } from '@core'
 import { AssignedWorkAnswer } from './AssignedWorkAnswer'
 import { WorkTask } from '@modules/Works/Data/Relations/WorkTask'
-import { WorkTaskOption } from '@modules/Works/Data/Relations/WorkTaskOption'
 import {
 	Column,
 	Entity,
@@ -10,7 +9,6 @@ import {
 	ManyToOne,
 	RelationId,
 } from 'typeorm'
-import { WorkTaskOptionModel } from '@modules/Works/Data/Relations/WorkTaskOptionModel'
 import { WorkTaskModel } from '@modules/Works/Data/Relations/WorkTaskModel'
 import { AssignedWork } from '../AssignedWork'
 import { AssignedWorkModel } from '../AssignedWorkModel'
@@ -33,10 +31,6 @@ export class AssignedWorkAnswerModel
 			if (data.taskId) {
 				this.task = { id: data.taskId } as any
 			}
-
-			this.chosenTaskOptions = (data.chosenTaskOptions || []).map(
-				(option) => new WorkTaskOptionModel(option)
-			)
 		}
 	}
 
@@ -60,25 +54,7 @@ export class AssignedWorkAnswerModel
 	})
 	word?: string | undefined
 
-	@ManyToMany(
-		() => WorkTaskOptionModel,
-		(option) => option.assignedWorkAnswers,
-		{ eager: true, cascade: true }
-	)
-	@JoinTable()
-	chosenTaskOptions?: WorkTaskOption[] | undefined
-
-	get chosenTaskOptionIds(): string[] | undefined {
-		return (this.chosenTaskOptions || []).map((option) => option.id)
-	}
-
-	set chosenTaskOptionIds(ids: WorkTaskOption['id'][]) {
-		this.chosenTaskOptions = ids.map((id) => ({ id })) as any[]
-	}
-
-	@ManyToOne(() => WorkTaskModel, (task) => task.assignedWorkAnswers, {
-		eager: true,
-	})
+	@ManyToOne(() => WorkTaskModel, (task) => task.assignedWorkAnswers)
 	task?: WorkTask | undefined
 
 	@RelationId((answer: AssignedWorkAnswerModel) => answer.task)

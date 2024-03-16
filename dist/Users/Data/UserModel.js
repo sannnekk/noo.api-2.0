@@ -8,9 +8,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, RelationId, } from 'typeorm';
-import { Model } from '../../core/index.js';
-import { CourseModel } from '../../Courses/Data/CourseModel.js';
-import { AssignedWorkModel } from '../../AssignedWorks/Data/AssignedWorkModel.js';
+import { Model } from '@core';
+import { CourseModel } from '@modules/Courses/Data/CourseModel';
+import { AssignedWorkModel } from '@modules/AssignedWorks/Data/AssignedWorkModel';
 let UserModel = class UserModel extends Model {
     constructor(data) {
         super();
@@ -30,9 +30,13 @@ let UserModel = class UserModel extends Model {
     mentorId;
     mentor;
     courses;
+    courseIds;
     coursesAsStudent;
+    courseIdsAsStudent;
     assignedWorksAsMentor;
+    assignedWorkIdsAsMentor;
     assignedWorksAsStudent;
+    assignedWorkIdsAsStudent;
     telegramId;
     telegramUsername;
     password;
@@ -103,18 +107,34 @@ __decorate([
     __metadata("design:type", Array)
 ], UserModel.prototype, "courses", void 0);
 __decorate([
+    RelationId((user) => user.courses),
+    __metadata("design:type", Array)
+], UserModel.prototype, "courseIds", void 0);
+__decorate([
     ManyToMany(() => CourseModel, (course) => course.students),
     JoinTable(),
     __metadata("design:type", Array)
 ], UserModel.prototype, "coursesAsStudent", void 0);
 __decorate([
+    RelationId((user) => user.coursesAsStudent),
+    __metadata("design:type", Array)
+], UserModel.prototype, "courseIdsAsStudent", void 0);
+__decorate([
     ManyToMany(() => AssignedWorkModel, (assignedWork) => assignedWork.mentors),
     __metadata("design:type", Array)
 ], UserModel.prototype, "assignedWorksAsMentor", void 0);
 __decorate([
+    RelationId((user) => user.assignedWorksAsMentor),
+    __metadata("design:type", Array)
+], UserModel.prototype, "assignedWorkIdsAsMentor", void 0);
+__decorate([
     OneToMany(() => AssignedWorkModel, (assignedWork) => assignedWork.student),
     __metadata("design:type", Array)
 ], UserModel.prototype, "assignedWorksAsStudent", void 0);
+__decorate([
+    RelationId((user) => user.assignedWorksAsStudent),
+    __metadata("design:type", Array)
+], UserModel.prototype, "assignedWorkIdsAsStudent", void 0);
 __decorate([
     Column({
         name: 'telegram_id',

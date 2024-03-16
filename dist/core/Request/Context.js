@@ -1,5 +1,5 @@
-import { parseHeader } from '../Security/jwt.js';
-import { PermissionResolver } from '../Security/permissions.js';
+import { parseHeader } from '../Security/jwt';
+import { PermissionResolver } from '../Security/permissions';
 export class Context {
     body;
     params;

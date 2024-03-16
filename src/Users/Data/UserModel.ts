@@ -75,9 +75,15 @@ export class UserModel extends Model implements User {
 	@OneToMany(() => CourseModel, (course) => course.author)
 	courses?: Course[]
 
+	@RelationId((user: UserModel) => user.courses)
+	courseIds!: string[]
+
 	@ManyToMany(() => CourseModel, (course) => course.students)
 	@JoinTable()
 	coursesAsStudent?: Course[]
+
+	@RelationId((user: UserModel) => user.coursesAsStudent)
+	courseIdsAsStudent!: string[]
 
 	@ManyToMany(
 		() => AssignedWorkModel,
@@ -85,11 +91,17 @@ export class UserModel extends Model implements User {
 	)
 	assignedWorksAsMentor?: AssignedWork[]
 
+	@RelationId((user: UserModel) => user.assignedWorksAsMentor)
+	assignedWorkIdsAsMentor!: string[]
+
 	@OneToMany(
 		() => AssignedWorkModel,
 		(assignedWork) => assignedWork.student
 	)
 	assignedWorksAsStudent?: AssignedWork[]
+
+	@RelationId((user: UserModel) => user.assignedWorksAsStudent)
+	assignedWorkIdsAsStudent!: string[]
 
 	@Column({
 		name: 'telegram_id',

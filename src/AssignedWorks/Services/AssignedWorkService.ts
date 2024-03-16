@@ -43,6 +43,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		userRole: User['role'],
 		pagination?: Pagination
 	) {
+		// TODO: modify the conditions to load all assigned mentors instead of just one
 		const conditions: any =
 			userRole == 'student'
 				? { student: { id: userId } }
@@ -73,6 +74,9 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		const work = await this.assignedWorkRepository.findOne({ slug }, [
 			'student',
 			'mentors',
+			'work.tasks' as any,
+			'answers',
+			'comments',
 		])
 
 		if (!work) {
@@ -88,6 +92,9 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		const work = await this.assignedWorkRepository.findOne({ id }, [
 			'mentors',
 			'student',
+			'work.tasks' as any,
+			'answers',
+			'comments',
 		])
 
 		if (!work) {
@@ -117,7 +124,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		assignedWork.work = { id: assignedWork.workId as any } as any
 		assignedWork.maxScore = this.getMaxScore(work.tasks || [])
 
-		return this.assignedWorkRepository.create(assignedWork)
+		await this.assignedWorkRepository.create(assignedWork)
 	}
 
 	public async solveWork(work: AssignedWork) {

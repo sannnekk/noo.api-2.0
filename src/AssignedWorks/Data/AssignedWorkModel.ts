@@ -57,11 +57,8 @@ export class AssignedWorkModel extends Model implements AssignedWork {
 	@JoinTable()
 	mentors?: User[] | undefined
 
-	get mentorIds(): string[] {
-		return (this.mentors || []).map((mentor) => mentor.id)
-	}
-
-	set mentorIds(ids: string[]) {}
+	@RelationId((assignedWork: AssignedWorkModel) => assignedWork.mentors)
+	mentorIds!: string[]
 
 	@ManyToOne(() => UserModel, (user) => user.assignedWorksAsStudent)
 	student!: User | undefined
@@ -156,15 +153,12 @@ export class AssignedWorkModel extends Model implements AssignedWork {
 	@OneToMany(
 		() => AssignedWorkAnswerModel,
 		(answer) => answer.assignedWork,
-		{ cascade: true, eager: true }
+		{ cascade: true }
 	)
 	answers!: AssignedWorkAnswer[]
 
-	get answerIds(): string[] {
-		return (this.answers || []).map((answer) => answer.id)
-	}
-
-	set answerIds(ids: string[]) {}
+	@RelationId((assignedWork: AssignedWorkModel) => assignedWork.answers)
+	answerIds!: string[]
 
 	@OneToMany(
 		() => AssignedWorkCommentModel,
@@ -173,11 +167,10 @@ export class AssignedWorkModel extends Model implements AssignedWork {
 	)
 	comments!: AssignedWorkComment[]
 
-	get commentIds(): string[] {
-		return (this.comments || []).map((comment) => comment.id)
-	}
-
-	set commentIds(ids: string[]) {}
+	@RelationId(
+		(assignedWork: AssignedWorkModel) => assignedWork.comments
+	)
+	commentIds!: string[]
 
 	@Column({
 		name: 'score',

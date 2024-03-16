@@ -59,9 +59,12 @@ export class CourseChapterModel extends Model implements CourseChapter {
 	@OneToMany(
 		() => CourseMaterialModel,
 		(material: CourseMaterial) => material.chapter,
-		{ cascade: true, eager: true }
+		{ cascade: true }
 	)
 	materials?: CourseMaterial[] | undefined
+
+	@RelationId((chapter: CourseChapterModel) => chapter.materials)
+	materialIds!: string[]
 
 	private sluggify(text: string): string {
 		return ULID.generate() + '-' + Transliteration.sluggify(text)

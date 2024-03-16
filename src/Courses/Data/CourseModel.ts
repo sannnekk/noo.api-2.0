@@ -5,7 +5,6 @@ import { User } from '@modules/Users/Data/User'
 import {
 	Column,
 	Entity,
-	JoinTable,
 	ManyToMany,
 	ManyToOne,
 	OneToMany,
@@ -50,7 +49,7 @@ export class CourseModel extends Model implements Course {
 	})
 	name!: string
 
-	@ManyToOne(() => UserModel, (user) => user.courses, { eager: true })
+	@ManyToOne(() => UserModel, (user) => user.courses)
 	author!: User
 
 	@RelationId((course: CourseModel) => course.author)
@@ -61,11 +60,8 @@ export class CourseModel extends Model implements Course {
 	})
 	students?: User[]
 
-	get studentIds(): User['id'][] {
-		return this.students?.map((student) => student.id) || []
-	}
-
-	set studentIds(ids: User['id'][]) {}
+	@RelationId((course: CourseModel) => course.students)
+	studentIds!: string[]
 
 	@Column({
 		name: 'description',

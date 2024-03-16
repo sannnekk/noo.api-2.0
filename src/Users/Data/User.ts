@@ -18,7 +18,12 @@ export interface User extends BaseModel {
 	mentorId?: ULID.Ulid
 	mentor?: User
 	courses?: Course[]
+	courseIds: ULID.Ulid[]
 	verificationToken?: string
 	coursesAsStudent?: Course[]
+	courseIdsAsStudent: ULID.Ulid[]
 	assignedWorksAsStudent?: AssignedWork[] | undefined
+	assignedWorksAsMentor?: AssignedWork[] | undefined
+	assignedWorkIdsAsStudent: ULID.Ulid[] | undefined
+	assignedWorkIdsAsMentor: ULID.Ulid[] | undefined
 }

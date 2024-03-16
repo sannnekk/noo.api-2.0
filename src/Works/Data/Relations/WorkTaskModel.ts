@@ -1,7 +1,6 @@
 import { DeltaContentType, Model, Transliteration, ULID } from '@core'
 import { WorkTask } from './WorkTask'
 import { Work } from '../Work'
-import { WorkTaskOption } from './WorkTaskOption'
 import {
 	Column,
 	Entity,
@@ -10,7 +9,6 @@ import {
 	RelationId,
 } from 'typeorm'
 import { WorkModel } from '../WorkModel'
-import { WorkTaskOptionModel } from './WorkTaskOptionModel'
 import { AssignedWorkAnswer } from '@modules/AssignedWorks/Data/Relations/AssignedWorkAnswer'
 import { AssignedWorkAnswerModel } from '@modules/AssignedWorks/Data/Relations/AssignedWorkAnswerModel'
 import { AssignedWorkComment } from '@modules/AssignedWorks/Data/Relations/AssignedWorkComment'
@@ -23,10 +21,6 @@ export class WorkTaskModel extends Model implements WorkTask {
 
 		if (data) {
 			this.set(data)
-
-			this.options = (data.options || []).map(
-				(option) => new WorkTaskOptionModel(option)
-			)
 
 			this.assignedWorkAnswers = (data.assignedWorkAnswers || []).map(
 				(answer) => new AssignedWorkAnswerModel(answer)
@@ -117,36 +111,17 @@ export class WorkTaskModel extends Model implements WorkTask {
 	})
 	checkingStrategy?: 'type1' | 'type2' | 'type3' | 'type4' | undefined
 
-	@OneToMany(
-		() => WorkTaskOptionModel,
-		(taskOption) => taskOption.task,
-		{ eager: true, cascade: true }
-	)
-	options?: WorkTaskOption[] | undefined
-
-	get optionIds(): string[] | undefined {
-		return this.options?.map((option) => option.id)
-	}
-
-	set optionIds(ids: string[] | undefined) {}
-
 	@OneToMany(() => AssignedWorkAnswerModel, (answer) => answer.task)
 	assignedWorkAnswers?: AssignedWorkAnswer[] | undefined
 
-	get assignedWorkAnswerIds(): string[] | undefined {
-		return this.assignedWorkAnswers?.map((answer) => answer.id)
-	}
-
-	set assignedWorkAnswerIds(ids: string[] | undefined) {}
+	@RelationId((task: WorkTaskModel) => task.assignedWorkAnswers)
+	assignedWorkAnswerIds!: string[]
 
 	@OneToMany(() => AssignedWorkCommentModel, (comment) => comment.task)
 	assignedWorkComments?: AssignedWorkComment[] | undefined
 
-	get assignedWorkCommentIds(): string[] | undefined {
-		return this.assignedWorkComments?.map((comment) => comment.id)
-	}
-
-	set assignedWorkCommentIds(ids: string[] | undefined) {}
+	@RelationId((task: WorkTaskModel) => task.assignedWorkComments)
+	assignedWorkCommentIds!: string[]
 
 	private sluggify(text: string): string {
 		return ULID.generate() + '-' + Transliteration.sluggify(text)

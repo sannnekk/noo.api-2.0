@@ -7,11 +7,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model, ULID } from '../../../core/index.js';
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, RelationId, } from 'typeorm';
-import { WorkTaskOptionModel } from '../../../Works/Data/Relations/WorkTaskOptionModel.js';
-import { WorkTaskModel } from '../../../Works/Data/Relations/WorkTaskModel.js';
-import { AssignedWorkModel } from '../AssignedWorkModel.js';
+import { Model, ULID } from '@core';
+import { Column, Entity, ManyToOne, RelationId, } from 'typeorm';
+import { WorkTaskModel } from '@modules/Works/Data/Relations/WorkTaskModel';
+import { AssignedWorkModel } from '../AssignedWorkModel';
 let AssignedWorkAnswerModel = class AssignedWorkAnswerModel extends Model {
     constructor(data) {
         super();
@@ -23,19 +22,11 @@ let AssignedWorkAnswerModel = class AssignedWorkAnswerModel extends Model {
             if (data.taskId) {
                 this.task = { id: data.taskId };
             }
-            this.chosenTaskOptions = (data.chosenTaskOptions || []).map((option) => new WorkTaskOptionModel(option));
         }
     }
     slug;
     content;
     word;
-    chosenTaskOptions;
-    get chosenTaskOptionIds() {
-        return (this.chosenTaskOptions || []).map((option) => option.id);
-    }
-    set chosenTaskOptionIds(ids) {
-        this.chosenTaskOptions = ids.map((id) => ({ id }));
-    }
     task;
     taskId;
     assignedWork;
@@ -68,14 +59,7 @@ __decorate([
     __metadata("design:type", Object)
 ], AssignedWorkAnswerModel.prototype, "word", void 0);
 __decorate([
-    ManyToMany(() => WorkTaskOptionModel, (option) => option.assignedWorkAnswers, { eager: true, cascade: true }),
-    JoinTable(),
-    __metadata("design:type", Object)
-], AssignedWorkAnswerModel.prototype, "chosenTaskOptions", void 0);
-__decorate([
-    ManyToOne(() => WorkTaskModel, (task) => task.assignedWorkAnswers, {
-        eager: true,
-    }),
+    ManyToOne(() => WorkTaskModel, (task) => task.assignedWorkAnswers),
     __metadata("design:type", Object)
 ], AssignedWorkAnswerModel.prototype, "task", void 0);
 __decorate([

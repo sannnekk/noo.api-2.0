@@ -1,18 +1,18 @@
-import { NotFoundError, Pagination, Service, UnauthorizedError, } from '../../core/index.js';
-import { AssignedWorkRepository } from '../Data/AssignedWorkRepository.js';
-import { AssignedWorkModel } from '../Data/AssignedWorkModel.js';
-import { WorkAlreadySolvedError } from '../Errors/WorkAlreadySolvedError.js';
-import { WorkAlreadyCheckedError } from '../Errors/WorkAlreadyCheckedError.js';
-import { WorkIsNotSolvedYetError } from '../Errors/WorkIsNotSolvedYetError.js';
-import { WorkAlreadyAssignedToThisMentorError } from '../Errors/WorkAlreadyAssignedToThisMentorError.js';
-import { WorkAlreadyAssignedToEnoughMentorsError } from '../Errors/WorkAlreadyAssignedToEnoughMentorsError.js';
-import { SolveDeadlineNotSetError } from '../Errors/SolveDeadlineNotSetError.js';
-import { CheckDeadlineNotSetError } from '../Errors/CheckDeadlineNotSetError.js';
-import { UserRepository } from '../../Users/Data/UserRepository.js';
-import { WorkRepository } from '../../Works/Data/WorkRepository.js';
-import { DeadlineAlreadyShiftedError } from '../Errors/DeadlineAlreadyShiftedError.js';
-import { WorkIsArchived } from '../Errors/WorkIsArchived.js';
-import { TaskService } from './TaskService.js';
+import { NotFoundError, Pagination, Service, UnauthorizedError, } from '@core';
+import { AssignedWorkRepository } from '../Data/AssignedWorkRepository';
+import { AssignedWorkModel } from '../Data/AssignedWorkModel';
+import { WorkAlreadySolvedError } from '../Errors/WorkAlreadySolvedError';
+import { WorkAlreadyCheckedError } from '../Errors/WorkAlreadyCheckedError';
+import { WorkIsNotSolvedYetError } from '../Errors/WorkIsNotSolvedYetError';
+import { WorkAlreadyAssignedToThisMentorError } from '../Errors/WorkAlreadyAssignedToThisMentorError';
+import { WorkAlreadyAssignedToEnoughMentorsError } from '../Errors/WorkAlreadyAssignedToEnoughMentorsError';
+import { SolveDeadlineNotSetError } from '../Errors/SolveDeadlineNotSetError';
+import { CheckDeadlineNotSetError } from '../Errors/CheckDeadlineNotSetError';
+import { UserRepository } from '@modules/Users/Data/UserRepository';
+import { WorkRepository } from '@modules/Works/Data/WorkRepository';
+import { DeadlineAlreadyShiftedError } from '../Errors/DeadlineAlreadyShiftedError';
+import { WorkIsArchived } from '../Errors/WorkIsArchived';
+import { TaskService } from './TaskService';
 export class AssignedWorkService extends Service {
     taskService;
     assignedWorkRepository;
@@ -26,6 +26,7 @@ export class AssignedWorkService extends Service {
         this.userRepository = new UserRepository();
     }
     async getWorks(userId, userRole, pagination) {
+        // TODO: modify the conditions to load all assigned mentors instead of just one
         const conditions = userRole == 'student'
             ? { student: { id: userId } }
             : { mentors: { id: userId } };
@@ -40,6 +41,9 @@ export class AssignedWorkService extends Service {
         const work = await this.assignedWorkRepository.findOne({ slug }, [
             'student',
             'mentors',
+            'work.tasks',
+            'answers',
+            'comments',
         ]);
         if (!work) {
             throw new NotFoundError();
@@ -51,6 +55,9 @@ export class AssignedWorkService extends Service {
         const work = await this.assignedWorkRepository.findOne({ id }, [
             'mentors',
             'student',
+            'work.tasks',
+            'answers',
+            'comments',
         ]);
         if (!work) {
             throw new NotFoundError();
@@ -72,7 +79,7 @@ export class AssignedWorkService extends Service {
         assignedWork.mentors = [{ id: student.mentorId }];
         assignedWork.work = { id: assignedWork.workId };
         assignedWork.maxScore = this.getMaxScore(work.tasks || []);
-        return this.assignedWorkRepository.create(assignedWork);
+        await this.assignedWorkRepository.create(assignedWork);
     }
     async solveWork(work) {
         const foundWork = await this.assignedWorkRepository.findOne({

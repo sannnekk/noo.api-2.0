@@ -7,18 +7,16 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model, Transliteration, ULID } from '../../../core/index.js';
+import { Model, Transliteration, ULID } from '@core';
 import { Column, Entity, ManyToOne, OneToMany, RelationId, } from 'typeorm';
-import { WorkModel } from '../WorkModel.js';
-import { WorkTaskOptionModel } from './WorkTaskOptionModel.js';
-import { AssignedWorkAnswerModel } from '../../../AssignedWorks/Data/Relations/AssignedWorkAnswerModel.js';
-import { AssignedWorkCommentModel } from '../../../AssignedWorks/Data/Relations/AssignedWorkCommentModel.js';
+import { WorkModel } from '../WorkModel';
+import { AssignedWorkAnswerModel } from '@modules/AssignedWorks/Data/Relations/AssignedWorkAnswerModel';
+import { AssignedWorkCommentModel } from '@modules/AssignedWorks/Data/Relations/AssignedWorkCommentModel';
 let WorkTaskModel = class WorkTaskModel extends Model {
     constructor(data) {
         super();
         if (data) {
             this.set(data);
-            this.options = (data.options || []).map((option) => new WorkTaskOptionModel(option));
             this.assignedWorkAnswers = (data.assignedWorkAnswers || []).map((answer) => new AssignedWorkAnswerModel(answer));
             this.assignedWorkComments = (data.assignedWorkComments || []).map((comment) => new AssignedWorkCommentModel(comment));
             if (!data.slug) {
@@ -38,21 +36,10 @@ let WorkTaskModel = class WorkTaskModel extends Model {
     solveHint;
     checkHint;
     checkingStrategy;
-    options;
-    get optionIds() {
-        return this.options?.map((option) => option.id);
-    }
-    set optionIds(ids) { }
     assignedWorkAnswers;
-    get assignedWorkAnswerIds() {
-        return this.assignedWorkAnswers?.map((answer) => answer.id);
-    }
-    set assignedWorkAnswerIds(ids) { }
+    assignedWorkAnswerIds;
     assignedWorkComments;
-    get assignedWorkCommentIds() {
-        return this.assignedWorkComments?.map((comment) => comment.id);
-    }
-    set assignedWorkCommentIds(ids) { }
+    assignedWorkCommentIds;
     sluggify(text) {
         return ULID.generate() + '-' + Transliteration.sluggify(text);
     }
@@ -145,17 +132,21 @@ __decorate([
     __metadata("design:type", Object)
 ], WorkTaskModel.prototype, "checkingStrategy", void 0);
 __decorate([
-    OneToMany(() => WorkTaskOptionModel, (taskOption) => taskOption.task, { eager: true, cascade: true }),
-    __metadata("design:type", Object)
-], WorkTaskModel.prototype, "options", void 0);
-__decorate([
     OneToMany(() => AssignedWorkAnswerModel, (answer) => answer.task),
     __metadata("design:type", Object)
 ], WorkTaskModel.prototype, "assignedWorkAnswers", void 0);
 __decorate([
+    RelationId((task) => task.assignedWorkAnswers),
+    __metadata("design:type", Array)
+], WorkTaskModel.prototype, "assignedWorkAnswerIds", void 0);
+__decorate([
     OneToMany(() => AssignedWorkCommentModel, (comment) => comment.task),
     __metadata("design:type", Object)
 ], WorkTaskModel.prototype, "assignedWorkComments", void 0);
+__decorate([
+    RelationId((task) => task.assignedWorkComments),
+    __metadata("design:type", Array)
+], WorkTaskModel.prototype, "assignedWorkCommentIds", void 0);
 WorkTaskModel = __decorate([
     Entity('work_task'),
     __metadata("design:paramtypes", [Object])

@@ -8,7 +8,6 @@ import { CourseChapterModel } from '@modules/Courses/Data/Relations/CourseChapte
 import { CourseMaterialModel } from '@modules/Courses/Data/Relations/CourseMaterialModel'
 import { WorkModel } from '@modules/Works/Data/WorkModel'
 import { WorkTaskModel } from '@modules/Works/Data/Relations/WorkTaskModel'
-import { WorkTaskOptionModel } from '@modules/Works/Data/Relations/WorkTaskOptionModel'
 import { AssignedWorkModel } from '@modules/AssignedWorks/Data/AssignedWorkModel'
 import { AssignedWorkAnswerModel } from '@modules/AssignedWorks/Data/Relations/AssignedWorkAnswerModel'
 import { AssignedWorkCommentModel } from '@modules/AssignedWorks/Data/Relations/AssignedWorkCommentModel'
@@ -22,7 +21,7 @@ export const CoreDataSource = new DataSource({
 	username: process.env.DB_USER,
 	password: process.env.DB_PASSWORD,
 	database: process.env.DB_NAME,
-	synchronize: true,
+	synchronize: false,
 	logging: false,
 	entities: [
 		MediaModel,
@@ -32,7 +31,6 @@ export const CoreDataSource = new DataSource({
 		CourseMaterialModel,
 		WorkModel,
 		WorkTaskModel,
-		WorkTaskOptionModel,
 		AssignedWorkModel,
 		AssignedWorkAnswerModel,
 		AssignedWorkCommentModel,

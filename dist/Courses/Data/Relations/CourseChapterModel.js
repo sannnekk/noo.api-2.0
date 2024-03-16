@@ -7,10 +7,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model, Transliteration, ULID } from '../../../core/index.js';
+import { Model, Transliteration, ULID } from '@core';
 import { Column, Entity, ManyToOne, OneToMany, RelationId, } from 'typeorm';
-import { CourseModel } from '../CourseModel.js';
-import { CourseMaterialModel } from './CourseMaterialModel.js';
+import { CourseModel } from '../CourseModel';
+import { CourseMaterialModel } from './CourseMaterialModel';
 let CourseChapterModel = class CourseChapterModel extends Model {
     constructor(data) {
         super();
@@ -28,6 +28,7 @@ let CourseChapterModel = class CourseChapterModel extends Model {
     course;
     courseId;
     materials;
+    materialIds;
     sluggify(text) {
         return ULID.generate() + '-' + Transliteration.sluggify(text);
     }
@@ -64,9 +65,13 @@ __decorate([
     __metadata("design:type", Object)
 ], CourseChapterModel.prototype, "courseId", void 0);
 __decorate([
-    OneToMany(() => CourseMaterialModel, (material) => material.chapter, { cascade: true, eager: true }),
+    OneToMany(() => CourseMaterialModel, (material) => material.chapter, { cascade: true }),
     __metadata("design:type", Object)
 ], CourseChapterModel.prototype, "materials", void 0);
+__decorate([
+    RelationId((chapter) => chapter.materials),
+    __metadata("design:type", Array)
+], CourseChapterModel.prototype, "materialIds", void 0);
 CourseChapterModel = __decorate([
     Entity('course_chapter'),
     __metadata("design:paramtypes", [Object])

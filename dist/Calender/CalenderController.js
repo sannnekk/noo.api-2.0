@@ -7,10 +7,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { CalenderValidator } from './CalenderValidator.js';
+import { CalenderValidator } from './CalenderValidator';
 import { Controller, Delete, Get, Patch, Post, } from 'express-controller-decorator';
-import { CalenderService } from './Services/CalenderService.js';
-import { ApiResponse, Asserts, Context, UnauthorizedError } from '../core/index.js';
+import { CalenderService } from './Services/CalenderService';
+import { ApiResponse, Asserts, Context, UnauthorizedError } from '@core';
 let CalenderController = class CalenderController {
     calenderService;
     calenderValidator;

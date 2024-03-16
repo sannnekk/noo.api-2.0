@@ -16,31 +16,24 @@ export class WorkService extends Service<Work> {
 		pagination = new Pagination().assign(pagination)
 		pagination.entriesToSearch = WorkModel.entriesToSearch()
 
-		const relations = ['materials' as const]
-
 		const works = await this.workRepository.find(
 			undefined,
-			relations,
+			undefined,
 			pagination
 		)
 
 		this.storeRequestMeta(
 			this.workRepository,
 			undefined,
-			relations,
+			undefined,
 			pagination
 		)
-
-		// Clear tasks as they are not needed in the list
-		for (const work of works) {
-			work.tasks = []
-		}
 
 		return works
 	}
 
 	public async getWorkBySlug(slug: Work['slug']) {
-		const work = await this.workRepository.findOne({ slug })
+		const work = await this.workRepository.findOne({ slug }, ['tasks'])
 
 		if (!work) {
 			throw new NotFoundError()
@@ -50,7 +43,7 @@ export class WorkService extends Service<Work> {
 	}
 
 	public async getWorkById(id: Work['id']) {
-		const work = await this.workRepository.findOne({ id })
+		const work = await this.workRepository.findOne({ id }, ['tasks'])
 
 		if (!work) {
 			throw new NotFoundError()
@@ -84,7 +77,6 @@ export class WorkService extends Service<Work> {
 					content: task.content,
 					highestScore: task.highestScore,
 					type: task.type,
-					options: [],
 					checkingStrategy: task.checkingStrategy,
 					rightAnswer: task.rightAnswer,
 					solveHint: task.solveHint,

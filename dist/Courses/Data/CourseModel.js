@@ -7,11 +7,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model, Transliteration, ULID } from '../../core/index.js';
-import { UserModel } from '../../Users/Data/UserModel.js';
+import { Model, Transliteration, ULID } from '@core';
+import { UserModel } from '@modules/Users/Data/UserModel';
 import { Column, Entity, ManyToMany, ManyToOne, OneToMany, RelationId, } from 'typeorm';
-import { CourseChapterModel } from './Relations/CourseChapterModel.js';
-import { MediaModel } from '../../Media/Data/MediaModel.js';
+import { CourseChapterModel } from './Relations/CourseChapterModel';
+import { MediaModel } from '@modules/Media/Data/MediaModel';
 let CourseModel = class CourseModel extends Model {
     constructor(data) {
         super();
@@ -29,10 +29,7 @@ let CourseModel = class CourseModel extends Model {
     author;
     authorId;
     students;
-    get studentIds() {
-        return this.students?.map((student) => student.id) || [];
-    }
-    set studentIds(ids) { }
+    studentIds;
     description;
     chapters;
     images;
@@ -58,7 +55,7 @@ __decorate([
     __metadata("design:type", String)
 ], CourseModel.prototype, "name", void 0);
 __decorate([
-    ManyToOne(() => UserModel, (user) => user.courses, { eager: true }),
+    ManyToOne(() => UserModel, (user) => user.courses),
     __metadata("design:type", Object)
 ], CourseModel.prototype, "author", void 0);
 __decorate([
@@ -71,6 +68,10 @@ __decorate([
     }),
     __metadata("design:type", Array)
 ], CourseModel.prototype, "students", void 0);
+__decorate([
+    RelationId((course) => course.students),
+    __metadata("design:type", Array)
+], CourseModel.prototype, "studentIds", void 0);
 __decorate([
     Column({
         name: 'description',

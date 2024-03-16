@@ -1,5 +1,5 @@
-import { Repository } from '../../core/index.js';
-import { CourseRequestModel } from './CourseRequestModel.js';
+import { Repository } from '@core';
+import { CourseRequestModel } from './CourseRequestModel';
 export class CourseRequestRepository extends Repository {
     constructor() {
         super(CourseRequestModel);
