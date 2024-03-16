@@ -1,7 +1,7 @@
-import { NotFoundError, UnauthenticatedError, JWT, Hash, AlreadyExistError, UnknownError, Pagination, Service, EmailService, } from '@core';
-import { UserRepository } from '../Data/UserRepository';
-import { UserModel } from '../Data/UserModel';
-import { InvalidVerificationTokenError } from '../Errors/InvalidVerificationTokenError';
+import { NotFoundError, UnauthenticatedError, JWT, Hash, AlreadyExistError, UnknownError, Pagination, Service, EmailService, } from '../../core/index.js';
+import { UserRepository } from '../Data/UserRepository.js';
+import { UserModel } from '../Data/UserModel.js';
+import { InvalidVerificationTokenError } from '../Errors/InvalidVerificationTokenError.js';
 export class UserService extends Service {
     userRepository;
     emailService;

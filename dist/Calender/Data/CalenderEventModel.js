@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model } from '@core';
+import { Model } from '../../core/index.js';
 import { Column, Entity } from 'typeorm';
 let CalenderEventModel = class CalenderEventModel extends Model {
     constructor(data) {

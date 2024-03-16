@@ -1,4 +1,4 @@
-import { InternalError } from '../Errors/InternalError';
+import { InternalError } from '../Errors/InternalError.js';
 export class Service {
     lastRequestCondition;
     lastRequestPagination;

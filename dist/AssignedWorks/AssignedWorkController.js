@@ -8,9 +8,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { Controller, Delete, Get, Patch, Post, } from 'express-controller-decorator';
-import { AssignedWorkValidator } from './AssignedWorkValidator';
-import { AssignedWorkService } from './Services/AssignedWorkService';
-import { Asserts, Context, ApiResponse } from '@core';
+import { AssignedWorkValidator } from './AssignedWorkValidator.js';
+import { AssignedWorkService } from './Services/AssignedWorkService.js';
+import { Asserts, Context, ApiResponse } from '../core/index.js';
 let AssignedWorkController = class AssignedWorkController {
     assignedWorkService;
     assignedWorkValidator;

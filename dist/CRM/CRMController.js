@@ -8,9 +8,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { Controller, Post } from 'express-controller-decorator';
-import { DealsService } from './Services/DealsService';
-import { ApiResponse, Context, log } from '@core';
-import CrmAsserts from './Security/CrmAsserts';
+import { DealsService } from './Services/DealsService.js';
+import { ApiResponse, Context, log } from '../core/index.js';
+import CrmAsserts from './Security/CrmAsserts.js';
 let CRMController = class CRMController {
     dealsService;
     constructor() {

@@ -7,11 +7,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model, Transliteration, ULID } from '@core';
+import { Model, Transliteration, ULID } from '../../../core/index.js';
 import { Column, Entity, ManyToOne, OneToMany, RelationId, } from 'typeorm';
-import { WorkModel } from '../WorkModel';
-import { AssignedWorkAnswerModel } from '@modules/AssignedWorks/Data/Relations/AssignedWorkAnswerModel';
-import { AssignedWorkCommentModel } from '@modules/AssignedWorks/Data/Relations/AssignedWorkCommentModel';
+import { WorkModel } from '../WorkModel.js';
+import { AssignedWorkAnswerModel } from '../../../AssignedWorks/Data/Relations/AssignedWorkAnswerModel.js';
+import { AssignedWorkCommentModel } from '../../../AssignedWorks/Data/Relations/AssignedWorkCommentModel.js';
 let WorkTaskModel = class WorkTaskModel extends Model {
     constructor(data) {
         super();
