@@ -57,7 +57,9 @@ export class WorkService extends Service<Work> {
 	}
 
 	public async copyWork(workSlug: Work['slug']) {
-		const work = await this.workRepository.findOne({ slug: workSlug })
+		const work = await this.workRepository.findOne({ slug: workSlug }, [
+			'tasks',
+		])
 
 		if (!work) {
 			throw new NotFoundError('Работа не найдена')
