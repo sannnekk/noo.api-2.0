@@ -20,8 +20,8 @@ export abstract class Repository<T extends BaseModel> {
 		const model = new this.model(data)
 		try {
 			await this.repository.save(model)
-		} catch (error) {
-			throw new AlreadyExistError()
+		} catch (error: any) {
+			throw new AlreadyExistError(JSON.stringify(error))
 		}
 	}
 

@@ -53,7 +53,7 @@ export class WorkService extends Service<Work> {
 	}
 
 	public async createWork(work: Work) {
-		return this.workRepository.create(work)
+		return await this.workRepository.create(work)
 	}
 
 	public async copyWork(workSlug: Work['slug']) {

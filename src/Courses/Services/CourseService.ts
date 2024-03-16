@@ -132,8 +132,6 @@ export class CourseService extends Service<Course> {
 			throw new NotFoundError()
 		}
 
-		console.log('Student Ids', course.studentIds, studentIds)
-
 		const newStudentIds = studentIds.filter(
 			(id) => !(course.studentIds || []).includes(id)
 		)

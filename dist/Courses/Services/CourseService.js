@@ -70,7 +70,6 @@ export class CourseService extends Service {
         if (!course) {
             throw new NotFoundError();
         }
-        console.log('Student Ids', course.studentIds, studentIds);
         const newStudentIds = studentIds.filter((id) => !(course.studentIds || []).includes(id));
         course.students = studentIds.map((id) => ({ id }));
         await this.courseRepository.update(course);

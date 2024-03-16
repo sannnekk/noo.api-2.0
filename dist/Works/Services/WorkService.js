@@ -29,7 +29,7 @@ export class WorkService extends Service {
         return this.sortTasks(work);
     }
     async createWork(work) {
-        return this.workRepository.create(work);
+        return await this.workRepository.create(work);
     }
     async copyWork(workSlug) {
         const work = await this.workRepository.findOne({ slug: workSlug }, [
