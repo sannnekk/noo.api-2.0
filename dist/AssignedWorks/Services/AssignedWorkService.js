@@ -84,7 +84,7 @@ export class AssignedWorkService extends Service {
     async solveWork(work) {
         const foundWork = await this.assignedWorkRepository.findOne({
             id: work.id,
-        }, ['work', 'comments', 'answers']);
+        }, ['work', 'work.tasks', 'comments', 'answers']);
         if (!foundWork) {
             throw new NotFoundError();
         }
@@ -112,7 +112,7 @@ export class AssignedWorkService extends Service {
     async checkWork(work) {
         const foundWork = await this.assignedWorkRepository.findOne({
             id: work.id,
-        });
+        }, ['work', 'work.tasks', 'comments', 'answers']);
         if (!foundWork) {
             throw new NotFoundError();
         }
@@ -137,7 +137,7 @@ export class AssignedWorkService extends Service {
     async saveProgress(work, role) {
         const foundWork = await this.assignedWorkRepository.findOne({
             id: work.id,
-        });
+        }, ['work', 'comments', 'answers']);
         if (!foundWork) {
             throw new NotFoundError();
         }
@@ -192,7 +192,7 @@ export class AssignedWorkService extends Service {
             id: mentorId,
         });
         if (!mentor || !newMentor) {
-            throw new NotFoundError();
+            throw new NotFoundError('Куратор не найден');
         }
         foundWork.mentors = [mentor, newMentor];
         return this.assignedWorkRepository.update(foundWork);
