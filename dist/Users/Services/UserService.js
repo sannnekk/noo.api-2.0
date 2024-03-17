@@ -201,7 +201,8 @@ export class UserService extends Service {
             user.coursesAsStudent = [];
             user.mentor = null;
         }
-        await this.userRepository.update(user);
+        const newUser = new UserModel({ ...existingUser, ...user });
+        await this.userRepository.update(newUser);
     }
     async delete(id) {
         const user = await this.userRepository.findOne({ id });

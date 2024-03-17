@@ -52,7 +52,11 @@ let WorkValidator = class WorkValidator extends Validator {
                 'second-part',
             ])
                 .optional(),
-            name: z.string().min(1).max(100).optional(),
+            name: z
+                .string()
+                .min(1, 'Нет названия работы')
+                .max(100, 'Название работы слишком длинное, максимум 100 символов разрешено')
+                .optional(),
             description: z.string().optional(),
             tasks: z
                 .array(z.object({
