@@ -117,7 +117,7 @@ export class UserController {
 		}
 	}
 
-	@Patch(':username/verify-manual')
+	@Patch('/:username/verify-manual')
 	async verifyManual(context: Context): Promise<ApiResponse> {
 		try {
 			Asserts.isAuthenticated(context)
