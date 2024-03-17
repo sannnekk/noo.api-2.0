@@ -16,10 +16,10 @@ export abstract class Repository<T extends BaseModel> {
 		this.repository = CoreDataSource.getRepository(model)
 	}
 
-	async create(data: T): Promise<void> {
+	async create(data: T): Promise<T> {
 		const model = new this.model(data)
 		try {
-			await this.repository.save(model)
+			return (await this.repository.save(model)) as unknown as T
 		} catch (error: any) {
 			throw new AlreadyExistError()
 		}

@@ -11,6 +11,12 @@
 			"type": "node-terminal"
 		},
 		{
+			"command": "node -r dotenv/config dist/index.cjs",
+			"name": "Test production build",
+			"request": "launch",
+			"type": "node-terminal"
+		},
+		{
 			"type": "node",
 			"request": "launch",
 			"name": "Launch Program",

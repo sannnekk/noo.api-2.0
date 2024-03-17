@@ -173,7 +173,7 @@ export class CourseService extends Service<Course> {
 			throw new NotFoundError()
 		}
 
-		material.work = workId as any
+		material.work = { id: workId } as any
 		material.workSolveDeadline = solveDeadline
 		material.workCheckDeadline = checkDeadline
 

@@ -13,17 +13,20 @@ import { WorkRepository } from '../../Works/Data/WorkRepository.js';
 import { DeadlineAlreadyShiftedError } from '../Errors/DeadlineAlreadyShiftedError.js';
 import { WorkIsArchived } from '../Errors/WorkIsArchived.js';
 import { TaskService } from './TaskService.js';
+import { CalenderService } from '../../Calender/Services/CalenderService.js';
 export class AssignedWorkService extends Service {
     taskService;
     assignedWorkRepository;
     workRepository;
     userRepository;
+    calenderService;
     constructor() {
         super();
         this.taskService = new TaskService();
         this.assignedWorkRepository = new AssignedWorkRepository();
         this.workRepository = new WorkRepository();
         this.userRepository = new UserRepository();
+        this.calenderService = new CalenderService();
     }
     async getWorks(userId, userRole, pagination) {
         // TODO: modify the conditions to load all assigned mentors instead of just one
@@ -71,15 +74,22 @@ export class AssignedWorkService extends Service {
         }, ['tasks']);
         const student = await this.userRepository.findOne({
             id: assignedWork.studentId,
-        });
-        if (!work || !student) {
-            throw new NotFoundError();
+        }, ['mentor']);
+        if (!work) {
+            throw new NotFoundError('Работа не найдена');
         }
-        assignedWork.student = { id: assignedWork.studentId };
-        assignedWork.mentors = [{ id: student.mentorId }];
-        assignedWork.work = { id: assignedWork.workId };
+        if (!student) {
+            throw new NotFoundError('Ученик не найден');
+        }
+        if (!student.mentor) {
+            throw new NotFoundError('У ученика нет куратора');
+        }
+        assignedWork.work = work;
+        assignedWork.student = student;
+        assignedWork.mentors = [student.mentor];
         assignedWork.maxScore = this.getMaxScore(work.tasks || []);
-        await this.assignedWorkRepository.create(assignedWork);
+        const createdWork = await this.assignedWorkRepository.create(assignedWork);
+        await this.calenderService.createFromWork(createdWork);
     }
     async solveWork(work) {
         const foundWork = await this.assignedWorkRepository.findOne({
@@ -107,7 +117,6 @@ export class AssignedWorkService extends Service {
         }
         const newWork = new AssignedWorkModel({ ...foundWork, ...work });
         await this.assignedWorkRepository.update(newWork);
-        return work.comments;
     }
     async checkWork(work) {
         const foundWork = await this.assignedWorkRepository.findOne({
@@ -132,7 +141,7 @@ export class AssignedWorkService extends Service {
         work.checkedAt = new Date();
         work.score = this.getScore(work.comments);
         const newWork = new AssignedWorkModel({ ...foundWork, ...work });
-        return this.assignedWorkRepository.update(newWork);
+        await this.assignedWorkRepository.update(newWork);
     }
     async saveProgress(work, role) {
         const foundWork = await this.assignedWorkRepository.findOne({
@@ -162,7 +171,7 @@ export class AssignedWorkService extends Service {
             }
             foundWork.checkStatus = 'in-progress';
         }
-        return this.assignedWorkRepository.update(work);
+        await this.assignedWorkRepository.update(work);
     }
     async archiveWork(id) {
         const foundWork = await this.assignedWorkRepository.findOne({ id });
@@ -170,7 +179,7 @@ export class AssignedWorkService extends Service {
             throw new NotFoundError();
         }
         foundWork.isArchived = true;
-        return this.assignedWorkRepository.update(foundWork);
+        await this.assignedWorkRepository.update(foundWork);
     }
     async transferWorkToAnotherMentor(workId, mentorId, currentMentorId) {
         const foundWork = await this.assignedWorkRepository.findOne({
@@ -195,7 +204,7 @@ export class AssignedWorkService extends Service {
             throw new NotFoundError('Куратор не найден');
         }
         foundWork.mentors = [mentor, newMentor];
-        return this.assignedWorkRepository.update(foundWork);
+        await this.assignedWorkRepository.update(foundWork);
     }
     async shiftDeadline(id, days, role, userId) {
         const work = await this.assignedWorkRepository.findOne({ id });
@@ -228,7 +237,8 @@ export class AssignedWorkService extends Service {
             work.checkDeadlineAt.setDate(work.checkDeadlineAt.getDate() + days);
             work.checkDeadlineShifted = true;
         }
-        return this.assignedWorkRepository.update(work);
+        await this.calenderService.updateDeadlineFromWork(work);
+        await this.assignedWorkRepository.update(work);
     }
     async deleteWork(id, mentorId) {
         const foundWork = await this.assignedWorkRepository.findOne({ id });
@@ -238,7 +248,7 @@ export class AssignedWorkService extends Service {
         if (!foundWork.mentors.some((mentor) => mentor.id === mentorId)) {
             throw new UnauthorizedError();
         }
-        return this.assignedWorkRepository.delete(id);
+        await this.assignedWorkRepository.delete(id);
     }
     getMaxScore(tasks) {
         return tasks.reduce((acc, task) => acc + task.highestScore, 0);

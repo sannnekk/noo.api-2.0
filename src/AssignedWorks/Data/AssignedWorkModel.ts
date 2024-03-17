@@ -17,6 +17,7 @@ import { UserModel } from '@modules/Users/Data/UserModel'
 import { WorkModel } from '@modules/Works/Data/WorkModel'
 import { AssignedWorkAnswerModel } from './Relations/AssignedWorkAnswerModel'
 import { AssignedWorkCommentModel } from './Relations/AssignedWorkCommentModel'
+import { CalenderEventModel } from '@modules/Calender/Data/CalenderEventModel'
 
 @Entity('assigned_work')
 export class AssignedWorkModel extends Model implements AssignedWork {
@@ -171,6 +172,17 @@ export class AssignedWorkModel extends Model implements AssignedWork {
 		(assignedWork: AssignedWorkModel) => assignedWork.comments
 	)
 	commentIds!: string[]
+
+	@OneToMany(
+		() => CalenderEventModel,
+		(calenderEvent) => calenderEvent.assignedWork
+	)
+	calenderEvents!: CalenderEventModel[]
+
+	@RelationId(
+		(assignedWork: AssignedWorkModel) => assignedWork.calenderEvents
+	)
+	calenderEventIds!: CalenderEventModel['id'][]
 
 	@Column({
 		name: 'score',

@@ -12,7 +12,7 @@ export class Repository {
     async create(data) {
         const model = new this.model(data);
         try {
-            await this.repository.save(model);
+            return (await this.repository.save(model));
         }
         catch (error) {
             throw new AlreadyExistError();

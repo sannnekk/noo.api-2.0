@@ -22,12 +22,14 @@ import { DeadlineAlreadyShiftedError } from '../Errors/DeadlineAlreadyShiftedErr
 import { WorkIsArchived } from '../Errors/WorkIsArchived'
 import { TaskService } from './TaskService'
 import { Work } from '@modules/Works/Data/Work'
+import { CalenderService } from '@modules/Calender/Services/CalenderService'
 
 export class AssignedWorkService extends Service<AssignedWork> {
 	private readonly taskService: TaskService
 	private readonly assignedWorkRepository: AssignedWorkRepository
 	private readonly workRepository: WorkRepository
 	private readonly userRepository: UserRepository
+	private readonly calenderService: CalenderService
 
 	constructor() {
 		super()
@@ -36,6 +38,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		this.assignedWorkRepository = new AssignedWorkRepository()
 		this.workRepository = new WorkRepository()
 		this.userRepository = new UserRepository()
+		this.calenderService = new CalenderService()
 	}
 
 	public async getWorks(
@@ -114,20 +117,35 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			['tasks']
 		)
 
-		const student = await this.userRepository.findOne({
-			id: assignedWork.studentId,
-		})
+		const student = await this.userRepository.findOne(
+			{
+				id: assignedWork.studentId,
+			},
+			['mentor']
+		)
 
-		if (!work || !student) {
-			throw new NotFoundError()
+		if (!work) {
+			throw new NotFoundError('Работа не найдена')
 		}
 
-		assignedWork.student = { id: assignedWork.studentId as any } as any
-		assignedWork.mentors = [{ id: student.mentorId } as any]
-		assignedWork.work = { id: assignedWork.workId as any } as any
+		if (!student) {
+			throw new NotFoundError('Ученик не найден')
+		}
+
+		if (!student.mentor) {
+			throw new NotFoundError('У ученика нет куратора')
+		}
+
+		assignedWork.work = work
+		assignedWork.student = student
+		assignedWork.mentors = [student.mentor!]
 		assignedWork.maxScore = this.getMaxScore(work.tasks || [])
 
-		await this.assignedWorkRepository.create(assignedWork)
+		const createdWork = await this.assignedWorkRepository.create(
+			assignedWork
+		)
+
+		await this.calenderService.createFromWork(createdWork)
 	}
 
 	public async solveWork(work: AssignedWork) {
@@ -174,8 +192,6 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		const newWork = new AssignedWorkModel({ ...foundWork, ...work })
 
 		await this.assignedWorkRepository.update(newWork)
-
-		return work.comments
 	}
 
 	public async checkWork(work: AssignedWork) {
@@ -218,7 +234,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 
 		const newWork = new AssignedWorkModel({ ...foundWork, ...work })
 
-		return this.assignedWorkRepository.update(newWork)
+		await this.assignedWorkRepository.update(newWork)
 	}
 
 	public async saveProgress(work: AssignedWork, role: User['role']) {
@@ -264,7 +280,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			foundWork.checkStatus = 'in-progress'
 		}
 
-		return this.assignedWorkRepository.update(work)
+		await this.assignedWorkRepository.update(work)
 	}
 
 	public async archiveWork(id: AssignedWork['id']) {
@@ -276,7 +292,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 
 		foundWork.isArchived = true
 
-		return this.assignedWorkRepository.update(foundWork)
+		await this.assignedWorkRepository.update(foundWork)
 	}
 
 	public async transferWorkToAnotherMentor(
@@ -313,7 +329,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 
 		foundWork.mentors = [mentor, newMentor]
 
-		return this.assignedWorkRepository.update(foundWork)
+		await this.assignedWorkRepository.update(foundWork)
 	}
 
 	public async shiftDeadline(
@@ -364,7 +380,9 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			work.checkDeadlineShifted = true
 		}
 
-		return this.assignedWorkRepository.update(work)
+		await this.calenderService.updateDeadlineFromWork(work)
+
+		await this.assignedWorkRepository.update(work)
 	}
 
 	public async deleteWork(
@@ -381,7 +399,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			throw new UnauthorizedError()
 		}
 
-		return this.assignedWorkRepository.delete(id)
+		await this.assignedWorkRepository.delete(id)
 	}
 
 	private getMaxScore(tasks: AssignedWork['work']['tasks']) {

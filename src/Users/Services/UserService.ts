@@ -147,7 +147,7 @@ export class UserService extends Service<User> {
 			!user ||
 			!(await Hash.compare(credentials.password, user.password!))
 		) {
-			throw new UnauthenticatedError()
+			throw new UnauthenticatedError('Неверный логин или пароль.')
 		}
 
 		if (user.isBlocked) {

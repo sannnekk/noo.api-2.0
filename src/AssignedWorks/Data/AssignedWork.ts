@@ -3,6 +3,7 @@ import { User } from '@modules/Users/Data/User'
 import { Work } from '@modules/Works/Data/Work'
 import { AssignedWorkComment } from './Relations/AssignedWorkComment'
 import { AssignedWorkAnswer } from './Relations/AssignedWorkAnswer'
+import { CalenderEvent } from '@modules/Calender/Data/CalenderEvent'
 
 export interface AssignedWork extends BaseModel {
 	slug: string
@@ -28,11 +29,13 @@ export interface AssignedWork extends BaseModel {
 	checkDeadlineShifted: boolean
 	solvedAt?: Date
 	checkedAt?: Date
+	score?: number
+	maxScore: number
+	isArchived: boolean
 	answers: AssignedWorkAnswer[]
 	answerIds: AssignedWorkAnswer['id'][]
 	comments: AssignedWorkComment[]
 	commentIds: AssignedWorkComment['id'][]
-	score?: number
-	maxScore: number
-	isArchived: boolean
+	calenderEvents: CalenderEvent[]
+	calenderEventIds: CalenderEvent['id'][]
 }

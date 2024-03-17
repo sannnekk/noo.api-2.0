@@ -90,7 +90,7 @@ export class CourseService extends Service {
         if (!material) {
             throw new NotFoundError();
         }
-        material.work = workId;
+        material.work = { id: workId };
         material.workSolveDeadline = solveDeadline;
         material.workCheckDeadline = checkDeadline;
         await this.assignWorkToStudents(material.chapter?.course?.studentIds || [], material);

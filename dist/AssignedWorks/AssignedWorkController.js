@@ -68,8 +68,8 @@ let AssignedWorkController = class AssignedWorkController {
             Asserts.student(context);
             this.assignedWorkValidator.validateId(context.params.id);
             this.assignedWorkValidator.validateUpdate(context.body);
-            const comments = await this.assignedWorkService.solveWork(context.body);
-            return new ApiResponse({ data: comments });
+            await this.assignedWorkService.solveWork(context.body);
+            return new ApiResponse(null);
         }
         catch (error) {
             return new ApiResponse(error);

@@ -1,4 +1,5 @@
 import { BaseModel } from '@core'
+import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
 import { User } from '@modules/Users/Data/User'
 
 export interface CalenderEvent extends BaseModel {
@@ -19,4 +20,6 @@ export interface CalenderEvent extends BaseModel {
 		| 'work-made'
 		| 'event'
 	username: User['username']
+	assignedWork?: AssignedWork
+	assignedWorkId?: AssignedWork['id']
 }

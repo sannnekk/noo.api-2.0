@@ -1,6 +1,8 @@
 import { Model } from '@core'
 import { CalenderEvent } from './CalenderEvent'
-import { Column, Entity } from 'typeorm'
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm'
+import { AssignedWorkModel } from '@modules/AssignedWorks/Data/AssignedWorkModel'
+import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
 
 @Entity('calender_event')
 export class CalenderEventModel extends Model implements CalenderEvent {
@@ -77,4 +79,18 @@ export class CalenderEventModel extends Model implements CalenderEvent {
 		nullable: false,
 	})
 	username!: string
+
+	@ManyToOne(
+		() => AssignedWorkModel,
+		(assignedWork) => assignedWork.calenderEvents,
+		{
+			onDelete: 'CASCADE',
+		}
+	)
+	assignedWork?: AssignedWork
+
+	@RelationId(
+		(calenderEvent: CalenderEventModel) => calenderEvent.assignedWork
+	)
+	assignedWorkId?: AssignedWork['id']
 }
