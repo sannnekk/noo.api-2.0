@@ -360,7 +360,9 @@ export class UserService extends Service<User> {
 			user.mentor = null as any
 		}
 
-		await this.userRepository.update(<User>user)
+		const newUser = new UserModel({ ...existingUser, ...user })
+
+		await this.userRepository.update(newUser)
 	}
 
 	public async delete(id: string): Promise<void> {
