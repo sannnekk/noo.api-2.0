@@ -54,6 +54,19 @@ export class UserService extends Service {
         user.verificationToken = null;
         await this.userRepository.update(user);
     }
+    async verifyManual(username) {
+        const user = await this.userRepository.findOne({
+            username,
+        });
+        if (!user) {
+            throw new NotFoundError();
+        }
+        if (!user.verificationToken) {
+            throw new UnknownError('Этот аккаунт уже подтвержден.');
+        }
+        user.verificationToken = null;
+        await this.userRepository.update(user);
+    }
     async resendVerification(email) {
         const user = await this.userRepository.findOne({ email });
         if (!user) {

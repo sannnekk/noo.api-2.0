@@ -9,7 +9,10 @@ import { z } from 'zod';
 let WorkValidator = class WorkValidator extends Validator {
     validateCreation(data) {
         const schema = z.object({
-            name: z.string().min(1).max(100),
+            name: z
+                .string()
+                .min(1, 'Нет названия работы')
+                .max(100, 'Название работы слишком длинное, максимум 100 символов разрешено'),
             type: z.enum([
                 'trial-work',
                 'phrase',
@@ -33,12 +36,6 @@ let WorkValidator = class WorkValidator extends Validator {
                 checkingStrategy: z
                     .enum(['type1', 'type2', 'type3', 'type4'])
                     .optional(),
-                options: z
-                    .array(z.object({
-                    name: z.string(),
-                    isCorrect: z.boolean(),
-                }))
-                    .optional(),
             })),
         });
         schema.parse(data);
@@ -60,7 +57,6 @@ let WorkValidator = class WorkValidator extends Validator {
             tasks: z
                 .array(z.object({
                 id: z.string().ulid().optional(),
-                name: z.string().optional(),
                 content: z.any().optional(),
                 type: z
                     .enum(['text', 'one_choice', 'multiple_choice', 'word'])
@@ -70,13 +66,6 @@ let WorkValidator = class WorkValidator extends Validator {
                 checkHint: z.any().optional().nullable(),
                 checkingStrategy: z
                     .enum(['type1', 'type2', 'type3', 'type4'])
-                    .optional(),
-                options: z
-                    .array(z.object({
-                    id: z.string().ulid().optional(),
-                    name: z.string().optional(),
-                    isCorrect: z.boolean().optional(),
-                }))
                     .optional(),
                 highestScore: z.number().int().positive().optional(),
             }))

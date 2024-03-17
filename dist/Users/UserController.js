@@ -92,6 +92,18 @@ let UserController = class UserController {
             return new ApiResponse(error);
         }
     }
+    async verifyManual(context) {
+        try {
+            Asserts.isAuthenticated(context);
+            Asserts.teacherOrAdmin(context);
+            this.userValidator.validateSlug(context.params.username);
+            await this.userService.verifyManual(context.params.username);
+            return new ApiResponse(null);
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
     async getMentors(context) {
         try {
             Asserts.isAuthenticated(context);
@@ -228,6 +240,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "getByUsername", null);
+__decorate([
+    Patch(':username/verify-manual'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "verifyManual", null);
 __decorate([
     Get('/mentor/search'),
     __metadata("design:type", Function),

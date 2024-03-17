@@ -117,6 +117,22 @@ export class UserController {
 		}
 	}
 
+	@Patch(':username/verify-manual')
+	async verifyManual(context: Context): Promise<ApiResponse> {
+		try {
+			Asserts.isAuthenticated(context)
+			Asserts.teacherOrAdmin(context)
+
+			this.userValidator.validateSlug(context.params.username)
+
+			await this.userService.verifyManual(context.params.username)
+
+			return new ApiResponse(null)
+		} catch (error: any) {
+			return new ApiResponse(error)
+		}
+	}
+
 	@Get('/mentor/search')
 	async getMentors(context: Context): Promise<ApiResponse> {
 		try {

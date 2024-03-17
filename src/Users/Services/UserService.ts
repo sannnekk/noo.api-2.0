@@ -91,6 +91,24 @@ export class UserService extends Service<User> {
 		await this.userRepository.update(user)
 	}
 
+	public async verifyManual(username: string): Promise<void> {
+		const user = await this.userRepository.findOne({
+			username,
+		})
+
+		if (!user) {
+			throw new NotFoundError()
+		}
+
+		if (!user.verificationToken) {
+			throw new UnknownError('Этот аккаунт уже подтвержден.')
+		}
+
+		user.verificationToken = null as any
+
+		await this.userRepository.update(user)
+	}
+
 	public async resendVerification(email: string): Promise<void> {
 		const user = await this.userRepository.findOne({ email })
 

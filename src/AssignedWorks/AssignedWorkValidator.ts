@@ -1,9 +1,4 @@
-import {
-	Catch,
-	InvalidRequestError,
-	Validator,
-	ErrorConverter,
-} from '@core'
+import { Validator, ErrorConverter } from '@core'
 import { AssignedWork } from './Data/AssignedWork'
 import { z } from 'zod'
 
@@ -29,7 +24,6 @@ export class AssignedWorkValidator extends Validator {
 					z.object({
 						content: z.any().optional().nullable(),
 						word: z.string().optional().nullable(),
-						chosenTaskOptionIds: z.array(z.string().ulid()).optional(),
 						taskId: z.string().ulid(),
 					})
 				)
