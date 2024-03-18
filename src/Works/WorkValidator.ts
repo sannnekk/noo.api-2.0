@@ -20,7 +20,7 @@ export class WorkValidator extends Validator {
 				'test',
 				'second-part',
 			]),
-			description: z.string(),
+			description: z.string().optional(),
 			tasks: z.array(
 				z.object({
 					content: z.any(),
