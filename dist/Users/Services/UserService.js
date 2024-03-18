@@ -197,7 +197,7 @@ export class UserService extends Service {
         if (existingUser.role !== 'student') {
             user.role = undefined;
         }
-        else if (user.role) {
+        else if (user.role && user.role !== 'student') {
             user.coursesAsStudent = [];
             user.mentor = null;
         }
