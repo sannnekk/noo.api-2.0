@@ -1,4 +1,3 @@
-import multer from 'multer'
 import { JWTPayload, parseHeader } from '../Security/jwt'
 import { PermissionResolver } from '../Security/permissions'
 import express from 'express'
@@ -15,7 +14,10 @@ export class Context {
 		this.body = this.parseBody(req.body)
 		this.params = req.params as typeof this.params
 		this.query = req.query as typeof this.query
-		this.files = (req.files as typeof this.files) || []
+
+		if (req.method === 'POST' && req.path === '/media') {
+			this.files = (req.files as typeof this.files) || []
+		}
 
 		const authHeader = req.headers.authorization
 
@@ -37,10 +39,6 @@ export class Context {
 		this.permissionResolver = new PermissionResolver(
 			this.credentials.permissions
 		)
-
-		if (req.files) {
-			req.body = req.files
-		}
 	}
 
 	public isAuthenticated(): boolean {

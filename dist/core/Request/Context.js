@@ -11,7 +11,9 @@ export class Context {
         this.body = this.parseBody(req.body);
         this.params = req.params;
         this.query = req.query;
-        this.files = req.files || [];
+        if (req.method === 'POST' && req.path === '/media') {
+            this.files = req.files || [];
+        }
         const authHeader = req.headers.authorization;
         if (!authHeader) {
             return;
@@ -25,9 +27,6 @@ export class Context {
             return;
         }
         this.permissionResolver = new PermissionResolver(this.credentials.permissions);
-        if (req.files) {
-            req.body = req.files;
-        }
     }
     isAuthenticated() {
         return !!this.credentials;
