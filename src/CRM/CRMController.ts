@@ -15,15 +15,7 @@ export class CRMController {
 	public async onDealCreation(context: Context): Promise<ApiResponse> {
 		try {
 			CrmAsserts.hasSecret(context)
-
-			log('Deal created')
-			log(context._express.req)
-			log(context.body)
-			log('Deal created end')
-			//const deal = await this.dealsService.create(context.body)
 		} catch (error: any) {
-			log('Deal creation error')
-			log(error)
 		} finally {
 			return new ApiResponse(null)
 		}
@@ -33,15 +25,7 @@ export class CRMController {
 	public async onDealrefund(context: Context): Promise<ApiResponse> {
 		try {
 			CrmAsserts.hasSecret(context)
-
-			log('Deal canceled')
-			log(context._express.req)
-			log(context.body)
-			log('Deal canceled end')
-			//const deal = await this.dealsService.create(context.body)
 		} catch (error: any) {
-			log('Deal cancel error')
-			log(error)
 		} finally {
 			return new ApiResponse(null)
 		}

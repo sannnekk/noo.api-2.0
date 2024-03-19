@@ -18,7 +18,7 @@ let MediaController = class MediaController {
     async get(context) {
         try {
             Asserts.isAuthenticated(context);
-            const links = await this.mediaService.upload(context._express.req.files);
+            const links = await this.mediaService.upload(context.files);
             return new ApiResponse({ data: { links } });
         }
         catch (error) {

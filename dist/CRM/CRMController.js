@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 import { Controller, Post } from 'express-controller-decorator';
 import { DealsService } from './Services/DealsService.js';
-import { ApiResponse, Context, log } from '../core/index.js';
+import { ApiResponse, Context } from '../core/index.js';
 import CrmAsserts from './Security/CrmAsserts.js';
 let CRMController = class CRMController {
     dealsService;
@@ -19,15 +19,8 @@ let CRMController = class CRMController {
     async onDealCreation(context) {
         try {
             CrmAsserts.hasSecret(context);
-            log('Deal created');
-            log(context._express.req);
-            log(context.body);
-            log('Deal created end');
-            //const deal = await this.dealsService.create(context.body)
         }
         catch (error) {
-            log('Deal creation error');
-            log(error);
         }
         finally {
             return new ApiResponse(null);
@@ -36,15 +29,8 @@ let CRMController = class CRMController {
     async onDealrefund(context) {
         try {
             CrmAsserts.hasSecret(context);
-            log('Deal canceled');
-            log(context._express.req);
-            log(context.body);
-            log('Deal canceled end');
-            //const deal = await this.dealsService.create(context.body)
         }
         catch (error) {
-            log('Deal cancel error');
-            log(error);
         }
         finally {
             return new ApiResponse(null);

@@ -16,7 +16,7 @@ export class MediaController {
 			Asserts.isAuthenticated(context)
 
 			const links = await this.mediaService.upload(
-				context._express.req!.files as Express.Multer.File[]
+				context.files as Express.Multer.File[]
 			)
 
 			return new ApiResponse({ data: { links } })

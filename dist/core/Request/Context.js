@@ -6,18 +6,12 @@ export class Context {
     credentials;
     permissionResolver;
     query;
-    _express = {
-        req: null,
-        res: null,
-        next: null,
-    };
-    constructor(req, res, next) {
-        this._express.req = req;
-        this._express.res = res;
-        this._express.next = next;
+    files;
+    constructor(req) {
         this.body = this.parseBody(req.body);
         this.params = req.params;
         this.query = req.query;
+        this.files = req.files || [];
         const authHeader = req.headers.authorization;
         if (!authHeader) {
             return;

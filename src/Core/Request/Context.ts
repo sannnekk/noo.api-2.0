@@ -9,29 +9,13 @@ export class Context {
 	public readonly credentials?: JWTPayload
 	public readonly permissionResolver?: PermissionResolver
 	public readonly query: Record<string, string | number | undefined>
+	public readonly files?: any[]
 
-	public _express: {
-		req: express.Request | null
-		res: express.Response | null
-		next: express.NextFunction | null
-	} = {
-		req: null,
-		res: null,
-		next: null,
-	}
-
-	public constructor(
-		req: express.Request,
-		res: express.Response,
-		next: express.NextFunction
-	) {
-		this._express.req = req
-		this._express.res = res
-		this._express.next = next
-
+	public constructor(req: express.Request) {
 		this.body = this.parseBody(req.body)
 		this.params = req.params as typeof this.params
 		this.query = req.query as typeof this.query
+		this.files = (req.files as typeof this.files) || []
 
 		const authHeader = req.headers.authorization
 
