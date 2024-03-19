@@ -174,6 +174,7 @@ export class CourseService extends Service<Course> {
 		}
 
 		material.work = { id: workId } as any
+		material.workId = workId
 		material.workSolveDeadline = solveDeadline
 		material.workCheckDeadline = checkDeadline
 
