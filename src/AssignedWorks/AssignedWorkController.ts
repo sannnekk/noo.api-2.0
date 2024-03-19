@@ -53,6 +53,7 @@ export class AssignedWorkController {
 	public async getOne(@Req() req: Request, @Res() res: Response) {
 		// @ts-ignore
 		const context = req.context as Context
+		context.setParams(req.params)
 
 		try {
 			Asserts.isAuthenticated(context)
@@ -102,6 +103,7 @@ export class AssignedWorkController {
 	public async solve(@Req() req: Request, @Res() res: Response) {
 		// @ts-ignore
 		const context = req.context as Context
+		context.setParams(req.params)
 
 		try {
 			Asserts.isAuthenticated(context)
@@ -122,6 +124,7 @@ export class AssignedWorkController {
 	public async check(@Req() req: Request, @Res() res: Response) {
 		// @ts-ignore
 		const context = req.context as Context
+		context.setParams(req.params)
 
 		try {
 			Asserts.isAuthenticated(context)
@@ -142,6 +145,7 @@ export class AssignedWorkController {
 	public async save(@Req() req: Request, @Res() res: Response) {
 		// @ts-ignore
 		const context = req.context as Context
+		context.setParams(req.params)
 
 		try {
 			Asserts.isAuthenticated(context)
@@ -165,6 +169,7 @@ export class AssignedWorkController {
 	public async archive(@Req() req: Request, @Res() res: Response) {
 		// @ts-ignore
 		const context = req.context as Context
+		context.setParams(req.params)
 
 		try {
 			Asserts.isAuthenticated(context)
@@ -184,6 +189,7 @@ export class AssignedWorkController {
 	public async transfer(@Req() req: Request, @Res() res: Response) {
 		// @ts-ignore
 		const context = req.context as Context
+		context.setParams(req.params)
 
 		try {
 			Asserts.isAuthenticated(context)
@@ -211,6 +217,7 @@ export class AssignedWorkController {
 	) {
 		// @ts-ignore
 		const context = req.context as Context
+		context.setParams(req.params)
 
 		try {
 			Asserts.isAuthenticated(context)
@@ -235,6 +242,7 @@ export class AssignedWorkController {
 	public async delete(@Req() req: Request, @Res() res: Response) {
 		// @ts-ignore
 		const context = req.context as Context
+		context.setParams(req.params)
 
 		try {
 			Asserts.isAuthenticated(context)

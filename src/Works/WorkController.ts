@@ -53,6 +53,7 @@ export class WorkController {
 	) {
 		// @ts-ignore
 		const context = req.context as Context
+		context.setParams(req.params)
 
 		try {
 			Asserts.isAuthenticated(context)
@@ -94,6 +95,7 @@ export class WorkController {
 	public async copyWork(@Req() req: Request, @Res() res: Response) {
 		// @ts-ignore
 		const context = req.context as Context
+		context.setParams(req.params)
 
 		try {
 			Asserts.isAuthenticated(context)
@@ -114,6 +116,7 @@ export class WorkController {
 	public async updateWork(@Req() req: Request, @Res() res: Response) {
 		// @ts-ignore
 		const context = req.context as Context
+		context.setParams(req.params)
 
 		try {
 			Asserts.isAuthenticated(context)
@@ -135,6 +138,7 @@ export class WorkController {
 	public async deleteWork(@Req() req: Request, @Res() res: Response) {
 		// @ts-ignore
 		const context = req.context as Context
+		context.setParams(req.params)
 
 		try {
 			Asserts.isAuthenticated(context)

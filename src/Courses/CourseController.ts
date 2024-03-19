@@ -53,6 +53,7 @@ export class CourseController {
 	public async getBySlug(@Req() req: Request, @Res() res: Response) {
 		// @ts-ignore
 		const context = req.context as Context
+		context.setParams(req.params)
 
 		try {
 			this.courseValidator.validateSlug(context.params.slug)
@@ -76,6 +77,7 @@ export class CourseController {
 	) {
 		// @ts-ignore
 		const context = req.context as Context
+		context.setParams(req.params)
 
 		try {
 			this.courseValidator.validateSlug(context.params.slug)
@@ -121,6 +123,7 @@ export class CourseController {
 	public async update(@Req() req: Request, @Res() res: Response) {
 		// @ts-ignore
 		const context = req.context as Context
+		context.setParams(req.params)
 
 		try {
 			this.courseValidator.validateUpdate(context.body)
@@ -143,6 +146,7 @@ export class CourseController {
 	) {
 		// @ts-ignore
 		const context = req.context as Context
+		context.setParams(req.params)
 
 		try {
 			Asserts.isAuthenticated(context)
@@ -172,6 +176,7 @@ export class CourseController {
 	) {
 		// @ts-ignore
 		const context = req.context as Context
+		context.setParams(req.params)
 
 		try {
 			Asserts.isAuthenticated(context)
@@ -197,6 +202,7 @@ export class CourseController {
 	) {
 		// @ts-ignore
 		const context = req.context as Context
+		context.setParams(req.params)
 
 		try {
 			Asserts.isAuthenticated(context)
@@ -220,6 +226,7 @@ export class CourseController {
 	public async delete(@Req() req: Request, @Res() res: Response) {
 		// @ts-ignore
 		const context = req.context as Context
+		context.setParams(req.params)
 
 		try {
 			this.courseValidator.validateId(context.params.id)

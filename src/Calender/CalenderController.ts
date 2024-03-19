@@ -29,7 +29,7 @@ export class CalenderController {
 		@Res() res: Response
 	) {
 		// @ts-ignore
-		const context = request.context as Context
+		const context = req.context as Context
 
 		try {
 			Asserts.isAuthenticated(context)
@@ -82,6 +82,7 @@ export class CalenderController {
 	) {
 		// @ts-ignore
 		const context = req.context as Context
+		context.setParams(req.params)
 
 		try {
 			Asserts.isAuthenticated(context)

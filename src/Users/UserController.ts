@@ -132,6 +132,7 @@ export class UserController {
 	async getByUsername(@Req() req: Request, @Res() res: Response) {
 		// @ts-ignore
 		const context = req.context as Context
+		context.setParams(req.params)
 
 		try {
 			Asserts.isAuthenticated(context)
@@ -152,6 +153,7 @@ export class UserController {
 	async verifyManual(@Req() req: Request, @Res() res: Response) {
 		// @ts-ignore
 		const context = req.context as Context
+		context.setParams(req.params)
 
 		try {
 			Asserts.isAuthenticated(context)
@@ -268,6 +270,7 @@ export class UserController {
 	async update(@Req() req: Request, @Res() res: Response) {
 		// @ts-ignore
 		const context = req.context as Context
+		context.setParams(req.params)
 
 		try {
 			Asserts.isAuthenticated(context)
@@ -291,6 +294,7 @@ export class UserController {
 	async assignMentor(@Req() req: Request, @Res() res: Response) {
 		// @ts-ignore
 		const context = req.context as Context
+		context.setParams(req.params)
 
 		try {
 			Asserts.notStudent(context)
@@ -313,6 +317,7 @@ export class UserController {
 	async delete(@Req() req: Request, @Res() res: Response) {
 		// @ts-ignore
 		const context = req.context as Context
+		context.setParams(req.params)
 
 		try {
 			Asserts.isAuthenticated(context)

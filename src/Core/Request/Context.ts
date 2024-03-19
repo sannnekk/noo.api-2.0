@@ -3,8 +3,8 @@ import { PermissionResolver } from '../Security/permissions'
 import express from 'express'
 
 export class Context {
+	public params: Record<string, string | number | undefined>
 	public readonly body: unknown
-	public readonly params: Record<string, string | number | undefined>
 	public readonly credentials?: JWTPayload
 	public readonly permissionResolver?: PermissionResolver
 	public readonly query: Record<string, string | number | undefined>
@@ -43,6 +43,12 @@ export class Context {
 
 	public isAuthenticated(): boolean {
 		return !!this.credentials
+	}
+
+	public setParams(
+		params: Record<string, string | number | undefined>
+	): void {
+		this.params = params
 	}
 
 	private parseBody(body: object): object {
