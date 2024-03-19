@@ -4,12 +4,11 @@ RUN mkdir noo-cdn
 RUN mkdir noo-cdn/uploads
 
 # Add package file
-COPY package*.json ./
+COPY package.json ./
 
 # Install deps
 RUN npm i --legacy-peer-deps
-RUN npm i -g typescript
-RUN npm i -g ts-node
+RUN npm update express-controller-decorator
 
 # environment variables
 ENV NODE_ENV=production
