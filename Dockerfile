@@ -1,4 +1,4 @@
-FROM node:18 as base
+FROM node:latest as base
 
 RUN mkdir noo-cdn
 RUN mkdir noo-cdn/uploads
