@@ -7,48 +7,40 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Controller, Delete, Post } from 'express-controller-decorator';
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { Controller, Post, Req, Res } from '@decorators/express';
 import { MediaService } from './Services/MediaService.js';
-import { ApiResponse, Asserts, Context } from '../core/index.js';
+import { Asserts } from '../core/index.js';
+import { getErrorData } from '../Core/Response/helpers.js';
 let MediaController = class MediaController {
     mediaService;
     constructor() {
         this.mediaService = new MediaService();
     }
-    async get(context) {
+    async get(req, res) {
+        // @ts-ignore
+        const context = req.context;
         try {
             Asserts.isAuthenticated(context);
             const links = await this.mediaService.upload(context.files);
-            return new ApiResponse({ data: { links } });
+            res.status(201).send({ data: links });
         }
         catch (error) {
-            return new ApiResponse(error);
-        }
-    }
-    async delete(context) {
-        try {
-            Asserts.isAuthenticated(context);
-            Asserts.teacherOrAdmin(context);
-            await this.mediaService.remove(context.query.src);
-            return new ApiResponse(null);
-        }
-        catch (error) {
-            return new ApiResponse(error);
+            const { status, message } = getErrorData(error);
+            res.status(status).send({ error: message });
         }
     }
 };
 __decorate([
-    Post(),
+    Post('/'),
+    __param(0, Req()),
+    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Context]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], MediaController.prototype, "get", null);
-__decorate([
-    Delete(),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Context]),
-    __metadata("design:returntype", Promise)
-], MediaController.prototype, "delete", null);
 MediaController = __decorate([
     Controller('/media'),
     __metadata("design:paramtypes", [])

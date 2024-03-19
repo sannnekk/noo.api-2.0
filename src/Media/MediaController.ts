@@ -1,6 +1,8 @@
-import { Controller, Delete, Post } from 'express-controller-decorator'
+import { Controller, Delete, Post, Req, Res } from '@decorators/express'
 import { MediaService } from './Services/MediaService'
-import { ApiResponse, Asserts, Context } from '@core'
+import { Asserts, Context } from '@core'
+import { Request, Response } from 'express'
+import { getErrorData } from '@modules/Core/Response/helpers'
 
 @Controller('/media')
 export class MediaController {
@@ -10,8 +12,11 @@ export class MediaController {
 		this.mediaService = new MediaService()
 	}
 
-	@Post()
-	public async get(context: Context): Promise<ApiResponse> {
+	@Post('/')
+	public async get(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 
@@ -19,23 +24,10 @@ export class MediaController {
 				context.files as Express.Multer.File[]
 			)
 
-			return new ApiResponse({ data: { links } })
+			res.status(201).send({ data: links })
 		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
-
-	@Delete()
-	public async delete(context: Context): Promise<ApiResponse> {
-		try {
-			Asserts.isAuthenticated(context)
-			Asserts.teacherOrAdmin(context)
-
-			await this.mediaService.remove(context.query.src as string)
-
-			return new ApiResponse(null)
-		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 }

@@ -7,10 +7,14 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Controller, Delete, Get, Patch, Post, } from 'express-controller-decorator';
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 import { WorkService } from './Services/WorkService.js';
 import { WorkValidator } from './WorkValidator.js';
-import { ApiResponse, Asserts, Context } from '../core/index.js';
+import { Asserts } from '../core/index.js';
+import { Req, Res, Controller, Delete, Get, Patch, Post, } from '@decorators/express';
+import { getErrorData } from '../Core/Response/helpers.js';
 let WorkController = class WorkController {
     workService;
     workValidator;
@@ -18,114 +22,144 @@ let WorkController = class WorkController {
         this.workService = new WorkService();
         this.workValidator = new WorkValidator();
     }
-    async getWorks(context) {
+    async getWorks(req, res) {
+        // @ts-ignore
+        const context = req.context;
         try {
             Asserts.isAuthenticated(context);
             Asserts.teacherOrAdmin(context);
             const pagination = this.workValidator.validatePagination(context.query);
             const works = await this.workService.getWorks(pagination);
             const meta = await this.workService.getLastRequestMeta();
-            return new ApiResponse({ data: works, meta });
+            res.status(200).send({ data: works, meta });
         }
         catch (error) {
-            return new ApiResponse(error);
+            const { status, message } = getErrorData(error);
+            res.status(status).send({ error: message });
         }
     }
-    async getWorkBySlug(context) {
+    async getWorkBySlug(req, res) {
+        // @ts-ignore
+        const context = req.context;
         try {
             Asserts.isAuthenticated(context);
             this.workValidator.validateSlug(context.params.slug);
             const work = await this.workService.getWorkBySlug(context.params.slug);
-            return new ApiResponse({ data: work });
+            res.status(200).send({ data: work });
         }
         catch (error) {
-            return new ApiResponse(error);
+            const { status, message } = getErrorData(error);
+            res.status(status).send({ error: message });
         }
     }
-    async createWork(context) {
+    async createWork(req, res) {
+        // @ts-ignore
+        const context = req.context;
         try {
             Asserts.isAuthenticated(context);
             Asserts.teacher(context);
             this.workValidator.validateCreation(context.body);
             await this.workService.createWork(context.body);
-            return new ApiResponse(null);
+            res.status(201).send({ data: null });
         }
         catch (error) {
-            return new ApiResponse(error);
+            const { status, message } = getErrorData(error);
+            res.status(status).send({ error: message });
         }
     }
-    async copyWork(context) {
+    async copyWork(req, res) {
+        // @ts-ignore
+        const context = req.context;
         try {
             Asserts.isAuthenticated(context);
             Asserts.teacher(context);
             this.workValidator.validateSlug(context.params.slug);
             await this.workService.copyWork(context.params.slug);
-            return new ApiResponse(null);
+            res.status(201).send({ data: null });
         }
         catch (error) {
-            return new ApiResponse(error);
+            const { status, message } = getErrorData(error);
+            res.status(status).send({ error: message });
         }
     }
-    async updateWork(context) {
+    async updateWork(req, res) {
+        // @ts-ignore
+        const context = req.context;
         try {
             Asserts.isAuthenticated(context);
             Asserts.teacher(context);
             this.workValidator.validateUpdate(context.body);
             this.workValidator.validateId(context.params.id);
             await this.workService.updateWork(context.body);
-            return new ApiResponse(null);
+            res.status(201).send({ data: null });
         }
         catch (error) {
-            return new ApiResponse(error);
+            const { status, message } = getErrorData(error);
+            res.status(status).send({ error: message });
         }
     }
-    async deleteWork(context) {
+    async deleteWork(req, res) {
+        // @ts-ignore
+        const context = req.context;
         try {
             Asserts.isAuthenticated(context);
             Asserts.teacher(context);
             this.workValidator.validateId(context.params.id);
             await this.workService.deleteWork(context.params.id);
-            return new ApiResponse(null);
+            res.status(200).send({ data: null });
         }
         catch (error) {
-            return new ApiResponse(error);
+            const { status, message } = getErrorData(error);
+            res.status(status).send({ error: message });
         }
     }
 };
 __decorate([
-    Get(),
+    Get('/'),
+    __param(0, Req()),
+    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Context]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], WorkController.prototype, "getWorks", null);
 __decorate([
     Get('/:slug'),
+    __param(0, Req()),
+    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Context]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], WorkController.prototype, "getWorkBySlug", null);
 __decorate([
-    Post(),
+    Post('/'),
+    __param(0, Req()),
+    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Context]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], WorkController.prototype, "createWork", null);
 __decorate([
     Post('/copy/:slug'),
+    __param(0, Req()),
+    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Context]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], WorkController.prototype, "copyWork", null);
 __decorate([
     Patch('/:id'),
+    __param(0, Req()),
+    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Context]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], WorkController.prototype, "updateWork", null);
 __decorate([
     Delete('/:id'),
+    __param(0, Req()),
+    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Context]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], WorkController.prototype, "deleteWork", null);
 WorkController = __decorate([

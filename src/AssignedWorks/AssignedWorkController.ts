@@ -4,11 +4,14 @@ import {
 	Get,
 	Patch,
 	Post,
-} from 'express-controller-decorator'
+	Req,
+	Res,
+} from '@decorators/express'
 import { AssignedWorkValidator } from './AssignedWorkValidator'
 import { AssignedWorkService } from './Services/AssignedWorkService'
-import { Asserts, Context, ApiResponse } from '@core'
-import { StatusCodes } from 'http-status-codes'
+import { Asserts, Context } from '@core'
+import { Request, Response } from 'express'
+import { getErrorData } from '@modules/Core/Response/helpers'
 
 @Controller('/assigned-work')
 export class AssignedWorkController {
@@ -20,8 +23,11 @@ export class AssignedWorkController {
 		this.assignedWorkValidator = new AssignedWorkValidator()
 	}
 
-	@Get()
-	public async get(context: Context): Promise<ApiResponse> {
+	@Get('/')
+	public async get(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			const pagination = this.assignedWorkValidator.validatePagination(
@@ -36,14 +42,18 @@ export class AssignedWorkController {
 
 			const meta = await this.assignedWorkService.getLastRequestMeta()
 
-			return new ApiResponse({ data: works, meta })
+			res.status(200).send({ data: works, meta })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Get('/:id')
-	public async getOne(context: Context): Promise<ApiResponse> {
+	public async getOne(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			this.assignedWorkValidator.validateId(context.params.id)
@@ -62,14 +72,18 @@ export class AssignedWorkController {
 				Asserts.isAuthorized(context, work.mentorIds)
 			}
 
-			return new ApiResponse({ data: work })
+			res.status(200).send({ data: work })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
-	@Post()
-	public async create(context: Context): Promise<ApiResponse> {
+	@Post('/')
+	public async create(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
@@ -77,14 +91,18 @@ export class AssignedWorkController {
 
 			await this.assignedWorkService.createWork(context.body)
 
-			return new ApiResponse(null)
+			res.status(201).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Patch('/:id/solve')
-	public async solve(context: Context): Promise<ApiResponse> {
+	public async solve(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.student(context)
@@ -93,14 +111,18 @@ export class AssignedWorkController {
 
 			await this.assignedWorkService.solveWork(context.body)
 
-			return new ApiResponse(null)
+			res.status(201).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Patch('/:id/check')
-	public async check(context: Context): Promise<ApiResponse> {
+	public async check(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.mentor(context)
@@ -109,14 +131,18 @@ export class AssignedWorkController {
 
 			await this.assignedWorkService.checkWork(context.body)
 
-			return new ApiResponse(null)
+			res.status(201).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Patch('/:id/save')
-	public async save(context: Context): Promise<ApiResponse> {
+	public async save(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.mentorOrStudent(context)
@@ -128,14 +154,18 @@ export class AssignedWorkController {
 				context.credentials.role
 			)
 
-			return new ApiResponse(null)
+			res.status(201).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Patch('/:id/archive')
-	public async archive(context: Context): Promise<ApiResponse> {
+	public async archive(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.mentor(context)
@@ -143,14 +173,18 @@ export class AssignedWorkController {
 
 			await this.assignedWorkService.archiveWork(context.params.id)
 
-			return new ApiResponse(null)
+			res.status(201).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Patch('/:workId/transfer/:mentorId')
-	public async transfer(context: Context): Promise<ApiResponse> {
+	public async transfer(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.mentor(context)
@@ -163,14 +197,21 @@ export class AssignedWorkController {
 				context.credentials.userId
 			)
 
-			return new ApiResponse(null)
+			res.status(201).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Patch('/:id/shift-deadline')
-	public async shiftDeadline(context: Context): Promise<ApiResponse> {
+	public async shiftDeadline(
+		@Req() req: Request,
+		@Res() res: Response
+	) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.mentorOrStudent(context)
@@ -183,14 +224,18 @@ export class AssignedWorkController {
 				context.credentials.userId
 			)
 
-			return new ApiResponse(null)
+			res.status(201).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Delete('/:id')
-	public async delete(context: Context): Promise<ApiResponse> {
+	public async delete(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.mentor(context)
@@ -201,9 +246,10 @@ export class AssignedWorkController {
 				context.credentials.id
 			)
 
-			return new ApiResponse(null)
+			res.status(200).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 }

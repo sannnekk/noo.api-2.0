@@ -1,13 +1,17 @@
+import { WorkService } from './Services/WorkService'
+import { WorkValidator } from './WorkValidator'
+import { Asserts, Context } from '@core'
+import { Request, Response } from 'express'
 import {
+	Req,
+	Res,
 	Controller,
 	Delete,
 	Get,
 	Patch,
 	Post,
-} from 'express-controller-decorator'
-import { WorkService } from './Services/WorkService'
-import { WorkValidator } from './WorkValidator'
-import { ApiResponse, Asserts, Context } from '@core'
+} from '@decorators/express'
+import { getErrorData } from '@modules/Core/Response/helpers'
 
 @Controller('/work')
 export class WorkController {
@@ -19,8 +23,11 @@ export class WorkController {
 		this.workValidator = new WorkValidator()
 	}
 
-	@Get()
-	public async getWorks(context: Context): Promise<ApiResponse> {
+	@Get('/')
+	public async getWorks(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.teacherOrAdmin(context)
@@ -32,14 +39,21 @@ export class WorkController {
 			const works = await this.workService.getWorks(pagination)
 			const meta = await this.workService.getLastRequestMeta()
 
-			return new ApiResponse({ data: works, meta })
+			res.status(200).send({ data: works, meta })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Get('/:slug')
-	public async getWorkBySlug(context: Context): Promise<ApiResponse> {
+	public async getWorkBySlug(
+		@Req() req: Request,
+		@Res() res: Response
+	) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 
@@ -49,14 +63,18 @@ export class WorkController {
 				context.params.slug
 			)
 
-			return new ApiResponse({ data: work })
+			res.status(200).send({ data: work })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
-	@Post()
-	public async createWork(context: Context): Promise<ApiResponse> {
+	@Post('/')
+	public async createWork(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
@@ -65,14 +83,18 @@ export class WorkController {
 
 			await this.workService.createWork(context.body)
 
-			return new ApiResponse(null)
+			res.status(201).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Post('/copy/:slug')
-	public async copyWork(context: Context): Promise<ApiResponse> {
+	public async copyWork(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
@@ -81,14 +103,18 @@ export class WorkController {
 
 			await this.workService.copyWork(context.params.slug)
 
-			return new ApiResponse(null)
+			res.status(201).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Patch('/:id')
-	public async updateWork(context: Context): Promise<ApiResponse> {
+	public async updateWork(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
@@ -98,14 +124,18 @@ export class WorkController {
 
 			await this.workService.updateWork(context.body)
 
-			return new ApiResponse(null)
+			res.status(201).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Delete('/:id')
-	public async deleteWork(context: Context): Promise<ApiResponse> {
+	public async deleteWork(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
@@ -114,9 +144,10 @@ export class WorkController {
 
 			await this.workService.deleteWork(context.params.id)
 
-			return new ApiResponse(null)
+			res.status(200).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 }

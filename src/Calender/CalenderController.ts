@@ -5,9 +5,13 @@ import {
 	Get,
 	Patch,
 	Post,
-} from 'express-controller-decorator'
+	Res,
+	Req,
+} from '@decorators/express'
 import { CalenderService } from './Services/CalenderService'
-import { ApiResponse, Asserts, Context, UnauthorizedError } from '@core'
+import { Asserts, Context, UnauthorizedError } from '@core'
+import { Request, Response } from 'express'
+import { getErrorData } from '@modules/Core/Response/helpers'
 
 @Controller('/calender')
 export class CalenderController {
@@ -19,10 +23,14 @@ export class CalenderController {
 		this.calenderValidator = new CalenderValidator()
 	}
 
-	@Post()
+	@Post('/')
 	public async createCalenderEvent(
-		context: Context
-	): Promise<ApiResponse> {
+		@Req() req: Request,
+		@Res() res: Response
+	) {
+		// @ts-ignore
+		const context = request.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			this.calenderValidator.validateEventCreation(context.body)
@@ -32,16 +40,21 @@ export class CalenderController {
 				context.credentials.username
 			)
 
-			return new ApiResponse(null)
+			res.status(201).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
-	@Get()
+	@Get('/')
 	public async getCalenderEvents(
-		context: Context
-	): Promise<ApiResponse> {
+		@Req() req: Request,
+		@Res() res: Response
+	) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			const pagination = this.calenderValidator.validatePagination(
@@ -55,60 +68,21 @@ export class CalenderController {
 
 			const meta = await this.calenderService.getLastRequestMeta()
 
-			return new ApiResponse({ data: events, meta })
+			res.status(200).send({ data: events, meta })
 		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
-
-	@Get('/:id')
-	public async getCalenderEvent(
-		context: Context
-	): Promise<ApiResponse> {
-		try {
-			Asserts.isAuthenticated(context)
-			this.calenderValidator.validateId(context.params.id)
-
-			const event = await this.calenderService.getOne(
-				context.params.id,
-				context.credentials.username
-			)
-
-			if (event?.username !== context.credentials.username) {
-				throw new UnauthorizedError()
-			}
-
-			return new ApiResponse({ data: event })
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
-
-	@Patch('/:id')
-	public async updateCalenderEvent(
-		context: Context
-	): Promise<ApiResponse> {
-		try {
-			Asserts.isAuthenticated(context)
-			this.calenderValidator.validateId(context.params.id)
-			this.calenderValidator.validateEventCreation(context.body)
-
-			await this.calenderService.update(
-				context.params.id,
-				context.body,
-				context.credentials.username
-			)
-
-			return new ApiResponse(null)
-		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Delete('/:id')
 	public async deleteCalenderEvent(
-		context: Context
-	): Promise<ApiResponse> {
+		@Req() req: Request,
+		@Res() res: Response
+	) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			this.calenderValidator.validateId(context.params.id)
@@ -118,9 +92,10 @@ export class CalenderController {
 				context.credentials.username
 			)
 
-			return new ApiResponse(null)
+			res.status(200).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 }

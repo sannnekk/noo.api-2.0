@@ -4,10 +4,14 @@ import {
 	Get,
 	Patch,
 	Post,
-} from 'express-controller-decorator'
+	Req,
+	Res,
+} from '@decorators/express'
+import { Request, Response } from 'express'
 import { CourseService } from './Services/CourseService'
-import { Asserts, Context, ApiResponse } from '@core'
+import { Asserts, Context } from '@core'
 import { CourseValidator } from './CourseValidator'
+import { getErrorData } from '@modules/Core/Response/helpers'
 
 @Controller('/course')
 export class CourseController {
@@ -19,8 +23,11 @@ export class CourseController {
 		this.courseValidator = new CourseValidator()
 	}
 
-	@Get()
-	public async get(context: Context): Promise<ApiResponse> {
+	@Get('/')
+	public async get(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			const pagination = this.courseValidator.validatePagination(
@@ -35,14 +42,18 @@ export class CourseController {
 
 			const meta = await this.courseService.getLastRequestMeta()
 
-			return new ApiResponse({ data: courses, meta })
+			res.status(200).send({ data: courses, meta })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Get('/:slug')
-	public async getBySlug(context: Context): Promise<ApiResponse> {
+	public async getBySlug(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			this.courseValidator.validateSlug(context.params.slug)
 			Asserts.isAuthenticated(context)
@@ -51,14 +62,21 @@ export class CourseController {
 				context.params.slug
 			)
 
-			return new ApiResponse({ data: course })
+			res.status(200).send({ data: course })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Get('/material/:slug/assigned-work')
-	public async getAssignedWork(context: Context): Promise<ApiResponse> {
+	public async getAssignedWork(
+		@Req() req: Request,
+		@Res() res: Response
+	) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			this.courseValidator.validateSlug(context.params.slug)
 			Asserts.isAuthenticated(context)
@@ -70,14 +88,18 @@ export class CourseController {
 					context.credentials.userId
 				)
 
-			return new ApiResponse({ data: assignedWork })
+			res.status(200).send({ data: assignedWork })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
-	@Post()
-	public async create(context: Context): Promise<ApiResponse> {
+	@Post('/')
+	public async create(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			this.courseValidator.validateCreation(context.body)
 			Asserts.isAuthenticated(context)
@@ -88,14 +110,18 @@ export class CourseController {
 				context.credentials.userId
 			)
 
-			return new ApiResponse(null)
+			res.status(201).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Patch('/:id')
-	public async update(context: Context): Promise<ApiResponse> {
+	public async update(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			this.courseValidator.validateUpdate(context.body)
 			Asserts.isAuthenticated(context)
@@ -103,16 +129,21 @@ export class CourseController {
 
 			await this.courseService.update(context.body)
 
-			return new ApiResponse(null)
+			res.status(201).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Patch('/:materialSlug/assign-work/:workId')
 	public async assignWorkToMaterial(
-		context: Context
-	): Promise<ApiResponse> {
+		@Req() req: Request,
+		@Res() res: Response
+	) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
@@ -127,14 +158,21 @@ export class CourseController {
 				context.body.checkDeadline
 			)
 
-			return new ApiResponse(null)
+			res.status(201).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Patch('/:courseSlug/assign-me-works')
-	public async assignMeWorks(context: Context): Promise<ApiResponse> {
+	public async assignMeWorks(
+		@Req() req: Request,
+		@Res() res: Response
+	) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.student(context)
@@ -145,14 +183,21 @@ export class CourseController {
 				context.credentials.userId
 			)
 
-			return new ApiResponse(null)
+			res.status(201).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Patch('/:courseSlug/assign-students')
-	public async assignStudents(context: Context): Promise<ApiResponse> {
+	public async assignStudents(
+		@Req() req: Request,
+		@Res() res: Response
+	) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
@@ -164,14 +209,18 @@ export class CourseController {
 				context.body.studentIds
 			)
 
-			return new ApiResponse(null)
+			res.status(201).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Delete('/:id')
-	public async delete(context: Context): Promise<ApiResponse> {
+	public async delete(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			this.courseValidator.validateId(context.params.id)
 			Asserts.isAuthenticated(context)
@@ -179,9 +228,10 @@ export class CourseController {
 
 			await this.courseService.delete(context.params.id)
 
-			return new ApiResponse(null)
+			res.status(200).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 }

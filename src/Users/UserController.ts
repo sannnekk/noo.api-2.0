@@ -1,15 +1,18 @@
+import { Context } from '@core'
+import { UserService } from './Services/UserService'
+import { UserValidator } from './UserValidator'
+import { Asserts } from '@core'
 import {
+	Req,
+	Res,
 	Controller,
 	Delete,
 	Get,
 	Patch,
 	Post,
-} from 'express-controller-decorator'
-import { ApiResponse, Context } from '@core'
-import { UserService } from './Services/UserService'
-import { UserValidator } from './UserValidator'
-import { Asserts } from '@core'
-import { StatusCodes } from 'http-status-codes'
+} from '@decorators/express'
+import { Request, Response } from 'express'
+import { getErrorData } from '@modules/Core/Response/helpers'
 
 @Controller('/user')
 export class UserController {
@@ -21,8 +24,11 @@ export class UserController {
 		this.userService = new UserService()
 	}
 
-	@Post()
-	async create(context: Context): Promise<ApiResponse> {
+	@Post('/')
+	async create(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			this.userValidator.validateCreation(context.body)
 			Asserts.isAuthenticated(context)
@@ -30,51 +36,67 @@ export class UserController {
 
 			await this.userService.create(context.body)
 
-			return new ApiResponse(null)
+			res.status(201).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Post('/auth/login')
-	async login(context: Context): Promise<ApiResponse> {
+	async login(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			this.userValidator.validateLogin(context.body)
 
 			const payload = await this.userService.login(context.body)
 
-			return new ApiResponse({ data: payload })
+			res.status(200).send({ data: payload })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Post('/auth/register')
-	async register(context: Context): Promise<ApiResponse> {
+	async register(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			this.userValidator.validateRegister(context.body)
 			await this.userService.register(context.body)
 
-			return new ApiResponse(null)
+			res.status(201).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Post('/auth/resend-verification')
-	async resendVerification(context: Context): Promise<ApiResponse> {
+	async resendVerification(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			this.userValidator.validateResendVerification(context.body)
 			await this.userService.resendVerification(context.body.email)
 
-			return new ApiResponse(null)
+			res.status(201).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Patch('/auth/verify')
-	async verify(context: Context): Promise<ApiResponse> {
+	async verify(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			this.userValidator.validateVerification(context.body)
 
@@ -83,26 +105,34 @@ export class UserController {
 				context.body.token
 			)
 
-			return new ApiResponse(null)
+			res.status(201).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Post('/auth/forgot-password')
-	async forgotPassword(context: Context): Promise<ApiResponse> {
+	async forgotPassword(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			this.userValidator.validateForgotPassword(context.body)
 			await this.userService.forgotPassword(context.body.email)
 
-			return new ApiResponse(null)
+			res.status(201).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Get('/:username')
-	async getByUsername(context: Context): Promise<ApiResponse> {
+	async getByUsername(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			this.userValidator.validateSlug(context.params.username)
@@ -111,14 +141,18 @@ export class UserController {
 				context.params.username
 			)
 
-			return new ApiResponse({ data: user })
+			res.status(200).send({ data: user })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Patch('/:username/verify-manual')
-	async verifyManual(context: Context): Promise<ApiResponse> {
+	async verifyManual(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.teacherOrAdmin(context)
@@ -127,14 +161,18 @@ export class UserController {
 
 			await this.userService.verifyManual(context.params.username)
 
-			return new ApiResponse(null)
+			res.status(201).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Get('/mentor/search')
-	async getMentors(context: Context): Promise<ApiResponse> {
+	async getMentors(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.notStudent(context)
@@ -146,14 +184,18 @@ export class UserController {
 
 			const meta = await this.userService.getLastRequestMeta()
 
-			return new ApiResponse({ data: mentors, meta })
+			res.status(200).send({ data: mentors, meta })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Get('/student/search')
-	async getStudents(context: Context): Promise<ApiResponse> {
+	async getStudents(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.notStudent(context)
@@ -165,14 +207,18 @@ export class UserController {
 
 			const meta = await this.userService.getLastRequestMeta()
 
-			return new ApiResponse({ data: students, meta })
+			res.status(200).send({ data: students, meta })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Get('/student/search/own')
-	async getMyStudents(context: Context): Promise<ApiResponse> {
+	async getMyStudents(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.mentor(context)
@@ -188,14 +234,18 @@ export class UserController {
 
 			const meta = await this.userService.getLastRequestMeta()
 
-			return new ApiResponse({ data: students, meta })
+			res.status(200).send({ data: students, meta })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
-	@Get()
-	async getUsers(context: Context): Promise<ApiResponse> {
+	@Get('/')
+	async getUsers(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			Asserts.notStudent(context)
@@ -207,14 +257,18 @@ export class UserController {
 
 			const meta = await this.userService.getLastRequestMeta()
 
-			return new ApiResponse({ data: users, meta })
+			res.status(200).send({ data: users, meta })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Patch('/:id')
-	async update(context: Context): Promise<ApiResponse> {
+	async update(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			this.userValidator.validateId(context.params.id)
@@ -226,14 +280,18 @@ export class UserController {
 
 			await this.userService.update(context.body)
 
-			return new ApiResponse(null)
+			res.status(200).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Patch('/:studentId/assign-mentor/:mentorId')
-	async assignMentor(context: Context): Promise<ApiResponse> {
+	async assignMentor(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.notStudent(context)
 			this.userValidator.validateId(context.params.studentId)
@@ -244,14 +302,18 @@ export class UserController {
 				context.params.mentorId
 			)
 
-			return new ApiResponse(null)
+			res.status(201).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 
 	@Delete('/:id')
-	async delete(context: Context): Promise<ApiResponse> {
+	async delete(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			Asserts.isAuthenticated(context)
 			this.userValidator.validateId(context.params.id)
@@ -262,9 +324,10 @@ export class UserController {
 
 			await this.userService.delete(context.params.id)
 
-			return new ApiResponse(null)
+			res.status(200).send({ data: null })
 		} catch (error: any) {
-			return new ApiResponse(error)
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
 		}
 	}
 }

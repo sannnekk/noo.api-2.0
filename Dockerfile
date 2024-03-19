@@ -8,7 +8,6 @@ COPY package.json ./
 
 # Install deps
 RUN npm i --legacy-peer-deps
-RUN npm update express-controller-decorator
 
 # environment variables
 ENV NODE_ENV=production

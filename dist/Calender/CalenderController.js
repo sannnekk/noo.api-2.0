@@ -7,10 +7,14 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 import { CalenderValidator } from './CalenderValidator.js';
-import { Controller, Delete, Get, Patch, Post, } from 'express-controller-decorator';
+import { Controller, Delete, Get, Post, Res, Req, } from '@decorators/express';
 import { CalenderService } from './Services/CalenderService.js';
-import { ApiResponse, Asserts, Context, UnauthorizedError } from '../core/index.js';
+import { Asserts } from '../core/index.js';
+import { getErrorData } from '../Core/Response/helpers.js';
 let CalenderController = class CalenderController {
     calenderService;
     calenderValidator;
@@ -18,95 +22,72 @@ let CalenderController = class CalenderController {
         this.calenderService = new CalenderService();
         this.calenderValidator = new CalenderValidator();
     }
-    async createCalenderEvent(context) {
+    async createCalenderEvent(req, res) {
+        // @ts-ignore
+        const context = request.context;
         try {
             Asserts.isAuthenticated(context);
             this.calenderValidator.validateEventCreation(context.body);
             await this.calenderService.create(context.body, context.credentials.username);
-            return new ApiResponse(null);
+            res.status(201).send({ data: null });
         }
         catch (error) {
-            return new ApiResponse(error);
+            const { status, message } = getErrorData(error);
+            res.status(status).send({ error: message });
         }
     }
-    async getCalenderEvents(context) {
+    async getCalenderEvents(req, res) {
+        // @ts-ignore
+        const context = req.context;
         try {
             Asserts.isAuthenticated(context);
             const pagination = this.calenderValidator.validatePagination(context.query);
             const events = await this.calenderService.get(context.credentials.username, pagination);
             const meta = await this.calenderService.getLastRequestMeta();
-            return new ApiResponse({ data: events, meta });
+            res.status(200).send({ data: events, meta });
         }
         catch (error) {
-            return new ApiResponse(error);
+            const { status, message } = getErrorData(error);
+            res.status(status).send({ error: message });
         }
     }
-    async getCalenderEvent(context) {
-        try {
-            Asserts.isAuthenticated(context);
-            this.calenderValidator.validateId(context.params.id);
-            const event = await this.calenderService.getOne(context.params.id, context.credentials.username);
-            if (event?.username !== context.credentials.username) {
-                throw new UnauthorizedError();
-            }
-            return new ApiResponse({ data: event });
-        }
-        catch (error) {
-            return new ApiResponse(error);
-        }
-    }
-    async updateCalenderEvent(context) {
-        try {
-            Asserts.isAuthenticated(context);
-            this.calenderValidator.validateId(context.params.id);
-            this.calenderValidator.validateEventCreation(context.body);
-            await this.calenderService.update(context.params.id, context.body, context.credentials.username);
-            return new ApiResponse(null);
-        }
-        catch (error) {
-            return new ApiResponse(error);
-        }
-    }
-    async deleteCalenderEvent(context) {
+    async deleteCalenderEvent(req, res) {
+        // @ts-ignore
+        const context = req.context;
         try {
             Asserts.isAuthenticated(context);
             this.calenderValidator.validateId(context.params.id);
             await this.calenderService.delete(context.params.id, context.credentials.username);
-            return new ApiResponse(null);
+            res.status(200).send({ data: null });
         }
         catch (error) {
-            return new ApiResponse(error);
+            const { status, message } = getErrorData(error);
+            res.status(status).send({ error: message });
         }
     }
 };
 __decorate([
-    Post(),
+    Post('/'),
+    __param(0, Req()),
+    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Context]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], CalenderController.prototype, "createCalenderEvent", null);
 __decorate([
-    Get(),
+    Get('/'),
+    __param(0, Req()),
+    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Context]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], CalenderController.prototype, "getCalenderEvents", null);
 __decorate([
-    Get('/:id'),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Context]),
-    __metadata("design:returntype", Promise)
-], CalenderController.prototype, "getCalenderEvent", null);
-__decorate([
-    Patch('/:id'),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Context]),
-    __metadata("design:returntype", Promise)
-], CalenderController.prototype, "updateCalenderEvent", null);
-__decorate([
     Delete('/:id'),
+    __param(0, Req()),
+    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Context]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], CalenderController.prototype, "deleteCalenderEvent", null);
 CalenderController = __decorate([

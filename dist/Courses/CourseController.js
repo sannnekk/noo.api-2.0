@@ -7,10 +7,14 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Controller, Delete, Get, Patch, Post, } from 'express-controller-decorator';
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { Controller, Delete, Get, Patch, Post, Req, Res, } from '@decorators/express';
 import { CourseService } from './Services/CourseService.js';
-import { Asserts, Context, ApiResponse } from '../core/index.js';
+import { Asserts } from '../core/index.js';
 import { CourseValidator } from './CourseValidator.js';
+import { getErrorData } from '../Core/Response/helpers.js';
 let CourseController = class CourseController {
     courseService;
     courseValidator;
@@ -18,66 +22,83 @@ let CourseController = class CourseController {
         this.courseService = new CourseService();
         this.courseValidator = new CourseValidator();
     }
-    async get(context) {
+    async get(req, res) {
+        // @ts-ignore
+        const context = req.context;
         try {
             Asserts.isAuthenticated(context);
             const pagination = this.courseValidator.validatePagination(context.query);
             const courses = await this.courseService.get(pagination, context.credentials.userId, context.credentials.role);
             const meta = await this.courseService.getLastRequestMeta();
-            return new ApiResponse({ data: courses, meta });
+            res.status(200).send({ data: courses, meta });
         }
         catch (error) {
-            return new ApiResponse(error);
+            const { status, message } = getErrorData(error);
+            res.status(status).send({ error: message });
         }
     }
-    async getBySlug(context) {
+    async getBySlug(req, res) {
+        // @ts-ignore
+        const context = req.context;
         try {
             this.courseValidator.validateSlug(context.params.slug);
             Asserts.isAuthenticated(context);
             const course = await this.courseService.getBySlug(context.params.slug);
-            return new ApiResponse({ data: course });
+            res.status(200).send({ data: course });
         }
         catch (error) {
-            return new ApiResponse(error);
+            const { status, message } = getErrorData(error);
+            res.status(status).send({ error: message });
         }
     }
-    async getAssignedWork(context) {
+    async getAssignedWork(req, res) {
+        // @ts-ignore
+        const context = req.context;
         try {
             this.courseValidator.validateSlug(context.params.slug);
             Asserts.isAuthenticated(context);
             Asserts.student(context);
             const assignedWork = await this.courseService.getAssignedWorkToMaterial(context.params.slug, context.credentials.userId);
-            return new ApiResponse({ data: assignedWork });
+            res.status(200).send({ data: assignedWork });
         }
         catch (error) {
-            return new ApiResponse(error);
+            const { status, message } = getErrorData(error);
+            res.status(status).send({ error: message });
         }
     }
-    async create(context) {
+    async create(req, res) {
+        // @ts-ignore
+        const context = req.context;
         try {
             this.courseValidator.validateCreation(context.body);
             Asserts.isAuthenticated(context);
             Asserts.teacher(context);
             await this.courseService.create(context.body, context.credentials.userId);
-            return new ApiResponse(null);
+            res.status(201).send({ data: null });
         }
         catch (error) {
-            return new ApiResponse(error);
+            const { status, message } = getErrorData(error);
+            res.status(status).send({ error: message });
         }
     }
-    async update(context) {
+    async update(req, res) {
+        // @ts-ignore
+        const context = req.context;
         try {
             this.courseValidator.validateUpdate(context.body);
             Asserts.isAuthenticated(context);
             Asserts.teacher(context);
             await this.courseService.update(context.body);
-            return new ApiResponse(null);
+            res.status(201).send({ data: null });
         }
         catch (error) {
-            return new ApiResponse(error);
+            const { status, message } = getErrorData(error);
+            res.status(status).send({ error: message });
         }
     }
-    async assignWorkToMaterial(context) {
+    async assignWorkToMaterial(req, res) {
+        // @ts-ignore
+        const context = req.context;
         try {
             Asserts.isAuthenticated(context);
             Asserts.teacher(context);
@@ -85,102 +106,130 @@ let CourseController = class CourseController {
             this.courseValidator.validateId(context.params.workId);
             this.courseValidator.validateAssignWork(context.body);
             await this.courseService.assignWorkToMaterial(context.params.materialSlug, context.params.workId, context.body.solveDeadline, context.body.checkDeadline);
-            return new ApiResponse(null);
+            res.status(201).send({ data: null });
         }
         catch (error) {
-            return new ApiResponse(error);
+            const { status, message } = getErrorData(error);
+            res.status(status).send({ error: message });
         }
     }
-    async assignMeWorks(context) {
+    async assignMeWorks(req, res) {
+        // @ts-ignore
+        const context = req.context;
         try {
             Asserts.isAuthenticated(context);
             Asserts.student(context);
             this.courseValidator.validateSlug(context.params.courseSlug);
             await this.courseService.assignMeWorks(context.params.courseSlug, context.credentials.userId);
-            return new ApiResponse(null);
+            res.status(201).send({ data: null });
         }
         catch (error) {
-            return new ApiResponse(error);
+            const { status, message } = getErrorData(error);
+            res.status(status).send({ error: message });
         }
     }
-    async assignStudents(context) {
+    async assignStudents(req, res) {
+        // @ts-ignore
+        const context = req.context;
         try {
             Asserts.isAuthenticated(context);
             Asserts.teacher(context);
             this.courseValidator.validateSlug(context.params.courseSlug);
             this.courseValidator.validateStudentIds(context.body);
             await this.courseService.assignStudents(context.params.courseSlug, context.body.studentIds);
-            return new ApiResponse(null);
+            res.status(201).send({ data: null });
         }
         catch (error) {
-            return new ApiResponse(error);
+            const { status, message } = getErrorData(error);
+            res.status(status).send({ error: message });
         }
     }
-    async delete(context) {
+    async delete(req, res) {
+        // @ts-ignore
+        const context = req.context;
         try {
             this.courseValidator.validateId(context.params.id);
             Asserts.isAuthenticated(context);
             Asserts.teacher(context);
             await this.courseService.delete(context.params.id);
-            return new ApiResponse(null);
+            res.status(200).send({ data: null });
         }
         catch (error) {
-            return new ApiResponse(error);
+            const { status, message } = getErrorData(error);
+            res.status(status).send({ error: message });
         }
     }
 };
 __decorate([
-    Get(),
+    Get('/'),
+    __param(0, Req()),
+    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Context]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "get", null);
 __decorate([
     Get('/:slug'),
+    __param(0, Req()),
+    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Context]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "getBySlug", null);
 __decorate([
     Get('/material/:slug/assigned-work'),
+    __param(0, Req()),
+    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Context]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "getAssignedWork", null);
 __decorate([
-    Post(),
+    Post('/'),
+    __param(0, Req()),
+    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Context]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "create", null);
 __decorate([
     Patch('/:id'),
+    __param(0, Req()),
+    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Context]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "update", null);
 __decorate([
     Patch('/:materialSlug/assign-work/:workId'),
+    __param(0, Req()),
+    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Context]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "assignWorkToMaterial", null);
 __decorate([
     Patch('/:courseSlug/assign-me-works'),
+    __param(0, Req()),
+    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Context]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "assignMeWorks", null);
 __decorate([
     Patch('/:courseSlug/assign-students'),
+    __param(0, Req()),
+    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Context]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "assignStudents", null);
 __decorate([
     Delete('/:id'),
+    __param(0, Req()),
+    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Context]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "delete", null);
 CourseController = __decorate([

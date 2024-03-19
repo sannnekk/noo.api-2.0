@@ -1,23 +1,29 @@
 import express from 'express';
 import cors from 'cors';
 import 'reflect-metadata';
-import { injectControllers, setContextClass, } from 'express-controller-decorator';
-import { Context, CoreDataSource, MediaMiddleware } from './core/index.js';
+import { CoreDataSource, MediaMiddleware, ContextMiddleware, } from './core/index.js';
 // import modules
-import './Users/UserController.js';
-import './Courses/CourseController.js';
-import './Works/WorkController.js';
-import './AssignedWorks/AssignedWorkController.js';
-import './Media/MediaController.js';
-import './CRM/CRMController.js';
-import './Calender/CalenderController.js';
+import { UserController } from './Users/UserController.js';
+import { CourseController } from './Courses/CourseController.js';
+import { WorkController } from './Works/WorkController.js';
+import { AssignedWorkController } from './AssignedWorks/AssignedWorkController.js';
+import { MediaController } from './Media/MediaController.js';
+import { CalenderController } from './Calender/CalenderController.js';
+import { attachControllers } from '@decorators/express';
 await CoreDataSource.initialize();
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 app.use(MediaMiddleware);
-setContextClass(Context);
-injectControllers(app);
+app.use(ContextMiddleware);
+attachControllers(app, [
+    UserController,
+    CourseController,
+    WorkController,
+    AssignedWorkController,
+    MediaController,
+    CalenderController,
+]);
 app.listen(process.env.APP_PORT, () => console.log(`Server is running on port ${process.env.APP_PORT}`));
 export default app;

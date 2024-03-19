@@ -1,7 +1,8 @@
-import { Controller, Post } from 'express-controller-decorator'
+import { Controller, Post, Req, Res } from '@decorators/express'
 import { DealsService } from './Services/DealsService'
-import { ApiResponse, Context, log } from '@core'
+import { Context, log } from '@core'
 import CrmAsserts from './Security/CrmAsserts'
+import { Request, Response } from 'express'
 
 @Controller('/crm')
 export class CRMController {
@@ -12,22 +13,31 @@ export class CRMController {
 	}
 
 	@Post('/deal/create')
-	public async onDealCreation(context: Context): Promise<ApiResponse> {
+	public async onDealCreation(
+		@Req() req: Request,
+		@Res() res: Response
+	) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			CrmAsserts.hasSecret(context)
 		} catch (error: any) {
 		} finally {
-			return new ApiResponse(null)
+			res.status(201).send({ data: null })
 		}
 	}
 
 	@Post('/deal/cancel')
-	public async onDealrefund(context: Context): Promise<ApiResponse> {
+	public async onDealrefund(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
 		try {
 			CrmAsserts.hasSecret(context)
 		} catch (error: any) {
 		} finally {
-			return new ApiResponse(null)
+			res.status(201).send({ data: null })
 		}
 	}
 }
