@@ -4,7 +4,7 @@ RUN mkdir noo-cdn
 RUN mkdir noo-cdn/uploads
 
 # Add package file
-COPY package.json ./
+COPY package*.json ./
 
 # Install deps
 RUN npm i --legacy-peer-deps
@@ -19,4 +19,4 @@ COPY /dist /dist
 EXPOSE 465
 EXPOSE 3000
 
-CMD ["node", "dist/index.cjs"]
+CMD ["node", "dist/main.js"]
