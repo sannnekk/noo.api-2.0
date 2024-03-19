@@ -24,7 +24,7 @@ let CalenderController = class CalenderController {
     }
     async createCalenderEvent(req, res) {
         // @ts-ignore
-        const context = request.context;
+        const context = req.context;
         try {
             Asserts.isAuthenticated(context);
             this.calenderValidator.validateEventCreation(context.body);
@@ -54,6 +54,7 @@ let CalenderController = class CalenderController {
     async deleteCalenderEvent(req, res) {
         // @ts-ignore
         const context = req.context;
+        context.setParams(req.params);
         try {
             Asserts.isAuthenticated(context);
             this.calenderValidator.validateId(context.params.id);

@@ -41,6 +41,7 @@ let WorkController = class WorkController {
     async getWorkBySlug(req, res) {
         // @ts-ignore
         const context = req.context;
+        context.setParams(req.params);
         try {
             Asserts.isAuthenticated(context);
             this.workValidator.validateSlug(context.params.slug);
@@ -70,6 +71,7 @@ let WorkController = class WorkController {
     async copyWork(req, res) {
         // @ts-ignore
         const context = req.context;
+        context.setParams(req.params);
         try {
             Asserts.isAuthenticated(context);
             Asserts.teacher(context);
@@ -85,6 +87,7 @@ let WorkController = class WorkController {
     async updateWork(req, res) {
         // @ts-ignore
         const context = req.context;
+        context.setParams(req.params);
         try {
             Asserts.isAuthenticated(context);
             Asserts.teacher(context);
@@ -101,6 +104,7 @@ let WorkController = class WorkController {
     async deleteWork(req, res) {
         // @ts-ignore
         const context = req.context;
+        context.setParams(req.params);
         try {
             Asserts.isAuthenticated(context);
             Asserts.teacher(context);

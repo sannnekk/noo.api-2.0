@@ -105,6 +105,7 @@ let UserController = class UserController {
     async getByUsername(req, res) {
         // @ts-ignore
         const context = req.context;
+        context.setParams(req.params);
         try {
             Asserts.isAuthenticated(context);
             this.userValidator.validateSlug(context.params.username);
@@ -119,6 +120,7 @@ let UserController = class UserController {
     async verifyManual(req, res) {
         // @ts-ignore
         const context = req.context;
+        context.setParams(req.params);
         try {
             Asserts.isAuthenticated(context);
             Asserts.teacherOrAdmin(context);
@@ -198,6 +200,7 @@ let UserController = class UserController {
     async update(req, res) {
         // @ts-ignore
         const context = req.context;
+        context.setParams(req.params);
         try {
             Asserts.isAuthenticated(context);
             this.userValidator.validateId(context.params.id);
@@ -216,6 +219,7 @@ let UserController = class UserController {
     async assignMentor(req, res) {
         // @ts-ignore
         const context = req.context;
+        context.setParams(req.params);
         try {
             Asserts.notStudent(context);
             this.userValidator.validateId(context.params.studentId);
@@ -231,6 +235,7 @@ let UserController = class UserController {
     async delete(req, res) {
         // @ts-ignore
         const context = req.context;
+        context.setParams(req.params);
         try {
             Asserts.isAuthenticated(context);
             this.userValidator.validateId(context.params.id);

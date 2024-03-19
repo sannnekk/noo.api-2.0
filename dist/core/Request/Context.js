@@ -1,8 +1,8 @@
 import { parseHeader } from '../Security/jwt.js';
 import { PermissionResolver } from '../Security/permissions.js';
 export class Context {
-    body;
     params;
+    body;
     credentials;
     permissionResolver;
     query;
@@ -30,6 +30,9 @@ export class Context {
     }
     isAuthenticated() {
         return !!this.credentials;
+    }
+    setParams(params) {
+        this.params = params;
     }
     parseBody(body) {
         return JSON.parse(JSON.stringify(body), (_, value) => {

@@ -40,6 +40,7 @@ let CourseController = class CourseController {
     async getBySlug(req, res) {
         // @ts-ignore
         const context = req.context;
+        context.setParams(req.params);
         try {
             this.courseValidator.validateSlug(context.params.slug);
             Asserts.isAuthenticated(context);
@@ -54,6 +55,7 @@ let CourseController = class CourseController {
     async getAssignedWork(req, res) {
         // @ts-ignore
         const context = req.context;
+        context.setParams(req.params);
         try {
             this.courseValidator.validateSlug(context.params.slug);
             Asserts.isAuthenticated(context);
@@ -84,6 +86,7 @@ let CourseController = class CourseController {
     async update(req, res) {
         // @ts-ignore
         const context = req.context;
+        context.setParams(req.params);
         try {
             this.courseValidator.validateUpdate(context.body);
             Asserts.isAuthenticated(context);
@@ -99,6 +102,7 @@ let CourseController = class CourseController {
     async assignWorkToMaterial(req, res) {
         // @ts-ignore
         const context = req.context;
+        context.setParams(req.params);
         try {
             Asserts.isAuthenticated(context);
             Asserts.teacher(context);
@@ -116,6 +120,7 @@ let CourseController = class CourseController {
     async assignMeWorks(req, res) {
         // @ts-ignore
         const context = req.context;
+        context.setParams(req.params);
         try {
             Asserts.isAuthenticated(context);
             Asserts.student(context);
@@ -131,6 +136,7 @@ let CourseController = class CourseController {
     async assignStudents(req, res) {
         // @ts-ignore
         const context = req.context;
+        context.setParams(req.params);
         try {
             Asserts.isAuthenticated(context);
             Asserts.teacher(context);
@@ -147,6 +153,7 @@ let CourseController = class CourseController {
     async delete(req, res) {
         // @ts-ignore
         const context = req.context;
+        context.setParams(req.params);
         try {
             this.courseValidator.validateId(context.params.id);
             Asserts.isAuthenticated(context);

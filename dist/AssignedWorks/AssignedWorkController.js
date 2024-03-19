@@ -40,6 +40,7 @@ let AssignedWorkController = class AssignedWorkController {
     async getOne(req, res) {
         // @ts-ignore
         const context = req.context;
+        context.setParams(req.params);
         try {
             Asserts.isAuthenticated(context);
             this.assignedWorkValidator.validateId(context.params.id);
@@ -78,6 +79,7 @@ let AssignedWorkController = class AssignedWorkController {
     async solve(req, res) {
         // @ts-ignore
         const context = req.context;
+        context.setParams(req.params);
         try {
             Asserts.isAuthenticated(context);
             Asserts.student(context);
@@ -94,6 +96,7 @@ let AssignedWorkController = class AssignedWorkController {
     async check(req, res) {
         // @ts-ignore
         const context = req.context;
+        context.setParams(req.params);
         try {
             Asserts.isAuthenticated(context);
             Asserts.mentor(context);
@@ -110,6 +113,7 @@ let AssignedWorkController = class AssignedWorkController {
     async save(req, res) {
         // @ts-ignore
         const context = req.context;
+        context.setParams(req.params);
         try {
             Asserts.isAuthenticated(context);
             Asserts.mentorOrStudent(context);
@@ -126,6 +130,7 @@ let AssignedWorkController = class AssignedWorkController {
     async archive(req, res) {
         // @ts-ignore
         const context = req.context;
+        context.setParams(req.params);
         try {
             Asserts.isAuthenticated(context);
             Asserts.mentor(context);
@@ -141,6 +146,7 @@ let AssignedWorkController = class AssignedWorkController {
     async transfer(req, res) {
         // @ts-ignore
         const context = req.context;
+        context.setParams(req.params);
         try {
             Asserts.isAuthenticated(context);
             Asserts.mentor(context);
@@ -157,6 +163,7 @@ let AssignedWorkController = class AssignedWorkController {
     async shiftDeadline(req, res) {
         // @ts-ignore
         const context = req.context;
+        context.setParams(req.params);
         try {
             Asserts.isAuthenticated(context);
             Asserts.mentorOrStudent(context);
@@ -172,6 +179,7 @@ let AssignedWorkController = class AssignedWorkController {
     async delete(req, res) {
         // @ts-ignore
         const context = req.context;
+        context.setParams(req.params);
         try {
             Asserts.isAuthenticated(context);
             Asserts.mentor(context);
