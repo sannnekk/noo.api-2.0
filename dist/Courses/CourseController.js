@@ -91,6 +91,18 @@ let CourseController = class CourseController {
             return new ApiResponse(error);
         }
     }
+    async assignMeWorks(context) {
+        try {
+            Asserts.isAuthenticated(context);
+            Asserts.student(context);
+            this.courseValidator.validateSlug(context.params.courseSlug);
+            await this.courseService.assignMeWorks(context.params.courseSlug, context.credentials.userId);
+            return new ApiResponse(null);
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
     async assignStudents(context) {
         try {
             Asserts.isAuthenticated(context);
@@ -153,6 +165,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "assignWorkToMaterial", null);
+__decorate([
+    Patch('/:courseSlug/assign-me-works'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "assignMeWorks", null);
 __decorate([
     Patch('/:courseSlug/assign-students'),
     __metadata("design:type", Function),

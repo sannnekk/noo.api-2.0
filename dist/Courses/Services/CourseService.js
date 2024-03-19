@@ -63,6 +63,18 @@ export class CourseService extends Service {
         const newCourse = new CourseModel({ ...foundCourse, ...course });
         await this.courseRepository.update(newCourse);
     }
+    async assignMeWorks(courseSlug, userId) {
+        const course = await this.courseRepository.findOne({
+            slug: courseSlug,
+        }, ['chapters.materials']);
+        if (!course) {
+            throw new NotFoundError('Курс не найден. Возможно, он был удален.');
+        }
+        const materials = (course.chapters || [])
+            .flatMap((chapter) => chapter.materials)
+            .filter(Boolean);
+        await Promise.all(materials.map((material) => this.assignWorkToStudent(userId, material)));
+    }
     async assignStudents(courseSlug, studentIds) {
         const course = await this.courseRepository.findOne({
             slug: courseSlug,

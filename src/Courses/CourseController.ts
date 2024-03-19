@@ -133,6 +133,24 @@ export class CourseController {
 		}
 	}
 
+	@Patch('/:courseSlug/assign-me-works')
+	public async assignMeWorks(context: Context): Promise<ApiResponse> {
+		try {
+			Asserts.isAuthenticated(context)
+			Asserts.student(context)
+			this.courseValidator.validateSlug(context.params.courseSlug)
+
+			await this.courseService.assignMeWorks(
+				context.params.courseSlug,
+				context.credentials.userId
+			)
+
+			return new ApiResponse(null)
+		} catch (error: any) {
+			return new ApiResponse(error)
+		}
+	}
+
 	@Patch('/:courseSlug/assign-students')
 	public async assignStudents(context: Context): Promise<ApiResponse> {
 		try {

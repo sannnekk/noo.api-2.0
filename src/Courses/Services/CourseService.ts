@@ -118,6 +118,34 @@ export class CourseService extends Service<Course> {
 		await this.courseRepository.update(newCourse)
 	}
 
+	public async assignMeWorks(
+		courseSlug: Course['slug'],
+		userId: User['id']
+	) {
+		const course = await this.courseRepository.findOne(
+			{
+				slug: courseSlug,
+			},
+			['chapters.materials' as any]
+		)
+
+		if (!course) {
+			throw new NotFoundError(
+				'Курс не найден. Возможно, он был удален.'
+			)
+		}
+
+		const materials = (course.chapters || [])
+			.flatMap((chapter) => chapter.materials)
+			.filter(Boolean) as CourseMaterial[]
+
+		await Promise.all(
+			materials.map((material) =>
+				this.assignWorkToStudent(userId, material)
+			)
+		)
+	}
+
 	public async assignStudents(
 		courseSlug: Course['slug'],
 		studentIds: User['id'][]
