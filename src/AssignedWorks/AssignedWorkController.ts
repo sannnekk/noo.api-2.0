@@ -9,9 +9,8 @@ import {
 } from '@decorators/express'
 import { AssignedWorkValidator } from './AssignedWorkValidator'
 import { AssignedWorkService } from './Services/AssignedWorkService'
-import { Asserts, Context } from '@core'
+import { Asserts, Context, getErrorData } from '@core'
 import { Request, Response } from 'express'
-import { getErrorData } from '@modules/Core/Response/helpers'
 
 @Controller('/assigned-work')
 export class AssignedWorkController {

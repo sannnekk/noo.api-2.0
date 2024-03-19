@@ -1,6 +1,6 @@
 import { WorkService } from './Services/WorkService'
 import { WorkValidator } from './WorkValidator'
-import { Asserts, Context } from '@core'
+import { Asserts, Context, getErrorData } from '@core'
 import { Request, Response } from 'express'
 import {
 	Req,
@@ -11,7 +11,6 @@ import {
 	Patch,
 	Post,
 } from '@decorators/express'
-import { getErrorData } from '@modules/Core/Response/helpers'
 
 @Controller('/work')
 export class WorkController {

@@ -1,8 +1,7 @@
-import { Controller, Delete, Post, Req, Res } from '@decorators/express'
+import { Controller, Post, Req, Res } from '@decorators/express'
 import { MediaService } from './Services/MediaService'
-import { Asserts, Context } from '@core'
+import { Asserts, Context, getErrorData } from '@core'
 import { Request, Response } from 'express'
-import { getErrorData } from '@modules/Core/Response/helpers'
 
 @Controller('/media')
 export class MediaController {

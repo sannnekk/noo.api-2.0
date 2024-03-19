@@ -1,7 +1,7 @@
 import { Context } from '@core'
 import { UserService } from './Services/UserService'
 import { UserValidator } from './UserValidator'
-import { Asserts } from '@core'
+import { Asserts, getErrorData } from '@core'
 import {
 	Req,
 	Res,
@@ -12,7 +12,6 @@ import {
 	Post,
 } from '@decorators/express'
 import { Request, Response } from 'express'
-import { getErrorData } from '@modules/Core/Response/helpers'
 
 @Controller('/user')
 export class UserController {

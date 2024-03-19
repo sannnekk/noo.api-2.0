@@ -22,6 +22,9 @@ export { MediaMiddleware } from './Request/MediaMiddleware'
 export { ContextMiddleware } from './Request/ContextMiddleware'
 export { ErrorConverter } from './Request/ValidatorDecorator'
 
+// Response
+export { getErrorData } from './Response/helpers'
+
 // Email
 export { EmailService } from './Email/EmailService'
 

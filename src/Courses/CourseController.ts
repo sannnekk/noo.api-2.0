@@ -9,9 +9,8 @@ import {
 } from '@decorators/express'
 import { Request, Response } from 'express'
 import { CourseService } from './Services/CourseService'
-import { Asserts, Context } from '@core'
+import { Asserts, Context, getErrorData } from '@core'
 import { CourseValidator } from './CourseValidator'
-import { getErrorData } from '@modules/Core/Response/helpers'
 
 @Controller('/course')
 export class CourseController {

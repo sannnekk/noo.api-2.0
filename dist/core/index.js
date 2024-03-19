@@ -18,6 +18,8 @@ export { Validator } from './Request/Validator.js';
 export { MediaMiddleware } from './Request/MediaMiddleware.js';
 export { ContextMiddleware } from './Request/ContextMiddleware.js';
 export { ErrorConverter } from './Request/ValidatorDecorator.js';
+// Response
+export { getErrorData } from './Response/helpers.js';
 // Email
 export { EmailService } from './Email/EmailService.js';
 // Decorators
