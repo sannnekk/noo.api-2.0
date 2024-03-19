@@ -126,7 +126,7 @@ export class CourseService extends Service<Course> {
 			{
 				slug: courseSlug,
 			},
-			['chapters.materials.work' as any]
+			['chapters.materials' as any]
 		)
 
 		if (!course) {
@@ -198,12 +198,12 @@ export class CourseService extends Service<Course> {
 		studentId: User['id'],
 		material: CourseMaterial
 	) {
-		if (!material.work) return
+		if (!material.workId) return
 
 		try {
 			await this.assignedWorkService.createWork({
 				studentId,
-				workId: material.work.id,
+				workId: material.workId,
 				solveDeadlineAt: material.workSolveDeadline,
 				checkDeadlineAt: material.workCheckDeadline,
 			} as AssignedWork)

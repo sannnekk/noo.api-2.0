@@ -66,7 +66,7 @@ export class CourseService extends Service {
     async assignStudents(courseSlug, studentIds) {
         const course = await this.courseRepository.findOne({
             slug: courseSlug,
-        }, ['chapters.materials.work']);
+        }, ['chapters.materials']);
         if (!course) {
             throw new NotFoundError();
         }
@@ -100,12 +100,12 @@ export class CourseService extends Service {
         await Promise.all(studentIds.map((id) => this.assignWorkToStudent(id, material)));
     }
     async assignWorkToStudent(studentId, material) {
-        if (!material.work)
+        if (!material.workId)
             return;
         try {
             await this.assignedWorkService.createWork({
                 studentId,
-                workId: material.work.id,
+                workId: material.workId,
                 solveDeadlineAt: material.workSolveDeadline,
                 checkDeadlineAt: material.workCheckDeadline,
             });

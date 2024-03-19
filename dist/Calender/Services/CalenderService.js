@@ -10,21 +10,16 @@ export class CalenderService extends Service {
         await this.calenderEventRepository.create({ ...event, username });
     }
     async createFromWork(work) {
-        console.log('Creating events from work', work.work.name);
         if (work.solveDeadlineAt) {
-            console.log('Creating solve deadline event');
             await this.createSolveDeadlineEvent(work);
         }
         if (work.checkDeadlineAt) {
-            console.log('Creating check deadline event');
             await this.createCheckDeadlineEvent(work);
         }
         if (work.solvedAt) {
-            console.log('Creating work made event');
             await this.createWorkMadeEvent(work);
         }
         if (work.checkedAt) {
-            console.log('Creating work checked event');
             await this.createWorkCheckedEvent(work);
         }
     }
@@ -82,7 +77,7 @@ export class CalenderService extends Service {
         await this.calenderEventRepository.delete(id);
     }
     async createSolveDeadlineEvent(work) {
-        const a = await this.calenderEventRepository.create({
+        await this.calenderEventRepository.create({
             title: 'Дедлайн по работе',
             description: `Работа: ${work.work.name}`,
             date: work.solveDeadlineAt,
@@ -92,7 +87,6 @@ export class CalenderService extends Service {
             username: work.student.username,
             assignedWork: work,
         });
-        console.log(a);
     }
     async createCheckDeadlineEvent(work) {
         await Promise.all((work.mentors || []).map((mentor) => {
