@@ -1,4 +1,4 @@
-FROM node:latest as base
+FROM node:20-alpine as base
 
 RUN mkdir noo-cdn
 RUN mkdir noo-cdn/uploads
@@ -19,4 +19,4 @@ COPY /dist /dist
 EXPOSE 465
 EXPOSE 3000
 
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/index.cjs"]
