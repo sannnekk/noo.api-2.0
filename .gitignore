@@ -3,3 +3,4 @@
 /k8n
 test.sh
 /.vscode
+*.heapsnapshot
