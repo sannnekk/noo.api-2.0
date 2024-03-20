@@ -40,13 +40,13 @@ export class Pagination {
         if (Array.isArray(conditions)) {
             return conditions;
         }
-        const allConditions = { ...(conditions || {}), ...this.filters };
+        const allConditions = { ...this.filters, ...(conditions || {}) };
         if (!this.search.length || !this.entries.length) {
             return allConditions;
         }
         return this.entries.map((entry) => ({
-            ...allConditions,
             ...this.getSearchCondition(entry, this.search),
+            ...allConditions,
         }));
     }
     getSearchCondition(entry, search) {

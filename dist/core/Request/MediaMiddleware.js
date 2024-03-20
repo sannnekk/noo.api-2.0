@@ -23,9 +23,6 @@ export const MediaMiddleware = multer({
         },
     }),
     fileFilter(req, file, callback) {
-        if (req.path !== '/media') {
-            return callback(new Error('File upload is not allowed here'));
-        }
         if (!file.originalname.match(/\.(jpg|jpeg|png|pdf)$/)) {
             return callback(new Error('Только изображения формата JPG/JPEG, PNG и PDF-файлы разрешены.'));
         }

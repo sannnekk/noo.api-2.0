@@ -6,16 +6,11 @@ export class Context {
 	public readonly body: unknown
 	public readonly credentials?: JWTPayload
 	public readonly query: Record<string, string | number | undefined>
-	public readonly files?: any[]
 
 	public constructor(req: express.Request) {
 		this.body = req.body
 		this.params = req.params as typeof this.params
 		this.query = req.query as typeof this.query
-
-		if (req.method === 'POST' && req.path === '/media') {
-			this.files = (req.files as typeof this.files) || []
-		}
 
 		const authHeader = req.headers.authorization
 

@@ -23,7 +23,7 @@ export class MediaController {
 			Asserts.isAuthenticated(context)
 
 			const links = await this.mediaService.upload(
-				context.files as Express.Multer.File[]
+				req.files as Express.Multer.File[]
 			)
 
 			res.status(201).send({ data: links })
