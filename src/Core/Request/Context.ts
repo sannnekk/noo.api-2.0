@@ -9,7 +9,7 @@ export class Context {
 	public readonly files?: any[]
 
 	public constructor(req: express.Request) {
-		this.body = this.parseBody(req.body)
+		this.body = req.body
 		this.params = req.params as typeof this.params
 		this.query = req.query as typeof this.query
 
@@ -43,15 +43,5 @@ export class Context {
 		params: Record<string, string | number | undefined>
 	): void {
 		this.params = params
-	}
-
-	private parseBody(body: object): object {
-		return JSON.parse(JSON.stringify(body), (_, value) => {
-			if (/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)) {
-				return new Date(value)
-			}
-
-			return value
-		})
 	}
 }

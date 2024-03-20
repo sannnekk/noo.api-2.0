@@ -14,8 +14,16 @@ import { attachControllers } from '@decorators/express';
 await CoreDataSource.initialize();
 const app = express();
 app.use(cors());
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '15mb' }));
+app.use(express.json({
+    limit: '50mb',
+    reviver: (_, value) => {
+        if (/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)) {
+            return new Date(value);
+        }
+        return value;
+    },
+}));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(ContextMiddleware);
 attachControllers(app, [
     UserController,

@@ -6,7 +6,7 @@ export class Context {
     query;
     files;
     constructor(req) {
-        this.body = this.parseBody(req.body);
+        this.body = req.body;
         this.params = req.params;
         this.query = req.query;
         if (req.method === 'POST' && req.path === '/media') {
@@ -30,13 +30,5 @@ export class Context {
     }
     setParams(params) {
         this.params = params;
-    }
-    parseBody(body) {
-        return JSON.parse(JSON.stringify(body), (_, value) => {
-            if (/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)) {
-                return new Date(value);
-            }
-            return value;
-        });
     }
 }
