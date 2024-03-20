@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 import * as ULID from '../../Core/Data/Ulid.js';
 import { Model } from '../../Core/Data/Model.js';
-import * as Transliteration from '../../Core/Utils/Transliteration.js';
+import * as Transliteration from '../../Core/Utils/transliteration.js';
 import { Column, Entity, OneToMany, RelationId, } from 'typeorm';
 import { CourseMaterialModel } from '../../Courses/Data/Relations/CourseMaterialModel.js';
 import { WorkTaskModel } from './Relations/WorkTaskModel.js';

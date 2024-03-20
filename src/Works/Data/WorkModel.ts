@@ -1,6 +1,6 @@
 import * as ULID from '@modules/Core/Data/Ulid'
 import { Model } from '@modules/Core/Data/Model'
-import * as Transliteration from '@modules/Core/Utils/Transliteration'
+import * as Transliteration from '@modules/Core/Utils/transliteration'
 import { Work } from './Work'
 import { CourseMaterial } from '@modules/Courses/Data/Relations/CourseMaterial'
 import { WorkTask } from './Relations/WorkTask'
