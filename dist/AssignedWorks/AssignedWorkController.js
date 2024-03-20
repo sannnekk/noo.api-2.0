@@ -168,7 +168,7 @@ let AssignedWorkController = class AssignedWorkController {
             Asserts.isAuthenticated(context);
             Asserts.mentorOrStudent(context);
             this.assignedWorkValidator.validateId(context.params.id);
-            await this.assignedWorkService.shiftDeadline(context.params.id, 3, context.credentials.role, context.credentials.userId);
+            await this.assignedWorkService.shiftDeadline(context.params.id, 1, context.credentials.role, context.credentials.userId);
             res.status(201).send({ data: null });
         }
         catch (error) {

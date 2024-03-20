@@ -227,7 +227,7 @@ export class AssignedWorkController {
 
 			await this.assignedWorkService.shiftDeadline(
 				context.params.id,
-				3,
+				1,
 				context.credentials.role,
 				context.credentials.userId
 			)

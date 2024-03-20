@@ -22,7 +22,7 @@ export class TaskService {
 				content: {
 					ops: [
 						{
-							insert: 'Automated check',
+							insert: 'Проверено автоматически',
 						},
 					],
 				},

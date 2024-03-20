@@ -197,7 +197,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			{
 				id: work.id,
 			},
-			['work', 'work.tasks' as any, 'comments', 'answers']
+			['comments', 'answers']
 		)
 
 		if (!foundWork) {
@@ -240,7 +240,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			{
 				id: work.id,
 			},
-			['work', 'comments', 'answers']
+			['comments', 'answers']
 		)
 
 		if (!foundWork) {
@@ -278,7 +278,10 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			foundWork.checkStatus = 'in-progress'
 		}
 
-		await this.assignedWorkRepository.update(work)
+		foundWork.answers = work.answers
+		foundWork.comments = work.comments || []
+
+		await this.assignedWorkRepository.update(foundWork)
 	}
 
 	public async archiveWork(id: AssignedWork['id']) {
