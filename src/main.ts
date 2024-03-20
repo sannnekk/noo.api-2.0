@@ -3,6 +3,7 @@ import cors from 'cors'
 import 'reflect-metadata'
 import { CoreDataSource } from '@modules/Core/Data/DataSource'
 import { ContextMiddleware } from '@modules/Core/Request/ContextMiddleware'
+import { v4 as uuid } from 'uuid'
 
 // import modules
 import { UserController } from '@modules/Users/UserController'
@@ -15,10 +16,12 @@ import {
 	attachControllerInstances,
 	attachControllers,
 } from '@decorators/express'
+import { AccessLogMiddleware } from './Core/Request/AccessLogMiddleware'
 
 await CoreDataSource.initialize()
 
 const app = express()
+const podId = uuid()
 
 app.use(cors())
 app.use(
@@ -35,6 +38,7 @@ app.use(
 )
 app.use(express.urlencoded({ extended: true, limit: '50mb' }))
 
+app.use(AccessLogMiddleware(podId))
 app.use(ContextMiddleware)
 
 attachControllerInstances(app, [

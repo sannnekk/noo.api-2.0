@@ -1,0 +1,13 @@
+import fs from 'fs';
+import rawBody from 'raw-body';
+export function AccessLogMiddleware(podId) {
+    return async function (req, res, next) {
+        const nowStr = new Date().toISOString();
+        const mem = Math.round(process.memoryUsage().heapUsed / 1024 / 1024);
+        const raw = await rawBody(req);
+        const bodySize = Math.round(Buffer.byteLength(raw) / 1024);
+        const str = `${nowStr} [${req.method}] ${res.statusCode} ${req.originalUrl} - Memory Usage: ${mem} MB, body size: ${bodySize} KB`;
+        await fs.appendFile(`./noo-cdn/uploads/access-log-${podId}.log`, str + '\n', () => { });
+        next();
+    };
+}

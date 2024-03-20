@@ -3,6 +3,7 @@ import cors from 'cors';
 import 'reflect-metadata';
 import { CoreDataSource } from './Core/Data/DataSource.js';
 import { ContextMiddleware } from './Core/Request/ContextMiddleware.js';
+import { v4 as uuid } from 'uuid';
 // import modules
 import { UserController } from './Users/UserController.js';
 import { CourseController } from './Courses/CourseController.js';
@@ -11,8 +12,10 @@ import { AssignedWorkController } from './AssignedWorks/AssignedWorkController.j
 import { MediaController } from './Media/MediaController.js';
 import { CalenderController } from './Calender/CalenderController.js';
 import { attachControllerInstances, } from '@decorators/express';
+import { AccessLogMiddleware } from './Core/Request/AccessLogMiddleware.js';
 await CoreDataSource.initialize();
 const app = express();
+const podId = uuid();
 app.use(cors());
 app.use(express.json({
     limit: '50mb',
@@ -24,6 +27,7 @@ app.use(express.json({
     },
 }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(AccessLogMiddleware(podId));
 app.use(ContextMiddleware);
 attachControllerInstances(app, [
     new UserController(),
