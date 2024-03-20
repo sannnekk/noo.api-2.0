@@ -1,4 +1,4 @@
-import { Model } from '@core'
+import { Model } from '@modules/Core/Data/Model'
 import { CourseRequest } from './CourseRequest'
 import { Column, Entity } from 'typeorm'
 

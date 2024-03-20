@@ -1,4 +1,5 @@
-import { NotFoundError, Service } from '../../core/index.js';
+import { Service } from '../../Core/Services/Service.js';
+import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
 import { CourseRequestModel } from '../Data/CourseRequestModel.js';
 import { CourseRequestRepository } from '../Data/CourseRequestRepository.js';
 export class DealsService extends Service {

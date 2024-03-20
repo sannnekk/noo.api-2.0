@@ -1,4 +1,4 @@
-import { Model } from '@core'
+import { Model } from '@modules/Core/Data/Model'
 import { CalenderEvent } from './CalenderEvent'
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm'
 import { AssignedWorkModel } from '@modules/AssignedWorks/Data/AssignedWorkModel'

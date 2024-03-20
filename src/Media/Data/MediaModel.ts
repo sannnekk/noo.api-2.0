@@ -1,7 +1,6 @@
-import { Course } from '@modules/Courses/Data/Course'
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm'
+import { Column, Entity, ManyToOne } from 'typeorm'
 import { Media } from './Media'
-import { Model } from '@core'
+import { Model } from '@modules/Core/Data/Model'
 import { CourseMaterialModel } from '@modules/Courses/Data/Relations/CourseMaterialModel'
 import { CourseModel } from '@modules/Courses/Data/CourseModel'
 

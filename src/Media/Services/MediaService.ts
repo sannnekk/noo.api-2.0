@@ -1,4 +1,4 @@
-import { NotFoundError } from '@core'
+import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
 import { MediaRepository } from '../Data/MediaRepository'
 import fs from 'fs'
 

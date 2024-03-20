@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model } from '../../core/index.js';
+import { Model } from '../../Core/Data/Model.js';
 import { Column, Entity } from 'typeorm';
 let CourseRequestModel = class CourseRequestModel extends Model {
     constructor(data) {

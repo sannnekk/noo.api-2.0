@@ -1,4 +1,6 @@
-import { NotFoundError, Pagination, Service } from '@core'
+import { Service } from '@modules/Core/Services/Service'
+import { Pagination } from '@modules/Core/Data/Pagination'
+import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
 import { WorkRepository } from '../Data/WorkRepository'
 import { Work } from '../Data/Work'
 import { WorkModel } from '../Data/WorkModel'

@@ -1,6 +1,9 @@
 import { Controller, Post, Req, Res } from '@decorators/express'
 import { MediaService } from './Services/MediaService'
-import { Asserts, Context, getErrorData } from '@core'
+import * as Asserts from '@modules/Core/Security/asserts'
+import { Context } from '@modules/Core/Request/Context'
+import { MediaMiddleware } from '@modules/Core/Request/MediaMiddleware'
+import { getErrorData } from '@modules/Core/Response/helpers'
 import { Request, Response } from 'express'
 
 @Controller('/media')
@@ -11,7 +14,7 @@ export class MediaController {
 		this.mediaService = new MediaService()
 	}
 
-	@Post('/')
+	@Post('/', [MediaMiddleware])
 	public async get(@Req() req: Request, @Res() res: Response) {
 		// @ts-ignore
 		const context = req.context as Context

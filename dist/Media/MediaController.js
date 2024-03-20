@@ -12,7 +12,9 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 import { Controller, Post, Req, Res } from '@decorators/express';
 import { MediaService } from './Services/MediaService.js';
-import { Asserts, getErrorData } from '../core/index.js';
+import * as Asserts from '../Core/Security/asserts.js';
+import { MediaMiddleware } from '../Core/Request/MediaMiddleware.js';
+import { getErrorData } from '../Core/Response/helpers.js';
 let MediaController = class MediaController {
     mediaService;
     constructor() {
@@ -33,7 +35,7 @@ let MediaController = class MediaController {
     }
 };
 __decorate([
-    Post('/'),
+    Post('/', [MediaMiddleware]),
     __param(0, Req()),
     __param(1, Res()),
     __metadata("design:type", Function),

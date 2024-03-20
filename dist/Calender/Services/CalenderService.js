@@ -1,4 +1,5 @@
-import { Service, UnauthorizedError } from '../../core/index.js';
+import { Service } from '../../Core/Services/Service.js';
+import { UnauthorizedError } from '../../Core/Errors/UnauthorizedError.js';
 import { CalenderEventRepository } from '../Data/CalenderEventRepository.js';
 export class CalenderService extends Service {
     calenderEventRepository;

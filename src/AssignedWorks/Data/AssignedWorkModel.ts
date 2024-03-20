@@ -1,4 +1,5 @@
-import { Model, ULID } from '@core'
+import { Model } from '@modules/Core/Data/Model'
+import * as ULID from '@modules/Core/Data/Ulid'
 import { AssignedWork } from './AssignedWork'
 import { User } from '@modules/Users/Data/User'
 import { Work } from '@modules/Works/Data/Work'

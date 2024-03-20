@@ -1,4 +1,6 @@
-import { DeltaContentType, Model, ULID } from '@core'
+import { DeltaContentType } from '@modules/Core/Data/DeltaContentType'
+import { Model } from '@modules/Core/Data/Model'
+import * as ULID from '@modules/Core/Data/Ulid'
 import { AssignedWorkComment } from './AssignedWorkComment'
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm'
 import { WorkTaskModel } from '@modules/Works/Data/Relations/WorkTaskModel'

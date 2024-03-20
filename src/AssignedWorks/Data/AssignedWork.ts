@@ -1,4 +1,4 @@
-import { type BaseModel } from '@core'
+import { type BaseModel } from '@modules/Core/Data/Model'
 import { User } from '@modules/Users/Data/User'
 import { Work } from '@modules/Works/Data/Work'
 import { AssignedWorkComment } from './Relations/AssignedWorkComment'

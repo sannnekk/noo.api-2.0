@@ -1,4 +1,5 @@
-import { DeltaContentType, ULID } from '@core'
+import * as ULID from '@modules/Core/Data/Ulid'
+import { DeltaContentType } from '@modules/Core/Data/DeltaContentType'
 import { CourseChapter } from './CourseChapter'
 import { Work } from '@modules/Works/Data/Work'
 import { Media } from '@modules/Media/Data/Media'

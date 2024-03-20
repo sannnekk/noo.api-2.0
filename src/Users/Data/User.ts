@@ -1,4 +1,6 @@
-import { UserRoleType, BaseModel, ULID } from '@core'
+import { UserRoleType } from '@modules/Core/Security/roles'
+import { BaseModel } from '@modules/Core/Data/Model'
+import * as ULID from '@modules/Core/Data/Ulid'
 import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
 import { Course } from '@modules/Courses/Data/Course'
 

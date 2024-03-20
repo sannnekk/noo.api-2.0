@@ -1,4 +1,4 @@
-import { BaseModel } from '@core'
+import { BaseModel } from '@modules/Core/Data/Model'
 import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
 import { User } from '@modules/Users/Data/User'
 

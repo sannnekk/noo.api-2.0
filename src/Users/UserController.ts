@@ -1,7 +1,8 @@
-import { Context } from '@core'
+import { Context } from '@modules/core/Request/Context'
 import { UserService } from './Services/UserService'
 import { UserValidator } from './UserValidator'
-import { Asserts, getErrorData } from '@core'
+import * as Asserts from '@modules/core/Security/asserts'
+import { getErrorData } from '@modules/core/Response/helpers'
 import {
 	Req,
 	Res,

@@ -1,10 +1,8 @@
 import { parseHeader } from '../Security/jwt.js';
-import { PermissionResolver } from '../Security/permissions.js';
 export class Context {
     params;
     body;
     credentials;
-    permissionResolver;
     query;
     files;
     constructor(req) {
@@ -26,7 +24,6 @@ export class Context {
             this.credentials = undefined;
             return;
         }
-        this.permissionResolver = new PermissionResolver(this.credentials.permissions);
     }
     isAuthenticated() {
         return !!this.credentials;

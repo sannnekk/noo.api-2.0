@@ -1,4 +1,5 @@
-import { ErrorConverter, Validator } from '@core'
+import { ErrorConverter } from '@modules/Core/Request/ValidatorDecorator'
+import { Validator } from '@modules/Core/Request/Validator'
 import { Work } from './Data/Work'
 import { z } from 'zod'
 

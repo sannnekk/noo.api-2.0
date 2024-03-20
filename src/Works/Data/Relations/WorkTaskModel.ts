@@ -1,4 +1,6 @@
-import { DeltaContentType, Model, Transliteration, ULID } from '@core'
+import { DeltaContentType } from '@modules/Core/Data/DeltaContentType'
+import { Model } from '@modules/Core/Data/Model'
+import * as ULID from '@modules/Core/Data/Ulid'
 import { WorkTask } from './WorkTask'
 import { Work } from '../Work'
 import {

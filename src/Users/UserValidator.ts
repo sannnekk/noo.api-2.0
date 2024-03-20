@@ -1,5 +1,7 @@
 import { z } from 'zod'
-import { ErrorConverter, UserRoles, Validator } from '@core'
+import { ErrorConverter } from '@modules/Core/Request/ValidatorDecorator'
+import { Validator } from '@modules/Core/Request/Validator'
+import { UserRoles } from '@modules/Core/Security/roles'
 import { User } from './Data/User'
 import { LoginCredentials } from './Data/LoginCredentials'
 import { ForgotPasswordCredentials } from './Data/ForgotPasswordCredentials'

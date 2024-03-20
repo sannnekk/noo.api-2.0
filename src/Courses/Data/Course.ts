@@ -1,4 +1,4 @@
-import { BaseModel } from '@core'
+import { BaseModel } from '@modules/Core/Data/Model'
 import { User } from '@modules/Users/Data/User'
 import { CourseChapter } from './Relations/CourseChapter'
 import { Media } from '@modules/Media/Data/Media'

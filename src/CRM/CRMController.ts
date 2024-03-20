@@ -1,6 +1,6 @@
 import { Controller, Post, Req, Res } from '@decorators/express'
 import { DealsService } from './Services/DealsService'
-import { Context, log } from '@core'
+import { Context } from '@modules/Core/Request/Context'
 import CrmAsserts from './Security/CrmAsserts'
 import { Request, Response } from 'express'
 

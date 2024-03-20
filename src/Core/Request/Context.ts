@@ -1,12 +1,10 @@
 import { JWTPayload, parseHeader } from '../Security/jwt'
-import { PermissionResolver } from '../Security/permissions'
 import express from 'express'
 
 export class Context {
 	public params: Record<string, string | number | undefined>
 	public readonly body: unknown
 	public readonly credentials?: JWTPayload
-	public readonly permissionResolver?: PermissionResolver
 	public readonly query: Record<string, string | number | undefined>
 	public readonly files?: any[]
 
@@ -35,10 +33,6 @@ export class Context {
 			this.credentials = undefined
 			return
 		}
-
-		this.permissionResolver = new PermissionResolver(
-			this.credentials.permissions
-		)
 	}
 
 	public isAuthenticated(): boolean {

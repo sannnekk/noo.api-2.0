@@ -1,4 +1,4 @@
-import { ULID } from '@core'
+import * as ULID from '@modules/Core/Data/Ulid'
 import { Course } from '../Course'
 import { CourseMaterial } from './CourseMaterial'
 

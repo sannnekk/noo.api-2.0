@@ -1,4 +1,12 @@
-import { NotFoundError, UnauthenticatedError, JWT, Hash, AlreadyExistError, UnknownError, Pagination, Service, EmailService, } from '../../core/index.js';
+import * as Hash from '../../Core/Security/hash.js';
+import * as JWT from '../../Core/Security/jwt.js';
+import { UnauthenticatedError } from '../../core/Errors/UnauthenticatedError.js';
+import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
+import { AlreadyExistError } from '../../Core/Errors/AlreadyExistError.js';
+import { UnknownError } from '../../Core/Errors/UnknownError.js';
+import { Pagination } from '../../Core/Data/Pagination.js';
+import { Service } from '../../Core/Services/Service.js';
+import { EmailService } from '../../Core/Email/EmailService.js';
 import { UserRepository } from '../Data/UserRepository.js';
 import { UserModel } from '../Data/UserModel.js';
 import { InvalidVerificationTokenError } from '../Errors/InvalidVerificationTokenError.js';

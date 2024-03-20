@@ -1,4 +1,7 @@
-import { NotFoundError, Pagination, Service, UnauthorizedError, } from '../../core/index.js';
+import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
+import { Pagination } from '../../Core/Data/Pagination.js';
+import { Service } from '../../Core/Services/Service.js';
+import { UnauthorizedError } from '../../Core/Errors/UnauthorizedError.js';
 import { AssignedWorkRepository } from '../Data/AssignedWorkRepository.js';
 import { AssignedWorkModel } from '../Data/AssignedWorkModel.js';
 import { WorkAlreadySolvedError } from '../Errors/WorkAlreadySolvedError.js';

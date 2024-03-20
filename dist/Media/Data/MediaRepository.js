@@ -1,4 +1,4 @@
-import { Repository } from '../../core/index.js';
+import { Repository } from '../../Core/Data/Repository.js';
 import { MediaModel } from './MediaModel.js';
 export class MediaRepository extends Repository {
     constructor() {

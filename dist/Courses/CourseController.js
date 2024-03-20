@@ -12,7 +12,8 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 import { Controller, Delete, Get, Patch, Post, Req, Res, } from '@decorators/express';
 import { CourseService } from './Services/CourseService.js';
-import { Asserts, getErrorData } from '../core/index.js';
+import * as Asserts from '../core/Security/asserts.js';
+import { getErrorData } from '../core/Response/helpers.js';
 import { CourseValidator } from './CourseValidator.js';
 let CourseController = class CourseController {
     courseService;

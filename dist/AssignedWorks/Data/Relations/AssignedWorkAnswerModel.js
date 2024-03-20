@@ -7,7 +7,8 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model, ULID } from '../../../core/index.js';
+import { Model } from '../../../Core/Data/Model.js';
+import * as ULID from '../../../Core/Data/Ulid.js';
 import { Column, Entity, ManyToOne, RelationId, } from 'typeorm';
 import { WorkTaskModel } from '../../../Works/Data/Relations/WorkTaskModel.js';
 import { AssignedWorkModel } from '../AssignedWorkModel.js';

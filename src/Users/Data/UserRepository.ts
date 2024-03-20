@@ -1,4 +1,4 @@
-import { Repository } from '@core'
+import { Repository } from '@modules/Core/Data/Repository'
 import { User } from './User'
 import { UserModel } from './UserModel'
 

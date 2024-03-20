@@ -1,9 +1,7 @@
-import {
-	NotFoundError,
-	Pagination,
-	Service,
-	UnauthorizedError,
-} from '@core'
+import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
+import { Pagination } from '@modules/Core/Data/Pagination'
+import { Service } from '@modules/Core/Services/Service'
+import { UnauthorizedError } from '@modules/Core/Errors/UnauthorizedError'
 import { AssignedWorkRepository } from '../Data/AssignedWorkRepository'
 import { AssignedWork } from '../Data/AssignedWork'
 import { AssignedWorkModel } from '../Data/AssignedWorkModel'

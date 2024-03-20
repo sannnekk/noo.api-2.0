@@ -1,6 +1,8 @@
 import { WorkService } from './Services/WorkService'
 import { WorkValidator } from './WorkValidator'
-import { Asserts, Context, getErrorData } from '@core'
+import * as Asserts from '@modules/Core/Security/asserts'
+import { getErrorData } from '@modules/Core/Response/helpers'
+import { Context } from '@modules/Core/Request/Context'
 import { Request, Response } from 'express'
 import {
 	Req,

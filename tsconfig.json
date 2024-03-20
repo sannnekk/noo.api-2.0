@@ -21,7 +21,6 @@
 		"baseUrl": "src",
 		"noImplicitAny": true,
 		"paths": {
-			"@core": ["core/index"],
 			"@modules/*": ["*"]
 		}
 	},

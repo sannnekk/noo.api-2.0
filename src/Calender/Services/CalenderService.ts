@@ -1,5 +1,7 @@
 import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
-import { Pagination, Service, UnauthorizedError } from '@core'
+import { Pagination } from '@modules/Core/Data/Pagination'
+import { Service } from '@modules/Core/Services/Service'
+import { UnauthorizedError } from '@modules/Core/Errors/UnauthorizedError'
 import { CalenderEvent } from '../Data/CalenderEvent'
 import { CalenderEventRepository } from '../Data/CalenderEventRepository'
 import { User } from '@modules/Users/Data/User'

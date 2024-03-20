@@ -1,4 +1,5 @@
-import { Context, UnauthorizedError } from '@core'
+import { Context } from '@modules/core/Request/context'
+import { UnauthorizedError } from '@modules/core/Errors/UnauthorizedError'
 import { InternalError } from '@modules/core/Errors/InternalError'
 
 function hasSecret(context: Context): void {

@@ -7,7 +7,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model, Transliteration, ULID } from '../../../core/index.js';
+import { Model } from '../../../Core/Data/Model.js';
+import * as Transliteration from '../../../Core/Utils/transliteration.js';
+import * as ULID from '../../../Core/Data/Ulid.js';
 import { Column, Entity, ManyToOne, OneToMany, RelationId, } from 'typeorm';
 import { CourseModel } from '../CourseModel.js';
 import { CourseMaterialModel } from './CourseMaterialModel.js';

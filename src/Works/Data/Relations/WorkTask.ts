@@ -1,4 +1,5 @@
-import { BaseModel, DeltaContentType } from '@core'
+import { BaseModel } from '@modules/Core/Data/Model'
+import { DeltaContentType } from '@modules/Core/Data/DeltaContentType'
 import { Work } from '../Work'
 import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
 import { AssignedWorkAnswer } from '@modules/AssignedWorks/Data/Relations/AssignedWorkAnswer'

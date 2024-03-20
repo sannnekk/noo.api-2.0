@@ -12,7 +12,8 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 import { WorkService } from './Services/WorkService.js';
 import { WorkValidator } from './WorkValidator.js';
-import { Asserts, getErrorData } from '../core/index.js';
+import * as Asserts from '../Core/Security/asserts.js';
+import { getErrorData } from '../Core/Response/helpers.js';
 import { Req, Res, Controller, Delete, Get, Patch, Post, } from '@decorators/express';
 let WorkController = class WorkController {
     workService;

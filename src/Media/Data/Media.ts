@@ -1,4 +1,4 @@
-import { BaseModel } from '@core'
+import { BaseModel } from '@modules/Core/Data/Model'
 
 export interface Media extends BaseModel {
 	src: string

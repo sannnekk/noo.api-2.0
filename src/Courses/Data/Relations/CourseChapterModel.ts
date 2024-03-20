@@ -1,4 +1,6 @@
-import { Model, Transliteration, ULID } from '@core'
+import { Model } from '@modules/Core/Data/Model'
+import * as Transliteration from '@modules/Core/Utils/transliteration'
+import * as ULID from '@modules/Core/Data/Ulid'
 import { CourseChapter } from './CourseChapter'
 import { Course } from '../Course'
 import { CourseMaterial } from './CourseMaterial'

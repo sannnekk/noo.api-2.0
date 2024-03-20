@@ -7,7 +7,8 @@ import {
 	OneToMany,
 	RelationId,
 } from 'typeorm'
-import { Model, type UserRolesType } from '@core'
+import { Model } from '@modules/Core/Data/Model'
+import type { UserRolesType } from '@modules/Core/Security/roles'
 import { User } from './User'
 import { CourseModel } from '@modules/Courses/Data/CourseModel'
 import { Course } from '@modules/Courses/Data/Course'

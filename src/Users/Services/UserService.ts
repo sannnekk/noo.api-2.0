@@ -1,14 +1,12 @@
-import {
-	NotFoundError,
-	UnauthenticatedError,
-	JWT,
-	Hash,
-	AlreadyExistError,
-	UnknownError,
-	Pagination,
-	Service,
-	EmailService,
-} from '@core'
+import * as Hash from '@modules/Core/Security/hash'
+import * as JWT from '@modules/Core/Security/jwt'
+import { UnauthenticatedError } from '@modules/core/Errors/UnauthenticatedError'
+import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
+import { AlreadyExistError } from '@modules/Core/Errors/AlreadyExistError'
+import { UnknownError } from '@modules/Core/Errors/UnknownError'
+import { Pagination } from '@modules/Core/Data/Pagination'
+import { Service } from '@modules/Core/Services/Service'
+import { EmailService } from '@modules/Core/Email/EmailService'
 import { User } from '../Data/User'
 import { UserRepository } from '../Data/UserRepository'
 import { LoginCredentials } from '../Data/LoginCredentials'

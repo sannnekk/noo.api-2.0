@@ -1,4 +1,4 @@
-import { NotFoundError } from '../../core/index.js';
+import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
 import { MediaRepository } from '../Data/MediaRepository.js';
 import fs from 'fs';
 export class MediaService {

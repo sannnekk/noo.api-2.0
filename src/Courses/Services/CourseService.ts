@@ -1,13 +1,11 @@
 import { UserRepository } from '@modules/Users/Data/UserRepository'
 import { CourseRepository } from './../Data/CourseRepository'
 import { Course } from '../Data/Course'
-import {
-	AlreadyExistError,
-	NotFoundError,
-	Pagination,
-	Service,
-	UnknownError,
-} from '@core'
+import { AlreadyExistError } from '@modules/Core/Errors/AlreadyExistError'
+import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
+import { UnknownError } from '@modules/Core/Errors/UnknownError'
+import { Pagination } from '@modules/Core/Data/Pagination'
+import { Service } from '@modules/Core/Services/Service'
 import { QueryFailedError } from 'typeorm'
 import { CourseModel } from '../Data/CourseModel'
 import { CourseMaterialRepository } from '../Data/CourseMaterialRepository'

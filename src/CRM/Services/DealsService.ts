@@ -1,4 +1,5 @@
-import { NotFoundError, Service } from '@core'
+import { Service } from '@modules/Core/Services/Service'
+import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
 import { CourseRequestModel } from '../Data/CourseRequestModel'
 import { CourseRequest } from '../Data/CourseRequest'
 import { CourseRequestRepository } from '../Data/CourseRequestRepository'

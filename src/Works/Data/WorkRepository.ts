@@ -1,4 +1,4 @@
-import { Repository } from '@core'
+import { Repository } from '@modules/Core/Data/Repository'
 import { WorkModel } from './WorkModel'
 import { Work } from './Work'
 

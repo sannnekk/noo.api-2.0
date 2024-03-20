@@ -1,15 +1,16 @@
 import {
 	Column,
 	Entity,
-	JoinColumn,
 	ManyToOne,
 	OneToMany,
-	OneToOne,
 	RelationId,
 } from 'typeorm'
 import { CourseChapter } from './CourseChapter'
 import { CourseMaterial } from './CourseMaterial'
-import { DeltaContentType, Model, Transliteration, ULID } from '@core'
+import { DeltaContentType } from '@modules/Core/Data/DeltaContentType'
+import { Model } from '@modules/Core/Data/Model'
+import * as ULID from '@modules/Core/Data/Ulid'
+import * as Transliteration from '@modules/Core/Utils/transliteration'
 import { CourseChapterModel } from './CourseChapterModel'
 import { WorkModel } from '@modules/Works/Data/WorkModel'
 import { MediaModel } from '@modules/Media/Data/MediaModel'
