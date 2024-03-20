@@ -11,7 +11,10 @@ import { WorkController } from '@modules/Works/WorkController'
 import { AssignedWorkController } from '@modules/AssignedWorks/AssignedWorkController'
 import { MediaController } from '@modules/Media/MediaController'
 import { CalenderController } from '@modules/Calender/CalenderController'
-import { attachControllers } from '@decorators/express'
+import {
+	attachControllerInstances,
+	attachControllers,
+} from '@decorators/express'
 
 await CoreDataSource.initialize()
 
@@ -34,13 +37,13 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }))
 
 app.use(ContextMiddleware)
 
-attachControllers(app, [
-	UserController,
-	CourseController,
-	WorkController,
-	AssignedWorkController,
-	MediaController,
-	CalenderController,
+attachControllerInstances(app, [
+	new UserController(),
+	new CourseController(),
+	new WorkController(),
+	new AssignedWorkController(),
+	new MediaController(),
+	new CalenderController(),
 ])
 
 app.listen(process.env.APP_PORT, () =>
