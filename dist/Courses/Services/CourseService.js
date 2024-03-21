@@ -130,10 +130,11 @@ export class CourseService extends Service {
         await this.assignWorkToStudents(students, material);
     }
     async assignWorkToStudents(students, material) {
-        if (!material.workId)
+        if (!material.workId || !material.work?.id)
             return;
+        const workId = material.workId || material.work?.id;
         try {
-            await this.assignedWorkService.createWorks(students, material.workId, material.workSolveDeadline, material.workCheckDeadline);
+            await this.assignedWorkService.createWorks(students, workId, material.workSolveDeadline, material.workCheckDeadline);
         }
         catch (e) { }
     }
