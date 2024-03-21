@@ -13,12 +13,14 @@ import { User } from '@modules/Users/Data/User'
 import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
 import { AssignedWorkService } from '@modules/AssignedWorks/Services/AssignedWorkService'
 import { CourseMaterial } from '../Data/Relations/CourseMaterial'
+import { AssignedWorkRepository } from '@modules/AssignedWorks/Data/AssignedWorkRepository'
 
 export class CourseService extends Service<Course> {
 	private readonly courseRepository: CourseRepository
 	private readonly materialRepository: CourseMaterialRepository
 	private readonly userRepository: UserRepository
 	private readonly assignedWorkService: AssignedWorkService
+	private readonly assignedWorkRepository: AssignedWorkRepository
 
 	constructor() {
 		super()
@@ -27,6 +29,7 @@ export class CourseService extends Service<Course> {
 		this.userRepository = new UserRepository()
 		this.materialRepository = new CourseMaterialRepository()
 		this.assignedWorkService = new AssignedWorkService()
+		this.assignedWorkRepository = new AssignedWorkRepository()
 	}
 
 	public async get(
@@ -84,22 +87,16 @@ export class CourseService extends Service<Course> {
 		materialSlug: string,
 		userId: User['id']
 	): Promise<AssignedWork | null> {
-		const user = await this.userRepository.findOne(
-			{
-				id: userId,
+		const assignedWork = await this.assignedWorkRepository.findOne({
+			studentId: userId,
+			work: {
+				material: {
+					slug: materialSlug,
+				},
 			},
-			['assignedWorksAsStudent.work.materials' as any]
-		)
+		})
 
-		if (!user) return null
-
-		return (
-			user.assignedWorksAsStudent?.find((assignedWork) =>
-				assignedWork.work?.materials?.some(
-					(material) => material.slug === materialSlug
-				)
-			) || null
-		)
+		return assignedWork
 	}
 
 	public async update(course: Course): Promise<void> {

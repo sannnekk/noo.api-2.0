@@ -9,17 +9,20 @@ import { QueryFailedError } from 'typeorm';
 import { CourseModel } from '../Data/CourseModel.js';
 import { CourseMaterialRepository } from '../Data/CourseMaterialRepository.js';
 import { AssignedWorkService } from '../../AssignedWorks/Services/AssignedWorkService.js';
+import { AssignedWorkRepository } from '../../AssignedWorks/Data/AssignedWorkRepository.js';
 export class CourseService extends Service {
     courseRepository;
     materialRepository;
     userRepository;
     assignedWorkService;
+    assignedWorkRepository;
     constructor() {
         super();
         this.courseRepository = new CourseRepository();
         this.userRepository = new UserRepository();
         this.materialRepository = new CourseMaterialRepository();
         this.assignedWorkService = new AssignedWorkService();
+        this.assignedWorkRepository = new AssignedWorkRepository();
     }
     async get(pagination, userId, userRole) {
         pagination = new Pagination().assign(pagination);
@@ -50,12 +53,15 @@ export class CourseService extends Service {
         return this.sortMaterials(course);
     }
     async getAssignedWorkToMaterial(materialSlug, userId) {
-        const user = await this.userRepository.findOne({
-            id: userId,
-        }, ['assignedWorksAsStudent.work.materials']);
-        if (!user)
-            return null;
-        return (user.assignedWorksAsStudent?.find((assignedWork) => assignedWork.work?.materials?.some((material) => material.slug === materialSlug)) || null);
+        const assignedWork = await this.assignedWorkRepository.findOne({
+            studentId: userId,
+            work: {
+                material: {
+                    slug: materialSlug,
+                },
+            },
+        });
+        return assignedWork;
     }
     async update(course) {
         const foundCourse = await this.courseRepository.findOne({
