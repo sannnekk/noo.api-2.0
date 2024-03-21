@@ -48,17 +48,11 @@ let AssignedWorkModel = class AssignedWorkModel extends Model {
     comments;
     commentIds;
     calenderEvents;
-    calenderEventIds;
     score;
     maxScore;
     isArchived = false;
     static entriesToSearch() {
-        return [
-            'work.name',
-            'work.description',
-            'student.name',
-            'mentors.name',
-        ];
+        return ['work.name', 'student.name', 'mentors.name'];
     }
     sluggify() {
         return ULID.generate();
@@ -195,10 +189,6 @@ __decorate([
     OneToMany(() => CalenderEventModel, (calenderEvent) => calenderEvent.assignedWork),
     __metadata("design:type", Array)
 ], AssignedWorkModel.prototype, "calenderEvents", void 0);
-__decorate([
-    RelationId((assignedWork) => assignedWork.calenderEvents),
-    __metadata("design:type", Array)
-], AssignedWorkModel.prototype, "calenderEventIds", void 0);
 __decorate([
     Column({
         name: 'score',

@@ -37,5 +37,4 @@ export interface AssignedWork extends BaseModel {
 	comments: AssignedWorkComment[]
 	commentIds: AssignedWorkComment['id'][]
 	calenderEvents: CalenderEvent[]
-	calenderEventIds: CalenderEvent['id'][]
 }

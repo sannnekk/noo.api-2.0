@@ -178,11 +178,6 @@ export class AssignedWorkModel extends Model implements AssignedWork {
 	)
 	calenderEvents!: CalenderEventModel[]
 
-	@RelationId(
-		(assignedWork: AssignedWorkModel) => assignedWork.calenderEvents
-	)
-	calenderEventIds!: CalenderEventModel['id'][]
-
 	@Column({
 		name: 'score',
 		type: 'int',
@@ -204,12 +199,7 @@ export class AssignedWorkModel extends Model implements AssignedWork {
 	isArchived: boolean = false
 
 	static entriesToSearch() {
-		return [
-			'work.name',
-			'work.description',
-			'student.name',
-			'mentors.name',
-		]
+		return ['work.name', 'student.name', 'mentors.name']
 	}
 
 	private sluggify(): string {
