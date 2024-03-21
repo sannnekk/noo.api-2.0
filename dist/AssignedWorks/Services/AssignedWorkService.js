@@ -16,20 +16,17 @@ import { WorkRepository } from '../../Works/Data/WorkRepository.js';
 import { DeadlineAlreadyShiftedError } from '../Errors/DeadlineAlreadyShiftedError.js';
 import { WorkIsArchived } from '../Errors/WorkIsArchived.js';
 import { TaskService } from './TaskService.js';
-import { CalenderService } from '../../Calender/Services/CalenderService.js';
 export class AssignedWorkService extends Service {
     taskService;
     assignedWorkRepository;
     workRepository;
     userRepository;
-    calenderService;
     constructor() {
         super();
         this.taskService = new TaskService();
         this.assignedWorkRepository = new AssignedWorkRepository();
         this.workRepository = new WorkRepository();
         this.userRepository = new UserRepository();
-        this.calenderService = new CalenderService();
     }
     async getWorks(userId, userRole, pagination) {
         // TODO: modify the conditions to load all assigned mentors instead of just one
@@ -91,8 +88,30 @@ export class AssignedWorkService extends Service {
         assignedWork.student = student;
         assignedWork.mentors = [student.mentor];
         assignedWork.maxScore = this.getMaxScore(work.tasks || []);
-        const createdWork = await this.assignedWorkRepository.create(assignedWork);
-        await this.calenderService.createFromWork(createdWork);
+        await this.assignedWorkRepository.create(assignedWork);
+        // await this.calenderService.createFromWork(createdWork)
+    }
+    async createWorks(students, workId, solveDeadline, checkDeadline) {
+        if (students.length === 0) {
+            return;
+        }
+        const workModel = await this.workRepository.findOne({
+            id: workId,
+        }, ['tasks']);
+        if (!workModel) {
+            throw new NotFoundError('Работа не найдена');
+        }
+        const maxScore = this.getMaxScore(workModel.tasks || []);
+        const assignedWorks = students.map((student) => ({
+            student,
+            mentors: [student.mentor],
+            work: { id: workModel.id },
+            solveDeadlineAt: solveDeadline,
+            checkDeadlineAt: checkDeadline,
+            maxScore,
+        }));
+        await this.assignedWorkRepository.createMany(assignedWorks);
+        // TODO: create calender events for each work
     }
     async solveWork(work) {
         const foundWork = await this.assignedWorkRepository.findOne({
@@ -149,7 +168,7 @@ export class AssignedWorkService extends Service {
     async saveProgress(work, role) {
         const foundWork = await this.assignedWorkRepository.findOne({
             id: work.id,
-        }, ['comments', 'answers']);
+        });
         if (!foundWork) {
             throw new NotFoundError();
         }
@@ -242,7 +261,7 @@ export class AssignedWorkService extends Service {
             work.checkDeadlineAt.setDate(work.checkDeadlineAt.getDate() + days);
             work.checkDeadlineShifted = true;
         }
-        await this.calenderService.updateDeadlineFromWork(work);
+        //await this.calenderService.updateDeadlineFromWork(work)
         await this.assignedWorkRepository.update(work);
     }
     async deleteWork(id, mentorId) {

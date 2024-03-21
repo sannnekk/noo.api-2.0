@@ -48,8 +48,8 @@ export class CalenderService extends Service {
     }
     async get(username, pagination) {
         const condition = { username };
-        const events = this.calenderEventRepository.find(condition, undefined, pagination);
-        const meta = this.getRequestMeta(this.calenderEventRepository, condition, pagination || new Pagination(), []);
+        const events = await this.calenderEventRepository.find(condition, undefined, pagination);
+        const meta = await this.getRequestMeta(this.calenderEventRepository, condition, pagination || new Pagination(), []);
         return { events, meta };
     }
     async getOne(id, username) {

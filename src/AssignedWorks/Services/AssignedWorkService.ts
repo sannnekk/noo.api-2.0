@@ -27,7 +27,6 @@ export class AssignedWorkService extends Service<AssignedWork> {
 	private readonly assignedWorkRepository: AssignedWorkRepository
 	private readonly workRepository: WorkRepository
 	private readonly userRepository: UserRepository
-	private readonly calenderService: CalenderService
 
 	constructor() {
 		super()
@@ -36,7 +35,6 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		this.assignedWorkRepository = new AssignedWorkRepository()
 		this.workRepository = new WorkRepository()
 		this.userRepository = new UserRepository()
-		this.calenderService = new CalenderService()
 	}
 
 	public async getWorks(
@@ -139,11 +137,49 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		assignedWork.mentors = [student.mentor!]
 		assignedWork.maxScore = this.getMaxScore(work.tasks || [])
 
-		const createdWork = await this.assignedWorkRepository.create(
-			assignedWork
+		await this.assignedWorkRepository.create(assignedWork)
+
+		// await this.calenderService.createFromWork(createdWork)
+	}
+
+	public async createWorks(
+		students: User[],
+		workId: Work['id'],
+		solveDeadline: Date | undefined,
+		checkDeadline: Date | undefined
+	) {
+		if (students.length === 0) {
+			return
+		}
+
+		const workModel = await this.workRepository.findOne(
+			{
+				id: workId,
+			},
+			['tasks']
 		)
 
-		await this.calenderService.createFromWork(createdWork)
+		if (!workModel) {
+			throw new NotFoundError('Работа не найдена')
+		}
+
+		const maxScore = this.getMaxScore(workModel.tasks || [])
+
+		const assignedWorks: AssignedWork[] = students.map(
+			(student) =>
+				({
+					student,
+					mentors: [student.mentor! as User],
+					work: { id: workModel.id } as Work,
+					solveDeadlineAt: solveDeadline,
+					checkDeadlineAt: checkDeadline,
+					maxScore,
+				} as AssignedWork)
+		)
+
+		await this.assignedWorkRepository.createMany(assignedWorks)
+
+		// TODO: create calender events for each work
 	}
 
 	public async solveWork(work: AssignedWork) {
@@ -236,12 +272,9 @@ export class AssignedWorkService extends Service<AssignedWork> {
 	}
 
 	public async saveProgress(work: AssignedWork, role: User['role']) {
-		const foundWork = await this.assignedWorkRepository.findOne(
-			{
-				id: work.id,
-			},
-			['comments', 'answers']
-		)
+		const foundWork = await this.assignedWorkRepository.findOne({
+			id: work.id,
+		})
 
 		if (!foundWork) {
 			throw new NotFoundError()
@@ -381,7 +414,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			work.checkDeadlineShifted = true
 		}
 
-		await this.calenderService.updateDeadlineFromWork(work)
+		//await this.calenderService.updateDeadlineFromWork(work)
 
 		await this.assignedWorkRepository.update(work)
 	}

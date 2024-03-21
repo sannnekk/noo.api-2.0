@@ -1,6 +1,4 @@
-import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
 import { MediaRepository } from '../Data/MediaRepository.js';
-import fs from 'fs';
 export class MediaService {
     mediaRepository;
     constructor() {
@@ -25,13 +23,5 @@ export class MediaService {
             throw new UnknownError()
         } */
         return files.map((file) => file.filename);
-    }
-    async remove(src) {
-        const media = await this.mediaRepository.findOne({ src });
-        if (!media) {
-            throw new NotFoundError();
-        }
-        await fs.unlink(`../../noo-cdn/uploads/${src}`, () => { });
-        await this.mediaRepository.delete(media.id);
     }
 }

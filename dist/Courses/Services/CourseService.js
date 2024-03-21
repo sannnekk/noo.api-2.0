@@ -76,16 +76,20 @@ export class CourseService extends Service {
         await this.courseRepository.update(newCourse);
     }
     async assignMeWorks(courseSlug, userId) {
-        const course = await this.courseRepository.findOne({
-            slug: courseSlug,
-        }, ['chapters.materials']);
-        if (!course) {
-            throw new NotFoundError('Курс не найден. Возможно, он был удален.');
+        const materials = await this.materialRepository.find({
+            chapter: {
+                course: {
+                    slug: courseSlug,
+                },
+            },
+        });
+        const user = await this.userRepository.findOne({ id: userId });
+        if (!user) {
+            throw new NotFoundError('Пользователь не найден');
         }
-        const materials = (course.chapters || [])
-            .flatMap((chapter) => chapter.materials)
-            .filter(Boolean);
-        await Promise.all(materials.map((material) => this.assignWorkToStudent(userId, material)));
+        for (const material of materials) {
+            await this.assignWorkToStudents([user], material);
+        }
     }
     async assignStudents(courseSlug, studentIds) {
         const course = await this.courseRepository.findOne({
@@ -105,7 +109,10 @@ export class CourseService extends Service {
         const materials = (course.chapters || [])
             .flatMap((chapter) => chapter.materials)
             .filter(Boolean);
-        await Promise.all(materials.map((material) => this.assignWorkToStudents(newStudentIds, material)));
+        const students = await this.userRepository.find(newStudentIds.map((id) => ({ id })));
+        for (const material of materials) {
+            await this.assignWorkToStudents(students, material);
+        }
     }
     async assignWorkToMaterial(materialSlug, workId, solveDeadline, checkDeadline) {
         const material = await this.materialRepository.findOne({
@@ -118,22 +125,15 @@ export class CourseService extends Service {
         material.workId = workId;
         material.workSolveDeadline = solveDeadline;
         material.workCheckDeadline = checkDeadline;
-        await this.assignWorkToStudents(material.chapter?.course?.studentIds || [], material);
+        const students = await this.userRepository.find((material.chapter?.course?.studentIds || []).map((id) => ({ id })));
         await this.materialRepository.update(material);
+        await this.assignWorkToStudents(students, material);
     }
-    async assignWorkToStudents(studentIds, material) {
-        await Promise.all(studentIds.map((id) => this.assignWorkToStudent(id, material)));
-    }
-    async assignWorkToStudent(studentId, material) {
+    async assignWorkToStudents(students, material) {
         if (!material.workId)
             return;
         try {
-            await this.assignedWorkService.createWork({
-                studentId,
-                workId: material.workId,
-                solveDeadlineAt: material.workSolveDeadline,
-                checkDeadlineAt: material.workCheckDeadline,
-            });
+            await this.assignedWorkService.createWorks(students, material.workId, material.workSolveDeadline, material.workCheckDeadline);
         }
         catch (e) { }
     }

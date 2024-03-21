@@ -30,15 +30,4 @@ export class MediaService {
 
 		return files.map((file) => file.filename)
 	}
-
-	async remove(src: string): Promise<void> {
-		const media = await this.mediaRepository.findOne({ src })
-
-		if (!media) {
-			throw new NotFoundError()
-		}
-
-		await fs.unlink(`../../noo-cdn/uploads/${src}`, () => {})
-		await this.mediaRepository.delete(media.id)
-	}
 }

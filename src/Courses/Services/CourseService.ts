@@ -119,28 +119,23 @@ export class CourseService extends Service<Course> {
 		courseSlug: Course['slug'],
 		userId: User['id']
 	) {
-		const course = await this.courseRepository.findOne(
-			{
-				slug: courseSlug,
+		const materials = await this.materialRepository.find({
+			chapter: {
+				course: {
+					slug: courseSlug,
+				},
 			},
-			['chapters.materials' as any]
-		)
+		} as any)
 
-		if (!course) {
-			throw new NotFoundError(
-				'Курс не найден. Возможно, он был удален.'
-			)
+		const user = await this.userRepository.findOne({ id: userId })
+
+		if (!user) {
+			throw new NotFoundError('Пользователь не найден')
 		}
 
-		const materials = (course.chapters || [])
-			.flatMap((chapter) => chapter.materials)
-			.filter(Boolean) as CourseMaterial[]
-
-		await Promise.all(
-			materials.map((material) =>
-				this.assignWorkToStudent(userId, material)
-			)
-		)
+		for (const material of materials) {
+			await this.assignWorkToStudents([user], material)
+		}
 	}
 
 	public async assignStudents(
@@ -174,11 +169,13 @@ export class CourseService extends Service<Course> {
 			.flatMap((chapter) => chapter.materials)
 			.filter(Boolean) as CourseMaterial[]
 
-		await Promise.all(
-			materials.map((material) =>
-				this.assignWorkToStudents(newStudentIds, material)
-			)
+		const students = await this.userRepository.find(
+			newStudentIds.map((id) => ({ id }))
 		)
+
+		for (const material of materials) {
+			await this.assignWorkToStudents(students, material)
+		}
 	}
 
 	public async assignWorkToMaterial(
@@ -203,36 +200,27 @@ export class CourseService extends Service<Course> {
 		material.workSolveDeadline = solveDeadline
 		material.workCheckDeadline = checkDeadline
 
-		await this.assignWorkToStudents(
-			material.chapter?.course?.studentIds || [],
-			material
+		const students = await this.userRepository.find(
+			(material.chapter?.course?.studentIds || []).map((id) => ({ id }))
 		)
 
 		await this.materialRepository.update(material)
+		await this.assignWorkToStudents(students, material)
 	}
 
 	public async assignWorkToStudents(
-		studentIds: User['id'][],
+		students: User[],
 		material: CourseMaterial
 	): Promise<void> {
-		await Promise.all(
-			studentIds.map((id) => this.assignWorkToStudent(id, material))
-		)
-	}
-
-	public async assignWorkToStudent(
-		studentId: User['id'],
-		material: CourseMaterial
-	) {
 		if (!material.workId) return
 
 		try {
-			await this.assignedWorkService.createWork({
-				studentId,
-				workId: material.workId,
-				solveDeadlineAt: material.workSolveDeadline,
-				checkDeadlineAt: material.workCheckDeadline,
-			} as AssignedWork)
+			await this.assignedWorkService.createWorks(
+				students,
+				material.workId,
+				material.workSolveDeadline,
+				material.workCheckDeadline
+			)
 		} catch (e: any) {}
 	}
 

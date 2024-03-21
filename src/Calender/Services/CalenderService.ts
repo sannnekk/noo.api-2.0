@@ -74,13 +74,13 @@ export class CalenderService extends Service<CalenderEvent> {
 		pagination?: Pagination
 	) {
 		const condition = { username }
-		const events = this.calenderEventRepository.find(
+		const events = await this.calenderEventRepository.find(
 			condition,
 			undefined,
 			pagination
 		)
 
-		const meta = this.getRequestMeta(
+		const meta = await this.getRequestMeta(
 			this.calenderEventRepository,
 			condition,
 			pagination || new Pagination(),
