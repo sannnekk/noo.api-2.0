@@ -1,7 +1,6 @@
 import { type BaseModel } from '../Data/Model'
 import { Pagination } from '../Data/Pagination'
 import { Repository } from '../Data/Repository'
-import { InternalError } from '../Errors/InternalError'
 import type { RequestMeta } from '../Response/RequestMeta'
 
 export abstract class Service<T extends BaseModel> {
