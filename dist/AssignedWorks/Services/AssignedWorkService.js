@@ -35,7 +35,11 @@ export class AssignedWorkService extends Service {
             : { mentors: { id: userId } };
         pagination = new Pagination().assign(pagination);
         pagination.entriesToSearch = AssignedWorkModel.entriesToSearch();
-        const relations = ['student', 'mentors'];
+        const relations = [
+            'work',
+            'student',
+            'mentors',
+        ];
         const assignedWorks = await this.assignedWorkRepository.find(conditions, relations, pagination);
         const meta = await this.getRequestMeta(this.assignedWorkRepository, conditions, pagination, relations);
         return { assignedWorks, meta };
