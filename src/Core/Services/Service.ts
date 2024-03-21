@@ -28,6 +28,11 @@ export abstract class Service<T extends BaseModel> {
 			this.lastRequestPagination
 		)
 
+		this.lastRequestCondition = undefined
+		this.lastRequestPagination = undefined
+		this.lastRequestRelations = undefined
+		this.lastUsedRepository = null
+
 		return { total, relations: this.lastRequestRelations || [] }
 	}
 

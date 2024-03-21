@@ -12,6 +12,10 @@ export class Service {
             throw new InternalError('Tried to access request meta before request');
         }
         const total = await this.lastUsedRepository.count(this.lastRequestCondition, this.lastRequestPagination);
+        this.lastRequestCondition = undefined;
+        this.lastRequestPagination = undefined;
+        this.lastRequestRelations = undefined;
+        this.lastUsedRepository = null;
         return { total, relations: this.lastRequestRelations || [] };
     }
     storeRequestMeta(repository, condition, relations, pagination) {
