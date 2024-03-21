@@ -73,7 +73,7 @@ export class CourseService extends Service<Course> {
 
 	public async getBySlug(slug: string): Promise<Course> {
 		const course = await this.courseRepository.findOne({ slug }, [
-			'chapters.materials.work' as any,
+			'chapters.materials' as any,
 		])
 
 		if (!course) {

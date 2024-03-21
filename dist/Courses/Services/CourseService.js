@@ -45,7 +45,7 @@ export class CourseService extends Service {
     }
     async getBySlug(slug) {
         const course = await this.courseRepository.findOne({ slug }, [
-            'chapters.materials.work',
+            'chapters.materials',
         ]);
         if (!course) {
             throw new NotFoundError();
