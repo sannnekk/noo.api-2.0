@@ -92,9 +92,7 @@ __decorate([
     __metadata("design:type", Object)
 ], AssignedWorkModel.prototype, "studentId", void 0);
 __decorate([
-    ManyToOne(() => WorkModel, (work) => work.assignedWorks, {
-        eager: true,
-    }),
+    ManyToOne(() => WorkModel, (work) => work.assignedWorks),
     __metadata("design:type", Object)
 ], AssignedWorkModel.prototype, "work", void 0);
 __decorate([
@@ -186,7 +184,7 @@ __decorate([
     __metadata("design:type", Array)
 ], AssignedWorkModel.prototype, "answerIds", void 0);
 __decorate([
-    OneToMany(() => AssignedWorkCommentModel, (comment) => comment.assignedWork, { cascade: true, eager: true }),
+    OneToMany(() => AssignedWorkCommentModel, (comment) => comment.assignedWork, { cascade: true }),
     __metadata("design:type", Array)
 ], AssignedWorkModel.prototype, "comments", void 0);
 __decorate([

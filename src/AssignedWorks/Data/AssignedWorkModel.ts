@@ -68,9 +68,7 @@ export class AssignedWorkModel extends Model implements AssignedWork {
 	@RelationId((assignedWork: AssignedWorkModel) => assignedWork.student)
 	studentId!: User['id']
 
-	@ManyToOne(() => WorkModel, (work) => work.assignedWorks, {
-		eager: true,
-	})
+	@ManyToOne(() => WorkModel, (work) => work.assignedWorks)
 	work!: Work
 
 	@RelationId((assignedWork: AssignedWorkModel) => assignedWork.work)
@@ -165,7 +163,7 @@ export class AssignedWorkModel extends Model implements AssignedWork {
 	@OneToMany(
 		() => AssignedWorkCommentModel,
 		(comment) => comment.assignedWork,
-		{ cascade: true, eager: true }
+		{ cascade: true }
 	)
 	comments!: AssignedWorkComment[]
 
