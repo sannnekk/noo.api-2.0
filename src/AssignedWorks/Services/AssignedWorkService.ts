@@ -142,36 +142,6 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		// await this.calenderService.createFromWork(createdWork)
 	}
 
-	public async createWorks(
-		assignedWorks: {
-			student: User
-			work: Work | undefined
-			solveDeadlineAt: Date | undefined
-			checkDeadlineAt: Date | undefined
-		}[]
-	) {
-		if (!assignedWorks.length) {
-			return
-		}
-		const data: AssignedWork[] = assignedWorks
-			.filter((assignedWork) => assignedWork.work)
-			.map(
-				(assignedWork) =>
-					({
-						student: assignedWork.student,
-						mentors: [assignedWork.student.mentor as User],
-						work: { id: assignedWork.work!.id } as Work,
-						solveDeadlineAt: assignedWork.solveDeadlineAt,
-						checkDeadlineAt: assignedWork.checkDeadlineAt,
-						maxScore: this.getMaxScore(assignedWork.work!.tasks || []),
-					} as AssignedWork)
-			)
-
-		await this.assignedWorkRepository.createMany(data)
-
-		// TODO: create calender events for each work
-	}
-
 	public async solveWork(work: AssignedWork) {
 		const foundWork = await this.assignedWorkRepository.findOne(
 			{

@@ -75,30 +75,6 @@ export class CourseService extends Service {
         const newCourse = new CourseModel({ ...foundCourse, ...course });
         await this.courseRepository.update(newCourse);
     }
-    async assignMeWorks(courseSlug, userId) {
-        const materials = await this.materialRepository.find({
-            chapter: {
-                course: {
-                    slug: courseSlug,
-                },
-            },
-        }, ['work.tasks']);
-        const user = await this.userRepository.findOne({ id: userId }, [
-            'mentor',
-        ]);
-        if (!user) {
-            throw new NotFoundError('Пользователь не найден');
-        }
-        try {
-            await this.assignedWorkService.createWorks(materials.map((material) => ({
-                student: user,
-                work: material.work,
-                solveDeadlineAt: material.workSolveDeadline,
-                checkDeadlineAt: material.workCheckDeadline,
-            })));
-        }
-        catch (e) { }
-    }
     async assignStudents(courseSlug, studentIds) {
         const course = await this.courseRepository.findOne({
             slug: courseSlug,
@@ -106,7 +82,6 @@ export class CourseService extends Service {
         if (!course) {
             throw new NotFoundError();
         }
-        const newStudentIds = studentIds.filter((id) => !(course.studentIds || []).includes(id));
         course.students = studentIds.map((id) => ({ id }));
         try {
             await this.courseRepository.updateRaw(course);
@@ -145,13 +120,6 @@ export class CourseService extends Service {
         material.workSolveDeadline = solveDeadline;
         material.workCheckDeadline = checkDeadline;
         await this.materialRepository.update(material);
-        /* if (!material.chapter?.course?.studentIds?.length) return
-
-        const students = await this.userRepository.find(
-            (material.chapter?.course?.studentIds || []).map((id) => ({ id }))
-        )
-
-        await this.assignWorkToStudents(students, material) */
     }
     async create(course, authorId) {
         const author = await this.userRepository.findOne({ id: authorId });

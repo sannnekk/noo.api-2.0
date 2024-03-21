@@ -168,32 +168,6 @@ export class CourseController {
 		}
 	}
 
-	@Patch('/:courseSlug/assign-me-works')
-	public async assignMeWorks(
-		@Req() req: Request,
-		@Res() res: Response
-	) {
-		// @ts-ignore
-		const context = req.context as Context
-		context.setParams(req.params)
-
-		try {
-			Asserts.isAuthenticated(context)
-			Asserts.student(context)
-			this.courseValidator.validateSlug(context.params.courseSlug)
-
-			await this.courseService.assignMeWorks(
-				context.params.courseSlug,
-				context.credentials.userId
-			)
-
-			res.status(201).send({ data: null })
-		} catch (error: any) {
-			const { status, message } = getErrorData(error)
-			res.status(status).send({ error: message })
-		}
-	}
-
 	@Patch('/:courseSlug/assign-students')
 	public async assignStudents(
 		@Req() req: Request,

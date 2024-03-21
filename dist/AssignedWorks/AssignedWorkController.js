@@ -65,7 +65,6 @@ let AssignedWorkController = class AssignedWorkController {
         const context = req.context;
         try {
             Asserts.isAuthenticated(context);
-            Asserts.teacher(context);
             this.assignedWorkValidator.validateCreation(context.body);
             await this.assignedWorkService.createWork(context.body);
             res.status(201).send({ data: null });

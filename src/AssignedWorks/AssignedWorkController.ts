@@ -87,7 +87,6 @@ export class AssignedWorkController {
 
 		try {
 			Asserts.isAuthenticated(context)
-			Asserts.teacher(context)
 			this.assignedWorkValidator.validateCreation(context.body)
 
 			await this.assignedWorkService.createWork(context.body)

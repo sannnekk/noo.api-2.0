@@ -116,22 +116,6 @@ let CourseController = class CourseController {
             res.status(status).send({ error: message });
         }
     }
-    async assignMeWorks(req, res) {
-        // @ts-ignore
-        const context = req.context;
-        context.setParams(req.params);
-        try {
-            Asserts.isAuthenticated(context);
-            Asserts.student(context);
-            this.courseValidator.validateSlug(context.params.courseSlug);
-            await this.courseService.assignMeWorks(context.params.courseSlug, context.credentials.userId);
-            res.status(201).send({ data: null });
-        }
-        catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
-        }
-    }
     async assignStudents(req, res) {
         // @ts-ignore
         const context = req.context;
@@ -214,14 +198,6 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "assignWorkToMaterial", null);
-__decorate([
-    Patch('/:courseSlug/assign-me-works'),
-    __param(0, Req()),
-    __param(1, Res()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
-    __metadata("design:returntype", Promise)
-], CourseController.prototype, "assignMeWorks", null);
 __decorate([
     Patch('/:courseSlug/assign-students'),
     __param(0, Req()),
