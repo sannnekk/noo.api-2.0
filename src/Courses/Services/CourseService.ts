@@ -92,7 +92,7 @@ export class CourseService extends Service<Course> {
 				id: userId,
 			},
 			work: {
-				material: {
+				materials: {
 					slug: materialSlug,
 				},
 			},

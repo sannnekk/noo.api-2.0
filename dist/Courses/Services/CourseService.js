@@ -58,7 +58,7 @@ export class CourseService extends Service {
                 id: userId,
             },
             work: {
-                material: {
+                materials: {
                     slug: materialSlug,
                 },
             },
