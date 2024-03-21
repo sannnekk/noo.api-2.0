@@ -40,8 +40,8 @@ export class AssignedWorkService extends Service {
         pagination.entriesToSearch = AssignedWorkModel.entriesToSearch();
         const relations = ['student', 'mentors'];
         const assignedWorks = await this.assignedWorkRepository.find(conditions, relations, pagination);
-        this.storeRequestMeta(this.assignedWorkRepository, conditions, relations, pagination);
-        return assignedWorks;
+        const meta = await this.getRequestMeta(this.assignedWorkRepository, conditions, pagination, relations);
+        return { assignedWorks, meta };
     }
     async getWorkBySlug(slug) {
         const work = await this.assignedWorkRepository.findOne({ slug }, [

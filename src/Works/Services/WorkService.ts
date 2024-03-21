@@ -24,14 +24,14 @@ export class WorkService extends Service<Work> {
 			pagination
 		)
 
-		this.storeRequestMeta(
+		const meta = await this.getRequestMeta(
 			this.workRepository,
 			undefined,
-			undefined,
-			pagination
+			pagination,
+			[]
 		)
 
-		return works
+		return { works, meta }
 	}
 
 	public async getWorkBySlug(slug: Work['slug']) {

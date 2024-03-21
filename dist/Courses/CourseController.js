@@ -28,8 +28,7 @@ let CourseController = class CourseController {
         try {
             Asserts.isAuthenticated(context);
             const pagination = this.courseValidator.validatePagination(context.query);
-            const courses = await this.courseService.get(pagination, context.credentials.userId, context.credentials.role);
-            const meta = await this.courseService.getLastRequestMeta();
+            const { courses, meta } = await this.courseService.get(pagination, context.credentials.userId, context.credentials.role);
             res.status(200).send({ data: courses, meta });
         }
         catch (error) {

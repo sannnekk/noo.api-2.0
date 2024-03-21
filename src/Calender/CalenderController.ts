@@ -62,12 +62,10 @@ export class CalenderController {
 				context.query
 			)
 
-			const events = await this.calenderService.get(
+			const { events, meta } = await this.calenderService.get(
 				context.credentials.username,
 				pagination
 			)
-
-			const meta = await this.calenderService.getLastRequestMeta()
 
 			res.status(200).send({ data: events, meta })
 		} catch (error: any) {

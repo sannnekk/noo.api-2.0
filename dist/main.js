@@ -27,7 +27,7 @@ app.use(express.json({
     },
 }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-app.use(AccessLogMiddleware(podId));
+app.use(AccessLogMiddleware);
 app.use(ContextMiddleware);
 attachControllerInstances(app, [
     new UserController(),

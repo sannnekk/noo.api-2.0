@@ -35,13 +35,11 @@ export class CourseController {
 				context.query
 			)
 
-			const courses = await this.courseService.get(
+			const { courses, meta } = await this.courseService.get(
 				pagination,
 				context.credentials.userId,
 				context.credentials.role
 			)
-
-			const meta = await this.courseService.getLastRequestMeta()
 
 			res.status(200).send({ data: courses, meta })
 		} catch (error: any) {

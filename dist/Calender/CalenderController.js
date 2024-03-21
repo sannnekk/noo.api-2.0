@@ -42,8 +42,7 @@ let CalenderController = class CalenderController {
         try {
             Asserts.isAuthenticated(context);
             const pagination = this.calenderValidator.validatePagination(context.query);
-            const events = await this.calenderService.get(context.credentials.username, pagination);
-            const meta = await this.calenderService.getLastRequestMeta();
+            const { events, meta } = await this.calenderService.get(context.credentials.username, pagination);
             res.status(200).send({ data: events, meta });
         }
         catch (error) {

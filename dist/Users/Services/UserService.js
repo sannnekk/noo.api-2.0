@@ -157,8 +157,8 @@ export class UserService extends Service {
         pagination.entriesToSearch = UserModel.entriesToSearch();
         const relations = ['students', 'courses'];
         const users = await this.userRepository.find(undefined, relations, pagination);
-        this.storeRequestMeta(this.userRepository, undefined, relations, pagination);
-        return users;
+        const meta = await this.getRequestMeta(this.userRepository, undefined, pagination, relations);
+        return { users, meta };
     }
     async getStudentsOf(mentorId, pagination) {
         pagination = new Pagination().assign(pagination);
@@ -168,9 +168,9 @@ export class UserService extends Service {
             mentor: { id: mentorId },
             role: 'student',
         };
-        const users = await this.userRepository.find(conditions, relations, pagination);
-        this.storeRequestMeta(this.userRepository, conditions, relations, pagination);
-        return users;
+        const students = await this.userRepository.find(conditions, relations, pagination);
+        const meta = await this.getRequestMeta(this.userRepository, conditions, pagination, relations);
+        return { students, meta };
     }
     async getMentors(pagination) {
         pagination = new Pagination().assign(pagination);
@@ -178,8 +178,8 @@ export class UserService extends Service {
         const relations = ['students'];
         const conditions = { role: 'mentor' };
         const mentors = await this.userRepository.find(conditions, relations, pagination);
-        this.storeRequestMeta(this.userRepository, conditions, relations, pagination);
-        return mentors;
+        const meta = await this.getRequestMeta(this.userRepository, conditions, pagination, relations);
+        return { mentors, meta };
     }
     async getStudents(pagination) {
         pagination = new Pagination().assign(pagination);
@@ -187,8 +187,8 @@ export class UserService extends Service {
         const relations = ['mentor'];
         const conditions = { role: 'student' };
         const students = await this.userRepository.find(conditions, relations, pagination);
-        this.storeRequestMeta(this.userRepository, conditions, relations, pagination);
-        return students;
+        const meta = await this.getRequestMeta(this.userRepository, conditions, pagination, relations);
+        return { students, meta };
     }
     async update(user) {
         const existingUser = await this.userRepository.findOne({

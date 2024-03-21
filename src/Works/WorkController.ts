@@ -37,8 +37,9 @@ export class WorkController {
 				context.query
 			)
 
-			const works = await this.workService.getWorks(pagination)
-			const meta = await this.workService.getLastRequestMeta()
+			const { works, meta } = await this.workService.getWorks(
+				pagination
+			)
 
 			res.status(200).send({ data: works, meta })
 		} catch (error: any) {

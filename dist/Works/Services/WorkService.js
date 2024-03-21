@@ -13,8 +13,8 @@ export class WorkService extends Service {
         pagination = new Pagination().assign(pagination);
         pagination.entriesToSearch = WorkModel.entriesToSearch();
         const works = await this.workRepository.find(undefined, undefined, pagination);
-        this.storeRequestMeta(this.workRepository, undefined, undefined, pagination);
-        return works;
+        const meta = await this.getRequestMeta(this.workRepository, undefined, pagination, []);
+        return { works, meta };
     }
     async getWorkBySlug(slug) {
         const work = await this.workRepository.findOne({ slug }, ['tasks']);

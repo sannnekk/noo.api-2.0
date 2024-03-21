@@ -233,9 +233,7 @@ export class UserService extends Service<User> {
 		return user
 	}
 
-	public async getUsers(
-		pagination: Pagination | undefined
-	): Promise<User[]> {
+	public async getUsers(pagination: Pagination | undefined) {
 		pagination = new Pagination().assign(pagination)
 		pagination.entriesToSearch = UserModel.entriesToSearch()
 
@@ -247,20 +245,20 @@ export class UserService extends Service<User> {
 			pagination
 		)
 
-		this.storeRequestMeta(
+		const meta = await this.getRequestMeta(
 			this.userRepository,
 			undefined,
-			relations,
-			pagination
+			pagination,
+			relations
 		)
 
-		return users
+		return { users, meta }
 	}
 
 	public async getStudentsOf(
 		mentorId: User['id'],
 		pagination?: Pagination
-	): Promise<User[]> {
+	) {
 		pagination = new Pagination().assign(pagination)
 		pagination.entriesToSearch = UserModel.entriesToSearch()
 
@@ -270,25 +268,23 @@ export class UserService extends Service<User> {
 			role: 'student',
 		}
 
-		const users = await this.userRepository.find(
+		const students = await this.userRepository.find(
 			conditions,
 			relations,
 			pagination
 		)
 
-		this.storeRequestMeta(
+		const meta = await this.getRequestMeta(
 			this.userRepository,
 			conditions,
-			relations,
-			pagination
+			pagination,
+			relations
 		)
 
-		return users
+		return { students, meta }
 	}
 
-	public async getMentors(
-		pagination: Pagination | undefined
-	): Promise<User[]> {
+	public async getMentors(pagination: Pagination | undefined) {
 		pagination = new Pagination().assign(pagination)
 		pagination.entriesToSearch = UserModel.entriesToSearch()
 
@@ -301,19 +297,17 @@ export class UserService extends Service<User> {
 			pagination
 		)
 
-		this.storeRequestMeta(
+		const meta = await this.getRequestMeta(
 			this.userRepository,
 			conditions,
-			relations,
-			pagination
+			pagination,
+			relations
 		)
 
-		return mentors
+		return { mentors, meta }
 	}
 
-	public async getStudents(
-		pagination: Pagination | undefined
-	): Promise<User[]> {
+	public async getStudents(pagination: Pagination | undefined) {
 		pagination = new Pagination().assign(pagination)
 		pagination.entriesToSearch = UserModel.entriesToSearch()
 
@@ -326,14 +320,14 @@ export class UserService extends Service<User> {
 			pagination
 		)
 
-		this.storeRequestMeta(
+		const meta = await this.getRequestMeta(
 			this.userRepository,
 			conditions,
-			relations,
-			pagination
+			pagination,
+			relations
 		)
 
-		return students
+		return { students, meta }
 	}
 
 	public async update(user: Partial<User>): Promise<void> {

@@ -33,7 +33,7 @@ export class CourseService extends Service<Course> {
 		pagination: Pagination | undefined,
 		userId: User['id'],
 		userRole: User['role']
-	): Promise<Course[]> {
+	) {
 		pagination = new Pagination().assign(pagination)
 		pagination.entriesToSearch = CourseModel.entriesToSearch()
 
@@ -53,11 +53,11 @@ export class CourseService extends Service<Course> {
 			pagination
 		)
 
-		this.storeRequestMeta(
+		const meta = await this.getRequestMeta(
 			this.courseRepository,
 			conditions,
-			[],
-			pagination
+			pagination,
+			[]
 		)
 
 		// Clear chapters and materials as they are not needed in the list
@@ -65,7 +65,7 @@ export class CourseService extends Service<Course> {
 			course.chapters = []
 		}
 
-		return courses
+		return { courses, meta }
 	}
 
 	public async getBySlug(slug: string): Promise<Course> {

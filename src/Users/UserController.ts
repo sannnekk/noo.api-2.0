@@ -182,9 +182,9 @@ export class UserController {
 				context.query
 			)
 
-			const mentors = await this.userService.getMentors(pagination)
-
-			const meta = await this.userService.getLastRequestMeta()
+			const { mentors, meta } = await this.userService.getMentors(
+				pagination
+			)
 
 			res.status(200).send({ data: mentors, meta })
 		} catch (error: any) {
@@ -205,9 +205,9 @@ export class UserController {
 				context.query
 			)
 
-			const students = await this.userService.getStudents(pagination)
-
-			const meta = await this.userService.getLastRequestMeta()
+			const { students, meta } = await this.userService.getStudents(
+				pagination
+			)
 
 			res.status(200).send({ data: students, meta })
 		} catch (error: any) {
@@ -229,12 +229,10 @@ export class UserController {
 				context.query
 			)
 
-			const students = await this.userService.getStudentsOf(
+			const { students, meta } = await this.userService.getStudentsOf(
 				context.credentials.userId,
 				pagination
 			)
-
-			const meta = await this.userService.getLastRequestMeta()
 
 			res.status(200).send({ data: students, meta })
 		} catch (error: any) {
@@ -255,9 +253,9 @@ export class UserController {
 				context.query
 			)
 
-			const users = await this.userService.getUsers(pagination)
-
-			const meta = await this.userService.getLastRequestMeta()
+			const { users, meta } = await this.userService.getUsers(
+				pagination
+			)
 
 			res.status(200).send({ data: users, meta })
 		} catch (error: any) {

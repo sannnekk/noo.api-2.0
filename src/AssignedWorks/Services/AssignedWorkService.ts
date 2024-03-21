@@ -61,14 +61,14 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			pagination
 		)
 
-		this.storeRequestMeta(
+		const meta = await this.getRequestMeta(
 			this.assignedWorkRepository,
 			conditions,
-			relations,
-			pagination
+			pagination,
+			relations
 		)
 
-		return assignedWorks
+		return { assignedWorks, meta }
 	}
 
 	public async getWorkBySlug(slug: AssignedWork['slug']) {

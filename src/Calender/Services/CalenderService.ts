@@ -72,23 +72,22 @@ export class CalenderService extends Service<CalenderEvent> {
 	public async get(
 		username: User['username'],
 		pagination?: Pagination
-	): Promise<CalenderEvent[]> {
+	) {
+		const condition = { username }
 		const events = this.calenderEventRepository.find(
-			{
-				username,
-			},
+			condition,
 			undefined,
 			pagination
 		)
 
-		this.storeRequestMeta(
+		const meta = this.getRequestMeta(
 			this.calenderEventRepository,
-			undefined,
-			undefined,
-			pagination
+			condition,
+			pagination || new Pagination(),
+			[]
 		)
 
-		return events
+		return { events, meta }
 	}
 
 	public async getOne(

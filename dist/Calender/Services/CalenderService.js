@@ -1,3 +1,4 @@
+import { Pagination } from '../../Core/Data/Pagination.js';
 import { Service } from '../../Core/Services/Service.js';
 import { UnauthorizedError } from '../../Core/Errors/UnauthorizedError.js';
 import { CalenderEventRepository } from '../Data/CalenderEventRepository.js';
@@ -46,11 +47,10 @@ export class CalenderService extends Service {
         await this.calenderEventRepository.update(event);
     }
     async get(username, pagination) {
-        const events = this.calenderEventRepository.find({
-            username,
-        }, undefined, pagination);
-        this.storeRequestMeta(this.calenderEventRepository, undefined, undefined, pagination);
-        return events;
+        const condition = { username };
+        const events = this.calenderEventRepository.find(condition, undefined, pagination);
+        const meta = this.getRequestMeta(this.calenderEventRepository, condition, pagination || new Pagination(), []);
+        return { events, meta };
     }
     async getOne(id, username) {
         const event = await this.calenderEventRepository.findOne({ id });

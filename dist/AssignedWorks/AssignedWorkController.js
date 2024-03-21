@@ -28,9 +28,8 @@ let AssignedWorkController = class AssignedWorkController {
         try {
             Asserts.isAuthenticated(context);
             const pagination = this.assignedWorkValidator.validatePagination(context.query);
-            const works = await this.assignedWorkService.getWorks(context.credentials.userId, context.credentials.role, pagination);
-            const meta = await this.assignedWorkService.getLastRequestMeta();
-            res.status(200).send({ data: works, meta });
+            const { assignedWorks, meta } = await this.assignedWorkService.getWorks(context.credentials.userId, context.credentials.role, pagination);
+            res.status(200).send({ data: assignedWorks, meta });
         }
         catch (error) {
             const { status, message } = getErrorData(error);
