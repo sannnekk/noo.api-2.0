@@ -14,5 +14,4 @@ export interface Work extends BaseModel {
 	tasks: WorkTask[]
 	taskIds: string[]
 	assignedWorks: AssignedWork[]
-	assignedWorkIds: AssignedWork['id'][]
 }

@@ -82,9 +82,6 @@ export class WorkModel extends Model implements Work {
 	)
 	assignedWorks!: AssignedWork[]
 
-	@RelationId((work: WorkModel) => work.assignedWorks)
-	assignedWorkIds!: string[]
-
 	static entriesToSearch() {
 		return ['name', 'description']
 	}

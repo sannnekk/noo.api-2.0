@@ -34,7 +34,6 @@ let WorkModel = class WorkModel extends Model {
     tasks;
     taskIds;
     assignedWorks;
-    assignedWorkIds;
     static entriesToSearch() {
         return ['name', 'description'];
     }
@@ -90,10 +89,6 @@ __decorate([
     OneToMany(() => AssignedWorkModel, (assignedWork) => assignedWork.work),
     __metadata("design:type", Array)
 ], WorkModel.prototype, "assignedWorks", void 0);
-__decorate([
-    RelationId((work) => work.assignedWorks),
-    __metadata("design:type", Array)
-], WorkModel.prototype, "assignedWorkIds", void 0);
 WorkModel = __decorate([
     Entity('work'),
     __metadata("design:paramtypes", [Object])
