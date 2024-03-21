@@ -212,12 +212,14 @@ export class CourseService extends Service<Course> {
 		students: User[],
 		material: CourseMaterial
 	): Promise<void> {
-		if (!material.workId) return
+		if (!material.workId || !material.work?.id) return
+
+		const workId = material.workId || material.work?.id
 
 		try {
 			await this.assignedWorkService.createWorks(
 				students,
-				material.workId,
+				workId,
 				material.workSolveDeadline,
 				material.workCheckDeadline
 			)
