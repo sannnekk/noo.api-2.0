@@ -62,6 +62,14 @@ export class CourseController {
 				context.params.slug
 			)
 
+			if (
+				context.credentials.role === 'student' ||
+				context.credentials.role == 'mentor'
+			) {
+				course.studentIds = []
+				course.students = []
+			}
+
 			res.status(200).send({ data: course })
 		} catch (error: any) {
 			const { status, message } = getErrorData(error)

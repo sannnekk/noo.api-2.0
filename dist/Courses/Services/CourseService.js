@@ -37,9 +37,10 @@ export class CourseService extends Service {
         }
         const courses = await this.courseRepository.find(conditions, undefined, pagination);
         const meta = await this.getRequestMeta(this.courseRepository, conditions, pagination, []);
-        // Clear chapters and materials as they are not needed in the list
+        // Clear chapters, students and materials as they are not needed in the list
         for (const course of courses) {
             course.chapters = [];
+            course.studentIds = [];
         }
         return { courses, meta };
     }

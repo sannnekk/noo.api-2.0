@@ -63,9 +63,10 @@ export class CourseService extends Service<Course> {
 			[]
 		)
 
-		// Clear chapters and materials as they are not needed in the list
+		// Clear chapters, students and materials as they are not needed in the list
 		for (const course of courses) {
 			course.chapters = []
+			course.studentIds = []
 		}
 
 		return { courses, meta }

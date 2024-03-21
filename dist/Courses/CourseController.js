@@ -44,6 +44,11 @@ let CourseController = class CourseController {
             this.courseValidator.validateSlug(context.params.slug);
             Asserts.isAuthenticated(context);
             const course = await this.courseService.getBySlug(context.params.slug);
+            if (context.credentials.role === 'student' ||
+                context.credentials.role == 'mentor') {
+                course.studentIds = [];
+                course.students = [];
+            }
             res.status(200).send({ data: course });
         }
         catch (error) {
