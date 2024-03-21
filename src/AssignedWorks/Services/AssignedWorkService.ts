@@ -143,41 +143,31 @@ export class AssignedWorkService extends Service<AssignedWork> {
 	}
 
 	public async createWorks(
-		students: User[],
-		workId: Work['id'],
-		solveDeadline: Date | undefined,
-		checkDeadline: Date | undefined
+		assignedWorks: {
+			student: User
+			work: Work | undefined
+			solveDeadlineAt: Date | undefined
+			checkDeadlineAt: Date | undefined
+		}[]
 	) {
-		if (students.length === 0) {
+		if (!assignedWorks.length) {
 			return
 		}
+		const data: AssignedWork[] = assignedWorks
+			.filter((assignedWork) => assignedWork.work)
+			.map(
+				(assignedWork) =>
+					({
+						student: assignedWork.student,
+						mentors: [assignedWork.student.mentor as User],
+						work: { id: assignedWork.work!.id } as Work,
+						solveDeadlineAt: assignedWork.solveDeadlineAt,
+						checkDeadlineAt: assignedWork.checkDeadlineAt,
+						maxScore: this.getMaxScore(assignedWork.work!.tasks || []),
+					} as AssignedWork)
+			)
 
-		const workModel = await this.workRepository.findOne(
-			{
-				id: workId,
-			},
-			['tasks']
-		)
-
-		if (!workModel) {
-			throw new NotFoundError('Работа не найдена')
-		}
-
-		const maxScore = this.getMaxScore(workModel.tasks || [])
-
-		const assignedWorks: AssignedWork[] = students.map(
-			(student) =>
-				({
-					student,
-					mentors: [student.mentor! as User],
-					work: { id: workModel.id } as Work,
-					solveDeadlineAt: solveDeadline,
-					checkDeadlineAt: checkDeadline,
-					maxScore,
-				} as AssignedWork)
-		)
-
-		await this.assignedWorkRepository.createMany(assignedWorks)
+		await this.assignedWorkRepository.createMany(data)
 
 		// TODO: create calender events for each work
 	}

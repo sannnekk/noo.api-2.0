@@ -82,14 +82,22 @@ export class CourseService extends Service {
                     slug: courseSlug,
                 },
             },
-        });
-        const user = await this.userRepository.findOne({ id: userId });
+        }, ['work.tasks']);
+        const user = await this.userRepository.findOne({ id: userId }, [
+            'mentor',
+        ]);
         if (!user) {
             throw new NotFoundError('Пользователь не найден');
         }
-        for (const material of materials) {
-            await this.assignWorkToStudents([user], material);
+        try {
+            await this.assignedWorkService.createWorks(materials.map((material) => ({
+                student: user,
+                work: material.work,
+                solveDeadlineAt: material.workSolveDeadline,
+                checkDeadlineAt: material.workCheckDeadline,
+            })));
         }
+        catch (e) { }
     }
     async assignStudents(courseSlug, studentIds) {
         const course = await this.courseRepository.findOne({
@@ -106,13 +114,24 @@ export class CourseService extends Service {
         catch (e) {
             throw new UnknownError('Не удалось обновить список учеников');
         }
+        /* if (newStudentIds.length === 0) return
+
         const materials = (course.chapters || [])
             .flatMap((chapter) => chapter.materials)
-            .filter(Boolean);
-        const students = await this.userRepository.find(newStudentIds.map((id) => ({ id })));
+            .filter(Boolean) as CourseMaterial[]
+
+        const students = await this.userRepository.find(
+            newStudentIds.map((id) => ({ id }))
+        )
+
         for (const material of materials) {
-            await this.assignWorkToStudents(students, material);
-        }
+            console.log(
+                'Assigning work to students',
+                students.map((s) => s.username),
+                material.name
+            )
+            await this.assignWorkToStudents(students, material)
+        } */
     }
     async assignWorkToMaterial(materialSlug, workId, solveDeadline, checkDeadline) {
         const material = await this.materialRepository.findOne({
@@ -125,18 +144,14 @@ export class CourseService extends Service {
         material.workId = workId;
         material.workSolveDeadline = solveDeadline;
         material.workCheckDeadline = checkDeadline;
-        const students = await this.userRepository.find((material.chapter?.course?.studentIds || []).map((id) => ({ id })));
         await this.materialRepository.update(material);
-        await this.assignWorkToStudents(students, material);
-    }
-    async assignWorkToStudents(students, material) {
-        if (!material.workId || !material.work?.id)
-            return;
-        const workId = material.workId || material.work?.id;
-        try {
-            await this.assignedWorkService.createWorks(students, workId, material.workSolveDeadline, material.workCheckDeadline);
-        }
-        catch (e) { }
+        /* if (!material.chapter?.course?.studentIds?.length) return
+
+        const students = await this.userRepository.find(
+            (material.chapter?.course?.studentIds || []).map((id) => ({ id }))
+        )
+
+        await this.assignWorkToStudents(students, material) */
     }
     async create(course, authorId) {
         const author = await this.userRepository.findOne({ id: authorId });

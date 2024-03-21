@@ -119,23 +119,35 @@ export class CourseService extends Service<Course> {
 		courseSlug: Course['slug'],
 		userId: User['id']
 	) {
-		const materials = await this.materialRepository.find({
-			chapter: {
-				course: {
-					slug: courseSlug,
+		const materials = await this.materialRepository.find(
+			{
+				chapter: {
+					course: {
+						slug: courseSlug,
+					},
 				},
-			},
-		} as any)
+			} as any,
+			['work.tasks' as any]
+		)
 
-		const user = await this.userRepository.findOne({ id: userId })
+		const user = await this.userRepository.findOne({ id: userId }, [
+			'mentor',
+		])
 
 		if (!user) {
 			throw new NotFoundError('Пользователь не найден')
 		}
 
-		for (const material of materials) {
-			await this.assignWorkToStudents([user], material)
-		}
+		try {
+			await this.assignedWorkService.createWorks(
+				materials.map((material) => ({
+					student: user,
+					work: material.work,
+					solveDeadlineAt: material.workSolveDeadline,
+					checkDeadlineAt: material.workCheckDeadline,
+				}))
+			)
+		} catch (e: any) {}
 	}
 
 	public async assignStudents(
@@ -165,6 +177,8 @@ export class CourseService extends Service<Course> {
 			throw new UnknownError('Не удалось обновить список учеников')
 		}
 
+		/* if (newStudentIds.length === 0) return
+
 		const materials = (course.chapters || [])
 			.flatMap((chapter) => chapter.materials)
 			.filter(Boolean) as CourseMaterial[]
@@ -174,8 +188,13 @@ export class CourseService extends Service<Course> {
 		)
 
 		for (const material of materials) {
+			console.log(
+				'Assigning work to students',
+				students.map((s) => s.username),
+				material.name
+			)
 			await this.assignWorkToStudents(students, material)
-		}
+		} */
 	}
 
 	public async assignWorkToMaterial(
@@ -200,30 +219,15 @@ export class CourseService extends Service<Course> {
 		material.workSolveDeadline = solveDeadline
 		material.workCheckDeadline = checkDeadline
 
+		await this.materialRepository.update(material)
+
+		/* if (!material.chapter?.course?.studentIds?.length) return
+
 		const students = await this.userRepository.find(
 			(material.chapter?.course?.studentIds || []).map((id) => ({ id }))
 		)
 
-		await this.materialRepository.update(material)
-		await this.assignWorkToStudents(students, material)
-	}
-
-	public async assignWorkToStudents(
-		students: User[],
-		material: CourseMaterial
-	): Promise<void> {
-		if (!material.workId || !material.work?.id) return
-
-		const workId = material.workId || material.work?.id
-
-		try {
-			await this.assignedWorkService.createWorks(
-				students,
-				workId,
-				material.workSolveDeadline,
-				material.workCheckDeadline
-			)
-		} catch (e: any) {}
+		await this.assignWorkToStudents(students, material) */
 	}
 
 	public async create(
