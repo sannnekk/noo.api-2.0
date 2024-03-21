@@ -54,7 +54,9 @@ export class CourseService extends Service {
     }
     async getAssignedWorkToMaterial(materialSlug, userId) {
         const assignedWork = await this.assignedWorkRepository.findOne({
-            studentId: userId,
+            student: {
+                id: userId,
+            },
             work: {
                 material: {
                     slug: materialSlug,

@@ -88,7 +88,9 @@ export class CourseService extends Service<Course> {
 		userId: User['id']
 	): Promise<AssignedWork | null> {
 		const assignedWork = await this.assignedWorkRepository.findOne({
-			studentId: userId,
+			student: {
+				id: userId,
+			},
 			work: {
 				material: {
 					slug: materialSlug,
