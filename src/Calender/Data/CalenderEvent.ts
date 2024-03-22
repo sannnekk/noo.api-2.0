@@ -20,6 +20,6 @@ export interface CalenderEvent extends BaseModel {
 		| 'work-made'
 		| 'event'
 	username: User['username']
-	assignedWork?: AssignedWork
-	assignedWorkId?: AssignedWork['id']
+	//assignedWork?: AssignedWork
+	//assignedWorkId?: AssignedWork['id']
 }

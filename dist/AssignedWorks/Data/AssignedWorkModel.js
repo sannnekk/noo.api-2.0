@@ -14,7 +14,6 @@ import { UserModel } from '../../Users/Data/UserModel.js';
 import { WorkModel } from '../../Works/Data/WorkModel.js';
 import { AssignedWorkAnswerModel } from './Relations/AssignedWorkAnswerModel.js';
 import { AssignedWorkCommentModel } from './Relations/AssignedWorkCommentModel.js';
-import { CalenderEventModel } from '../../Calender/Data/CalenderEventModel.js';
 let AssignedWorkModel = class AssignedWorkModel extends Model {
     constructor(data) {
         super();
@@ -47,7 +46,11 @@ let AssignedWorkModel = class AssignedWorkModel extends Model {
     answerIds;
     comments;
     commentIds;
-    calenderEvents;
+    /* @OneToMany(
+        () => CalenderEventModel,
+        (calenderEvent) => calenderEvent.assignedWork
+    )
+    calenderEvents!: CalenderEventModel[] */
     score;
     maxScore;
     isArchived = false;
@@ -185,10 +188,6 @@ __decorate([
     RelationId((assignedWork) => assignedWork.comments),
     __metadata("design:type", Array)
 ], AssignedWorkModel.prototype, "commentIds", void 0);
-__decorate([
-    OneToMany(() => CalenderEventModel, (calenderEvent) => calenderEvent.assignedWork),
-    __metadata("design:type", Array)
-], AssignedWorkModel.prototype, "calenderEvents", void 0);
 __decorate([
     Column({
         name: 'score',

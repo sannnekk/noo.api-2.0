@@ -22,7 +22,7 @@ export class CalenderService extends Service<CalenderEvent> {
 		await this.calenderEventRepository.create({ ...event, username })
 	}
 
-	public async createFromWork(work: AssignedWork): Promise<void> {
+	/* public async createFromWork(work: AssignedWork): Promise<void> {
 		if (work.solveDeadlineAt) {
 			await this.createSolveDeadlineEvent(work)
 		}
@@ -38,7 +38,7 @@ export class CalenderService extends Service<CalenderEvent> {
 		if (work.checkedAt) {
 			await this.createWorkCheckedEvent(work)
 		}
-	}
+	} */
 
 	public async updateDeadlineFromWork(
 		work: AssignedWork
@@ -134,7 +134,7 @@ export class CalenderService extends Service<CalenderEvent> {
 		await this.calenderEventRepository.delete(id)
 	}
 
-	private async createSolveDeadlineEvent(
+	/* private async createSolveDeadlineEvent(
 		work: AssignedWork
 	): Promise<void> {
 		await this.calenderEventRepository.create({
@@ -198,5 +198,5 @@ export class CalenderService extends Service<CalenderEvent> {
 				} as CalenderEvent)
 			})
 		)
-	}
+	} */
 }

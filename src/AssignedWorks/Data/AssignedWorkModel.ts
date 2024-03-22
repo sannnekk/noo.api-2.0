@@ -172,11 +172,11 @@ export class AssignedWorkModel extends Model implements AssignedWork {
 	)
 	commentIds!: string[]
 
-	@OneToMany(
+	/* @OneToMany(
 		() => CalenderEventModel,
 		(calenderEvent) => calenderEvent.assignedWork
 	)
-	calenderEvents!: CalenderEventModel[]
+	calenderEvents!: CalenderEventModel[] */
 
 	@Column({
 		name: 'score',

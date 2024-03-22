@@ -80,7 +80,7 @@ export class CalenderEventModel extends Model implements CalenderEvent {
 	})
 	username!: string
 
-	@ManyToOne(
+	/* @ManyToOne(
 		() => AssignedWorkModel,
 		(assignedWork) => assignedWork.calenderEvents,
 		{
@@ -92,5 +92,5 @@ export class CalenderEventModel extends Model implements CalenderEvent {
 	@RelationId(
 		(calenderEvent: CalenderEventModel) => calenderEvent.assignedWork
 	)
-	assignedWorkId?: AssignedWork['id']
+	assignedWorkId?: AssignedWork['id'] */
 }
