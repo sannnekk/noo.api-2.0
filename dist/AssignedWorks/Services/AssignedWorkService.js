@@ -79,9 +79,9 @@ export class AssignedWorkService extends Service {
         if (!student.mentor) {
             throw new NotFoundError('У ученика нет куратора');
         }
-        assignedWork.work = work;
-        assignedWork.student = student;
-        assignedWork.mentors = [student.mentor];
+        assignedWork.work = { id: work.id };
+        assignedWork.student = { id: student.id };
+        assignedWork.mentors = [{ id: student.mentor.id }];
         assignedWork.maxScore = this.getMaxScore(work.tasks || []);
         await this.assignedWorkRepository.create(assignedWork);
         // await this.calenderService.createFromWork(createdWork)
@@ -98,20 +98,19 @@ export class AssignedWorkService extends Service {
         }
         if (foundWork.solveDeadlineAt &&
             new Date() > foundWork.solveDeadlineAt) {
-            work.solveStatus = 'made-after-deadline';
+            foundWork.solveStatus = 'made-after-deadline';
         }
         else {
-            work.solveStatus = 'made-in-deadline';
+            foundWork.solveStatus = 'made-in-deadline';
         }
-        work.solvedAt = new Date();
-        work.comments = this.taskService.automatedCheck(foundWork.work.tasks, work.answers);
+        foundWork.solvedAt = new Date();
+        foundWork.comments = this.taskService.automatedCheck(foundWork.work.tasks, work.answers);
         if (work.work.tasks.every((task) => task.type !== 'text')) {
-            work.checkStatus = 'checked-in-deadline';
-            work.checkedAt = new Date();
-            work.score = this.getScore(work.comments);
+            foundWork.checkStatus = 'checked-in-deadline';
+            foundWork.checkedAt = new Date();
+            foundWork.score = this.getScore(work.comments);
         }
-        const newWork = new AssignedWorkModel({ ...foundWork, ...work });
-        await this.assignedWorkRepository.update(newWork);
+        await this.assignedWorkRepository.update(foundWork);
     }
     async checkWork(work) {
         const foundWork = await this.assignedWorkRepository.findOne({
@@ -128,20 +127,19 @@ export class AssignedWorkService extends Service {
         }
         if (foundWork.checkDeadlineAt &&
             new Date() > foundWork.checkDeadlineAt) {
-            work.checkStatus = 'checked-after-deadline';
+            foundWork.checkStatus = 'checked-after-deadline';
         }
         else {
-            work.checkStatus = 'checked-in-deadline';
+            foundWork.checkStatus = 'checked-in-deadline';
         }
-        work.checkedAt = new Date();
-        work.score = this.getScore(work.comments);
-        const newWork = new AssignedWorkModel({ ...foundWork, ...work });
-        await this.assignedWorkRepository.update(newWork);
+        foundWork.checkedAt = new Date();
+        foundWork.score = this.getScore(work.comments);
+        await this.assignedWorkRepository.update(foundWork);
     }
     async saveProgress(work, role) {
         const foundWork = await this.assignedWorkRepository.findOne({
             id: work.id,
-        });
+        }, ['answers', 'comments']);
         if (!foundWork) {
             throw new NotFoundError();
         }

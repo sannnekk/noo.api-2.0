@@ -126,9 +126,9 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			throw new NotFoundError('У ученика нет куратора')
 		}
 
-		assignedWork.work = work
-		assignedWork.student = student
-		assignedWork.mentors = [student.mentor!]
+		assignedWork.work = { id: work.id } as Work
+		assignedWork.student = { id: student.id } as User
+		assignedWork.mentors = [{ id: student.mentor.id } as User]
 		assignedWork.maxScore = this.getMaxScore(work.tasks || [])
 
 		await this.assignedWorkRepository.create(assignedWork)
@@ -160,26 +160,24 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			foundWork.solveDeadlineAt &&
 			new Date() > foundWork.solveDeadlineAt
 		) {
-			work.solveStatus = 'made-after-deadline'
+			foundWork.solveStatus = 'made-after-deadline'
 		} else {
-			work.solveStatus = 'made-in-deadline'
+			foundWork.solveStatus = 'made-in-deadline'
 		}
 
-		work.solvedAt = new Date()
-		work.comments = this.taskService.automatedCheck(
+		foundWork.solvedAt = new Date()
+		foundWork.comments = this.taskService.automatedCheck(
 			foundWork.work.tasks,
 			work.answers
 		)
 
 		if (work.work.tasks.every((task) => task.type !== 'text')) {
-			work.checkStatus = 'checked-in-deadline'
-			work.checkedAt = new Date()
-			work.score = this.getScore(work.comments)
+			foundWork.checkStatus = 'checked-in-deadline'
+			foundWork.checkedAt = new Date()
+			foundWork.score = this.getScore(work.comments)
 		}
 
-		const newWork = new AssignedWorkModel({ ...foundWork, ...work })
-
-		await this.assignedWorkRepository.update(newWork)
+		await this.assignedWorkRepository.update(foundWork)
 	}
 
 	public async checkWork(work: AssignedWork) {
@@ -212,23 +210,24 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			foundWork.checkDeadlineAt &&
 			new Date() > foundWork.checkDeadlineAt
 		) {
-			work.checkStatus = 'checked-after-deadline'
+			foundWork.checkStatus = 'checked-after-deadline'
 		} else {
-			work.checkStatus = 'checked-in-deadline'
+			foundWork.checkStatus = 'checked-in-deadline'
 		}
 
-		work.checkedAt = new Date()
-		work.score = this.getScore(work.comments)
+		foundWork.checkedAt = new Date()
+		foundWork.score = this.getScore(work.comments)
 
-		const newWork = new AssignedWorkModel({ ...foundWork, ...work })
-
-		await this.assignedWorkRepository.update(newWork)
+		await this.assignedWorkRepository.update(foundWork)
 	}
 
 	public async saveProgress(work: AssignedWork, role: User['role']) {
-		const foundWork = await this.assignedWorkRepository.findOne({
-			id: work.id,
-		})
+		const foundWork = await this.assignedWorkRepository.findOne(
+			{
+				id: work.id,
+			},
+			['answers', 'comments']
+		)
 
 		if (!foundWork) {
 			throw new NotFoundError()
