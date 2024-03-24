@@ -17,18 +17,20 @@ export class WorkService extends Service {
         return { works, meta };
     }
     async getWorkBySlug(slug) {
-        const work = await this.workRepository.findOne({ slug }, ['tasks']);
+        const work = await this.workRepository.findOne({ slug }, ['tasks'], { tasks: { order: 'ASC' } });
         if (!work) {
             throw new NotFoundError();
         }
-        return this.sortTasks(work);
+        return work;
     }
     async getWorkById(id) {
-        const work = await this.workRepository.findOne({ id }, ['tasks']);
+        const work = await this.workRepository.findOne({ id }, ['tasks'], {
+            tasks: { order: 'ASC' },
+        });
         if (!work) {
             throw new NotFoundError();
         }
-        return this.sortTasks(work);
+        return work;
     }
     async createWork(work) {
         return await this.workRepository.create(work);
@@ -71,9 +73,5 @@ export class WorkService extends Service {
             throw new NotFoundError();
         }
         return this.workRepository.delete(id);
-    }
-    sortTasks(work) {
-        work.tasks = work.tasks.sort((a, b) => a.order - b.order);
-        return work;
     }
 }

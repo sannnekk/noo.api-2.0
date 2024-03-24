@@ -73,38 +73,28 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		return { assignedWorks, meta }
 	}
 
-	public async getWorkBySlug(slug: AssignedWork['slug']) {
-		const work = await this.assignedWorkRepository.findOne({ slug }, [
-			'student',
-			'mentors',
-			'work.tasks' as any,
-			'answers',
-			'comments',
-		])
-
-		if (!work) {
-			throw new NotFoundError()
-		}
-
-		work.work = this.sortTasks(work.work)
-
-		return work
-	}
-
 	public async getWorkById(id: AssignedWork['id']) {
-		const work = await this.assignedWorkRepository.findOne({ id }, [
-			'mentors',
-			'student',
-			'work.tasks' as any,
-			'answers',
-			'comments',
-		])
+		const work = await this.assignedWorkRepository.findOne(
+			{ id },
+			[
+				'mentors',
+				'student',
+				'work.tasks' as any,
+				'answers',
+				'comments',
+			],
+			{
+				work: {
+					tasks: {
+						order: 'ASC',
+					},
+				},
+			}
+		)
 
 		if (!work) {
 			throw new NotFoundError()
 		}
-
-		work.work = this.sortTasks(work.work)
 
 		return work
 	}
@@ -406,11 +396,5 @@ export class AssignedWorkService extends Service<AssignedWork> {
 
 	private getScore(comments: AssignedWorkComment[]) {
 		return comments.reduce((acc, comment) => acc + comment.score, 0)
-	}
-
-	private sortTasks(work: Work) {
-		work.tasks = work.tasks.sort((a, b) => a.order - b.order)
-
-		return work
 	}
 }

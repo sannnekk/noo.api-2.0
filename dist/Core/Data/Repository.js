@@ -80,10 +80,11 @@ export class Repository {
             take: pagination.take,
         }));
     }
-    async findOne(conditions, relations) {
+    async findOne(conditions, relations, sort) {
         return this.repository.findOne({
             relations: relations || undefined,
             where: conditions,
+            order: sort,
         });
     }
     async count(conditions, pagination) {

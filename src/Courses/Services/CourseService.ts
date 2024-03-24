@@ -73,15 +73,24 @@ export class CourseService extends Service<Course> {
 	}
 
 	public async getBySlug(slug: string): Promise<Course> {
-		const course = await this.courseRepository.findOne({ slug }, [
-			'chapters.materials' as any,
-		])
+		const course = await this.courseRepository.findOne(
+			{ slug },
+			['chapters.materials' as any],
+			{
+				chapters: {
+					order: 'ASC',
+					materials: {
+						order: 'ASC',
+					},
+				},
+			}
+		)
 
 		if (!course) {
 			throw new NotFoundError()
 		}
 
-		return this.sortMaterials(course)
+		return course
 	}
 
 	public async getAssignedWorkToMaterial(
@@ -203,29 +212,5 @@ export class CourseService extends Service<Course> {
 
 	public async delete(id: Course['id']): Promise<void> {
 		await this.courseRepository.delete(id)
-	}
-
-	private sortMaterials(course: Course): Course {
-		if (!course.chapters) return course
-
-		course.chapters = this.sortChapters(course).chapters!.map(
-			(chapter) => {
-				chapter.materials = (chapter.materials || []).sort(
-					(a, b) => a.order - b.order
-				)
-
-				return chapter
-			}
-		)
-
-		return course
-	}
-
-	private sortChapters(course: Course): Course {
-		course.chapters = (course.chapters || []).sort(
-			(a, b) => a.order - b.order
-		)
-
-		return course
 	}
 }

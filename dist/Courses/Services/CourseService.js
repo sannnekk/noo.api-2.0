@@ -45,13 +45,18 @@ export class CourseService extends Service {
         return { courses, meta };
     }
     async getBySlug(slug) {
-        const course = await this.courseRepository.findOne({ slug }, [
-            'chapters.materials',
-        ]);
+        const course = await this.courseRepository.findOne({ slug }, ['chapters.materials'], {
+            chapters: {
+                order: 'ASC',
+                materials: {
+                    order: 'ASC',
+                },
+            },
+        });
         if (!course) {
             throw new NotFoundError();
         }
-        return this.sortMaterials(course);
+        return course;
     }
     async getAssignedWorkToMaterial(materialSlug, userId) {
         const assignedWork = await this.assignedWorkRepository.findOne({
@@ -136,18 +141,5 @@ export class CourseService extends Service {
     }
     async delete(id) {
         await this.courseRepository.delete(id);
-    }
-    sortMaterials(course) {
-        if (!course.chapters)
-            return course;
-        course.chapters = this.sortChapters(course).chapters.map((chapter) => {
-            chapter.materials = (chapter.materials || []).sort((a, b) => a.order - b.order);
-            return chapter;
-        });
-        return course;
-    }
-    sortChapters(course) {
-        course.chapters = (course.chapters || []).sort((a, b) => a.order - b.order);
-        return course;
     }
 }

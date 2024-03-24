@@ -103,11 +103,13 @@ export abstract class Repository<T extends BaseModel> {
 
 	async findOne(
 		conditions: Record<string, unknown> | Record<string, unknown>[],
-		relations?: (keyof Partial<T>)[]
+		relations?: (keyof Partial<T>)[],
+		sort?: any | undefined
 	): Promise<T | null> {
 		return this.repository.findOne({
 			relations: (relations as string[]) || undefined,
 			where: conditions,
+			order: sort,
 		}) as Promise<T | null>
 	}
 
