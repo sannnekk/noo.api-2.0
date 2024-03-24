@@ -20,24 +20,8 @@ export class AssignedWorkValidator extends Validator {
 			studentId: z.string().ulid().optional().nullable(),
 			workId: z.string().ulid().optional().nullable(),
 			mentorIds: z.array(z.string().ulid()).optional(),
-			answers: z
-				.array(
-					z.object({
-						content: z.any().optional().nullable(),
-						word: z.string().optional().nullable(),
-						taskId: z.string().ulid(),
-					})
-				)
-				.optional(),
-			comments: z
-				.array(
-					z.object({
-						content: z.any().optional().nullable(),
-						score: z.number().optional().nullable(),
-						taskId: z.string().ulid(),
-					})
-				)
-				.optional(),
+			answers: z.any().optional().nullable(),
+			comments: z.any().optional().nullable(),
 		})
 
 		schema.parse(data)

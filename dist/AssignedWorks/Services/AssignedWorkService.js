@@ -108,7 +108,7 @@ export class AssignedWorkService extends Service {
         if (foundWork.work.tasks.every((task) => task.type !== 'text')) {
             foundWork.checkStatus = 'checked-in-deadline';
             foundWork.checkedAt = new Date();
-            foundWork.score = this.getScore(work.comments);
+            foundWork.score = this.getScore(foundWork.comments);
         }
         await this.assignedWorkRepository.update(foundWork);
     }
