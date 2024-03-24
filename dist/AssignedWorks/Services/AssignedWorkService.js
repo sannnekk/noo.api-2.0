@@ -105,7 +105,7 @@ export class AssignedWorkService extends Service {
         }
         foundWork.solvedAt = new Date();
         foundWork.comments = this.taskService.automatedCheck(foundWork.work.tasks, work.answers);
-        if (work.work.tasks.every((task) => task.type !== 'text')) {
+        if (foundWork.work.tasks.every((task) => task.type !== 'text')) {
             foundWork.checkStatus = 'checked-in-deadline';
             foundWork.checkedAt = new Date();
             foundWork.score = this.getScore(work.comments);

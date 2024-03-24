@@ -171,7 +171,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			work.answers
 		)
 
-		if (work.work.tasks.every((task) => task.type !== 'text')) {
+		if (foundWork.work.tasks.every((task) => task.type !== 'text')) {
 			foundWork.checkStatus = 'checked-in-deadline'
 			foundWork.checkedAt = new Date()
 			foundWork.score = this.getScore(work.comments)
