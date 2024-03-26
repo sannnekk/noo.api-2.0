@@ -13,6 +13,7 @@ import * as Asserts from '@modules/core/Security/asserts'
 import { Context } from '@modules/core/Request/context'
 import { getErrorData } from '@modules/core/Response/helpers'
 import { Request, Response } from 'express'
+import json from 'big-json'
 
 @Controller('/assigned-work')
 export class AssignedWorkController {
@@ -73,7 +74,12 @@ export class AssignedWorkController {
 				Asserts.isAuthorized(context, work.mentorIds)
 			}
 
-			res.status(200).send({ data: work })
+			const payload = await json.stringify({ body: { data: work } })
+
+			res
+				.status(200)
+				.setHeader('Content-Type', 'application/json')
+				.send(payload)
 		} catch (error: any) {
 			const { status, message } = getErrorData(error)
 			res.status(status).send({ error: message })

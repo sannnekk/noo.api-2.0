@@ -15,6 +15,7 @@ import { AssignedWorkValidator } from './AssignedWorkValidator.js';
 import { AssignedWorkService } from './Services/AssignedWorkService.js';
 import * as Asserts from '../core/Security/asserts.js';
 import { getErrorData } from '../core/Response/helpers.js';
+import json from 'big-json';
 let AssignedWorkController = class AssignedWorkController {
     assignedWorkService;
     assignedWorkValidator;
@@ -53,7 +54,11 @@ let AssignedWorkController = class AssignedWorkController {
             else {
                 Asserts.isAuthorized(context, work.mentorIds);
             }
-            res.status(200).send({ data: work });
+            const payload = await json.stringify({ body: { data: work } });
+            res
+                .status(200)
+                .setHeader('Content-Type', 'application/json')
+                .send(payload);
         }
         catch (error) {
             const { status, message } = getErrorData(error);
