@@ -32,11 +32,8 @@ let UserModel = class UserModel extends Model {
     courses;
     courseIds;
     coursesAsStudent;
-    courseIdsAsStudent;
     assignedWorksAsMentor;
-    assignedWorkIdsAsMentor;
     assignedWorksAsStudent;
-    assignedWorkIdsAsStudent;
     telegramId;
     telegramUsername;
     password;
@@ -116,25 +113,13 @@ __decorate([
     __metadata("design:type", Array)
 ], UserModel.prototype, "coursesAsStudent", void 0);
 __decorate([
-    RelationId((user) => user.coursesAsStudent),
-    __metadata("design:type", Array)
-], UserModel.prototype, "courseIdsAsStudent", void 0);
-__decorate([
     ManyToMany(() => AssignedWorkModel, (assignedWork) => assignedWork.mentors),
     __metadata("design:type", Array)
 ], UserModel.prototype, "assignedWorksAsMentor", void 0);
 __decorate([
-    RelationId((user) => user.assignedWorksAsMentor),
-    __metadata("design:type", Array)
-], UserModel.prototype, "assignedWorkIdsAsMentor", void 0);
-__decorate([
     OneToMany(() => AssignedWorkModel, (assignedWork) => assignedWork.student),
     __metadata("design:type", Array)
 ], UserModel.prototype, "assignedWorksAsStudent", void 0);
-__decorate([
-    RelationId((user) => user.assignedWorksAsStudent),
-    __metadata("design:type", Array)
-], UserModel.prototype, "assignedWorkIdsAsStudent", void 0);
 __decorate([
     Column({
         name: 'telegram_id',

@@ -83,26 +83,17 @@ export class UserModel extends Model implements User {
 	@JoinTable()
 	coursesAsStudent?: Course[]
 
-	@RelationId((user: UserModel) => user.coursesAsStudent)
-	courseIdsAsStudent!: string[]
-
 	@ManyToMany(
 		() => AssignedWorkModel,
 		(assignedWork) => assignedWork.mentors
 	)
 	assignedWorksAsMentor?: AssignedWork[]
 
-	@RelationId((user: UserModel) => user.assignedWorksAsMentor)
-	assignedWorkIdsAsMentor!: string[]
-
 	@OneToMany(
 		() => AssignedWorkModel,
 		(assignedWork) => assignedWork.student
 	)
 	assignedWorksAsStudent?: AssignedWork[]
-
-	@RelationId((user: UserModel) => user.assignedWorksAsStudent)
-	assignedWorkIdsAsStudent!: string[]
 
 	@Column({
 		name: 'telegram_id',
