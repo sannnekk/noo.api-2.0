@@ -61,17 +61,12 @@ export class AssignedWorkController {
 			this.assignedWorkValidator.validateId(context.params.id)
 
 			const work = await this.assignedWorkService.getWorkById(
-				context.params.id
+				context.params.id,
+				context.credentials.role
 			)
 
 			if (context.credentials.role == 'student') {
 				Asserts.isAuthorized(context, work.studentId)
-
-				if (work && work.checkStatus === 'in-progress') {
-					work.comments = []
-				}
-			} else {
-				Asserts.isAuthorized(context, work.mentorIds)
 			}
 
 			const stream = json.createStringifyStream({

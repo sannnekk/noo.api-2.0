@@ -2,7 +2,13 @@ import { DeltaContentType } from '@modules/Core/Data/DeltaContentType'
 import { Model } from '@modules/Core/Data/Model'
 import * as ULID from '@modules/Core/Data/Ulid'
 import { AssignedWorkComment } from './AssignedWorkComment'
-import { Column, Entity, ManyToOne, RelationId } from 'typeorm'
+import {
+	Column,
+	Entity,
+	JoinColumn,
+	ManyToOne,
+	RelationId,
+} from 'typeorm'
 import { WorkTaskModel } from '@modules/Works/Data/Relations/WorkTaskModel'
 import { WorkTask } from '@modules/Works/Data/Relations/WorkTask'
 import { AssignedWorkModel } from '../AssignedWorkModel'
@@ -57,12 +63,18 @@ export class AssignedWorkCommentModel
 		() => AssignedWorkModel,
 		(assignedWork) => assignedWork.comments
 	)
+	@JoinColumn({
+		name: 'assignedWorkId',
+		referencedColumnName: 'id',
+	})
 	assignedWork?: AssignedWork | undefined
 
-	@RelationId(
-		(comment: AssignedWorkCommentModel) => comment.assignedWork
-	)
-	assignedWorkId?: AssignedWork['id']
+	@Column({
+		name: 'assignedWorkId',
+		type: 'varchar',
+		nullable: true,
+	})
+	assignedWorkId?: AssignedWorkModel['id']
 
 	private sluggify(): string {
 		return ULID.generate()

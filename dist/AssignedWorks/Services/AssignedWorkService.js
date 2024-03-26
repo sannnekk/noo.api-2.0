@@ -16,17 +16,23 @@ import { WorkRepository } from '../../Works/Data/WorkRepository.js';
 import { DeadlineAlreadyShiftedError } from '../Errors/DeadlineAlreadyShiftedError.js';
 import { WorkIsArchived } from '../Errors/WorkIsArchived.js';
 import { TaskService } from './TaskService.js';
+import { AssignedWorkCommentRepository } from '../Data/AssignedWorkCommentRepository.js';
+import { AssignedWorkAnswerRepository } from '../Data/AssignedWorkAnswerRepository.js';
 export class AssignedWorkService extends Service {
     taskService;
     assignedWorkRepository;
     workRepository;
     userRepository;
+    answerRepository;
+    commentRepository;
     constructor() {
         super();
         this.taskService = new TaskService();
         this.assignedWorkRepository = new AssignedWorkRepository();
         this.workRepository = new WorkRepository();
         this.userRepository = new UserRepository();
+        this.answerRepository = new AssignedWorkAnswerRepository();
+        this.commentRepository = new AssignedWorkCommentRepository();
     }
     async getWorks(userId, userRole, pagination) {
         // TODO: modify the conditions to load all assigned mentors instead of just one
@@ -44,14 +50,8 @@ export class AssignedWorkService extends Service {
         const meta = await this.getRequestMeta(this.assignedWorkRepository, conditions, pagination, relations);
         return { assignedWorks, meta };
     }
-    async getWorkById(id) {
-        const work = await this.assignedWorkRepository.findOne({ id }, [
-            'mentors',
-            'student',
-            'work.tasks',
-            'answers',
-            'comments',
-        ], {
+    async getWorkById(id, role) {
+        const work = await this.assignedWorkRepository.findOne({ id }, ['mentors', 'student', 'work.tasks'], {
             work: {
                 tasks: {
                     order: 'ASC',
@@ -60,6 +60,20 @@ export class AssignedWorkService extends Service {
         });
         if (!work) {
             throw new NotFoundError();
+        }
+        if (work.solveStatus !== 'not-started') {
+            const answers = await this.answerRepository.find({
+                assignedWorkId: work.id,
+            });
+            work.answers = answers;
+        }
+        if ((work.checkStatus === 'in-progress' && role === 'mentor') ||
+            work.checkStatus === 'checked-in-deadline' ||
+            work.checkStatus === 'checked-after-deadline') {
+            const comments = await this.commentRepository.find({
+                assignedWorkId: work.id,
+            });
+            work.comments = comments;
         }
         return work;
     }

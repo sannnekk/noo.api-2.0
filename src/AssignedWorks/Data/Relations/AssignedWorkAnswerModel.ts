@@ -6,6 +6,7 @@ import { WorkTask } from '@modules/Works/Data/Relations/WorkTask'
 import {
 	Column,
 	Entity,
+	JoinColumn,
 	JoinTable,
 	ManyToMany,
 	ManyToOne,
@@ -66,9 +67,17 @@ export class AssignedWorkAnswerModel
 		() => AssignedWorkModel,
 		(assignedWork) => assignedWork.answers
 	)
+	@JoinColumn({
+		name: 'assignedWorkId',
+		referencedColumnName: 'id',
+	})
 	assignedWork?: AssignedWork | undefined
 
-	@RelationId((answer: AssignedWorkAnswerModel) => answer.assignedWork)
+	@Column({
+		name: 'assignedWorkId',
+		type: 'varchar',
+		nullable: true,
+	})
 	assignedWorkId?: AssignedWorkModel['id']
 
 	public sluggify(): string {

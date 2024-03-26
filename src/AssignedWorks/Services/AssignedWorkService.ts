@@ -21,12 +21,16 @@ import { WorkIsArchived } from '../Errors/WorkIsArchived'
 import { TaskService } from './TaskService'
 import { Work } from '@modules/Works/Data/Work'
 import { CalenderService } from '@modules/Calender/Services/CalenderService'
+import { AssignedWorkCommentRepository } from '../Data/AssignedWorkCommentRepository'
+import { AssignedWorkAnswerRepository } from '../Data/AssignedWorkAnswerRepository'
 
 export class AssignedWorkService extends Service<AssignedWork> {
 	private readonly taskService: TaskService
 	private readonly assignedWorkRepository: AssignedWorkRepository
 	private readonly workRepository: WorkRepository
 	private readonly userRepository: UserRepository
+	private readonly answerRepository: AssignedWorkAnswerRepository
+	private readonly commentRepository: AssignedWorkCommentRepository
 
 	constructor() {
 		super()
@@ -35,6 +39,8 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		this.assignedWorkRepository = new AssignedWorkRepository()
 		this.workRepository = new WorkRepository()
 		this.userRepository = new UserRepository()
+		this.answerRepository = new AssignedWorkAnswerRepository()
+		this.commentRepository = new AssignedWorkCommentRepository()
 	}
 
 	public async getWorks(
@@ -73,16 +79,10 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		return { assignedWorks, meta }
 	}
 
-	public async getWorkById(id: AssignedWork['id']) {
+	public async getWorkById(id: AssignedWork['id'], role: User['role']) {
 		const work = await this.assignedWorkRepository.findOne(
 			{ id },
-			[
-				'mentors',
-				'student',
-				'work.tasks' as any,
-				'answers',
-				'comments',
-			],
+			['mentors', 'student', 'work.tasks' as any],
 			{
 				work: {
 					tasks: {
@@ -94,6 +94,26 @@ export class AssignedWorkService extends Service<AssignedWork> {
 
 		if (!work) {
 			throw new NotFoundError()
+		}
+
+		if (work.solveStatus !== 'not-started') {
+			const answers = await this.answerRepository.find({
+				assignedWorkId: work.id,
+			})
+
+			work.answers = answers
+		}
+
+		if (
+			(work.checkStatus === 'in-progress' && role === 'mentor') ||
+			work.checkStatus === 'checked-in-deadline' ||
+			work.checkStatus === 'checked-after-deadline'
+		) {
+			const comments = await this.commentRepository.find({
+				assignedWorkId: work.id,
+			})
+
+			work.comments = comments
 		}
 
 		return work

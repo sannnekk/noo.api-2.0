@@ -22,7 +22,7 @@ export const CoreDataSource = new DataSource({
 	password: process.env.DB_PASSWORD,
 	database: process.env.DB_NAME,
 	synchronize: false,
-	logging: false,
+	logging: true,
 	entities: [
 		MediaModel,
 		UserModel,

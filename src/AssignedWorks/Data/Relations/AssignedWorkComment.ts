@@ -8,4 +8,5 @@ export interface AssignedWorkComment extends BaseModel {
 	score: number
 	task?: WorkTask
 	taskId: WorkTask['id']
+	assignedWorkId?: string
 }

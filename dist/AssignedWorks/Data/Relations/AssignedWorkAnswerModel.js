@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 import { Model } from '../../../Core/Data/Model.js';
 import * as ULID from '../../../Core/Data/Ulid.js';
-import { Column, Entity, ManyToOne, RelationId, } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, RelationId, } from 'typeorm';
 import { WorkTaskModel } from '../../../Works/Data/Relations/WorkTaskModel.js';
 import { AssignedWorkModel } from '../AssignedWorkModel.js';
 let AssignedWorkAnswerModel = class AssignedWorkAnswerModel extends Model {
@@ -69,10 +69,18 @@ __decorate([
 ], AssignedWorkAnswerModel.prototype, "taskId", void 0);
 __decorate([
     ManyToOne(() => AssignedWorkModel, (assignedWork) => assignedWork.answers),
+    JoinColumn({
+        name: 'assignedWorkId',
+        referencedColumnName: 'id',
+    }),
     __metadata("design:type", Object)
 ], AssignedWorkAnswerModel.prototype, "assignedWork", void 0);
 __decorate([
-    RelationId((answer) => answer.assignedWork),
+    Column({
+        name: 'assignedWorkId',
+        type: 'varchar',
+        nullable: true,
+    }),
     __metadata("design:type", Object)
 ], AssignedWorkAnswerModel.prototype, "assignedWorkId", void 0);
 AssignedWorkAnswerModel = __decorate([

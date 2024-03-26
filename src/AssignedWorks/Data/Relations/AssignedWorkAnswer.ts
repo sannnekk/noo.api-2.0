@@ -8,4 +8,5 @@ export interface AssignedWorkAnswer extends BaseModel {
 	word?: string
 	task?: WorkTask
 	taskId: WorkTask['id']
+	assignedWorkId?: string
 }
