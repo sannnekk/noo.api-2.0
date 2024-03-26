@@ -103,7 +103,7 @@ export class AssignedWorkService extends Service {
     async solveWork(work) {
         const foundWork = await this.assignedWorkRepository.findOne({
             id: work.id,
-        }, ['work', 'work.tasks', 'comments', 'answers']);
+        }, ['work', 'work.tasks']);
         if (!foundWork) {
             throw new NotFoundError();
         }
@@ -129,7 +129,7 @@ export class AssignedWorkService extends Service {
     async checkWork(work) {
         const foundWork = await this.assignedWorkRepository.findOne({
             id: work.id,
-        }, ['comments', 'answers']);
+        });
         if (!foundWork) {
             throw new NotFoundError();
         }
@@ -153,7 +153,7 @@ export class AssignedWorkService extends Service {
     async saveProgress(work, role) {
         const foundWork = await this.assignedWorkRepository.findOne({
             id: work.id,
-        }, ['answers', 'comments']);
+        });
         if (!foundWork) {
             throw new NotFoundError();
         }

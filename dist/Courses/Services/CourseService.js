@@ -45,7 +45,7 @@ export class CourseService extends Service {
         return { courses, meta };
     }
     async getBySlug(slug) {
-        const course = await this.courseRepository.findOne({ slug }, ['chapters.materials'], {
+        const course = await this.courseRepository.findOne({ slug }, ['chapters.materials.work'], {
             chapters: {
                 order: 'ASC',
                 materials: {

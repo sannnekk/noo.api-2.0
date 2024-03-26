@@ -161,7 +161,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			{
 				id: work.id,
 			},
-			['work', 'work.tasks' as any, 'comments', 'answers']
+			['work', 'work.tasks' as any]
 		)
 
 		if (!foundWork) {
@@ -201,12 +201,9 @@ export class AssignedWorkService extends Service<AssignedWork> {
 	}
 
 	public async checkWork(work: AssignedWork) {
-		const foundWork = await this.assignedWorkRepository.findOne(
-			{
-				id: work.id,
-			},
-			['comments', 'answers']
-		)
+		const foundWork = await this.assignedWorkRepository.findOne({
+			id: work.id,
+		})
 
 		if (!foundWork) {
 			throw new NotFoundError()
@@ -242,12 +239,9 @@ export class AssignedWorkService extends Service<AssignedWork> {
 	}
 
 	public async saveProgress(work: AssignedWork, role: User['role']) {
-		const foundWork = await this.assignedWorkRepository.findOne(
-			{
-				id: work.id,
-			},
-			['answers', 'comments']
-		)
+		const foundWork = await this.assignedWorkRepository.findOne({
+			id: work.id,
+		})
 
 		if (!foundWork) {
 			throw new NotFoundError()
