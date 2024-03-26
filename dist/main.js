@@ -12,7 +12,6 @@ import { AssignedWorkController } from './AssignedWorks/AssignedWorkController.j
 import { MediaController } from './Media/MediaController.js';
 import { CalenderController } from './Calender/CalenderController.js';
 import { attachControllerInstances, } from '@decorators/express';
-import { AccessLogMiddleware } from './Core/Request/AccessLogMiddleware.js';
 await CoreDataSource.initialize();
 const app = express();
 const podId = uuid();
@@ -27,7 +26,7 @@ app.use(express.json({
     },
 }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-app.use(AccessLogMiddleware);
+//app.use(AccessLogMiddleware)
 app.use(ContextMiddleware);
 attachControllerInstances(app, [
     new UserController(),

@@ -110,14 +110,8 @@ export class WorkTaskModel extends Model implements WorkTask {
 	@OneToMany(() => AssignedWorkAnswerModel, (answer) => answer.task)
 	assignedWorkAnswers?: AssignedWorkAnswer[] | undefined
 
-	@RelationId((task: WorkTaskModel) => task.assignedWorkAnswers)
-	assignedWorkAnswerIds!: string[]
-
 	@OneToMany(() => AssignedWorkCommentModel, (comment) => comment.task)
 	assignedWorkComments?: AssignedWorkComment[] | undefined
-
-	@RelationId((task: WorkTaskModel) => task.assignedWorkComments)
-	assignedWorkCommentIds!: string[]
 
 	private sluggify(): string {
 		return ULID.generate()

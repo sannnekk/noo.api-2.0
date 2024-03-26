@@ -38,7 +38,7 @@ app.use(
 )
 app.use(express.urlencoded({ extended: true, limit: '50mb' }))
 
-app.use(AccessLogMiddleware)
+//app.use(AccessLogMiddleware)
 app.use(ContextMiddleware)
 
 attachControllerInstances(app, [

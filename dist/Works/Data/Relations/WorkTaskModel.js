@@ -37,9 +37,7 @@ let WorkTaskModel = class WorkTaskModel extends Model {
     checkHint;
     checkingStrategy;
     assignedWorkAnswers;
-    assignedWorkAnswerIds;
     assignedWorkComments;
-    assignedWorkCommentIds;
     sluggify() {
         return ULID.generate();
     }
@@ -129,17 +127,9 @@ __decorate([
     __metadata("design:type", Object)
 ], WorkTaskModel.prototype, "assignedWorkAnswers", void 0);
 __decorate([
-    RelationId((task) => task.assignedWorkAnswers),
-    __metadata("design:type", Array)
-], WorkTaskModel.prototype, "assignedWorkAnswerIds", void 0);
-__decorate([
     OneToMany(() => AssignedWorkCommentModel, (comment) => comment.task),
     __metadata("design:type", Object)
 ], WorkTaskModel.prototype, "assignedWorkComments", void 0);
-__decorate([
-    RelationId((task) => task.assignedWorkComments),
-    __metadata("design:type", Array)
-], WorkTaskModel.prototype, "assignedWorkCommentIds", void 0);
 WorkTaskModel = __decorate([
     Entity('work_task'),
     __metadata("design:paramtypes", [Object])
