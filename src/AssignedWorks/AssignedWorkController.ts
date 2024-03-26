@@ -74,12 +74,19 @@ export class AssignedWorkController {
 				Asserts.isAuthorized(context, work.mentorIds)
 			}
 
-			const payload = await json.stringify({ body: { data: work } })
+			const stream = json.createStringifyStream({
+				body: { data: work },
+			})
 
-			res
-				.status(200)
-				.setHeader('Content-Type', 'application/json')
-				.send(payload)
+			res.setHeader('Content-Type', 'application/json')
+
+			stream.on('data', (data: any) => {
+				res.write(data)
+			})
+
+			stream.on('end', () => {
+				res.end()
+			})
 		} catch (error: any) {
 			const { status, message } = getErrorData(error)
 			res.status(status).send({ error: message })

@@ -54,11 +54,16 @@ let AssignedWorkController = class AssignedWorkController {
             else {
                 Asserts.isAuthorized(context, work.mentorIds);
             }
-            const payload = await json.stringify({ body: { data: work } });
-            res
-                .status(200)
-                .setHeader('Content-Type', 'application/json')
-                .send(payload);
+            const stream = json.createStringifyStream({
+                body: { data: work },
+            });
+            res.setHeader('Content-Type', 'application/json');
+            stream.on('data', (data) => {
+                res.write(data);
+            });
+            stream.on('end', () => {
+                res.end();
+            });
         }
         catch (error) {
             const { status, message } = getErrorData(error);
