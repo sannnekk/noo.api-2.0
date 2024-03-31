@@ -22,6 +22,9 @@ export class MediaService {
 
             throw new UnknownError()
         } */
-        return files.map((file) => file.filename);
+        return files.map((file) => ({
+            link: file.filename,
+            name: file.originalname,
+        }));
     }
 }

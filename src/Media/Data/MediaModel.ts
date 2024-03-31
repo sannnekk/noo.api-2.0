@@ -22,6 +22,13 @@ export class MediaModel extends Model implements Media {
 	src!: string
 
 	@Column({
+		name: 'name',
+		type: 'varchar',
+		length: 255,
+	})
+	name?: string
+
+	@Column({
 		name: 'mime_type',
 		type: 'enum',
 		enum: ['image/jpeg', 'image/png', 'application/pdf'],

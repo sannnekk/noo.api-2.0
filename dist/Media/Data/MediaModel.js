@@ -19,6 +19,7 @@ let MediaModel = class MediaModel extends Model {
         }
     }
     src;
+    name;
     mimeType;
     courseMaterial;
     course;
@@ -31,6 +32,14 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], MediaModel.prototype, "src", void 0);
+__decorate([
+    Column({
+        name: 'name',
+        type: 'varchar',
+        length: 255,
+    }),
+    __metadata("design:type", String)
+], MediaModel.prototype, "name", void 0);
 __decorate([
     Column({
         name: 'mime_type',

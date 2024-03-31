@@ -1,6 +1,10 @@
 import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
 import { MediaRepository } from '../Data/MediaRepository'
-import fs from 'fs'
+
+export type MediaFile = {
+	link: string
+	name: string
+}
 
 export class MediaService {
 	private readonly mediaRepository: MediaRepository
@@ -9,7 +13,7 @@ export class MediaService {
 		this.mediaRepository = new MediaRepository()
 	}
 
-	async upload(files: Express.Multer.File[]): Promise<string[]> {
+	async upload(files: Express.Multer.File[]): Promise<MediaFile[]> {
 		/* try {
 			await this.mediaRepository.createMany(
 				files.map(
@@ -28,6 +32,9 @@ export class MediaService {
 			throw new UnknownError()
 		} */
 
-		return files.map((file) => file.filename)
+		return files.map((file) => ({
+			link: file.filename,
+			name: file.originalname,
+		}))
 	}
 }

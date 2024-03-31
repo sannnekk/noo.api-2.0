@@ -22,11 +22,11 @@ export class MediaController {
 		try {
 			Asserts.isAuthenticated(context)
 
-			const links = await this.mediaService.upload(
+			const mediaFiles = await this.mediaService.upload(
 				req.files as Express.Multer.File[]
 			)
 
-			res.status(201).send({ data: links })
+			res.status(201).send({ data: mediaFiles })
 		} catch (error: any) {
 			const { status, message } = getErrorData(error)
 			res.status(status).send({ error: message })

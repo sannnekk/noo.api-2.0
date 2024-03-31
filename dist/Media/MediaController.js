@@ -25,8 +25,8 @@ let MediaController = class MediaController {
         const context = req.context;
         try {
             Asserts.isAuthenticated(context);
-            const links = await this.mediaService.upload(req.files);
-            res.status(201).send({ data: links });
+            const mediaFiles = await this.mediaService.upload(req.files);
+            res.status(201).send({ data: mediaFiles });
         }
         catch (error) {
             const { status, message } = getErrorData(error);
