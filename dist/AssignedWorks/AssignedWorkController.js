@@ -78,6 +78,22 @@ let AssignedWorkController = class AssignedWorkController {
             res.status(status).send({ error: message });
         }
     }
+    async getOrCreate(req, res) {
+        // @ts-ignore
+        const context = req.context;
+        context.setParams(req.params);
+        try {
+            Asserts.isAuthenticated(context);
+            Asserts.student(context);
+            this.assignedWorkValidator.validateSlug(context.params.materialSlug);
+            const { link } = await this.assignedWorkService.getOrCreateWork(context.params.materialSlug, context.credentials.userId);
+            res.status(200).send({ data: link });
+        }
+        catch (error) {
+            const { status, message } = getErrorData(error);
+            res.status(status).send({ error: message });
+        }
+    }
     async solve(req, res) {
         // @ts-ignore
         const context = req.context;
@@ -219,6 +235,14 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], AssignedWorkController.prototype, "create", null);
+__decorate([
+    Post('/:materialSlug'),
+    __param(0, Req()),
+    __param(1, Res()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], AssignedWorkController.prototype, "getOrCreate", null);
 __decorate([
     Patch('/:id/solve'),
     __param(0, Req()),

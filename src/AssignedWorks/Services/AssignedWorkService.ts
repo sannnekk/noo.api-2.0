@@ -23,10 +23,13 @@ import { Work } from '@modules/Works/Data/Work'
 import { CalenderService } from '@modules/Calender/Services/CalenderService'
 import { AssignedWorkCommentRepository } from '../Data/AssignedWorkCommentRepository'
 import { AssignedWorkAnswerRepository } from '../Data/AssignedWorkAnswerRepository'
+import { CourseMaterial } from '@modules/Courses/Data/Relations/CourseMaterial'
+import { CourseMaterialRepository } from '@modules/Courses/Data/CourseMaterialRepository'
 
 export class AssignedWorkService extends Service<AssignedWork> {
 	private readonly taskService: TaskService
 	private readonly assignedWorkRepository: AssignedWorkRepository
+	private readonly materialRepository: CourseMaterialRepository
 	private readonly workRepository: WorkRepository
 	private readonly userRepository: UserRepository
 	private readonly answerRepository: AssignedWorkAnswerRepository
@@ -37,6 +40,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 
 		this.taskService = new TaskService()
 		this.assignedWorkRepository = new AssignedWorkRepository()
+		this.materialRepository = new CourseMaterialRepository()
 		this.workRepository = new WorkRepository()
 		this.userRepository = new UserRepository()
 		this.answerRepository = new AssignedWorkAnswerRepository()
@@ -151,9 +155,57 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		assignedWork.mentors = [{ id: student.mentor.id } as User]
 		assignedWork.maxScore = this.getMaxScore(work.tasks || [])
 
-		await this.assignedWorkRepository.create(assignedWork)
+		return await this.assignedWorkRepository.create(assignedWork)
 
 		// await this.calenderService.createFromWork(createdWork)
+	}
+
+	public async getOrCreateWork(
+		materialSlug: CourseMaterial['slug'],
+		studentId: AssignedWork['studentId']
+	): Promise<{ link: string }> {
+		const material = await this.materialRepository.findOne(
+			{ slug: materialSlug },
+			['work']
+		)
+
+		if (!material) {
+			throw new NotFoundError('Материал не найден')
+		}
+
+		const workId = material.work?.id
+
+		if (!workId) {
+			throw new NotFoundError('У этого материала нет работы')
+		}
+
+		const assignedWork = await this.assignedWorkRepository.findOne({
+			work: { id: workId },
+			student: { id: studentId },
+		})
+
+		if (assignedWork) {
+			switch (assignedWork.solveStatus) {
+				case 'in-progress':
+					return { link: `/assigned-works/${assignedWork.id}/solve` }
+				case 'made-in-deadline':
+					return { link: `/assigned-works/${assignedWork.id}/read` }
+				case 'made-after-deadline':
+					return { link: `/assigned-works/${assignedWork.id}/read` }
+				case 'not-started':
+				default:
+					return { link: `/assigned-works/${assignedWork.id}/solve` }
+			}
+		}
+
+		const createdWork = await this.createWork({
+			studentId,
+			workId,
+			checkDeadlineAt: material.workCheckDeadline,
+			solveDeadlineAt: material.workSolveDeadline,
+		} as AssignedWork)
+
+		return { link: `/assigned-works/${createdWork.id}/solve` }
 	}
 
 	public async solveWork(work: AssignedWork) {

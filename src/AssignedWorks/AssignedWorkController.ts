@@ -106,6 +106,31 @@ export class AssignedWorkController {
 		}
 	}
 
+	@Post('/:materialSlug')
+	public async getOrCreate(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+		context.setParams(req.params)
+
+		try {
+			Asserts.isAuthenticated(context)
+			Asserts.student(context)
+			this.assignedWorkValidator.validateSlug(
+				context.params.materialSlug
+			)
+
+			const { link } = await this.assignedWorkService.getOrCreateWork(
+				context.params.materialSlug,
+				context.credentials.userId
+			)
+
+			res.status(200).send({ data: link })
+		} catch (error: any) {
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
+		}
+	}
+
 	@Patch('/:id/solve')
 	public async solve(@Req() req: Request, @Res() res: Response) {
 		// @ts-ignore

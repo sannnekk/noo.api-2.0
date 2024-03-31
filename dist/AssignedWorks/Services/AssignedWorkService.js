@@ -18,9 +18,11 @@ import { WorkIsArchived } from '../Errors/WorkIsArchived.js';
 import { TaskService } from './TaskService.js';
 import { AssignedWorkCommentRepository } from '../Data/AssignedWorkCommentRepository.js';
 import { AssignedWorkAnswerRepository } from '../Data/AssignedWorkAnswerRepository.js';
+import { CourseMaterialRepository } from '../../Courses/Data/CourseMaterialRepository.js';
 export class AssignedWorkService extends Service {
     taskService;
     assignedWorkRepository;
+    materialRepository;
     workRepository;
     userRepository;
     answerRepository;
@@ -29,6 +31,7 @@ export class AssignedWorkService extends Service {
         super();
         this.taskService = new TaskService();
         this.assignedWorkRepository = new AssignedWorkRepository();
+        this.materialRepository = new CourseMaterialRepository();
         this.workRepository = new WorkRepository();
         this.userRepository = new UserRepository();
         this.answerRepository = new AssignedWorkAnswerRepository();
@@ -97,8 +100,42 @@ export class AssignedWorkService extends Service {
         assignedWork.student = { id: student.id };
         assignedWork.mentors = [{ id: student.mentor.id }];
         assignedWork.maxScore = this.getMaxScore(work.tasks || []);
-        await this.assignedWorkRepository.create(assignedWork);
+        return await this.assignedWorkRepository.create(assignedWork);
         // await this.calenderService.createFromWork(createdWork)
+    }
+    async getOrCreateWork(materialSlug, studentId) {
+        const material = await this.materialRepository.findOne({ slug: materialSlug }, ['work']);
+        if (!material) {
+            throw new NotFoundError('Материал не найден');
+        }
+        const workId = material.work?.id;
+        if (!workId) {
+            throw new NotFoundError('У этого материала нет работы');
+        }
+        const assignedWork = await this.assignedWorkRepository.findOne({
+            work: { id: workId },
+            student: { id: studentId },
+        });
+        if (assignedWork) {
+            switch (assignedWork.solveStatus) {
+                case 'in-progress':
+                    return { link: `/assigned-works/${assignedWork.id}/solve` };
+                case 'made-in-deadline':
+                    return { link: `/assigned-works/${assignedWork.id}/read` };
+                case 'made-after-deadline':
+                    return { link: `/assigned-works/${assignedWork.id}/read` };
+                case 'not-started':
+                default:
+                    return { link: `/assigned-works/${assignedWork.id}/solve` };
+            }
+        }
+        const createdWork = await this.createWork({
+            studentId,
+            workId,
+            checkDeadlineAt: material.workCheckDeadline,
+            solveDeadlineAt: material.workSolveDeadline,
+        });
+        return { link: `/assigned-works/${createdWork.id}/solve` };
     }
     async solveWork(work) {
         const foundWork = await this.assignedWorkRepository.findOne({
