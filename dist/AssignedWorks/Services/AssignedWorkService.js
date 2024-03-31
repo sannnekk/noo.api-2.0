@@ -64,6 +64,8 @@ export class AssignedWorkService extends Service {
         if (!work) {
             throw new NotFoundError();
         }
+        work.answers = [];
+        work.comments = [];
         if (work.solveStatus !== 'not-started') {
             const answers = await this.answerRepository.find({
                 assignedWorkId: work.id,
