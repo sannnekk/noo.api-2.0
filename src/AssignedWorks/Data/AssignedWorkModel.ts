@@ -18,7 +18,6 @@ import { UserModel } from '@modules/Users/Data/UserModel'
 import { WorkModel } from '@modules/Works/Data/WorkModel'
 import { AssignedWorkAnswerModel } from './Relations/AssignedWorkAnswerModel'
 import { AssignedWorkCommentModel } from './Relations/AssignedWorkCommentModel'
-import { CalenderEventModel } from '@modules/Calender/Data/CalenderEventModel'
 
 @Entity('assigned_work')
 export class AssignedWorkModel extends Model implements AssignedWork {
@@ -85,11 +84,11 @@ export class AssignedWorkModel extends Model implements AssignedWork {
 		],
 		default: 'not-started',
 	})
-	solveStatus:
+	solveStatus!:
 		| 'not-started'
 		| 'in-progress'
 		| 'made-in-deadline'
-		| 'made-after-deadline' = 'not-started'
+		| 'made-after-deadline'
 
 	@Column({
 		name: 'check_status',
@@ -99,14 +98,16 @@ export class AssignedWorkModel extends Model implements AssignedWork {
 			'in-progress',
 			'checked-in-deadline',
 			'checked-after-deadline',
+			'checked-automatically',
 		],
 		default: 'not-checked',
 	})
-	checkStatus:
+	checkStatus!:
 		| 'not-checked'
 		| 'in-progress'
 		| 'checked-in-deadline'
-		| 'checked-after-deadline' = 'not-checked'
+		| 'checked-after-deadline'
+		| 'checked-automatically'
 
 	@Column({
 		name: 'solve_deadline_at',

@@ -23,6 +23,7 @@ export interface AssignedWork extends BaseModel {
 		| 'in-progress'
 		| 'checked-in-deadline'
 		| 'checked-after-deadline'
+		| 'checked-automatically'
 	solveDeadlineAt?: Date
 	solveDeadlineShifted: boolean
 	checkDeadlineAt?: Date

@@ -34,8 +34,8 @@ let AssignedWorkModel = class AssignedWorkModel extends Model {
     studentId;
     work;
     workId;
-    solveStatus = 'not-started';
-    checkStatus = 'not-checked';
+    solveStatus;
+    checkStatus;
     solveDeadlineAt;
     solveDeadlineShifted = false;
     checkDeadlineAt;
@@ -119,6 +119,7 @@ __decorate([
             'in-progress',
             'checked-in-deadline',
             'checked-after-deadline',
+            'checked-automatically',
         ],
         default: 'not-checked',
     }),

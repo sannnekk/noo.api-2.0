@@ -157,9 +157,10 @@ export class AssignedWorkService extends Service {
             foundWork.solveStatus = 'made-in-deadline';
         }
         foundWork.solvedAt = new Date();
+        foundWork.answers = work.answers;
         foundWork.comments = this.taskService.automatedCheck(foundWork.work.tasks, work.answers);
         if (foundWork.work.tasks.every((task) => task.type !== 'text')) {
-            foundWork.checkStatus = 'checked-in-deadline';
+            foundWork.checkStatus = 'checked-automatically';
             foundWork.checkedAt = new Date();
             foundWork.score = this.getScore(foundWork.comments);
         }
@@ -185,6 +186,7 @@ export class AssignedWorkService extends Service {
         else {
             foundWork.checkStatus = 'checked-in-deadline';
         }
+        foundWork.comments = work.comments || [];
         foundWork.checkedAt = new Date();
         foundWork.score = this.getScore(work.comments);
         await this.assignedWorkRepository.update(foundWork);

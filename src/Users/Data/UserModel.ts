@@ -49,7 +49,7 @@ export class UserModel extends Model implements User {
 		enum: ['student', 'mentor', 'teacher', 'admin'] as UserRolesType,
 		default: 'student',
 	})
-	role: User['role'] = 'student'
+	role!: User['role']
 
 	@Column({
 		name: 'name',
@@ -123,14 +123,14 @@ export class UserModel extends Model implements User {
 		type: 'boolean',
 		default: false,
 	})
-	isBlocked: boolean = false
+	isBlocked!: boolean
 
 	@Column({
 		name: 'forbidden',
 		type: 'int',
 		default: 0,
 	})
-	forbidden: number = 0
+	forbidden!: number
 
 	@Column({
 		name: 'verification_token',

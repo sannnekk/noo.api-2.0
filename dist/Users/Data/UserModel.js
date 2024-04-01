@@ -23,7 +23,7 @@ let UserModel = class UserModel extends Model {
     }
     username;
     slug;
-    role = 'student';
+    role;
     name;
     email;
     students;
@@ -37,8 +37,8 @@ let UserModel = class UserModel extends Model {
     telegramId;
     telegramUsername;
     password;
-    isBlocked = false;
-    forbidden = 0;
+    isBlocked;
+    forbidden;
     verificationToken;
     static entriesToSearch() {
         return ['username', 'name', 'email', 'telegramUsername'];
