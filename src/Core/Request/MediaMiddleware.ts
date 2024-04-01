@@ -8,7 +8,7 @@ export const MediaMiddleware = multer({
 			cb(null, '/noo-cdn/uploads')
 		},
 		filename: function (req, file, cb) {
-			let name = getSlug(file.originalname) + '_' + uuid().slice(0, 3)
+			let name = uuid() + '-' + uuid()
 
 			switch (file.mimetype) {
 				case 'image/jpeg':

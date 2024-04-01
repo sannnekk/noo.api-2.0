@@ -1,5 +1,4 @@
 import multer from 'multer';
-import getSlug from 'speakingurl';
 import { v4 as uuid } from 'uuid';
 export const MediaMiddleware = multer({
     storage: multer.diskStorage({
@@ -7,7 +6,7 @@ export const MediaMiddleware = multer({
             cb(null, '/noo-cdn/uploads');
         },
         filename: function (req, file, cb) {
-            let name = getSlug(file.originalname) + '_' + uuid().slice(0, 3);
+            let name = uuid() + '-' + uuid();
             switch (file.mimetype) {
                 case 'image/jpeg':
                     name += '.jpg';
