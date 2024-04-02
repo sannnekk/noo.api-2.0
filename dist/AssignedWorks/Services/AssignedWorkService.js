@@ -186,6 +186,7 @@ export class AssignedWorkService extends Service {
         else {
             foundWork.checkStatus = 'checked-in-deadline';
         }
+        foundWork.answers = work.answers || [];
         foundWork.comments = work.comments || [];
         foundWork.checkedAt = new Date();
         foundWork.score = this.getScore(work.comments);

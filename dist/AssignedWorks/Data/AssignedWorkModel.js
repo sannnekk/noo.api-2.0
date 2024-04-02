@@ -22,6 +22,9 @@ let AssignedWorkModel = class AssignedWorkModel extends Model {
             if (!data.slug) {
                 this.slug = this.sluggify();
             }
+            this.mentors = (data.mentors || []).map((mentor) => new UserModel(mentor));
+            this.answers = (data.answers || []).map((answer) => new AssignedWorkAnswerModel(answer));
+            this.comments = (data.comments || []).map((comment) => new AssignedWorkCommentModel(comment));
         }
     }
     slug;
