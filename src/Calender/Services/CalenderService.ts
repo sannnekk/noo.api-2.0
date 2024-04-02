@@ -5,6 +5,7 @@ import { UnauthorizedError } from '@modules/Core/Errors/UnauthorizedError'
 import { CalenderEvent } from '../Data/CalenderEvent'
 import { CalenderEventRepository } from '../Data/CalenderEventRepository'
 import { User } from '@modules/Users/Data/User'
+import { CalenderEventModel } from '../Data/CalenderEventModel'
 
 export class CalenderService extends Service<CalenderEvent> {
 	private readonly calenderEventRepository: CalenderEventRepository
@@ -22,34 +23,14 @@ export class CalenderService extends Service<CalenderEvent> {
 		await this.calenderEventRepository.create({ ...event, username })
 	}
 
-	/* public async createFromWork(work: AssignedWork): Promise<void> {
-		if (work.solveDeadlineAt) {
-			await this.createSolveDeadlineEvent(work)
-		}
-
-		if (work.checkDeadlineAt) {
-			await this.createCheckDeadlineEvent(work)
-		}
-
-		if (work.solvedAt) {
-			await this.createWorkMadeEvent(work)
-		}
-
-		if (work.checkedAt) {
-			await this.createWorkCheckedEvent(work)
-		}
-	} */
-
 	public async updateDeadlineFromWork(
-		work: AssignedWork
+		work: AssignedWork,
+		type: 'student-deadline' | 'mentor-deadline'
 	): Promise<void> {
-		const type = work.solveDeadlineShifted
-			? 'student-deadline'
-			: 'mentor-deadline'
-
-		const newDate = work.solveDeadlineShifted
-			? work.solveDeadlineAt
-			: work.checkDeadlineAt
+		const newDate =
+			type === 'student-deadline'
+				? work.solveDeadlineAt
+				: work.checkDeadlineAt
 
 		const event = await this.calenderEventRepository.findOne({
 			assignedWork: {
@@ -134,7 +115,7 @@ export class CalenderService extends Service<CalenderEvent> {
 		await this.calenderEventRepository.delete(id)
 	}
 
-	/* private async createSolveDeadlineEvent(
+	public async createSolveDeadlineEvent(
 		work: AssignedWork
 	): Promise<void> {
 		await this.calenderEventRepository.create({
@@ -149,54 +130,60 @@ export class CalenderService extends Service<CalenderEvent> {
 		} as CalenderEvent)
 	}
 
-	private async createCheckDeadlineEvent(
+	public async createCheckDeadlineEvent(
 		work: AssignedWork
 	): Promise<void> {
 		await Promise.all(
 			(work.mentors || []).map((mentor) => {
-				return this.calenderEventRepository.create({
-					title: 'Дедлайн по проверке работы',
-					description: `Работа: ${work.work.name}`,
-					date: work.checkDeadlineAt!,
-					url: `/assigned-works/${work.id}/check`,
-					visibility: 'private',
-					type: 'mentor-deadline',
-					username: mentor.username,
-					assignedWork: work,
-				} as CalenderEvent)
+				return this.calenderEventRepository.create(
+					new CalenderEventModel({
+						title: 'Дедлайн по проверке работы',
+						description: `Работа: ${work.work.name}`,
+						date: work.checkDeadlineAt!,
+						url: `/assigned-works/${work.id}/check`,
+						visibility: 'private',
+						type: 'mentor-deadline',
+						username: mentor.username,
+						assignedWork: work,
+					})
+				)
 			})
 		)
 	}
 
-	private async createWorkMadeEvent(work: AssignedWork): Promise<void> {
-		await this.calenderEventRepository.create({
-			title: 'Работа сдана',
-			description: `Работа: ${work.work.name}`,
-			date: work.solvedAt!,
-			url: `/assigned-works/${work.id}/read`,
-			visibility: 'all',
-			type: 'work-made',
-			username: work.student!.username,
-			assignedWork: work,
-		} as CalenderEvent)
+	public async createWorkMadeEvent(work: AssignedWork): Promise<void> {
+		await this.calenderEventRepository.create(
+			new CalenderEventModel({
+				title: 'Работа сдана',
+				description: `Работа: ${work.work.name}`,
+				date: work.solvedAt!,
+				url: `/assigned-works/${work.id}/read`,
+				visibility: 'all',
+				type: 'work-made',
+				username: work.student!.username,
+				assignedWork: work,
+			})
+		)
 	}
 
-	private async createWorkCheckedEvent(
+	public async createWorkCheckedEvent(
 		work: AssignedWork
 	): Promise<void> {
 		await Promise.all(
 			(work.mentors || []).map((mentor) => {
-				return this.calenderEventRepository.create({
-					title: 'Работа проверена',
-					description: `Работа: ${work.work.name}`,
-					date: work.checkedAt!,
-					url: `/assigned-works/${work.id}/read`,
-					visibility: 'private',
-					type: 'work-checked',
-					username: mentor.username,
-					assignedWork: work,
-				} as CalenderEvent)
+				return this.calenderEventRepository.create(
+					new CalenderEventModel({
+						title: 'Работа проверена',
+						description: `Работа: ${work.work.name}`,
+						date: work.checkedAt!,
+						url: `/assigned-works/${work.id}/read`,
+						visibility: 'private',
+						type: 'work-checked',
+						username: mentor.username,
+						assignedWork: work,
+					})
+				)
 			})
 		)
-	} */
+	}
 }

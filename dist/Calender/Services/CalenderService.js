@@ -2,6 +2,7 @@ import { Pagination } from '../../Core/Data/Pagination.js';
 import { Service } from '../../Core/Services/Service.js';
 import { UnauthorizedError } from '../../Core/Errors/UnauthorizedError.js';
 import { CalenderEventRepository } from '../Data/CalenderEventRepository.js';
+import { CalenderEventModel } from '../Data/CalenderEventModel.js';
 export class CalenderService extends Service {
     calenderEventRepository;
     constructor() {
@@ -11,28 +12,8 @@ export class CalenderService extends Service {
     async create(event, username) {
         await this.calenderEventRepository.create({ ...event, username });
     }
-    /* public async createFromWork(work: AssignedWork): Promise<void> {
-        if (work.solveDeadlineAt) {
-            await this.createSolveDeadlineEvent(work)
-        }
-
-        if (work.checkDeadlineAt) {
-            await this.createCheckDeadlineEvent(work)
-        }
-
-        if (work.solvedAt) {
-            await this.createWorkMadeEvent(work)
-        }
-
-        if (work.checkedAt) {
-            await this.createWorkCheckedEvent(work)
-        }
-    } */
-    async updateDeadlineFromWork(work) {
-        const type = work.solveDeadlineShifted
-            ? 'student-deadline'
-            : 'mentor-deadline';
-        const newDate = work.solveDeadlineShifted
+    async updateDeadlineFromWork(work, type) {
+        const newDate = type === 'student-deadline'
             ? work.solveDeadlineAt
             : work.checkDeadlineAt;
         const event = await this.calenderEventRepository.findOne({
@@ -79,5 +60,57 @@ export class CalenderService extends Service {
             throw new UnauthorizedError();
         }
         await this.calenderEventRepository.delete(id);
+    }
+    async createSolveDeadlineEvent(work) {
+        await this.calenderEventRepository.create({
+            title: 'Дедлайн по работе',
+            description: `Работа: ${work.work.name}`,
+            date: work.solveDeadlineAt,
+            url: `/assigned-works/${work.id}/solve`,
+            visibility: 'all',
+            type: 'student-deadline',
+            username: work.student.username,
+            assignedWork: work,
+        });
+    }
+    async createCheckDeadlineEvent(work) {
+        await Promise.all((work.mentors || []).map((mentor) => {
+            return this.calenderEventRepository.create(new CalenderEventModel({
+                title: 'Дедлайн по проверке работы',
+                description: `Работа: ${work.work.name}`,
+                date: work.checkDeadlineAt,
+                url: `/assigned-works/${work.id}/check`,
+                visibility: 'private',
+                type: 'mentor-deadline',
+                username: mentor.username,
+                assignedWork: work,
+            }));
+        }));
+    }
+    async createWorkMadeEvent(work) {
+        await this.calenderEventRepository.create(new CalenderEventModel({
+            title: 'Работа сдана',
+            description: `Работа: ${work.work.name}`,
+            date: work.solvedAt,
+            url: `/assigned-works/${work.id}/read`,
+            visibility: 'all',
+            type: 'work-made',
+            username: work.student.username,
+            assignedWork: work,
+        }));
+    }
+    async createWorkCheckedEvent(work) {
+        await Promise.all((work.mentors || []).map((mentor) => {
+            return this.calenderEventRepository.create(new CalenderEventModel({
+                title: 'Работа проверена',
+                description: `Работа: ${work.work.name}`,
+                date: work.checkedAt,
+                url: `/assigned-works/${work.id}/read`,
+                visibility: 'private',
+                type: 'work-checked',
+                username: mentor.username,
+                assignedWork: work,
+            }));
+        }));
     }
 }

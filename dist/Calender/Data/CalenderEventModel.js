@@ -8,7 +8,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { Model } from '../../Core/Data/Model.js';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
+import { AssignedWorkModel } from '../../AssignedWorks/Data/AssignedWorkModel.js';
 let CalenderEventModel = class CalenderEventModel extends Model {
     constructor(data) {
         super();
@@ -23,6 +24,8 @@ let CalenderEventModel = class CalenderEventModel extends Model {
     visibility = 'private';
     type = 'event';
     username;
+    assignedWork;
+    assignedWorkId;
 };
 __decorate([
     Column({
@@ -92,6 +95,16 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], CalenderEventModel.prototype, "username", void 0);
+__decorate([
+    ManyToOne(() => AssignedWorkModel, (assignedWork) => assignedWork.calenderEvents, {
+        onDelete: 'CASCADE',
+    }),
+    __metadata("design:type", Object)
+], CalenderEventModel.prototype, "assignedWork", void 0);
+__decorate([
+    RelationId((calenderEvent) => calenderEvent.assignedWork),
+    __metadata("design:type", Object)
+], CalenderEventModel.prototype, "assignedWorkId", void 0);
 CalenderEventModel = __decorate([
     Entity('calender_event'),
     __metadata("design:paramtypes", [Object])

@@ -34,6 +34,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 	private readonly userRepository: UserRepository
 	private readonly answerRepository: AssignedWorkAnswerRepository
 	private readonly commentRepository: AssignedWorkCommentRepository
+	private readonly calenderService: CalenderService
 
 	constructor() {
 		super()
@@ -45,6 +46,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		this.userRepository = new UserRepository()
 		this.answerRepository = new AssignedWorkAnswerRepository()
 		this.commentRepository = new AssignedWorkCommentRepository()
+		this.calenderService = new CalenderService()
 	}
 
 	public async getWorks(
@@ -158,9 +160,25 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		assignedWork.mentors = [{ id: student.mentor.id } as User]
 		assignedWork.maxScore = this.getMaxScore(work.tasks || [])
 
-		return await this.assignedWorkRepository.create(assignedWork)
+		const createdWork = await this.assignedWorkRepository.create(
+			assignedWork
+		)
 
-		// await this.calenderService.createFromWork(createdWork)
+		work.tasks = []
+
+		createdWork.student = student
+		createdWork.mentors = [student.mentor]
+		createdWork.work = work
+
+		if (assignedWork.solveDeadlineAt) {
+			await this.calenderService.createSolveDeadlineEvent(createdWork)
+		}
+
+		if (assignedWork.checkDeadlineAt) {
+			await this.calenderService.createCheckDeadlineEvent(createdWork)
+		}
+
+		return createdWork
 	}
 
 	public async getOrCreateWork(
@@ -216,7 +234,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			{
 				id: work.id,
 			},
-			['work', 'work.tasks' as any]
+			['work', 'work.tasks' as any, 'student']
 		)
 
 		if (!foundWork) {
@@ -254,12 +272,17 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		}
 
 		await this.assignedWorkRepository.update(foundWork)
+
+		await this.calenderService.createWorkMadeEvent(foundWork)
 	}
 
 	public async checkWork(work: AssignedWork) {
-		const foundWork = await this.assignedWorkRepository.findOne({
-			id: work.id,
-		})
+		const foundWork = await this.assignedWorkRepository.findOne(
+			{
+				id: work.id,
+			},
+			['work', 'mentors']
+		)
 
 		if (!foundWork) {
 			throw new NotFoundError()
@@ -294,6 +317,8 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		foundWork.score = this.getScore(work.comments)
 
 		await this.assignedWorkRepository.update(foundWork)
+
+		await this.calenderService.createWorkCheckedEvent(foundWork)
 	}
 
 	public async saveProgress(work: AssignedWork, role: User['role']) {
@@ -420,6 +445,11 @@ export class AssignedWorkService extends Service<AssignedWork> {
 				work.solveDeadlineAt.getDate() + days
 			)
 			work.solveDeadlineShifted = true
+
+			await this.calenderService.updateDeadlineFromWork(
+				work,
+				'student-deadline'
+			)
 		} else {
 			if (!work.mentors!.some((mentor) => mentor.id === userId)) {
 				throw new UnauthorizedError()
@@ -437,9 +467,12 @@ export class AssignedWorkService extends Service<AssignedWork> {
 				work.checkDeadlineAt.getDate() + days
 			)
 			work.checkDeadlineShifted = true
-		}
 
-		//await this.calenderService.updateDeadlineFromWork(work)
+			await this.calenderService.updateDeadlineFromWork(
+				work,
+				'mentor-deadline'
+			)
+		}
 
 		await this.assignedWorkRepository.update(work)
 	}

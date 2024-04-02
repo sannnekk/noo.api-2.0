@@ -16,6 +16,7 @@ import { WorkRepository } from '../../Works/Data/WorkRepository.js';
 import { DeadlineAlreadyShiftedError } from '../Errors/DeadlineAlreadyShiftedError.js';
 import { WorkIsArchived } from '../Errors/WorkIsArchived.js';
 import { TaskService } from './TaskService.js';
+import { CalenderService } from '../../Calender/Services/CalenderService.js';
 import { AssignedWorkCommentRepository } from '../Data/AssignedWorkCommentRepository.js';
 import { AssignedWorkAnswerRepository } from '../Data/AssignedWorkAnswerRepository.js';
 import { CourseMaterialRepository } from '../../Courses/Data/CourseMaterialRepository.js';
@@ -27,6 +28,7 @@ export class AssignedWorkService extends Service {
     userRepository;
     answerRepository;
     commentRepository;
+    calenderService;
     constructor() {
         super();
         this.taskService = new TaskService();
@@ -36,6 +38,7 @@ export class AssignedWorkService extends Service {
         this.userRepository = new UserRepository();
         this.answerRepository = new AssignedWorkAnswerRepository();
         this.commentRepository = new AssignedWorkCommentRepository();
+        this.calenderService = new CalenderService();
     }
     async getWorks(userId, userRole, pagination) {
         // TODO: modify the conditions to load all assigned mentors instead of just one
@@ -102,8 +105,18 @@ export class AssignedWorkService extends Service {
         assignedWork.student = { id: student.id };
         assignedWork.mentors = [{ id: student.mentor.id }];
         assignedWork.maxScore = this.getMaxScore(work.tasks || []);
-        return await this.assignedWorkRepository.create(assignedWork);
-        // await this.calenderService.createFromWork(createdWork)
+        const createdWork = await this.assignedWorkRepository.create(assignedWork);
+        work.tasks = [];
+        createdWork.student = student;
+        createdWork.mentors = [student.mentor];
+        createdWork.work = work;
+        if (assignedWork.solveDeadlineAt) {
+            await this.calenderService.createSolveDeadlineEvent(createdWork);
+        }
+        if (assignedWork.checkDeadlineAt) {
+            await this.calenderService.createCheckDeadlineEvent(createdWork);
+        }
+        return createdWork;
     }
     async getOrCreateWork(materialSlug, studentId) {
         const material = await this.materialRepository.findOne({ slug: materialSlug }, ['work']);
@@ -142,7 +155,7 @@ export class AssignedWorkService extends Service {
     async solveWork(work) {
         const foundWork = await this.assignedWorkRepository.findOne({
             id: work.id,
-        }, ['work', 'work.tasks']);
+        }, ['work', 'work.tasks', 'student']);
         if (!foundWork) {
             throw new NotFoundError();
         }
@@ -165,11 +178,12 @@ export class AssignedWorkService extends Service {
             foundWork.score = this.getScore(foundWork.comments);
         }
         await this.assignedWorkRepository.update(foundWork);
+        await this.calenderService.createWorkMadeEvent(foundWork);
     }
     async checkWork(work) {
         const foundWork = await this.assignedWorkRepository.findOne({
             id: work.id,
-        });
+        }, ['work', 'mentors']);
         if (!foundWork) {
             throw new NotFoundError();
         }
@@ -191,6 +205,7 @@ export class AssignedWorkService extends Service {
         foundWork.checkedAt = new Date();
         foundWork.score = this.getScore(work.comments);
         await this.assignedWorkRepository.update(foundWork);
+        await this.calenderService.createWorkCheckedEvent(foundWork);
     }
     async saveProgress(work, role) {
         const foundWork = await this.assignedWorkRepository.findOne({
@@ -274,6 +289,7 @@ export class AssignedWorkService extends Service {
             }
             work.solveDeadlineAt.setDate(work.solveDeadlineAt.getDate() + days);
             work.solveDeadlineShifted = true;
+            await this.calenderService.updateDeadlineFromWork(work, 'student-deadline');
         }
         else {
             if (!work.mentors.some((mentor) => mentor.id === userId)) {
@@ -287,8 +303,8 @@ export class AssignedWorkService extends Service {
             }
             work.checkDeadlineAt.setDate(work.checkDeadlineAt.getDate() + days);
             work.checkDeadlineShifted = true;
+            await this.calenderService.updateDeadlineFromWork(work, 'mentor-deadline');
         }
-        //await this.calenderService.updateDeadlineFromWork(work)
         await this.assignedWorkRepository.update(work);
     }
     async deleteWork(id, mentorId) {
