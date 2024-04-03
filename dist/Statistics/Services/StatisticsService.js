@@ -87,7 +87,7 @@ export class StatisticsService {
             .andWhere('assigned_work.score IS NOT NULL')
             .groupBy('created_at')
             .getRawMany());
-        const scorePlot = this.plotService.generatePlot('Средний балл по работам учеников (в %)', scores, 'secondary', (e) => e.created_at.toISOString().split('T')[0], (e) => e.score);
+        const scorePlot = this.plotService.generatePlot('Средний балл по работам учеников (в %)', scores, 'secondary', (e) => e.created_at.toISOString().split('T')[0], (e) => parseFloat(e.score || '0'));
         return {
             entries: [
                 {
@@ -165,7 +165,7 @@ export class StatisticsService {
         ])
             .andWhere('assigned_work.score IS NOT NULL')
             .getRawMany());
-        const scorePlot = this.plotService.generatePlot('Балл по работам (в %)', scores, 'secondary', (e) => e.created_at.toISOString().split('T')[0], (e) => e.score, (e) => AssignedWorkModel.readableSolveStatus(e.solve_status));
+        const scorePlot = this.plotService.generatePlot('Балл по работам (в %)', scores, 'secondary', (e) => e.created_at.toISOString().split('T')[0], (e) => parseFloat(e.score || '0'), (e) => AssignedWorkModel.readableSolveStatus(e.solve_status));
         return {
             entries: [
                 {

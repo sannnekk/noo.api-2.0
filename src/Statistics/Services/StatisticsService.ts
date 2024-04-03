@@ -121,7 +121,7 @@ export class StatisticsService {
 			.andWhere('assigned_work.score IS NOT NULL')
 			.groupBy('created_at')
 			.getRawMany()) as {
-			score: number
+			score: string
 			created_at: Date
 		}[]
 
@@ -130,7 +130,7 @@ export class StatisticsService {
 			scores,
 			'secondary',
 			(e) => e.created_at.toISOString().split('T')[0],
-			(e) => e.score
+			(e) => parseFloat(e.score || '0')
 		)
 
 		return {
@@ -228,7 +228,7 @@ export class StatisticsService {
 			])
 			.andWhere('assigned_work.score IS NOT NULL')
 			.getRawMany()) as {
-			score: number
+			score: string
 			solve_status: AssignedWork['solveStatus']
 			created_at: Date
 		}[]
@@ -238,7 +238,7 @@ export class StatisticsService {
 			scores,
 			'secondary',
 			(e) => e.created_at.toISOString().split('T')[0],
-			(e) => e.score,
+			(e) => parseFloat(e.score || '0'),
 			(e) => AssignedWorkModel.readableSolveStatus(e.solve_status)
 		)
 
