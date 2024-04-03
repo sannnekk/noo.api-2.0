@@ -12,11 +12,9 @@ import { WorkController } from '@modules/Works/WorkController'
 import { AssignedWorkController } from '@modules/AssignedWorks/AssignedWorkController'
 import { MediaController } from '@modules/Media/MediaController'
 import { CalenderController } from '@modules/Calender/CalenderController'
-import {
-	attachControllerInstances,
-	attachControllers,
-} from '@decorators/express'
+import { attachControllerInstances } from '@decorators/express'
 import { AccessLogMiddleware } from './Core/Request/AccessLogMiddleware'
+import { StatisticsController } from './Statistics/StatisticsController'
 
 await CoreDataSource.initialize()
 
@@ -48,6 +46,7 @@ attachControllerInstances(app, [
 	new AssignedWorkController(),
 	new MediaController(),
 	new CalenderController(),
+	new StatisticsController(),
 ])
 
 app.listen(process.env.APP_PORT, () =>

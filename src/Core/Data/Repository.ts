@@ -121,4 +121,10 @@ export abstract class Repository<T extends BaseModel> {
 			where: pagination?.getCondition(conditions),
 		})
 	}
+
+	queryBuilder(alias?: string): TypeORM.SelectQueryBuilder<T> {
+		return this.repository.createQueryBuilder(
+			alias
+		) as unknown as TypeORM.SelectQueryBuilder<T>
+	}
 }

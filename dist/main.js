@@ -11,7 +11,8 @@ import { WorkController } from './Works/WorkController.js';
 import { AssignedWorkController } from './AssignedWorks/AssignedWorkController.js';
 import { MediaController } from './Media/MediaController.js';
 import { CalenderController } from './Calender/CalenderController.js';
-import { attachControllerInstances, } from '@decorators/express';
+import { attachControllerInstances } from '@decorators/express';
+import { StatisticsController } from './Statistics/StatisticsController.js';
 await CoreDataSource.initialize();
 const app = express();
 const podId = uuid();
@@ -35,5 +36,6 @@ attachControllerInstances(app, [
     new AssignedWorkController(),
     new MediaController(),
     new CalenderController(),
+    new StatisticsController(),
 ]);
 app.listen(process.env.APP_PORT, () => console.log(`Server is running on port ${process.env.APP_PORT}`));

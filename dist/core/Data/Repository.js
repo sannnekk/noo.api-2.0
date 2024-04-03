@@ -92,4 +92,7 @@ export class Repository {
             where: pagination?.getCondition(conditions),
         });
     }
+    queryBuilder(alias) {
+        return this.repository.createQueryBuilder(alias);
+    }
 }

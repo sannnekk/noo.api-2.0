@@ -204,6 +204,42 @@ export class AssignedWorkModel extends Model implements AssignedWork {
 		return ['work.name', 'student.name', 'mentors.name']
 	}
 
+	static readableSolveStatus(
+		status: AssignedWork['solveStatus']
+	): string {
+		switch (status) {
+			case 'not-started':
+				return 'Не начато'
+			case 'in-progress':
+				return 'В процессе'
+			case 'made-in-deadline':
+				return 'Сдано в дедлайн'
+			case 'made-after-deadline':
+				return 'Сдано после дедлайна'
+			default:
+				return status
+		}
+	}
+
+	static readableCheckStatus(
+		status: AssignedWork['checkStatus']
+	): string {
+		switch (status) {
+			case 'not-checked':
+				return 'Не проверено'
+			case 'in-progress':
+				return 'В процессе'
+			case 'checked-in-deadline':
+				return 'Проверено в дедлайн'
+			case 'checked-after-deadline':
+				return 'Проверено после дедлайна'
+			case 'checked-automatically':
+				return 'Проверено автоматически'
+			default:
+				return status
+		}
+	}
+
 	private sluggify(): string {
 		return ULID.generate()
 	}
