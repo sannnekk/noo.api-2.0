@@ -337,8 +337,7 @@ export class StatisticsService {
 			.groupBy('date')
 			.getRawMany()) as {
 			score: string
-			month: number
-			year: number
+			date: string
 			count: number
 		}[]
 
@@ -346,7 +345,10 @@ export class StatisticsService {
 			'Балл по работам (в %) по месяцам',
 			scores,
 			'secondary',
-			(e) => this.getMonth(e.month - 1),
+			(e) =>
+				this.getMonth(parseInt(e.date.split(' ')[0]) - 1) +
+				' ' +
+				e.date.split(' ')[1],
 			(e) => parseFloat(e.score || '0'),
 			(e) => `Количество работ: ${e.count.toString()}`
 		)

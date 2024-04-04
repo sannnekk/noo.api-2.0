@@ -237,7 +237,9 @@ export class StatisticsService {
             .andWhere('assigned_work.score IS NOT NULL')
             .groupBy('date')
             .getRawMany());
-        const monthPlot = this.plotService.generatePlot('Балл по работам (в %) по месяцам', scores, 'secondary', (e) => this.getMonth(e.month - 1), (e) => parseFloat(e.score || '0'), (e) => `Количество работ: ${e.count.toString()}`);
+        const monthPlot = this.plotService.generatePlot('Балл по работам (в %) по месяцам', scores, 'secondary', (e) => this.getMonth(parseInt(e.date.split(' ')[0]) - 1) +
+            ' ' +
+            e.date.split(' ')[1], (e) => parseFloat(e.score || '0'), (e) => `Количество работ: ${e.count.toString()}`);
         return monthPlot;
     }
     getMonth(month) {
