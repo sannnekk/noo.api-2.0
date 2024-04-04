@@ -61,15 +61,19 @@ export class StatisticsService {
             solve_status: 'checked-in-deadline',
         })
             .getCount();
+        const checkedInDeadlinePercent = Math.round((checkedInDeadline / total) * 100);
         const checkedAfterDeadline = await assignedWorksQueryBuilder
             .clone()
             .andWhere('assigned_work.solve_status = :solve_status', {
             solve_status: 'checked-after-deadline',
         })
             .getCount();
+        const checkedAfterDeadlinePercent = Math.round((checkedAfterDeadline / total) * 100);
         const deadlinesShifted = await assignedWorksQueryBuilder
             .clone()
-            .andWhere('assigned_work.solve_deadline_shifted = true')
+            .andWhere('assigned_work.check_deadline_shifted = :check_deadline_shifted', {
+            check_deadline_shifted: true,
+        })
             .getCount();
         // TODO: Implement transfered works count
         /* const transfered = await assignedWorksQueryBuilder
@@ -107,8 +111,16 @@ export class StatisticsService {
                     value: checkedInDeadline,
                 },
                 {
+                    name: 'Проверено в дедлайн (%)',
+                    value: checkedInDeadlinePercent,
+                },
+                {
                     name: 'Проверено после дедлайна',
                     value: checkedAfterDeadline,
+                },
+                {
+                    name: 'Проверено после дедлайна (%)',
+                    value: checkedAfterDeadlinePercent,
                 },
                 {
                     name: 'Сдвиги дедлайнов',
@@ -139,12 +151,14 @@ export class StatisticsService {
             solve_status: 'made-in-deadline',
         })
             .getCount();
+        const completedInDeadlinePercent = Math.round((completedInDeadline / total) * 100);
         const completedAfterDeadline = await assignedWorksQueryBuilder
             .clone()
             .andWhere('assigned_work.solve_status = :solve_status', {
             solve_status: 'made-after-deadline',
         })
             .getCount();
+        const completedAfterDeadlinePercent = Math.round((completedAfterDeadline / total) * 100);
         const completed = completedInDeadline + completedAfterDeadline;
         const notCompleted = total - completedInDeadline - completedAfterDeadline;
         const { averageScore } = (await assignedWorksQueryBuilder
@@ -154,7 +168,9 @@ export class StatisticsService {
             .getRawOne());
         const deadlineShiftCount = await assignedWorksQueryBuilder
             .clone()
-            .andWhere('assigned_work.solve_deadline_shifted = true')
+            .andWhere('assigned_work.solve_deadline_shifted = :solve_deadline_shifted', {
+            solve_deadline_shifted: true,
+        })
             .getCount();
         const scores = (await assignedWorksQueryBuilder
             .clone()
@@ -166,6 +182,7 @@ export class StatisticsService {
             .andWhere('assigned_work.score IS NOT NULL')
             .getRawMany());
         const scorePlot = this.plotService.generatePlot('Балл по работам (в %)', scores, 'secondary', (e) => e.created_at.toISOString().split('T')[0], (e) => parseFloat(e.score || '0'), (e) => AssignedWorkModel.readableSolveStatus(e.solve_status));
+        const monthPlot = await this.getStudentMonthPlot(studentId);
         return {
             entries: [
                 {
@@ -185,8 +202,16 @@ export class StatisticsService {
                     value: completedInDeadline,
                 },
                 {
+                    name: 'Выполнено в дедлайн (%)',
+                    value: completedInDeadlinePercent,
+                },
+                {
                     name: 'Выполнено после дедлайна',
                     value: completedAfterDeadline,
+                },
+                {
+                    name: 'Выполнено после дедлайна (%)',
+                    value: completedAfterDeadlinePercent,
                 },
                 {
                     name: 'Сдвиги дедлайнов',
@@ -197,8 +222,54 @@ export class StatisticsService {
                     value: parseFloat(parseFloat(averageScore).toFixed(3)) || 0,
                 },
             ],
-            plots: [scorePlot],
+            plots: [scorePlot, monthPlot],
         };
+    }
+    async getStudentMonthPlot(studentId) {
+        const scores = (await this.assignedWorkRepository
+            .queryBuilder('assigned_work')
+            .select([
+            'AVG(ROUND(assigned_work.score / assigned_work.max_score * 100)) as score',
+            'MONTH(assigned_work.created_at) as month',
+            'YEAR(assigned_work.created_at) as year',
+            'COUNT(assigned_work.id) as count',
+        ])
+            .where('assigned_work.studentId = :studentId', { studentId })
+            .andWhere('assigned_work.score IS NOT NULL')
+            // grup by month
+            .groupBy('CONCAT(month, year)')
+            .getRawMany());
+        const monthPlot = this.plotService.generatePlot('Балл по работам (в %) по месяцам', scores, 'secondary', (e) => this.getMonth(e.month - 1), (e) => parseFloat(e.score || '0'), (e) => `Количество работ: ${e.count.toString()}`);
+        return monthPlot;
+    }
+    getMonth(month) {
+        switch (month) {
+            case 0:
+                return `Январь`;
+            case 1:
+                return `Февраль`;
+            case 2:
+                return `Март`;
+            case 3:
+                return `Апрель`;
+            case 4:
+                return `Май`;
+            case 5:
+                return `Июнь`;
+            case 6:
+                return `Июль`;
+            case 7:
+                return `Август`;
+            case 8:
+                return `Сентябрь`;
+            case 9:
+                return `Октябрь`;
+            case 10:
+                return `Ноябрь`;
+            case 11:
+            default:
+                return `Декабрь`;
+        }
     }
     getDateRange(prop, from, to) {
         return new Brackets((qb) => {
