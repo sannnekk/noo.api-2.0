@@ -329,14 +329,12 @@ export class StatisticsService {
 			.queryBuilder('assigned_work')
 			.select([
 				'AVG(ROUND(assigned_work.score / assigned_work.max_score * 100)) as score',
-				'MONTH(assigned_work.created_at) as month',
-				'YEAR(assigned_work.created_at) as year',
 				'COUNT(assigned_work.id) as count',
+				`CONCAT(MONTH(assigned_work.created_at), ' ', YEAR(assigned_work.created_at)) as date`,
 			])
 			.where('assigned_work.studentId = :studentId', { studentId })
 			.andWhere('assigned_work.score IS NOT NULL')
-			// grup by month
-			.groupBy('CONCAT(month, year)')
+			.groupBy('date')
 			.getRawMany()) as {
 			score: string
 			month: number
