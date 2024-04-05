@@ -315,7 +315,7 @@ export class StatisticsService {
 				},
 				{
 					name: 'Средний балл (в %)',
-					value: parseFloat(parseFloat(averageScore).toFixed(3)) || 0,
+					value: parseFloat(parseFloat(averageScore).toFixed(2)) || 0,
 				},
 			],
 			plots: [scorePlot, monthPlot],
