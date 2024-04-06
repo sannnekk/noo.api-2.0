@@ -44,7 +44,7 @@ export class UserService extends Service {
             email: user.email,
         });
         if (existingEmail) {
-            throw new AlreadyExistError('Польщователь с таким email уже существует.');
+            throw new AlreadyExistError('Пользователь с таким email уже существует.');
         }
         await this.create(user);
         await this.emailService.sendVerificationEmail(user.email, user.username, user.name, user.verificationToken);

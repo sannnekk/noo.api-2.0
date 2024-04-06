@@ -57,7 +57,7 @@ export class UserService extends Service<User> {
 
 		if (existingEmail) {
 			throw new AlreadyExistError(
-				'Польщователь с таким email уже существует.'
+				'Пользователь с таким email уже существует.'
 			)
 		}
 
