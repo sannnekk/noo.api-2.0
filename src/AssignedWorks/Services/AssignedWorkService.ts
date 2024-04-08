@@ -25,6 +25,7 @@ import { AssignedWorkCommentRepository } from '../Data/AssignedWorkCommentReposi
 import { AssignedWorkAnswerRepository } from '../Data/AssignedWorkAnswerRepository'
 import { CourseMaterial } from '@modules/Courses/Data/Relations/CourseMaterial'
 import { CourseMaterialRepository } from '@modules/Courses/Data/CourseMaterialRepository'
+import { RemakeOptions } from '../DTO/RemakeOptions'
 
 export class AssignedWorkService extends Service<AssignedWork> {
 	private readonly taskService: TaskService
@@ -75,6 +76,12 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			pagination
 		)
 
+		for (const work of assignedWorks) {
+			if (work.isNewAttempt) {
+				work.work.name = `[Пересдача] ${work.work.name}`
+			}
+		}
+
 		const meta = await this.getRequestMeta(
 			this.assignedWorkRepository,
 			conditions,
@@ -105,6 +112,12 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		work.answers = []
 		work.comments = []
 
+		this.excludeTasks(work)
+
+		if (work.isNewAttempt) {
+			work.work.name = `[Пересдача] ${work.work.name}`
+		}
+
 		if (work.solveStatus !== 'not-started') {
 			const answers = await this.answerRepository.find({
 				assignedWorkId: work.id,
@@ -129,7 +142,10 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		return work
 	}
 
-	public async createWork(assignedWork: AssignedWork) {
+	public async createWork(
+		assignedWork: AssignedWork,
+		taskIdsToExclude: string[] = []
+	) {
 		const work = await this.workRepository.findOne(
 			{
 				id: assignedWork.workId,
@@ -159,7 +175,11 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		assignedWork.work = { id: work.id } as Work
 		assignedWork.student = { id: student.id } as User
 		assignedWork.mentors = [{ id: student.mentor.id } as User]
-		assignedWork.maxScore = this.getMaxScore(work.tasks || [])
+		assignedWork.excludedTaskIds = taskIdsToExclude
+		assignedWork.maxScore = this.getMaxScore(
+			work.tasks,
+			taskIdsToExclude
+		)
 
 		const createdWork = await this.assignedWorkRepository.create(
 			assignedWork
@@ -180,6 +200,65 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		}
 
 		return createdWork
+	}
+
+	public async remakeWork(
+		assignedWorkId: AssignedWork['id'],
+		studentId: User['id'],
+		options: RemakeOptions
+	) {
+		const assignedWork = await this.getAssignedWork(assignedWorkId, [
+			'work',
+		])
+
+		console.log('options', options)
+
+		if (!assignedWork) {
+			throw new NotFoundError('Работа не найдена')
+		}
+
+		if (assignedWork.isArchived) {
+			throw new WorkIsArchived(
+				'Работа архивирована и не может быть пересдана'
+			)
+		}
+
+		if (!assignedWork.work) {
+			throw new NotFoundError(
+				'Работа не найдена. Возможно, она была удалена'
+			)
+		}
+
+		if (assignedWork.studentId !== studentId) {
+			throw new UnauthorizedError('Вы не можете пересдать чужую работу')
+		}
+
+		let rightTaskIds: string[] = []
+
+		if (options.onlyFalse) {
+			const comments = await this.commentRepository.find(
+				{
+					assignedWorkId,
+				},
+				['task']
+			)
+
+			rightTaskIds = comments
+				.filter(
+					(comment) => comment.task?.highestScore === comment.score
+				)
+				.map((comment) => comment.task?.id)
+				.filter(Boolean) as string[]
+		}
+
+		this.createWork(
+			{
+				workId: assignedWork.work.id,
+				studentId,
+				isNewAttempt: true,
+			} as AssignedWork,
+			rightTaskIds
+		)
 	}
 
 	public async getOrCreateWork(
@@ -231,12 +310,11 @@ export class AssignedWorkService extends Service<AssignedWork> {
 	}
 
 	public async solveWork(work: AssignedWork) {
-		const foundWork = await this.assignedWorkRepository.findOne(
-			{
-				id: work.id,
-			},
-			['work', 'work.tasks' as any, 'student']
-		)
+		const foundWork = await this.getAssignedWork(work.id, [
+			'work',
+			'work.tasks' as any,
+			'student',
+		])
 
 		if (!foundWork) {
 			throw new NotFoundError()
@@ -278,12 +356,10 @@ export class AssignedWorkService extends Service<AssignedWork> {
 	}
 
 	public async checkWork(work: AssignedWork) {
-		const foundWork = await this.assignedWorkRepository.findOne(
-			{
-				id: work.id,
-			},
-			['work', 'mentors']
-		)
+		const foundWork = await this.getAssignedWork(work.id, [
+			'work',
+			'mentors',
+		])
 
 		if (!foundWork) {
 			throw new NotFoundError()
@@ -323,9 +399,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 	}
 
 	public async saveProgress(work: AssignedWork, role: User['role']) {
-		const foundWork = await this.assignedWorkRepository.findOne({
-			id: work.id,
-		})
+		const foundWork = await this.getAssignedWork(work.id)
 
 		if (!foundWork) {
 			throw new NotFoundError()
@@ -369,7 +443,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 	}
 
 	public async archiveWork(id: AssignedWork['id']) {
-		const foundWork = await this.assignedWorkRepository.findOne({ id })
+		const foundWork = await this.getAssignedWork(id)
 
 		if (!foundWork) {
 			throw new NotFoundError()
@@ -385,9 +459,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		mentorId: AssignedWork['mentorIds'][0],
 		currentMentorId: User['id']
 	) {
-		const foundWork = await this.assignedWorkRepository.findOne({
-			id: workId,
-		})
+		const foundWork = await this.getAssignedWork(workId)
 
 		if (!foundWork) {
 			throw new NotFoundError()
@@ -423,11 +495,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		role: Exclude<User['role'], 'teacher' | 'admin'>,
 		userId: User['id']
 	) {
-		const work = await this.assignedWorkRepository.findOne({ id })
-
-		if (!work) {
-			throw new NotFoundError()
-		}
+		const work = await this.getAssignedWork(id, ['mentors'])
 
 		if (role == 'student') {
 			if (work.studentId !== userId) {
@@ -495,8 +563,46 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		await this.assignedWorkRepository.delete(id)
 	}
 
-	private getMaxScore(tasks: AssignedWork['work']['tasks']) {
-		return tasks.reduce((acc, task) => acc + task.highestScore, 0)
+	private async getAssignedWork(
+		id: AssignedWork['id'],
+		relations: (keyof AssignedWork)[] = []
+	) {
+		const assignedWork = await this.assignedWorkRepository.findOne(
+			{ id },
+			relations
+		)
+
+		if (!assignedWork) {
+			throw new NotFoundError('Работа не найдена')
+		}
+
+		this.excludeTasks(assignedWork)
+
+		return assignedWork
+	}
+
+	private excludeTasks(assignedWork: AssignedWork) {
+		const tasksToExclude = assignedWork.excludedTaskIds
+
+		if (tasksToExclude.length) {
+			assignedWork.work.tasks = assignedWork.work.tasks.filter(
+				(task) => !tasksToExclude.includes(task.id)
+			)
+		}
+	}
+
+	private getMaxScore(
+		tasks: AssignedWork['work']['tasks'],
+		excludedTaskIds: string[] = []
+	) {
+		const filteredTasks = tasks.filter(
+			(task) => !excludedTaskIds.includes(task.id)
+		)
+
+		return filteredTasks.reduce(
+			(acc, task) => acc + task.highestScore,
+			0
+		)
 	}
 
 	private getScore(comments: AssignedWorkComment[]) {

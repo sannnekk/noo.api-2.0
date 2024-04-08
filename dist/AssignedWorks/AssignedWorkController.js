@@ -78,6 +78,23 @@ let AssignedWorkController = class AssignedWorkController {
             res.status(status).send({ error: message });
         }
     }
+    async remake(req, res) {
+        // @ts-ignore
+        const context = req.context;
+        context.setParams(req.params);
+        try {
+            Asserts.isAuthenticated(context);
+            Asserts.student(context);
+            this.assignedWorkValidator.validateId(context.params.id);
+            this.assignedWorkValidator.validateRemake(context.body);
+            await this.assignedWorkService.remakeWork(context.params.id, context.credentials.userId, context.body);
+            res.status(201).send({ data: null });
+        }
+        catch (error) {
+            const { status, message } = getErrorData(error);
+            res.status(status).send({ error: message });
+        }
+    }
     async getOrCreate(req, res) {
         // @ts-ignore
         const context = req.context;
@@ -235,6 +252,14 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], AssignedWorkController.prototype, "create", null);
+__decorate([
+    Post('/:id/remake'),
+    __param(0, Req()),
+    __param(1, Res()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], AssignedWorkController.prototype, "remake", null);
 __decorate([
     Post('/:materialSlug'),
     __param(0, Req()),

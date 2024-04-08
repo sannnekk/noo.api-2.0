@@ -2,9 +2,18 @@ import { ErrorConverter } from '@modules/Core/Request/ValidatorDecorator'
 import { Validator } from '@modules/Core/Request/Validator'
 import { AssignedWork } from './Data/AssignedWork'
 import { z } from 'zod'
+import { RemakeOptions } from './DTO/RemakeOptions'
 
 @ErrorConverter()
 export class AssignedWorkValidator extends Validator {
+	validateRemake(body: unknown): asserts body is RemakeOptions {
+		const schema = z.object({
+			onlyFalse: z.boolean().optional(),
+		})
+
+		schema.parse(body)
+	}
+
 	public validateCreation(data: unknown): asserts data is AssignedWork {
 		const schema = z.object({
 			studentId: z.string().ulid(),

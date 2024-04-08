@@ -200,6 +200,32 @@ export class AssignedWorkModel extends Model implements AssignedWork {
 	})
 	isArchived: boolean = false
 
+	@Column({
+		name: 'is_new_attempt',
+		type: 'boolean',
+		default: false,
+	})
+	isNewAttempt!: boolean
+
+	@Column({
+		name: 'filtered_out_task_ids',
+		type: 'json',
+		nullable: true,
+	})
+	_excludedTaskIds?: string
+
+	get excludedTaskIds(): string[] {
+		if (this._excludedTaskIds) {
+			return JSON.parse(this._excludedTaskIds)
+		}
+
+		return []
+	}
+
+	set excludedTaskIds(value: string[]) {
+		this._excludedTaskIds = JSON.stringify(value)
+	}
+
 	static entriesToSearch() {
 		return ['work.name', 'student.name', 'mentors.name']
 	}

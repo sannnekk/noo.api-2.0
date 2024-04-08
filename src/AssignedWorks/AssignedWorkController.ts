@@ -106,6 +106,31 @@ export class AssignedWorkController {
 		}
 	}
 
+	@Post('/:id/remake')
+	public async remake(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+		context.setParams(req.params)
+
+		try {
+			Asserts.isAuthenticated(context)
+			Asserts.student(context)
+			this.assignedWorkValidator.validateId(context.params.id)
+			this.assignedWorkValidator.validateRemake(context.body)
+
+			await this.assignedWorkService.remakeWork(
+				context.params.id,
+				context.credentials.userId,
+				context.body
+			)
+
+			res.status(201).send({ data: null })
+		} catch (error: any) {
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
+		}
+	}
+
 	@Post('/:materialSlug')
 	public async getOrCreate(@Req() req: Request, @Res() res: Response) {
 		// @ts-ignore

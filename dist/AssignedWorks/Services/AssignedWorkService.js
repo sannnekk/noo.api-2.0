@@ -53,6 +53,11 @@ export class AssignedWorkService extends Service {
             'mentors',
         ];
         const assignedWorks = await this.assignedWorkRepository.find(conditions, relations, pagination);
+        for (const work of assignedWorks) {
+            if (work.isNewAttempt) {
+                work.work.name = `[Пересдача] ${work.work.name}`;
+            }
+        }
         const meta = await this.getRequestMeta(this.assignedWorkRepository, conditions, pagination, relations);
         return { assignedWorks, meta };
     }
@@ -69,6 +74,10 @@ export class AssignedWorkService extends Service {
         }
         work.answers = [];
         work.comments = [];
+        this.excludeTasks(work);
+        if (work.isNewAttempt) {
+            work.work.name = `[Пересдача] ${work.work.name}`;
+        }
         if (work.solveStatus !== 'not-started') {
             const answers = await this.answerRepository.find({
                 assignedWorkId: work.id,
@@ -86,7 +95,7 @@ export class AssignedWorkService extends Service {
         }
         return work;
     }
-    async createWork(assignedWork) {
+    async createWork(assignedWork, taskIdsToExclude = []) {
         const work = await this.workRepository.findOne({
             id: assignedWork.workId,
         }, ['tasks']);
@@ -105,7 +114,8 @@ export class AssignedWorkService extends Service {
         assignedWork.work = { id: work.id };
         assignedWork.student = { id: student.id };
         assignedWork.mentors = [{ id: student.mentor.id }];
-        assignedWork.maxScore = this.getMaxScore(work.tasks || []);
+        assignedWork.excludedTaskIds = taskIdsToExclude;
+        assignedWork.maxScore = this.getMaxScore(work.tasks, taskIdsToExclude);
         const createdWork = await this.assignedWorkRepository.create(assignedWork);
         work.tasks = [];
         createdWork.student = student;
@@ -118,6 +128,39 @@ export class AssignedWorkService extends Service {
             await this.calenderService.createCheckDeadlineEvent(createdWork);
         }
         return createdWork;
+    }
+    async remakeWork(assignedWorkId, studentId, options) {
+        const assignedWork = await this.getAssignedWork(assignedWorkId, [
+            'work',
+        ]);
+        console.log('options', options);
+        if (!assignedWork) {
+            throw new NotFoundError('Работа не найдена');
+        }
+        if (assignedWork.isArchived) {
+            throw new WorkIsArchived('Работа архивирована и не может быть пересдана');
+        }
+        if (!assignedWork.work) {
+            throw new NotFoundError('Работа не найдена. Возможно, она была удалена');
+        }
+        if (assignedWork.studentId !== studentId) {
+            throw new UnauthorizedError('Вы не можете пересдать чужую работу');
+        }
+        let rightTaskIds = [];
+        if (options.onlyFalse) {
+            const comments = await this.commentRepository.find({
+                assignedWorkId,
+            }, ['task']);
+            rightTaskIds = comments
+                .filter((comment) => comment.task?.highestScore === comment.score)
+                .map((comment) => comment.task?.id)
+                .filter(Boolean);
+        }
+        this.createWork({
+            workId: assignedWork.work.id,
+            studentId,
+            isNewAttempt: true,
+        }, rightTaskIds);
     }
     async getOrCreateWork(materialSlug, studentId) {
         const material = await this.materialRepository.findOne({ slug: materialSlug }, ['work']);
@@ -154,9 +197,11 @@ export class AssignedWorkService extends Service {
         return { link: `/assigned-works/${createdWork.id}/solve` };
     }
     async solveWork(work) {
-        const foundWork = await this.assignedWorkRepository.findOne({
-            id: work.id,
-        }, ['work', 'work.tasks', 'student']);
+        const foundWork = await this.getAssignedWork(work.id, [
+            'work',
+            'work.tasks',
+            'student',
+        ]);
         if (!foundWork) {
             throw new NotFoundError();
         }
@@ -182,9 +227,10 @@ export class AssignedWorkService extends Service {
         await this.calenderService.createWorkMadeEvent(foundWork);
     }
     async checkWork(work) {
-        const foundWork = await this.assignedWorkRepository.findOne({
-            id: work.id,
-        }, ['work', 'mentors']);
+        const foundWork = await this.getAssignedWork(work.id, [
+            'work',
+            'mentors',
+        ]);
         if (!foundWork) {
             throw new NotFoundError();
         }
@@ -209,9 +255,7 @@ export class AssignedWorkService extends Service {
         await this.calenderService.createWorkCheckedEvent(foundWork);
     }
     async saveProgress(work, role) {
-        const foundWork = await this.assignedWorkRepository.findOne({
-            id: work.id,
-        });
+        const foundWork = await this.getAssignedWork(work.id);
         if (!foundWork) {
             throw new NotFoundError();
         }
@@ -241,7 +285,7 @@ export class AssignedWorkService extends Service {
         await this.assignedWorkRepository.update(foundWork);
     }
     async archiveWork(id) {
-        const foundWork = await this.assignedWorkRepository.findOne({ id });
+        const foundWork = await this.getAssignedWork(id);
         if (!foundWork) {
             throw new NotFoundError();
         }
@@ -249,9 +293,7 @@ export class AssignedWorkService extends Service {
         await this.assignedWorkRepository.update(foundWork);
     }
     async transferWorkToAnotherMentor(workId, mentorId, currentMentorId) {
-        const foundWork = await this.assignedWorkRepository.findOne({
-            id: workId,
-        });
+        const foundWork = await this.getAssignedWork(workId);
         if (!foundWork) {
             throw new NotFoundError();
         }
@@ -274,10 +316,7 @@ export class AssignedWorkService extends Service {
         await this.assignedWorkRepository.update(foundWork);
     }
     async shiftDeadline(id, days, role, userId) {
-        const work = await this.assignedWorkRepository.findOne({ id });
-        if (!work) {
-            throw new NotFoundError();
-        }
+        const work = await this.getAssignedWork(id, ['mentors']);
         if (role == 'student') {
             if (work.studentId !== userId) {
                 throw new UnauthorizedError();
@@ -318,8 +357,23 @@ export class AssignedWorkService extends Service {
         }
         await this.assignedWorkRepository.delete(id);
     }
-    getMaxScore(tasks) {
-        return tasks.reduce((acc, task) => acc + task.highestScore, 0);
+    async getAssignedWork(id, relations = []) {
+        const assignedWork = await this.assignedWorkRepository.findOne({ id }, relations);
+        if (!assignedWork) {
+            throw new NotFoundError('Работа не найдена');
+        }
+        this.excludeTasks(assignedWork);
+        return assignedWork;
+    }
+    excludeTasks(assignedWork) {
+        const tasksToExclude = assignedWork.excludedTaskIds;
+        if (tasksToExclude.length) {
+            assignedWork.work.tasks = assignedWork.work.tasks.filter((task) => !tasksToExclude.includes(task.id));
+        }
+    }
+    getMaxScore(tasks, excludedTaskIds = []) {
+        const filteredTasks = tasks.filter((task) => !excludedTaskIds.includes(task.id));
+        return filteredTasks.reduce((acc, task) => acc + task.highestScore, 0);
     }
     getScore(comments) {
         return comments.reduce((acc, comment) => acc + comment.score, 0);

@@ -32,9 +32,10 @@ export interface AssignedWork extends BaseModel {
 	score?: number
 	maxScore: number
 	isArchived: boolean
+	isNewAttempt: boolean
+	excludedTaskIds: string[]
 	answers: AssignedWorkAnswer[]
 	answerIds: AssignedWorkAnswer['id'][]
 	comments: AssignedWorkComment[]
 	commentIds: AssignedWorkComment['id'][]
-	//calenderEvents: CalenderEvent[]
 }

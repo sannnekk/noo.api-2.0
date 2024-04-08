@@ -8,6 +8,12 @@ import { ErrorConverter } from '../Core/Request/ValidatorDecorator.js';
 import { Validator } from '../Core/Request/Validator.js';
 import { z } from 'zod';
 let AssignedWorkValidator = class AssignedWorkValidator extends Validator {
+    validateRemake(body) {
+        const schema = z.object({
+            onlyFalse: z.boolean().optional(),
+        });
+        schema.parse(body);
+    }
     validateCreation(data) {
         const schema = z.object({
             studentId: z.string().ulid(),

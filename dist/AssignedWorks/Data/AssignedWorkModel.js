@@ -51,6 +51,17 @@ let AssignedWorkModel = class AssignedWorkModel extends Model {
     score;
     maxScore;
     isArchived = false;
+    isNewAttempt;
+    _excludedTaskIds;
+    get excludedTaskIds() {
+        if (this._excludedTaskIds) {
+            return JSON.parse(this._excludedTaskIds);
+        }
+        return [];
+    }
+    set excludedTaskIds(value) {
+        this._excludedTaskIds = JSON.stringify(value);
+    }
     static entriesToSearch() {
         return ['work.name', 'student.name', 'mentors.name'];
     }
@@ -243,6 +254,22 @@ __decorate([
     }),
     __metadata("design:type", Boolean)
 ], AssignedWorkModel.prototype, "isArchived", void 0);
+__decorate([
+    Column({
+        name: 'is_new_attempt',
+        type: 'boolean',
+        default: false,
+    }),
+    __metadata("design:type", Boolean)
+], AssignedWorkModel.prototype, "isNewAttempt", void 0);
+__decorate([
+    Column({
+        name: 'filtered_out_task_ids',
+        type: 'json',
+        nullable: true,
+    }),
+    __metadata("design:type", String)
+], AssignedWorkModel.prototype, "_excludedTaskIds", void 0);
 AssignedWorkModel = __decorate([
     Entity('assigned_work'),
     __metadata("design:paramtypes", [Object])
