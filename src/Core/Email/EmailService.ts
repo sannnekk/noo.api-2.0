@@ -142,7 +142,7 @@ export class EmailService {
 		} as any)
 
 		const mailOptions = {
-			from: `НОО Платформа <${process.env.SMTP_FROM}>`, //'noreply@noo-school.ru',
+			from: process.env.SMTP_FROM, //'noreply@noo-school.ru',
 			to: email,
 			subject,
 			html: htmlTemplate,
