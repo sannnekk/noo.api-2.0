@@ -134,7 +134,7 @@ export class EmailService {
 		const transport = Mailer.createTransport({
 			host: process.env.SMTP_HOST, //'root04.hmnet.eu',
 			port: process.env.SMTP_PORT, // 465,
-			secure: true,
+			secure: false,
 			auth: {
 				user: process.env.SMTP_LOGIN, //'noreply@noo-school.ru',
 				pass: process.env.SMTP_PASSWORD, //'983dAb2x!'
