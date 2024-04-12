@@ -584,7 +584,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 	private excludeTasks(assignedWork: AssignedWork) {
 		const tasksToExclude = assignedWork.excludedTaskIds
 
-		if (tasksToExclude.length) {
+		if (tasksToExclude.length && assignedWork?.work?.tasks) {
 			assignedWork.work.tasks = assignedWork.work.tasks.filter(
 				(task) => !tasksToExclude.includes(task.id)
 			)

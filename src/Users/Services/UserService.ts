@@ -12,6 +12,7 @@ import { UserRepository } from '../Data/UserRepository'
 import { LoginCredentials } from '../Data/LoginCredentials'
 import { UserModel } from '../Data/UserModel'
 import { InvalidVerificationTokenError } from '../Errors/InvalidVerificationTokenError'
+import { v4 as uuid } from 'uuid'
 
 export class UserService extends Service<User> {
 	private readonly userRepository: UserRepository
@@ -205,7 +206,7 @@ export class UserService extends Service<User> {
 			)
 		}
 
-		const newPassword = Math.random().toString(36).slice(-12)
+		const newPassword = uuid()
 
 		user.password = await Hash.hash(newPassword)
 
