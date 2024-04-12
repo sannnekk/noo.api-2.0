@@ -10,6 +10,7 @@ import { EmailService } from '../../Core/Email/EmailService.js';
 import { UserRepository } from '../Data/UserRepository.js';
 import { UserModel } from '../Data/UserModel.js';
 import { InvalidVerificationTokenError } from '../Errors/InvalidVerificationTokenError.js';
+import { v4 as uuid } from 'uuid';
 export class UserService extends Service {
     userRepository;
     emailService;
@@ -135,7 +136,7 @@ export class UserService extends Service {
         if (user.verificationToken) {
             throw new UnauthenticatedError('Этот аккаунт не подтвержден. Перейдите по ссылке в письме, отправленном на вашу почту, чтобы подтвердить регистрацию.');
         }
-        const newPassword = Math.random().toString(36).slice(-12);
+        const newPassword = uuid();
         user.password = await Hash.hash(newPassword);
         await this.userRepository.update(user);
         await this.emailService.sendForgotPasswordEmail(user.email, user.name, newPassword);

@@ -367,7 +367,7 @@ export class AssignedWorkService extends Service {
     }
     excludeTasks(assignedWork) {
         const tasksToExclude = assignedWork.excludedTaskIds;
-        if (tasksToExclude.length) {
+        if (tasksToExclude.length && assignedWork?.work?.tasks) {
             assignedWork.work.tasks = assignedWork.work.tasks.filter((task) => !tasksToExclude.includes(task.id));
         }
     }
