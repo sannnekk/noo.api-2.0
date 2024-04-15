@@ -8,6 +8,7 @@ import { AssignedWorkModel } from '@modules/AssignedWorks/Data/AssignedWorkModel
 import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
 import { Work } from '@modules/Works/Data/Work'
 import { User } from '@modules/Users/Data/User'
+import { UserModel } from '@modules/Users/Data/UserModel'
 
 export class StatisticsService {
 	private readonly assignedWorkRepository: AssignedWorkRepository
@@ -125,17 +126,20 @@ export class StatisticsService {
 				)
 				.getCount()
 
-		const newUsersPerDay = (await userRepositoryQueryBuilder
-			.clone()
-			.select([
-				'COUNT(user.id) as count',
-				'DATE_FORMAT(user.created_at, "%d.%m.%Y") as date',
-			])
-			.groupBy('date')
-			.getRawMany()) as {
-			count: string
-			date: Date
-		}[]
+		const newUsersPerDay = (
+			await assignedWorkRepositoryQueryBuilder
+				.clone()
+				.select('DATE_FORMAT(user.created_at, "%Y-%m-%d")', 'date')
+				.addSelect((subQuery) => {
+					return subQuery
+						.select('COUNT(*)')
+						.from(UserModel, 'user2')
+						.where('DATE(user2.created_at) <= DATE(user.created_at)')
+				}, 'count')
+				.groupBy('date')
+				.orderBy('date', 'ASC')
+				.getRawMany()
+		).map((item) => ({ date: new Date(item.date), count: item.count }))
 
 		const newUsersPerDayPlot = this.plotService.generatePlot<
 			(typeof newUsersPerDay)[0]
@@ -143,7 +147,7 @@ export class StatisticsService {
 			'Новые пользователи в день',
 			newUsersPerDay,
 			'secondary',
-			(e) => e.date,
+			(e) => e.date.toISOString().split('T')[0],
 			(e) => parseInt(e.count)
 		)
 

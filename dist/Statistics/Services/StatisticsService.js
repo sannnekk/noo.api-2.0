@@ -4,6 +4,7 @@ import { WrongRoleError } from '../../core/Errors/WrongRoleError.js';
 import { Brackets } from 'typeorm';
 import { PlotService } from './PlotService.js';
 import { AssignedWorkModel } from '../../AssignedWorks/Data/AssignedWorkModel.js';
+import { UserModel } from '../../Users/Data/UserModel.js';
 export class StatisticsService {
     assignedWorkRepository;
     userRepository;
@@ -83,15 +84,19 @@ export class StatisticsService {
             .andWhere('assigned_work.checked_at IS NOT NULL')
             .andWhere(this.getDateRange('assigned_work.created_at', from, to))
             .getCount();
-        const newUsersPerDay = (await userRepositoryQueryBuilder
+        const newUsersPerDay = (await assignedWorkRepositoryQueryBuilder
             .clone()
-            .select([
-            'COUNT(user.id) as count',
-            'DATE_FORMAT(user.created_at, "%d.%m.%Y") as date',
-        ])
+            .select('DATE_FORMAT(user.created_at, "%Y-%m-%d")', 'date')
+            .addSelect((subQuery) => {
+            return subQuery
+                .select('COUNT(*)')
+                .from(UserModel, 'user2')
+                .where('DATE(user2.created_at) <= DATE(user.created_at)');
+        }, 'count')
             .groupBy('date')
-            .getRawMany());
-        const newUsersPerDayPlot = this.plotService.generatePlot('Новые пользователи в день', newUsersPerDay, 'secondary', (e) => e.date, (e) => parseInt(e.count));
+            .orderBy('date', 'ASC')
+            .getRawMany()).map((item) => ({ date: new Date(item.date), count: item.count }));
+        const newUsersPerDayPlot = this.plotService.generatePlot('Новые пользователи в день', newUsersPerDay, 'secondary', (e) => e.date.toISOString().split('T')[0], (e) => parseInt(e.count));
         return {
             entries: [
                 {
