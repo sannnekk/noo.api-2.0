@@ -31,9 +31,119 @@ export class StatisticsService {
         }
     }
     async getTeacherStatistics(teacherId, from, to, type) {
+        const userRepositoryQueryBuilder = this.userRepository.queryBuilder('user');
+        const assignedWorkRepositoryQueryBuilder = this.assignedWorkRepository.queryBuilder('assigned_work');
+        const usersCount = await userRepositoryQueryBuilder
+            .clone()
+            .getCount();
+        const studentsCount = await userRepositoryQueryBuilder
+            .clone()
+            .where('user.role = :role', { role: 'student' })
+            .getCount();
+        const mentorsCount = await userRepositoryQueryBuilder
+            .clone()
+            .where('user.role = :role', { role: 'mentor' })
+            .getCount();
+        const teachersCount = await userRepositoryQueryBuilder
+            .clone()
+            .where('user.role = :role', { role: 'teacher' })
+            .getCount();
+        const usersCountInRange = await userRepositoryQueryBuilder
+            .clone()
+            .andWhere(this.getDateRange('user.created_at', from, to))
+            .getCount();
+        const studentsCountInRange = await userRepositoryQueryBuilder
+            .clone()
+            .where('user.role = :role', { role: 'student' })
+            .andWhere(this.getDateRange('user.created_at', from, to))
+            .getCount();
+        const mentorsCountInRange = await userRepositoryQueryBuilder
+            .clone()
+            .where('user.role = :role', { role: 'mentor' })
+            .andWhere(this.getDateRange('user.created_at', from, to))
+            .getCount();
+        const teachersCountInRange = await userRepositoryQueryBuilder
+            .clone()
+            .where('user.role = :role', { role: 'teacher' })
+            .andWhere(this.getDateRange('user.created_at', from, to))
+            .getCount();
+        const totalAssignedWorks = await assignedWorkRepositoryQueryBuilder
+            .clone()
+            .getCount();
+        const checkedWorks = await assignedWorkRepositoryQueryBuilder
+            .clone()
+            .andWhere('assigned_work.checked_at IS NOT NULL')
+            .getCount();
+        const totalAssignedWorksInDateRange = await assignedWorkRepositoryQueryBuilder
+            .clone()
+            .andWhere(this.getDateRange('assigned_work.created_at', from, to))
+            .getCount();
+        const checkedWorksInDateRange = await assignedWorkRepositoryQueryBuilder
+            .clone()
+            .andWhere('assigned_work.checked_at IS NOT NULL')
+            .andWhere(this.getDateRange('assigned_work.created_at', from, to))
+            .getCount();
+        const newUsersPerDay = (await userRepositoryQueryBuilder
+            .clone()
+            .select([
+            'COUNT(user.id) as count',
+            'DATE_FORMAT(user.created_at, "%d.%M.%Y") as date',
+        ])
+            .groupBy('date')
+            .getRawMany());
+        const newUsersPerDayPlot = this.plotService.generatePlot('Новые пользователи в день', newUsersPerDay, 'secondary', (e) => e.date, (e) => parseInt(e.count));
         return {
-            entries: [],
-            plots: [],
+            entries: [
+                {
+                    name: 'Всего пользователей',
+                    value: usersCount,
+                },
+                {
+                    name: 'Всего учеников',
+                    value: studentsCount,
+                },
+                {
+                    name: 'Всего кураторов',
+                    value: mentorsCount,
+                },
+                {
+                    name: 'Всего учителей',
+                    value: teachersCount,
+                },
+                {
+                    name: 'Всего пользователей за период',
+                    value: usersCountInRange,
+                },
+                {
+                    name: 'Всего учеников за период',
+                    value: studentsCountInRange,
+                },
+                {
+                    name: 'Всего кураторов за период',
+                    value: mentorsCountInRange,
+                },
+                {
+                    name: 'Всего учителей за период',
+                    value: teachersCountInRange,
+                },
+                {
+                    name: 'Всего работ',
+                    value: totalAssignedWorks,
+                },
+                {
+                    name: 'Проверено работ',
+                    value: checkedWorks,
+                },
+                {
+                    name: 'Всего работ за период',
+                    value: totalAssignedWorksInDateRange,
+                },
+                {
+                    name: 'Проверено работ за период',
+                    value: checkedWorksInDateRange,
+                },
+            ],
+            plots: [newUsersPerDayPlot],
         };
     }
     async getMentorStatistics(mentorId, from, to, type) {
