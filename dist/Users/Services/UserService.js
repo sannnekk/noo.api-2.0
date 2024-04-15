@@ -107,8 +107,10 @@ export class UserService extends Service {
                 email: credentials.usernameOrEmail,
             },
         ], ['students', 'mentor']);
-        if (!user ||
-            !(await Hash.compare(credentials.password, user.password))) {
+        if (!user) {
+            throw new UnauthenticatedError('Неверный логин или пароль');
+        }
+        if (!(await Hash.compare(credentials.password, user.password))) {
             throw new UnauthenticatedError('Неверный логин или пароль.');
         }
         if (user.isBlocked) {
