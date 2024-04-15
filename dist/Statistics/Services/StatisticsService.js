@@ -84,7 +84,7 @@ export class StatisticsService {
             .andWhere('assigned_work.checked_at IS NOT NULL')
             .andWhere(this.getDateRange('assigned_work.created_at', from, to))
             .getCount();
-        const newUsersPerDay = (await assignedWorkRepositoryQueryBuilder
+        const newUsersPerDay = (await userRepositoryQueryBuilder
             .clone()
             .select('DATE_FORMAT(user.created_at, "%Y-%m-%d")', 'date')
             .addSelect((subQuery) => {

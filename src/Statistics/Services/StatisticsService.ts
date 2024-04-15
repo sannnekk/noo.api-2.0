@@ -127,7 +127,7 @@ export class StatisticsService {
 				.getCount()
 
 		const newUsersPerDay = (
-			await assignedWorkRepositoryQueryBuilder
+			await userRepositoryQueryBuilder
 				.clone()
 				.select('DATE_FORMAT(user.created_at, "%Y-%m-%d")', 'date')
 				.addSelect((subQuery) => {
