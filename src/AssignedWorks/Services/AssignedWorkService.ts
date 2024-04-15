@@ -211,8 +211,6 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			'work',
 		])
 
-		console.log('options', options)
-
 		if (!assignedWork) {
 			throw new NotFoundError('Работа не найдена')
 		}
@@ -233,7 +231,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			throw new UnauthorizedError('Вы не можете пересдать чужую работу')
 		}
 
-		let rightTaskIds: string[] = []
+		let rightTaskIds: string[] = assignedWork.excludedTaskIds
 
 		if (options.onlyFalse) {
 			const comments = await this.commentRepository.find(
@@ -243,12 +241,14 @@ export class AssignedWorkService extends Service<AssignedWork> {
 				['task']
 			)
 
-			rightTaskIds = comments
+			const newExcludes = comments
 				.filter(
 					(comment) => comment.task?.highestScore === comment.score
 				)
 				.map((comment) => comment.task?.id)
 				.filter(Boolean) as string[]
+
+			rightTaskIds.push(...newExcludes)
 		}
 
 		this.createWork(

@@ -277,6 +277,7 @@ export class UserController {
 
 			if (!['teacher', 'admin'].includes(context.credentials.role)) {
 				Asserts.isAuthorized(context, context.params.id)
+				context.body.role = undefined as any
 			}
 
 			await this.userService.update(context.body)

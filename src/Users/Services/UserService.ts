@@ -140,6 +140,12 @@ export class UserService extends Service<User> {
 			throw new NotFoundError()
 		}
 
+		if (student.isBlocked || mentor.isBlocked) {
+			throw new UnauthenticatedError(
+				'Аккаунт куратора или студента заблокирован.'
+			)
+		}
+
 		student.mentor = mentorId as any
 
 		await this.userRepository.update(student)
@@ -229,6 +235,10 @@ export class UserService extends Service<User> {
 
 		if (!user) {
 			throw new NotFoundError()
+		}
+
+		if (user.isBlocked) {
+			throw new UnauthenticatedError('Этот аккаунт заблокирован.')
 		}
 
 		return user
@@ -340,16 +350,22 @@ export class UserService extends Service<User> {
 			throw new NotFoundError()
 		}
 
+		if (existingUser.isBlocked) {
+			throw new UnauthenticatedError('Этот аккаунт заблокирован.')
+		}
+
 		if (user.password) user.password = await Hash.hash(user.password!)
 
 		user.createdAt = undefined
 		user.updatedAt = undefined
 		user.slug = undefined
+		user.username = undefined
 
 		if (existingUser.role !== 'student') {
 			user.role = undefined
 		} else if (user.role && user.role !== 'student') {
 			user.coursesAsStudent = []
+			user.courses = []
 			user.mentor = null as any
 		}
 

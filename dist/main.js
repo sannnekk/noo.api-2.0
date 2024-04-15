@@ -3,7 +3,7 @@ import cors from 'cors';
 import 'reflect-metadata';
 import { CoreDataSource } from './Core/Data/DataSource.js';
 import { ContextMiddleware } from './Core/Request/ContextMiddleware.js';
-import { v4 as uuid } from 'uuid';
+import { attachControllerInstances } from '@decorators/express';
 // import modules
 import { UserController } from './Users/UserController.js';
 import { CourseController } from './Courses/CourseController.js';
@@ -11,11 +11,9 @@ import { WorkController } from './Works/WorkController.js';
 import { AssignedWorkController } from './AssignedWorks/AssignedWorkController.js';
 import { MediaController } from './Media/MediaController.js';
 import { CalenderController } from './Calender/CalenderController.js';
-import { attachControllerInstances } from '@decorators/express';
 import { StatisticsController } from './Statistics/StatisticsController.js';
 await CoreDataSource.initialize();
 const app = express();
-const podId = uuid();
 app.use(cors());
 app.use(express.json({
     limit: '50mb',
@@ -39,3 +37,4 @@ attachControllerInstances(app, [
     new StatisticsController(),
 ]);
 app.listen(process.env.APP_PORT, () => console.log(`Server is running on port ${process.env.APP_PORT}`));
+export default app;

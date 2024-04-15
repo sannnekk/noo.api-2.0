@@ -7,6 +7,7 @@ import { z } from 'zod'
 export class WorkValidator extends Validator {
 	public validateCreation(data: unknown): asserts data is Work {
 		const schema = z.object({
+			slug: z.string().optional(),
 			name: z
 				.string()
 				.min(1, 'Нет названия работы')
@@ -48,6 +49,7 @@ export class WorkValidator extends Validator {
 	public validateUpdate(data: unknown): asserts data is Work {
 		const schema = z.object({
 			id: z.string().ulid(),
+			slug: z.string().optional(),
 			type: z
 				.enum([
 					'trial-work',

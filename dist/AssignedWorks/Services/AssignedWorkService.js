@@ -133,7 +133,6 @@ export class AssignedWorkService extends Service {
         const assignedWork = await this.getAssignedWork(assignedWorkId, [
             'work',
         ]);
-        console.log('options', options);
         if (!assignedWork) {
             throw new NotFoundError('Работа не найдена');
         }
@@ -146,15 +145,16 @@ export class AssignedWorkService extends Service {
         if (assignedWork.studentId !== studentId) {
             throw new UnauthorizedError('Вы не можете пересдать чужую работу');
         }
-        let rightTaskIds = [];
+        let rightTaskIds = assignedWork.excludedTaskIds;
         if (options.onlyFalse) {
             const comments = await this.commentRepository.find({
                 assignedWorkId,
             }, ['task']);
-            rightTaskIds = comments
+            const newExcludes = comments
                 .filter((comment) => comment.task?.highestScore === comment.score)
                 .map((comment) => comment.task?.id)
                 .filter(Boolean);
+            rightTaskIds.push(...newExcludes);
         }
         this.createWork({
             workId: assignedWork.work.id,

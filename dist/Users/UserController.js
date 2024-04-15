@@ -203,6 +203,7 @@ let UserController = class UserController {
             this.userValidator.validateUpdate(context.body);
             if (!['teacher', 'admin'].includes(context.credentials.role)) {
                 Asserts.isAuthorized(context, context.params.id);
+                context.body.role = undefined;
             }
             await this.userService.update(context.body);
             res.status(200).send({ data: null });

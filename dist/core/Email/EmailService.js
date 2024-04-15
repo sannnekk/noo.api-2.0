@@ -1,4 +1,6 @@
 import Mailer from 'nodemailer';
+import path, { dirname } from 'path';
+import fs from 'fs';
 export class EmailService {
     stylesTemplate = `
     <style>
@@ -107,6 +109,10 @@ export class EmailService {
         await this.sendEmail(email, subject, htmlTemplate);
     }
     async sendEmail(email, subject, htmlTemplate) {
+        if (process.env.NODE_ENV === 'test') {
+            await this.mockSendEmail(email, subject, htmlTemplate);
+            return;
+        }
         // Send email
         const transport = Mailer.createTransport({
             host: process.env.SMTP_HOST, //'root04.hmnet.eu',
@@ -124,5 +130,17 @@ export class EmailService {
             html: htmlTemplate,
         };
         await transport.sendMail(mailOptions);
+    }
+    async mockSendEmail(email, subject, htmlTemplate) {
+        // save email to file in test/email
+        const content = `
+      <h1>${subject}</h1>
+      <hr>
+      ${htmlTemplate}
+    `;
+        const filename = `${email}.html`;
+        const directory = path.join(process.cwd(), 'test/email', filename);
+        await fs.promises.mkdir(dirname(directory), { recursive: true });
+        await fs.promises.writeFile(directory, content);
     }
 }

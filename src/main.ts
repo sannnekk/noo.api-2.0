@@ -3,7 +3,7 @@ import cors from 'cors'
 import 'reflect-metadata'
 import { CoreDataSource } from '@modules/Core/Data/DataSource'
 import { ContextMiddleware } from '@modules/Core/Request/ContextMiddleware'
-import { v4 as uuid } from 'uuid'
+import { attachControllerInstances } from '@decorators/express'
 
 // import modules
 import { UserController } from '@modules/Users/UserController'
@@ -12,14 +12,11 @@ import { WorkController } from '@modules/Works/WorkController'
 import { AssignedWorkController } from '@modules/AssignedWorks/AssignedWorkController'
 import { MediaController } from '@modules/Media/MediaController'
 import { CalenderController } from '@modules/Calender/CalenderController'
-import { attachControllerInstances } from '@decorators/express'
-import { AccessLogMiddleware } from './Core/Request/AccessLogMiddleware'
-import { StatisticsController } from './Statistics/StatisticsController'
+import { StatisticsController } from '@modules/Statistics/StatisticsController'
 
 await CoreDataSource.initialize()
 
 const app = express()
-const podId = uuid()
 
 app.use(cors())
 app.use(
@@ -52,3 +49,5 @@ attachControllerInstances(app, [
 app.listen(process.env.APP_PORT, () =>
 	console.log(`Server is running on port ${process.env.APP_PORT}`)
 )
+
+export default app

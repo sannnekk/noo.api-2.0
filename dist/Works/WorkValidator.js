@@ -10,6 +10,7 @@ import { z } from 'zod';
 let WorkValidator = class WorkValidator extends Validator {
     validateCreation(data) {
         const schema = z.object({
+            slug: z.string().optional(),
             name: z
                 .string()
                 .min(1, 'Нет названия работы')
@@ -44,6 +45,7 @@ let WorkValidator = class WorkValidator extends Validator {
     validateUpdate(data) {
         const schema = z.object({
             id: z.string().ulid(),
+            slug: z.string().optional(),
             type: z
                 .enum([
                 'trial-work',
