@@ -129,7 +129,7 @@ export class StatisticsService {
 			.clone()
 			.select([
 				'COUNT(user.id) as count',
-				'DATE_FORMAT(user.created_at, "%d.%M.%Y") as date',
+				'DATE_FORMAT(user.created_at, "%d.%m.%Y") as date',
 			])
 			.groupBy('date')
 			.getRawMany()) as {
