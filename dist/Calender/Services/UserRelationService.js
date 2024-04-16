@@ -13,10 +13,10 @@ export class UserRelationService {
     }
     async getUserToUserVisibilities(requester, target) {
         const requesterUser = await this.userRepository.findOne({
-            where: { username: requester },
+            username: requester,
         });
         const targetUser = await this.userRepository.findOne({
-            where: { username: target },
+            username: target,
         });
         if (!requesterUser || !targetUser) {
             return [];
