@@ -101,6 +101,18 @@ export abstract class Repository<T extends BaseModel> {
 		})) as unknown as Promise<T[]>
 	}
 
+	async findAll(
+		conditions?: Partial<T> | Partial<T>[],
+		relations?: (keyof Partial<T>)[],
+		sort?: any
+	): Promise<T[]> {
+		return (await this.repository.find({
+			relations: (relations as string[]) || undefined,
+			where: conditions,
+			order: sort,
+		})) as unknown as Promise<T[]>
+	}
+
 	async findOne(
 		conditions: Record<string, unknown> | Record<string, unknown>[],
 		relations?: (keyof Partial<T>)[],

@@ -79,7 +79,7 @@ export class AssignedWorkService extends Service {
             work.work.name = `[Пересдача] ${work.work.name}`;
         }
         if (work.solveStatus !== 'not-started') {
-            const answers = await this.answerRepository.find({
+            const answers = await this.answerRepository.findAll({
                 assignedWorkId: work.id,
             });
             work.answers = answers;
@@ -88,7 +88,7 @@ export class AssignedWorkService extends Service {
             work.checkStatus === 'checked-in-deadline' ||
             work.checkStatus === 'checked-after-deadline' ||
             work.checkStatus === 'checked-automatically') {
-            const comments = await this.commentRepository.find({
+            const comments = await this.commentRepository.findAll({
                 assignedWorkId: work.id,
             });
             work.comments = comments;
@@ -147,7 +147,7 @@ export class AssignedWorkService extends Service {
         }
         let rightTaskIds = assignedWork.excludedTaskIds;
         if (options.onlyFalse) {
-            const comments = await this.commentRepository.find({
+            const comments = await this.commentRepository.findAll({
                 assignedWorkId,
             }, ['task']);
             const newExcludes = comments

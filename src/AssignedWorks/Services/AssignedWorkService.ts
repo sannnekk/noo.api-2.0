@@ -119,7 +119,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		}
 
 		if (work.solveStatus !== 'not-started') {
-			const answers = await this.answerRepository.find({
+			const answers = await this.answerRepository.findAll({
 				assignedWorkId: work.id,
 			})
 
@@ -132,7 +132,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			work.checkStatus === 'checked-after-deadline' ||
 			work.checkStatus === 'checked-automatically'
 		) {
-			const comments = await this.commentRepository.find({
+			const comments = await this.commentRepository.findAll({
 				assignedWorkId: work.id,
 			})
 
@@ -234,7 +234,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		let rightTaskIds: string[] = assignedWork.excludedTaskIds
 
 		if (options.onlyFalse) {
-			const comments = await this.commentRepository.find(
+			const comments = await this.commentRepository.findAll(
 				{
 					assignedWorkId,
 				},

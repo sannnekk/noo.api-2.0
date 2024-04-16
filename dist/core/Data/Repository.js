@@ -80,6 +80,13 @@ export class Repository {
             take: pagination.take,
         }));
     }
+    async findAll(conditions, relations, sort) {
+        return (await this.repository.find({
+            relations: relations || undefined,
+            where: conditions,
+            order: sort,
+        }));
+    }
     async findOne(conditions, relations, sort) {
         return this.repository.findOne({
             relations: relations || undefined,
