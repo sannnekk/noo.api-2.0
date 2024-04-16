@@ -9,7 +9,10 @@ export class CalenderValidator extends Validator {
 		event: unknown
 	): asserts event is CalenderEvent {
 		const schema = z.object({
-			title: z.string(),
+			title: z
+				.string()
+				.min(1, 'Название события не должно быть пустым')
+				.max(255, 'Название события не должно превышать 255 символов'),
 			description: z.string().optional(),
 			date: z.date(),
 			url: z.string().url().optional(),
@@ -19,13 +22,6 @@ export class CalenderValidator extends Validator {
 				'all-mentors',
 				'own-mentor',
 				'private',
-			]),
-			type: z.enum([
-				'student-deadline',
-				'mentor-deadline',
-				'work-checked',
-				'work-made',
-				'event',
 			]),
 		})
 
