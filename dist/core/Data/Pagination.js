@@ -1,3 +1,4 @@
+import { merge } from 'ts-deepmerge';
 import TypeORM from 'typeorm';
 export class Pagination {
     page;
@@ -44,10 +45,13 @@ export class Pagination {
         if (!this.search.length || !this.entries.length) {
             return allConditions;
         }
-        return this.entries.map((entry) => ({
-            ...this.getSearchCondition(entry, this.search),
-            ...allConditions,
-        }));
+        return this.entries.map((entry) => merge(this.getSearchCondition(entry, this.search), allConditions));
+    }
+    getFilter(name) {
+        return this.filters[name];
+    }
+    setFilter(name, value) {
+        this.filters[name] = value;
     }
     getSearchCondition(entry, search) {
         if (entry.includes('.')) {

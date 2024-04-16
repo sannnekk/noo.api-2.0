@@ -1,3 +1,4 @@
+import { UserRelationService } from './UserRelationService.js';
 import { Pagination } from '../../Core/Data/Pagination.js';
 import { Service } from '../../Core/Services/Service.js';
 import { UnauthorizedError } from '../../Core/Errors/UnauthorizedError.js';
@@ -5,12 +6,18 @@ import { CalenderEventRepository } from '../Data/CalenderEventRepository.js';
 import { CalenderEventModel } from '../Data/CalenderEventModel.js';
 export class CalenderService extends Service {
     calenderEventRepository;
+    userRelationService;
     constructor() {
         super();
         this.calenderEventRepository = new CalenderEventRepository();
+        this.userRelationService = new UserRelationService();
     }
-    async create(event, username) {
-        await this.calenderEventRepository.create({ ...event, username });
+    async create(event, username, type = 'event') {
+        await this.calenderEventRepository.create({
+            ...event,
+            username,
+            type,
+        });
     }
     async updateDeadlineFromWork(work, type) {
         const newDate = type === 'student-deadline'
@@ -31,7 +38,10 @@ export class CalenderService extends Service {
         await this.calenderEventRepository.update(event);
     }
     async get(username, pagination) {
-        const condition = { username };
+        const allowedVisibilities = await this.userRelationService.getUserToUserVisibilities(username, pagination?.getFilter('username') || username);
+        const condition = allowedVisibilities.map((visibility) => ({
+            visibility,
+        }));
         const events = await this.calenderEventRepository.find(condition, undefined, pagination);
         const meta = await this.getRequestMeta(this.calenderEventRepository, condition, pagination || new Pagination(), []);
         return { events, meta };
@@ -80,7 +90,7 @@ export class CalenderService extends Service {
                 description: `Работа: ${work.work.name}`,
                 date: work.checkDeadlineAt,
                 url: `/assigned-works/${work.id}/check`,
-                visibility: 'private',
+                visibility: 'all',
                 type: 'mentor-deadline',
                 username: mentor.username,
                 assignedWork: work,
@@ -106,7 +116,7 @@ export class CalenderService extends Service {
                 description: `Работа: ${work.work.name}`,
                 date: work.checkedAt,
                 url: `/assigned-works/${work.id}/read`,
-                visibility: 'private',
+                visibility: 'all',
                 type: 'work-checked',
                 username: mentor.username,
                 assignedWork: work,

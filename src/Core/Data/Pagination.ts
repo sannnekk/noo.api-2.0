@@ -1,8 +1,7 @@
+import { merge } from 'ts-deepmerge'
 import TypeORM from 'typeorm'
 
-export type Filters = {
-	[key: string]: any
-}
+export type Filters = Record<string, any>
 
 export class Pagination {
 	private page: number
@@ -71,10 +70,21 @@ export class Pagination {
 			return allConditions
 		}
 
-		return this.entries.map((entry) => ({
-			...this.getSearchCondition(entry, this.search),
-			...allConditions,
-		}))
+		return this.entries.map(
+			(entry) =>
+				merge(
+					this.getSearchCondition(entry, this.search),
+					allConditions
+				) as Record<string, any>
+		)
+	}
+
+	public getFilter(name: string): any {
+		return this.filters[name]
+	}
+
+	public setFilter(name: string, value: any): void {
+		this.filters[name] = value
 	}
 
 	private getSearchCondition(
