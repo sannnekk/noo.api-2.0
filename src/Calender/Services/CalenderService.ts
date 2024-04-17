@@ -29,6 +29,7 @@ export class CalenderService extends Service<CalenderEvent> {
 			...event,
 			username,
 			type,
+			url: event.url || '',
 		})
 	}
 

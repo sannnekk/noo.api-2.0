@@ -17,6 +17,7 @@ export class CalenderService extends Service {
             ...event,
             username,
             type,
+            url: event.url || '',
         });
     }
     async updateDeadlineFromWork(work, type) {
