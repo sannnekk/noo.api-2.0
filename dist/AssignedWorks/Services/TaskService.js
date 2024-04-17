@@ -40,7 +40,7 @@ export class TaskService {
         }
         switch (task.type) {
             case 'word':
-                return this.checkWord(answer.word, task.rightAnswer, maxScore, task.checkingStrategy);
+                return this.checkWord(answer.word?.toLowerCase().replaceAll(' ', ''), task.rightAnswer?.toLowerCase().replaceAll(' ', ''), maxScore, task.checkingStrategy);
             default:
                 return 0;
         }
