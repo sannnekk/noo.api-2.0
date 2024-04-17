@@ -15,7 +15,7 @@ export class Repository {
             return (await this.repository.save(model));
         }
         catch (error) {
-            throw new AlreadyExistError();
+            throw new AlreadyExistError(error.message);
         }
     }
     async createMany(data) {
