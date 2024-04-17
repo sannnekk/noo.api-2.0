@@ -54,7 +54,7 @@ export class AssignedWorkService extends Service {
         ];
         const assignedWorks = await this.assignedWorkRepository.find(conditions, relations, pagination);
         for (const work of assignedWorks) {
-            if (work.isNewAttempt) {
+            if (work.isNewAttempt && work.work) {
                 work.work.name = `[Пересдача] ${work.work.name}`;
             }
         }
