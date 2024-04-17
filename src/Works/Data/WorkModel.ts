@@ -28,10 +28,6 @@ export class WorkModel extends Model implements Work {
 				(chapter) => new WorkTaskModel(chapter)
 			)
 
-			this.assignedWorks = (data.assignedWorks || []).map(
-				(assignedWork) => new AssignedWorkModel(assignedWork)
-			)
-
 			if (!data.slug) {
 				this.slug = this.sluggify(this.name)
 			}

@@ -20,7 +20,6 @@ let WorkModel = class WorkModel extends Model {
         if (data) {
             this.set(data);
             this.tasks = (data.tasks || []).map((chapter) => new WorkTaskModel(chapter));
-            this.assignedWorks = (data.assignedWorks || []).map((assignedWork) => new AssignedWorkModel(assignedWork));
             if (!data.slug) {
                 this.slug = this.sluggify(this.name);
             }
