@@ -20,7 +20,7 @@ export class MediaController {
 		const context = req.context as Context
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 
 			const mediaFiles = await this.mediaService.upload(
 				req.files as Express.Multer.File[]

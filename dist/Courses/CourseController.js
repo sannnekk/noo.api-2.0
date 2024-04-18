@@ -26,7 +26,7 @@ let CourseController = class CourseController {
         // @ts-ignore
         const context = req.context;
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             const pagination = this.courseValidator.validatePagination(context.query);
             const { courses, meta } = await this.courseService.get(pagination, context.credentials.userId, context.credentials.role);
             res.status(200).send({ data: courses, meta });
@@ -42,7 +42,7 @@ let CourseController = class CourseController {
         context.setParams(req.params);
         try {
             this.courseValidator.validateSlug(context.params.slug);
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             const course = await this.courseService.getBySlug(context.params.slug);
             if (context.credentials.role === 'student' ||
                 context.credentials.role == 'mentor') {
@@ -62,7 +62,7 @@ let CourseController = class CourseController {
         context.setParams(req.params);
         try {
             this.courseValidator.validateSlug(context.params.slug);
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.student(context);
             const assignedWork = await this.courseService.getAssignedWorkToMaterial(context.params.slug, context.credentials.userId);
             res.status(200).send({ data: assignedWork });
@@ -77,7 +77,7 @@ let CourseController = class CourseController {
         const context = req.context;
         try {
             this.courseValidator.validateCreation(context.body);
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.teacher(context);
             await this.courseService.create(context.body, context.credentials.userId);
             res.status(201).send({ data: null });
@@ -93,7 +93,7 @@ let CourseController = class CourseController {
         context.setParams(req.params);
         try {
             this.courseValidator.validateUpdate(context.body);
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.teacher(context);
             await this.courseService.update(context.body);
             res.status(201).send({ data: null });
@@ -108,7 +108,7 @@ let CourseController = class CourseController {
         const context = req.context;
         context.setParams(req.params);
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.teacher(context);
             this.courseValidator.validateSlug(context.params.materialSlug);
             this.courseValidator.validateId(context.params.workId);
@@ -126,7 +126,7 @@ let CourseController = class CourseController {
         const context = req.context;
         context.setParams(req.params);
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.teacher(context);
             this.courseValidator.validateSlug(context.params.courseSlug);
             this.courseValidator.validateStudentIds(context.body);
@@ -144,7 +144,7 @@ let CourseController = class CourseController {
         context.setParams(req.params);
         try {
             this.courseValidator.validateId(context.params.id);
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.teacher(context);
             await this.courseService.delete(context.params.id);
             res.status(200).send({ data: null });

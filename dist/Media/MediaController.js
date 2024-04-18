@@ -24,7 +24,7 @@ let MediaController = class MediaController {
         // @ts-ignore
         const context = req.context;
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             const mediaFiles = await this.mediaService.upload(req.files);
             res.status(201).send({ data: mediaFiles });
         }

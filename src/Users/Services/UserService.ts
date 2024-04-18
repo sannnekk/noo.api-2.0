@@ -347,10 +347,6 @@ export class UserService extends Service<User> {
 			throw new NotFoundError()
 		}
 
-		if (existingUser.isBlocked) {
-			throw new UnauthenticatedError('Этот аккаунт заблокирован.')
-		}
-
 		if (user.password) user.password = await Hash.hash(user.password!)
 
 		user.createdAt = undefined

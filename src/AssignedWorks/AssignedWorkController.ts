@@ -31,15 +31,15 @@ export class AssignedWorkController {
 		const context = req.context as Context
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			const pagination = this.assignedWorkValidator.validatePagination(
 				context.query
 			)
 
 			const { assignedWorks, meta } =
 				await this.assignedWorkService.getWorks(
-					context.credentials.userId,
-					context.credentials.role,
+					context.credentials!.userId,
+					context.credentials!.role,
 					pagination
 				)
 
@@ -57,15 +57,15 @@ export class AssignedWorkController {
 		context.setParams(req.params)
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			this.assignedWorkValidator.validateId(context.params.id)
 
 			const work = await this.assignedWorkService.getWorkById(
 				context.params.id,
-				context.credentials.role
+				context.credentials!.role
 			)
 
-			if (context.credentials.role == 'student') {
+			if (context.credentials!.role == 'student') {
 				Asserts.isAuthorized(context, work.studentId)
 			}
 
@@ -94,7 +94,7 @@ export class AssignedWorkController {
 		const context = req.context as Context
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			this.assignedWorkValidator.validateCreation(context.body)
 
 			await this.assignedWorkService.createWork(context.body)
@@ -113,7 +113,7 @@ export class AssignedWorkController {
 		context.setParams(req.params)
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			Asserts.student(context)
 			this.assignedWorkValidator.validateId(context.params.id)
 			this.assignedWorkValidator.validateRemake(context.body)
@@ -138,7 +138,7 @@ export class AssignedWorkController {
 		context.setParams(req.params)
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			Asserts.student(context)
 			this.assignedWorkValidator.validateSlug(
 				context.params.materialSlug
@@ -163,7 +163,7 @@ export class AssignedWorkController {
 		context.setParams(req.params)
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			Asserts.student(context)
 			this.assignedWorkValidator.validateId(context.params.id)
 			this.assignedWorkValidator.validateUpdate(context.body)
@@ -184,7 +184,7 @@ export class AssignedWorkController {
 		context.setParams(req.params)
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			Asserts.mentor(context)
 			this.assignedWorkValidator.validateId(context.params.id)
 			this.assignedWorkValidator.validateUpdate(context.body)
@@ -205,7 +205,7 @@ export class AssignedWorkController {
 		context.setParams(req.params)
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			Asserts.mentorOrStudent(context)
 			this.assignedWorkValidator.validateId(context.params.id)
 			this.assignedWorkValidator.validateUpdate(context.body)
@@ -229,7 +229,7 @@ export class AssignedWorkController {
 		context.setParams(req.params)
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			Asserts.mentor(context)
 			this.assignedWorkValidator.validateId(context.params.id)
 
@@ -249,7 +249,7 @@ export class AssignedWorkController {
 		context.setParams(req.params)
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			Asserts.mentor(context)
 			this.assignedWorkValidator.validateId(context.params.workId)
 			this.assignedWorkValidator.validateId(context.params.mentorId)
@@ -277,7 +277,7 @@ export class AssignedWorkController {
 		context.setParams(req.params)
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			Asserts.mentorOrStudent(context)
 			this.assignedWorkValidator.validateId(context.params.id)
 
@@ -302,7 +302,7 @@ export class AssignedWorkController {
 		context.setParams(req.params)
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			Asserts.mentor(context)
 			this.assignedWorkValidator.validateId(context.params.id)
 

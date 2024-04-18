@@ -27,7 +27,7 @@ let UserController = class UserController {
         const context = req.context;
         try {
             this.userValidator.validateCreation(context.body);
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.teacherOrAdmin(context);
             await this.userService.create(context.body);
             res.status(201).send({ data: null });
@@ -107,7 +107,7 @@ let UserController = class UserController {
         const context = req.context;
         context.setParams(req.params);
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             this.userValidator.validateSlug(context.params.username);
             const user = await this.userService.getByUsername(context.params.username);
             res.status(200).send({ data: user });
@@ -122,7 +122,7 @@ let UserController = class UserController {
         const context = req.context;
         context.setParams(req.params);
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.teacherOrAdmin(context);
             this.userValidator.validateSlug(context.params.username);
             await this.userService.verifyManual(context.params.username);
@@ -137,7 +137,7 @@ let UserController = class UserController {
         // @ts-ignore
         const context = req.context;
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.notStudent(context);
             const pagination = this.userValidator.validatePagination(context.query);
             const { mentors, meta } = await this.userService.getMentors(pagination);
@@ -152,7 +152,7 @@ let UserController = class UserController {
         // @ts-ignore
         const context = req.context;
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.notStudent(context);
             const pagination = this.userValidator.validatePagination(context.query);
             const { students, meta } = await this.userService.getStudents(pagination);
@@ -167,7 +167,7 @@ let UserController = class UserController {
         // @ts-ignore
         const context = req.context;
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.mentor(context);
             const pagination = this.userValidator.validatePagination(context.query);
             const { students, meta } = await this.userService.getStudentsOf(context.credentials.userId, pagination);
@@ -182,7 +182,7 @@ let UserController = class UserController {
         // @ts-ignore
         const context = req.context;
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.notStudent(context);
             const pagination = this.userValidator.validatePagination(context.query);
             const { users, meta } = await this.userService.getUsers(pagination);
@@ -198,7 +198,7 @@ let UserController = class UserController {
         const context = req.context;
         context.setParams(req.params);
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             this.userValidator.validateId(context.params.id);
             this.userValidator.validateUpdate(context.body);
             if (!['teacher', 'admin'].includes(context.credentials.role)) {
@@ -234,7 +234,7 @@ let UserController = class UserController {
         const context = req.context;
         context.setParams(req.params);
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             this.userValidator.validateId(context.params.id);
             if (!['teacher', 'admin'].includes(context.credentials.role)) {
                 Asserts.isAuthorized(context, context.params.id);

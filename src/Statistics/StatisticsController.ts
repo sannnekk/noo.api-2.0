@@ -23,7 +23,7 @@ export class StatisticsController {
 		context.setParams(req.params)
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			this.statisticsValidator.validateGetStatistics(context.body)
 			this.statisticsValidator.validateSlug(context.params.username)
 

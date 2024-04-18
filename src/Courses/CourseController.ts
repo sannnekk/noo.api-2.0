@@ -30,15 +30,15 @@ export class CourseController {
 		const context = req.context as Context
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			const pagination = this.courseValidator.validatePagination(
 				context.query
 			)
 
 			const { courses, meta } = await this.courseService.get(
 				pagination,
-				context.credentials.userId,
-				context.credentials.role
+				context.credentials!.userId,
+				context.credentials!.role
 			)
 
 			res.status(200).send({ data: courses, meta })
@@ -56,15 +56,15 @@ export class CourseController {
 
 		try {
 			this.courseValidator.validateSlug(context.params.slug)
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 
 			const course = await this.courseService.getBySlug(
 				context.params.slug
 			)
 
 			if (
-				context.credentials.role === 'student' ||
-				context.credentials.role == 'mentor'
+				context.credentials!.role === 'student' ||
+				context.credentials!.role == 'mentor'
 			) {
 				course.studentIds = []
 				course.students = []
@@ -88,7 +88,7 @@ export class CourseController {
 
 		try {
 			this.courseValidator.validateSlug(context.params.slug)
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			Asserts.student(context)
 
 			const assignedWork =
@@ -111,7 +111,7 @@ export class CourseController {
 
 		try {
 			this.courseValidator.validateCreation(context.body)
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
 
 			await this.courseService.create(
@@ -134,7 +134,7 @@ export class CourseController {
 
 		try {
 			this.courseValidator.validateUpdate(context.body)
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
 
 			await this.courseService.update(context.body)
@@ -156,7 +156,7 @@ export class CourseController {
 		context.setParams(req.params)
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
 			this.courseValidator.validateSlug(context.params.materialSlug)
 			this.courseValidator.validateId(context.params.workId)
@@ -186,7 +186,7 @@ export class CourseController {
 		context.setParams(req.params)
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
 			this.courseValidator.validateSlug(context.params.courseSlug)
 			this.courseValidator.validateStudentIds(context.body)
@@ -211,7 +211,7 @@ export class CourseController {
 
 		try {
 			this.courseValidator.validateId(context.params.id)
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
 
 			await this.courseService.delete(context.params.id)

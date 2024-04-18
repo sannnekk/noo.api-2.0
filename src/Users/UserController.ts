@@ -31,7 +31,7 @@ export class UserController {
 
 		try {
 			this.userValidator.validateCreation(context.body)
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			Asserts.teacherOrAdmin(context)
 
 			await this.userService.create(context.body)
@@ -135,7 +135,7 @@ export class UserController {
 		context.setParams(req.params)
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			this.userValidator.validateSlug(context.params.username)
 
 			const user = await this.userService.getByUsername(
@@ -156,7 +156,7 @@ export class UserController {
 		context.setParams(req.params)
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			Asserts.teacherOrAdmin(context)
 
 			this.userValidator.validateSlug(context.params.username)
@@ -176,7 +176,7 @@ export class UserController {
 		const context = req.context as Context
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			Asserts.notStudent(context)
 			const pagination = this.userValidator.validatePagination(
 				context.query
@@ -199,7 +199,7 @@ export class UserController {
 		const context = req.context as Context
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			Asserts.notStudent(context)
 			const pagination = this.userValidator.validatePagination(
 				context.query
@@ -222,7 +222,7 @@ export class UserController {
 		const context = req.context as Context
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			Asserts.mentor(context)
 
 			const pagination = this.userValidator.validatePagination(
@@ -247,7 +247,7 @@ export class UserController {
 		const context = req.context as Context
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			Asserts.notStudent(context)
 			const pagination = this.userValidator.validatePagination(
 				context.query
@@ -271,11 +271,11 @@ export class UserController {
 		context.setParams(req.params)
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			this.userValidator.validateId(context.params.id)
 			this.userValidator.validateUpdate(context.body)
 
-			if (!['teacher', 'admin'].includes(context.credentials.role)) {
+			if (!['teacher', 'admin'].includes(context.credentials!.role)) {
 				Asserts.isAuthorized(context, context.params.id)
 				context.body.role = undefined as any
 			}
@@ -319,10 +319,10 @@ export class UserController {
 		context.setParams(req.params)
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			this.userValidator.validateId(context.params.id)
 
-			if (!['teacher', 'admin'].includes(context.credentials.role)) {
+			if (!['teacher', 'admin'].includes(context.credentials!.role)) {
 				Asserts.isAuthorized(context, context.params.id)
 			}
 

@@ -26,7 +26,7 @@ let WorkController = class WorkController {
         // @ts-ignore
         const context = req.context;
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.teacherOrAdmin(context);
             const pagination = this.workValidator.validatePagination(context.query);
             const { works, meta } = await this.workService.getWorks(pagination);
@@ -42,7 +42,7 @@ let WorkController = class WorkController {
         const context = req.context;
         context.setParams(req.params);
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             this.workValidator.validateSlug(context.params.slug);
             const work = await this.workService.getWorkBySlug(context.params.slug);
             res.status(200).send({ data: work });
@@ -56,7 +56,7 @@ let WorkController = class WorkController {
         // @ts-ignore
         const context = req.context;
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.teacher(context);
             this.workValidator.validateCreation(context.body);
             await this.workService.createWork(context.body);
@@ -72,7 +72,7 @@ let WorkController = class WorkController {
         const context = req.context;
         context.setParams(req.params);
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.teacher(context);
             this.workValidator.validateSlug(context.params.slug);
             await this.workService.copyWork(context.params.slug);
@@ -88,7 +88,7 @@ let WorkController = class WorkController {
         const context = req.context;
         context.setParams(req.params);
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.teacher(context);
             this.workValidator.validateUpdate(context.body);
             this.workValidator.validateId(context.params.id);
@@ -105,7 +105,7 @@ let WorkController = class WorkController {
         const context = req.context;
         context.setParams(req.params);
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.teacher(context);
             this.workValidator.validateId(context.params.id);
             await this.workService.deleteWork(context.params.id);

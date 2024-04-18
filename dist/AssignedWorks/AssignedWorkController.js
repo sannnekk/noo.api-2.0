@@ -27,7 +27,7 @@ let AssignedWorkController = class AssignedWorkController {
         // @ts-ignore
         const context = req.context;
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             const pagination = this.assignedWorkValidator.validatePagination(context.query);
             const { assignedWorks, meta } = await this.assignedWorkService.getWorks(context.credentials.userId, context.credentials.role, pagination);
             res.status(200).send({ data: assignedWorks, meta });
@@ -42,7 +42,7 @@ let AssignedWorkController = class AssignedWorkController {
         const context = req.context;
         context.setParams(req.params);
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             this.assignedWorkValidator.validateId(context.params.id);
             const work = await this.assignedWorkService.getWorkById(context.params.id, context.credentials.role);
             if (context.credentials.role == 'student') {
@@ -68,7 +68,7 @@ let AssignedWorkController = class AssignedWorkController {
         // @ts-ignore
         const context = req.context;
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             this.assignedWorkValidator.validateCreation(context.body);
             await this.assignedWorkService.createWork(context.body);
             res.status(201).send({ data: null });
@@ -83,7 +83,7 @@ let AssignedWorkController = class AssignedWorkController {
         const context = req.context;
         context.setParams(req.params);
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.student(context);
             this.assignedWorkValidator.validateId(context.params.id);
             this.assignedWorkValidator.validateRemake(context.body);
@@ -100,7 +100,7 @@ let AssignedWorkController = class AssignedWorkController {
         const context = req.context;
         context.setParams(req.params);
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.student(context);
             this.assignedWorkValidator.validateSlug(context.params.materialSlug);
             const { link } = await this.assignedWorkService.getOrCreateWork(context.params.materialSlug, context.credentials.userId);
@@ -116,7 +116,7 @@ let AssignedWorkController = class AssignedWorkController {
         const context = req.context;
         context.setParams(req.params);
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.student(context);
             this.assignedWorkValidator.validateId(context.params.id);
             this.assignedWorkValidator.validateUpdate(context.body);
@@ -133,7 +133,7 @@ let AssignedWorkController = class AssignedWorkController {
         const context = req.context;
         context.setParams(req.params);
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.mentor(context);
             this.assignedWorkValidator.validateId(context.params.id);
             this.assignedWorkValidator.validateUpdate(context.body);
@@ -150,7 +150,7 @@ let AssignedWorkController = class AssignedWorkController {
         const context = req.context;
         context.setParams(req.params);
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.mentorOrStudent(context);
             this.assignedWorkValidator.validateId(context.params.id);
             this.assignedWorkValidator.validateUpdate(context.body);
@@ -167,7 +167,7 @@ let AssignedWorkController = class AssignedWorkController {
         const context = req.context;
         context.setParams(req.params);
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.mentor(context);
             this.assignedWorkValidator.validateId(context.params.id);
             await this.assignedWorkService.archiveWork(context.params.id);
@@ -183,7 +183,7 @@ let AssignedWorkController = class AssignedWorkController {
         const context = req.context;
         context.setParams(req.params);
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.mentor(context);
             this.assignedWorkValidator.validateId(context.params.workId);
             this.assignedWorkValidator.validateId(context.params.mentorId);
@@ -200,7 +200,7 @@ let AssignedWorkController = class AssignedWorkController {
         const context = req.context;
         context.setParams(req.params);
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.mentorOrStudent(context);
             this.assignedWorkValidator.validateId(context.params.id);
             await this.assignedWorkService.shiftDeadline(context.params.id, 1, context.credentials.role, context.credentials.userId);
@@ -216,7 +216,7 @@ let AssignedWorkController = class AssignedWorkController {
         const context = req.context;
         context.setParams(req.params);
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.mentor(context);
             this.assignedWorkValidator.validateId(context.params.id);
             await this.assignedWorkService.deleteWork(context.params.id, context.credentials.id);

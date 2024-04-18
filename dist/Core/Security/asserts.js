@@ -38,8 +38,8 @@ export function teacherOrAdmin(context) {
         throw new WrongRoleError();
     }
 }
-export function isAuthenticated(context) {
-    if (!context.isAuthenticated()) {
+export async function isAuthenticated(context) {
+    if (!(await context.isAuthenticated())) {
         throw new UnauthenticatedError();
     }
 }

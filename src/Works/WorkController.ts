@@ -30,7 +30,7 @@ export class WorkController {
 		const context = req.context as Context
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			Asserts.teacherOrAdmin(context)
 
 			const pagination = this.workValidator.validatePagination(
@@ -58,7 +58,7 @@ export class WorkController {
 		context.setParams(req.params)
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 
 			this.workValidator.validateSlug(context.params.slug)
 
@@ -79,7 +79,7 @@ export class WorkController {
 		const context = req.context as Context
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
 
 			this.workValidator.validateCreation(context.body)
@@ -100,7 +100,7 @@ export class WorkController {
 		context.setParams(req.params)
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
 
 			this.workValidator.validateSlug(context.params.slug)
@@ -121,7 +121,7 @@ export class WorkController {
 		context.setParams(req.params)
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
 
 			this.workValidator.validateUpdate(context.body)
@@ -143,7 +143,7 @@ export class WorkController {
 		context.setParams(req.params)
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
 
 			this.workValidator.validateId(context.params.id)

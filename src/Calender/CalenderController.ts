@@ -33,12 +33,12 @@ export class CalenderController {
 		const context = req.context as Context
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			this.calenderValidator.validateEventCreation(context.body)
 
 			await this.calenderService.create(
 				context.body,
-				context.credentials.username
+				context.credentials!.username
 			)
 
 			res.status(201).send({ data: null })
@@ -57,13 +57,13 @@ export class CalenderController {
 		const context = req.context as Context
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			const pagination = this.calenderValidator.validatePagination(
 				context.query
 			)
 
 			const { events, meta } = await this.calenderService.get(
-				context.credentials.username,
+				context.credentials!.username,
 				pagination
 			)
 
@@ -84,12 +84,12 @@ export class CalenderController {
 		context.setParams(req.params)
 
 		try {
-			Asserts.isAuthenticated(context)
+			await Asserts.isAuthenticated(context)
 			this.calenderValidator.validateId(context.params.id)
 
 			await this.calenderService.delete(
 				context.params.id,
-				context.credentials.username
+				context.credentials!.username
 			)
 
 			res.status(200).send({ data: null })

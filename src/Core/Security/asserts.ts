@@ -77,10 +77,8 @@ export function teacherOrAdmin(
 	}
 }
 
-export function isAuthenticated(
-	context: Context
-): asserts context is Context & { credentials: JWTPayload } {
-	if (!context.isAuthenticated()) {
+export async function isAuthenticated(context: Context): Promise<void> {
+	if (!(await context.isAuthenticated())) {
 		throw new UnauthenticatedError()
 	}
 }

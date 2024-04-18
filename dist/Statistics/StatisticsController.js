@@ -27,7 +27,7 @@ let StatisticsController = class StatisticsController {
         const context = req.context;
         context.setParams(req.params);
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             this.statisticsValidator.validateGetStatistics(context.body);
             this.statisticsValidator.validateSlug(context.params.username);
             const statistics = await this.statisticsService.getStatistics(context.params.username, context.body.from, context.body.to, context.body.type);
