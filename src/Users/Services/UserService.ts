@@ -238,10 +238,6 @@ export class UserService extends Service<User> {
 			throw new NotFoundError()
 		}
 
-		if (user.isBlocked) {
-			throw new UnauthenticatedError('Этот аккаунт заблокирован.')
-		}
-
 		return user
 	}
 

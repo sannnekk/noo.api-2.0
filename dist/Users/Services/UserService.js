@@ -156,9 +156,6 @@ export class UserService extends Service {
         if (!user) {
             throw new NotFoundError();
         }
-        if (user.isBlocked) {
-            throw new UnauthenticatedError('Этот аккаунт заблокирован.');
-        }
         return user;
     }
     async getUsers(pagination) {
