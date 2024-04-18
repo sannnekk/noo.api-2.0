@@ -76,6 +76,26 @@ export class UserController {
 		}
 	}
 
+	@Get('/auth/check-username/:username')
+	async checkUsername(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+		context.setParams(req.params)
+
+		try {
+			this.userValidator.validateSlug(context.params.username)
+
+			const exists = await this.userService.checkUsername(
+				context.params.username
+			)
+
+			res.status(200).send({ data: exists })
+		} catch (error: any) {
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
+		}
+	}
+
 	@Post('/auth/resend-verification')
 	async resendVerification(@Req() req: Request, @Res() res: Response) {
 		// @ts-ignore

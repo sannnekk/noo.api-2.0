@@ -50,6 +50,10 @@ export class UserService extends Service {
         await this.create(user);
         await this.emailService.sendVerificationEmail(user.email, user.username, user.name, user.verificationToken);
     }
+    async checkUsername(username) {
+        const user = await this.userRepository.findOne({ username });
+        return user !== null;
+    }
     async verify(username, token) {
         const user = await this.userRepository.findOne({
             username,

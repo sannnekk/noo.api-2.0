@@ -63,6 +63,20 @@ let UserController = class UserController {
             res.status(status).send({ error: message });
         }
     }
+    async checkUsername(req, res) {
+        // @ts-ignore
+        const context = req.context;
+        context.setParams(req.params);
+        try {
+            this.userValidator.validateSlug(context.params.username);
+            const exists = await this.userService.checkUsername(context.params.username);
+            res.status(200).send({ data: exists });
+        }
+        catch (error) {
+            const { status, message } = getErrorData(error);
+            res.status(status).send({ error: message });
+        }
+    }
     async resendVerification(req, res) {
         // @ts-ignore
         const context = req.context;
@@ -272,6 +286,14 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "register", null);
+__decorate([
+    Get('/auth/check-username/:username'),
+    __param(0, Req()),
+    __param(1, Res()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "checkUsername", null);
 __decorate([
     Post('/auth/resend-verification'),
     __param(0, Req()),
