@@ -1,6 +1,7 @@
 import { UserRepository } from '@modules/Users/Data/UserRepository'
 import { CalenderEvent } from '../Data/CalenderEvent'
 import { User } from '@modules/Users/Data/User'
+import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
 
 export class UserRelationService {
 	private readonly userRepository: UserRepository
@@ -12,9 +13,19 @@ export class UserRelationService {
 		all: () => true,
 		private: (requester, target) =>
 			requester.username === target.username,
-		'own-mentor': (requester, target) => false,
-		'all-mentors': (requester, target) => false,
-		'own-students': (requester, target) => false,
+		'own-mentor': (requester, target) => {
+			return (
+				requester.role === 'mentor' && requester.id === target.mentorId
+			)
+		},
+		'all-mentors': (requester, target) => {
+			return requester.role === 'mentor'
+		},
+		'own-students': (requester, target) => {
+			return !!(
+				requester.role === 'student' && requester.mentorId === target.id
+			)
+		},
 	}
 
 	constructor() {
@@ -22,27 +33,98 @@ export class UserRelationService {
 	}
 
 	public async getUserToUserVisibilities(
-		requester: string,
-		target: string
+		requester: User,
+		target: User
 	): Promise<CalenderEvent['visibility'][]> {
-		const requesterUser = await this.userRepository.findOne({
-			username: requester,
-		})
-
-		const targetUser = await this.userRepository.findOne({
-			username: target,
-		})
-
-		if (!requesterUser || !targetUser) {
-			return []
-		}
-
 		const visibilities = Object.keys(
 			this.visibilities
 		) as CalenderEvent['visibility'][]
 
+		if (requester.username === target.username) {
+			return visibilities
+		}
+
 		return visibilities.filter((key) =>
-			this.visibilities[key].call(undefined, requesterUser, targetUser)
+			this.visibilities[key](requester, target)
 		) as CalenderEvent['visibility'][]
+	}
+
+	public async getCondition(
+		requester: string,
+		target: string
+	): Promise<Record<string, any>[]> {
+		const requesterUser = await this.userRepository.findOne(
+			{
+				username: requester,
+			},
+			['mentor', 'students']
+		)
+
+		if (!requesterUser) {
+			throw new NotFoundError('Пользователь не найден.')
+		}
+
+		const targetUser = await this.userRepository.findOne(
+			{
+				username: target,
+			},
+			['mentor', 'students']
+		)
+
+		if (!targetUser) {
+			throw new NotFoundError('Пользователь не найден')
+		}
+
+		const visibilities = await this.getUserToUserVisibilities(
+			requesterUser,
+			targetUser
+		)
+
+		const conditions: Record<string, any>[] = visibilities.map(
+			(visibility) => ({
+				visibility,
+				username: target,
+			})
+		)
+
+		conditions.push(...this.addRelativeUserConditions(targetUser))
+
+		return conditions
+	}
+
+	private addRelativeUserConditions(
+		target: User
+	): Record<string, any>[] {
+		const conditions: Record<string, any>[] = []
+
+		switch (target.role) {
+			case 'student':
+				if (!target.mentor) {
+					return conditions
+				}
+				conditions.push({
+					username: target.mentor.username,
+					visibility: 'own-students',
+				})
+				conditions.push({
+					username: target.mentor.username,
+					visibility: 'all',
+				})
+				break
+			case 'mentor':
+				if (!target.students) {
+					return conditions
+				}
+
+				for (const student of target.students) {
+					conditions.push({
+						username: student.username,
+						visibility: 'own-mentor',
+					})
+				}
+				break
+		}
+
+		return conditions
 	}
 }

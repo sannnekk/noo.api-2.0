@@ -58,29 +58,55 @@ export class Pagination {
 	public getCondition(
 		conditions?: Record<string, any>
 	):
+		| undefined
 		| Record<string, string | number>
 		| Record<string, string | number>[] {
+		let allConditions = [{ ...this.filters }]
+
 		if (Array.isArray(conditions)) {
-			return conditions
+			allConditions = conditions.map((condition) =>
+				merge(this.filters, condition)
+			)
+		} else {
+			allConditions = [merge(conditions || {}, this.filters)]
 		}
 
-		const allConditions = { ...this.filters, ...(conditions || {}) }
-
 		if (!this.search.length || !this.entries.length) {
+			if (allConditions.length === 1) {
+				return allConditions[0]
+			}
+
 			return allConditions
 		}
 
-		return this.entries.map(
-			(entry) =>
-				merge(
-					this.getSearchCondition(entry, this.search),
-					allConditions
-				) as Record<string, any>
-		)
+		const result = this.entries.flatMap((entry) => {
+			const merges = []
+
+			for (const condition of allConditions) {
+				merges.push(
+					merge(
+						this.getSearchCondition(entry, this.search),
+						condition
+					) as Record<string, any>
+				)
+			}
+
+			return merges
+		})
+
+		if (result.length === 1 && Object.keys(result[0]).length === 0) {
+			return undefined
+		}
+
+		return result
 	}
 
 	public getFilter(name: string): any {
 		return this.filters[name]
+	}
+
+	public getFilters(): Filters {
+		return this.filters
 	}
 
 	public setFilter(name: string, value: any): void {
@@ -106,9 +132,10 @@ export class Pagination {
 
 	private parseFilterValues(filters: Filters): Filters {
 		const parsedFilters = {} as any
+		let value: any
 
 		for (const key in filters) {
-			const value = filters[key]
+			value = filters[key]
 
 			if (value === 'null') {
 				parsedFilters[key] = null
@@ -164,13 +191,9 @@ export class Pagination {
 			return parseFloat(value)
 		}
 
-		try {
-			const date = new Date(value)
-
-			if (!isNaN(date.getTime())) {
-				return date
-			}
-		} catch (error: any) {}
+		if (/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)) {
+			return new Date(value)
+		}
 
 		return value
 	}

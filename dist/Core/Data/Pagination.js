@@ -38,17 +38,36 @@ export class Pagination {
         return this.entries;
     }
     getCondition(conditions) {
+        let allConditions = [{ ...this.filters }];
         if (Array.isArray(conditions)) {
-            return conditions;
+            allConditions = conditions.map((condition) => merge(this.filters, condition));
         }
-        const allConditions = { ...this.filters, ...(conditions || {}) };
+        else {
+            allConditions = [merge(conditions || {}, this.filters)];
+        }
         if (!this.search.length || !this.entries.length) {
+            if (allConditions.length === 1) {
+                return allConditions[0];
+            }
             return allConditions;
         }
-        return this.entries.map((entry) => merge(this.getSearchCondition(entry, this.search), allConditions));
+        const result = this.entries.flatMap((entry) => {
+            const merges = [];
+            for (const condition of allConditions) {
+                merges.push(merge(this.getSearchCondition(entry, this.search), condition));
+            }
+            return merges;
+        });
+        if (result.length === 1 && Object.keys(result[0]).length === 0) {
+            return undefined;
+        }
+        return result;
     }
     getFilter(name) {
         return this.filters[name];
+    }
+    getFilters() {
+        return this.filters;
     }
     setFilter(name, value) {
         this.filters[name] = value;
@@ -67,8 +86,9 @@ export class Pagination {
     }
     parseFilterValues(filters) {
         const parsedFilters = {};
+        let value;
         for (const key in filters) {
-            const value = filters[key];
+            value = filters[key];
             if (value === 'null') {
                 parsedFilters[key] = null;
                 continue;
@@ -108,13 +128,9 @@ export class Pagination {
         if (/^[0-9.]+$/.test(value)) {
             return parseFloat(value);
         }
-        try {
-            const date = new Date(value);
-            if (!isNaN(date.getTime())) {
-                return date;
-            }
+        if (/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)) {
+            return new Date(value);
         }
-        catch (error) { }
         return value;
     }
 }

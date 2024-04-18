@@ -4,6 +4,7 @@ import { Service } from '../../Core/Services/Service.js';
 import { UnauthorizedError } from '../../Core/Errors/UnauthorizedError.js';
 import { CalenderEventRepository } from '../Data/CalenderEventRepository.js';
 import { CalenderEventModel } from '../Data/CalenderEventModel.js';
+import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
 export class CalenderService extends Service {
     calenderEventRepository;
     userRelationService;
@@ -38,11 +39,11 @@ export class CalenderService extends Service {
             event.description + ' (Дедлайн сдивнут на эту дату)';
         await this.calenderEventRepository.update(event);
     }
-    async get(username, pagination) {
-        const allowedVisibilities = await this.userRelationService.getUserToUserVisibilities(username, pagination?.getFilter('username') || username);
-        const condition = allowedVisibilities.map((visibility) => ({
-            visibility,
-        }));
+    async get(requester, pagination) {
+        if (!pagination?.getFilter('username')) {
+            throw new UnauthorizedError();
+        }
+        const condition = await this.userRelationService.getCondition(requester, pagination?.getFilter('username'));
         const events = await this.calenderEventRepository.find(condition, undefined, pagination);
         const meta = await this.getRequestMeta(this.calenderEventRepository, condition, pagination || new Pagination(), []);
         return { events, meta };
@@ -67,7 +68,10 @@ export class CalenderService extends Service {
         const foundEvent = await this.calenderEventRepository.findOne({
             id,
         });
-        if (foundEvent && foundEvent?.username !== username) {
+        if (!foundEvent) {
+            throw new NotFoundError('Событие не найдено');
+        }
+        if (foundEvent.username !== username) {
             throw new UnauthorizedError();
         }
         await this.calenderEventRepository.delete(id);

@@ -8,6 +8,7 @@ import { CalenderEvent } from '../Data/CalenderEvent'
 import { CalenderEventRepository } from '../Data/CalenderEventRepository'
 import { User } from '@modules/Users/Data/User'
 import { CalenderEventModel } from '../Data/CalenderEventModel'
+import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
 
 export class CalenderService extends Service<CalenderEvent> {
 	private readonly calenderEventRepository: CalenderEventRepository
@@ -61,18 +62,17 @@ export class CalenderService extends Service<CalenderEvent> {
 	}
 
 	public async get(
-		username: User['username'],
+		requester: User['username'],
 		pagination?: Pagination
 	) {
-		const allowedVisibilities =
-			await this.userRelationService.getUserToUserVisibilities(
-				username,
-				pagination?.getFilter('username') || username
-			)
+		if (!pagination?.getFilter('username')) {
+			throw new UnauthorizedError()
+		}
 
-		const condition = allowedVisibilities.map((visibility) => ({
-			visibility,
-		}))
+		const condition = await this.userRelationService.getCondition(
+			requester,
+			pagination?.getFilter('username')
+		)
 
 		const events = await this.calenderEventRepository.find(
 			condition,
@@ -127,7 +127,11 @@ export class CalenderService extends Service<CalenderEvent> {
 			id,
 		})
 
-		if (foundEvent && foundEvent?.username !== username) {
+		if (!foundEvent) {
+			throw new NotFoundError('Событие не найдено')
+		}
+
+		if (foundEvent.username !== username) {
 			throw new UnauthorizedError()
 		}
 
