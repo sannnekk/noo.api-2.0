@@ -106,7 +106,7 @@ export class UserService extends Service {
             {
                 email: credentials.usernameOrEmail,
             },
-        ], ['students', 'mentor']);
+        ], ['mentor']);
         if (!user) {
             throw new UnauthenticatedError('Неверный логин или пароль');
         }

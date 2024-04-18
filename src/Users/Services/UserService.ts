@@ -163,7 +163,7 @@ export class UserService extends Service<User> {
 					email: credentials.usernameOrEmail,
 				},
 			],
-			['students', 'mentor']
+			['mentor']
 		)
 
 		if (!user) {

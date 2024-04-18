@@ -68,8 +68,8 @@ export class TaskService {
 		switch (task.type) {
 			case 'word':
 				return this.checkWord(
-					answer.word?.toLowerCase().replaceAll(' ', ''),
-					task.rightAnswer?.toLowerCase().replaceAll(' ', ''),
+					answer.word,
+					task.rightAnswer,
 					maxScore,
 					task.checkingStrategy
 				)
@@ -87,6 +87,9 @@ export class TaskService {
 		if (!word || !rightAnswer) {
 			return 0
 		}
+
+		word = word.toLowerCase().replaceAll(' ', '')
+		rightAnswer = rightAnswer.toLowerCase().replaceAll(' ', '')
 
 		switch (checkingStrategy) {
 			case 'type1':
