@@ -50,9 +50,11 @@ export class CourseService extends Service<Course> {
 			}
 		}
 
+		const relations: (keyof Course)[] = ['author']
+
 		const courses = await this.courseRepository.find(
 			conditions,
-			undefined,
+			relations,
 			pagination
 		)
 
@@ -60,7 +62,7 @@ export class CourseService extends Service<Course> {
 			this.courseRepository,
 			conditions,
 			pagination,
-			[]
+			relations
 		)
 
 		// Clear chapters, students and materials as they are not needed in the list
@@ -75,7 +77,7 @@ export class CourseService extends Service<Course> {
 	public async getBySlug(slug: string): Promise<Course> {
 		const course = await this.courseRepository.findOne(
 			{ slug },
-			['chapters.materials.work' as any],
+			['chapters.materials.work' as any, 'author'],
 			{
 				chapters: {
 					order: 'ASC',
@@ -147,25 +149,6 @@ export class CourseService extends Service<Course> {
 		} catch (e: any) {
 			throw new UnknownError('Не удалось обновить список учеников')
 		}
-
-		/* if (newStudentIds.length === 0) return
-
-		const materials = (course.chapters || [])
-			.flatMap((chapter) => chapter.materials)
-			.filter(Boolean) as CourseMaterial[]
-
-		const students = await this.userRepository.find(
-			newStudentIds.map((id) => ({ id }))
-		)
-
-		for (const material of materials) {
-			console.log(
-				'Assigning work to students',
-				students.map((s) => s.username),
-				material.name
-			)
-			await this.assignWorkToStudents(students, material)
-		} */
 	}
 
 	public async assignWorkToMaterial(

@@ -35,8 +35,9 @@ export class CourseService extends Service {
                 },
             };
         }
-        const courses = await this.courseRepository.find(conditions, undefined, pagination);
-        const meta = await this.getRequestMeta(this.courseRepository, conditions, pagination, []);
+        const relations = ['author'];
+        const courses = await this.courseRepository.find(conditions, relations, pagination);
+        const meta = await this.getRequestMeta(this.courseRepository, conditions, pagination, relations);
         // Clear chapters, students and materials as they are not needed in the list
         for (const course of courses) {
             course.chapters = [];
@@ -45,7 +46,7 @@ export class CourseService extends Service {
         return { courses, meta };
     }
     async getBySlug(slug) {
-        const course = await this.courseRepository.findOne({ slug }, ['chapters.materials.work'], {
+        const course = await this.courseRepository.findOne({ slug }, ['chapters.materials.work', 'author'], {
             chapters: {
                 order: 'ASC',
                 materials: {
@@ -95,24 +96,6 @@ export class CourseService extends Service {
         catch (e) {
             throw new UnknownError('Не удалось обновить список учеников');
         }
-        /* if (newStudentIds.length === 0) return
-
-        const materials = (course.chapters || [])
-            .flatMap((chapter) => chapter.materials)
-            .filter(Boolean) as CourseMaterial[]
-
-        const students = await this.userRepository.find(
-            newStudentIds.map((id) => ({ id }))
-        )
-
-        for (const material of materials) {
-            console.log(
-                'Assigning work to students',
-                students.map((s) => s.username),
-                material.name
-            )
-            await this.assignWorkToStudents(students, material)
-        } */
     }
     async assignWorkToMaterial(materialSlug, workId, solveDeadline, checkDeadline) {
         const material = await this.materialRepository.findOne({

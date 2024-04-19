@@ -162,6 +162,21 @@ let UserController = class UserController {
             res.status(status).send({ error: message });
         }
     }
+    async getTeachers(req, res) {
+        // @ts-ignore
+        const context = req.context;
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.notStudent(context);
+            const pagination = this.userValidator.validatePagination(context.query);
+            const { teachers, meta } = await this.userService.getTeachers(pagination);
+            res.status(200).send({ data: teachers, meta });
+        }
+        catch (error) {
+            const { status, message } = getErrorData(error);
+            res.status(status).send({ error: message });
+        }
+    }
     async getStudents(req, res) {
         // @ts-ignore
         const context = req.context;
@@ -342,6 +357,14 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "getMentors", null);
+__decorate([
+    Get('/teacher/search'),
+    __param(0, Req()),
+    __param(1, Res()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "getTeachers", null);
 __decorate([
     Get('/student/search'),
     __param(0, Req()),

@@ -213,6 +213,29 @@ export class UserController {
 		}
 	}
 
+	@Get('/teacher/search')
+	async getTeachers(@Req() req: Request, @Res() res: Response) {
+		// @ts-ignore
+		const context = req.context as Context
+
+		try {
+			await Asserts.isAuthenticated(context)
+			Asserts.notStudent(context)
+			const pagination = this.userValidator.validatePagination(
+				context.query
+			)
+
+			const { teachers, meta } = await this.userService.getTeachers(
+				pagination
+			)
+
+			res.status(200).send({ data: teachers, meta })
+		} catch (error: any) {
+			const { status, message } = getErrorData(error)
+			res.status(status).send({ error: message })
+		}
+	}
+
 	@Get('/student/search')
 	async getStudents(@Req() req: Request, @Res() res: Response) {
 		// @ts-ignore

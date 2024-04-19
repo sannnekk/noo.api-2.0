@@ -191,6 +191,15 @@ export class UserService extends Service {
         const meta = await this.getRequestMeta(this.userRepository, conditions, pagination, relations);
         return { mentors, meta };
     }
+    async getTeachers(pagination) {
+        pagination = new Pagination().assign(pagination);
+        pagination.entriesToSearch = UserModel.entriesToSearch();
+        const relations = [];
+        const conditions = { role: 'teacher' };
+        const teachers = await this.userRepository.find(conditions, relations, pagination);
+        const meta = await this.getRequestMeta(this.userRepository, conditions, pagination, relations);
+        return { teachers, meta };
+    }
     async getStudents(pagination) {
         pagination = new Pagination().assign(pagination);
         pagination.entriesToSearch = UserModel.entriesToSearch();
