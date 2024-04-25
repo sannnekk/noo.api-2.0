@@ -24,14 +24,6 @@ export class WorkTaskModel extends Model implements WorkTask {
 		if (data) {
 			this.set(data)
 
-			this.assignedWorkAnswers = (data.assignedWorkAnswers || []).map(
-				(answer) => new AssignedWorkAnswerModel(answer)
-			)
-
-			this.assignedWorkComments = (data.assignedWorkComments || []).map(
-				(comment) => new AssignedWorkCommentModel(comment)
-			)
-
 			if (!data.slug) {
 				this.slug = this.sluggify()
 			}
