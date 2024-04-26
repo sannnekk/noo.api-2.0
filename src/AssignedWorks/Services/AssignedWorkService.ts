@@ -128,6 +128,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 
 		if (
 			(work.checkStatus === 'in-progress' && role === 'mentor') ||
+			(work.checkStatus === 'not-checked' && role === 'mentor') ||
 			work.checkStatus === 'checked-in-deadline' ||
 			work.checkStatus === 'checked-after-deadline' ||
 			work.checkStatus === 'checked-automatically'

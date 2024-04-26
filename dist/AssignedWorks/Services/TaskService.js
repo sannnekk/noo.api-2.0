@@ -10,7 +10,7 @@ export class TaskService {
                 content: {
                     ops: [
                         {
-                            insert: 'Проверено автоматически',
+                            insert: '',
                         },
                     ],
                 },
