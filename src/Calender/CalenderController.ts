@@ -1,3 +1,4 @@
+import { CalenderEvent } from './Data/CalenderEvent'
 import { CalenderValidator } from './CalenderValidator'
 import {
 	Controller,
@@ -36,12 +37,12 @@ export class CalenderController {
 			await Asserts.isAuthenticated(context)
 			this.calenderValidator.validateEventCreation(context.body)
 
-			await this.calenderService.create(
+			const calenderEvent = await this.calenderService.create(
 				context.body,
 				context.credentials!.username
 			)
 
-			res.status(201).send({ data: null })
+			res.status(201).send({ data: calenderEvent })
 		} catch (error: any) {
 			const { status, message } = getErrorData(error)
 			res.status(status).send({ error: message })

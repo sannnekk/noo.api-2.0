@@ -14,7 +14,7 @@ export class CalenderService extends Service {
         this.userRelationService = new UserRelationService();
     }
     async create(event, username, type = 'event') {
-        await this.calenderEventRepository.create({
+        return await this.calenderEventRepository.create({
             ...event,
             username,
             type,

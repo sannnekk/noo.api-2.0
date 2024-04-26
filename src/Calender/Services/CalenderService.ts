@@ -25,8 +25,8 @@ export class CalenderService extends Service<CalenderEvent> {
 		event: CalenderEvent,
 		username: User['username'],
 		type: CalenderEvent['type'] = 'event'
-	): Promise<void> {
-		await this.calenderEventRepository.create({
+	): Promise<CalenderEvent> {
+		return await this.calenderEventRepository.create({
 			...event,
 			username,
 			type,
