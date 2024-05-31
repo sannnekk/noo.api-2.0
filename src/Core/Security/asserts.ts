@@ -1,13 +1,12 @@
 import { Ulid } from '../Data/Ulid'
+import { NoFilesProvidedError } from '../Errors/NoFilesProvidedError'
 import { UnauthenticatedError } from '../Errors/UnauthenticatedError'
 import { UnauthorizedError } from '../Errors/UnauthorizedError'
 import { WrongRoleError } from '../Errors/WrongRoleError'
 import { Context } from '../Request/Context'
 import { JWTPayload } from './jwt'
 
-export function student(
-	context: Context
-): asserts context is Context & {
+export function student(context: Context): asserts context is Context & {
 	credentials: JWTPayload & { role: 'student' }
 } {
 	if (context.credentials?.role !== 'student') {
@@ -15,9 +14,7 @@ export function student(
 	}
 }
 
-export function notStudent(
-	context: Context
-): asserts context is Context & {
+export function notStudent(context: Context): asserts context is Context & {
 	credentials: JWTPayload & { role: 'mentor' | 'teacher' | 'admin' }
 } {
 	if (context.credentials?.role === 'student') {
@@ -46,9 +43,7 @@ export function mentorOrStudent(
 	}
 }
 
-export function teacher(
-	context: Context
-): asserts context is Context & {
+export function teacher(context: Context): asserts context is Context & {
 	credentials: JWTPayload & { role: 'teacher' }
 } {
 	if (context.credentials?.role !== 'teacher') {
@@ -64,9 +59,7 @@ export function admin(context: Context): asserts context is Context & {
 	}
 }
 
-export function teacherOrAdmin(
-	context: Context
-): asserts context is Context & {
+export function teacherOrAdmin(context: Context): asserts context is Context & {
 	credentials: JWTPayload & { role: 'teacher' | 'admin' }
 } {
 	if (
@@ -83,10 +76,7 @@ export async function isAuthenticated(context: Context): Promise<void> {
 	}
 }
 
-export function isAuthorized(
-	context: Context,
-	id: Ulid | Ulid[]
-): void {
+export function isAuthorized(context: Context, id: Ulid | Ulid[]): void {
 	if (
 		Array.isArray(id) &&
 		!id.some((_id) => context.credentials?.userId === _id)

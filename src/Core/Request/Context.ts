@@ -1,16 +1,22 @@
 import { UserRepository } from '@modules/Users/Data/UserRepository'
 import { JWTPayload, parseHeader } from '../Security/jwt'
 import express from 'express'
+import multer from 'multer'
 import { RoleChangedButNotReloggedInError } from '../Errors/RoleChangedButNotReloggedInError'
+import { MediaHandler } from './MediaHandler'
 
 export class Context {
-	public params: Record<string, string | number | undefined>
+	public readonly params: Record<string, string | number | undefined>
 	public readonly body: unknown
 	public readonly credentials?: JWTPayload
 	public readonly query: Record<string, string | number | undefined>
+
+	public readonly _req: Express.Request
+
 	private readonly userRepository: UserRepository
 
-	public constructor(req: express.Request) {
+	public constructor(req: express.Request, res: express.Response) {
+		this._req = req
 		this.userRepository = new UserRepository()
 		this.body = req.body
 		this.params = req.params as typeof this.params
@@ -59,9 +65,21 @@ export class Context {
 		return true
 	}
 
-	public setParams(
-		params: Record<string, string | number | undefined>
-	): void {
-		this.params = params
+	public async getFiles(): Promise<Express.Multer.File[]> {
+		return new Promise((resolve, reject) => {
+			const req = this._req
+			MediaHandler(<any>req, <any>undefined, (error: any) => {
+				console.log('files', req.files)
+				console.log('type', typeof req.files)
+				console.log('isArray', Array.isArray(req.files))
+				console.log(arguments)
+
+				if (req.files && Array.isArray(req.files)) {
+					resolve(req.files)
+				} else {
+					reject(error)
+				}
+			})
+		})
 	}
 }

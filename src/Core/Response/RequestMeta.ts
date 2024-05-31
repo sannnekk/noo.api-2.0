@@ -1,4 +1,4 @@
 export interface RequestMeta {
-	total: number
-	relations: string[]
+	total: Readonly<number>
+	relations: Readonly<string[]>
 }

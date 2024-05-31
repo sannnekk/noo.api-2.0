@@ -9,10 +9,12 @@ import { Service } from '@modules/Core/Services/Service'
 import { EmailService } from '@modules/Core/Email/EmailService'
 import { User } from '../Data/User'
 import { UserRepository } from '../Data/UserRepository'
-import { LoginCredentials } from '../Data/LoginCredentials'
+import { LoginDTO } from '../DTO/LoginDTO'
 import { UserModel } from '../Data/UserModel'
 import { InvalidVerificationTokenError } from '../Errors/InvalidVerificationTokenError'
 import { v4 as uuid } from 'uuid'
+import { RegisterDTO } from '../DTO/RegisterDTO'
+import { UpdateUserDTO } from '../DTO/UpdateUserDTO'
 
 export class UserService extends Service<User> {
 	private readonly userRepository: UserRepository
@@ -39,8 +41,10 @@ export class UserService extends Service<User> {
 		}
 	}
 
-	public async register(user: User): Promise<void> {
+	public async register(registerDTO: RegisterDTO): Promise<void> {
 		// every user is a student at the moment of registration
+		const user = new UserModel(registerDTO)
+
 		user.role = 'student'
 		user.verificationToken = await Hash.hash(Math.random().toString())
 
@@ -57,9 +61,7 @@ export class UserService extends Service<User> {
 		})
 
 		if (existingEmail) {
-			throw new AlreadyExistError(
-				'Пользователь с таким email уже существует.'
-			)
+			throw new AlreadyExistError('Пользователь с таким email уже существует.')
 		}
 
 		await this.create(user)
@@ -135,10 +137,7 @@ export class UserService extends Service<User> {
 		)
 	}
 
-	public async assignMentor(
-		studentId: User['id'],
-		mentorId: User['id']
-	) {
+	public async assignMentor(studentId: User['id'], mentorId: User['id']) {
 		const student = await this.userRepository.findOne({ id: studentId })
 		const mentor = await this.userRepository.findOne({ id: mentorId })
 
@@ -158,7 +157,7 @@ export class UserService extends Service<User> {
 	}
 
 	public async login(
-		credentials: LoginCredentials
+		credentials: LoginDTO
 	): Promise<{ token: JWT.JWT; user: Partial<User> }> {
 		const user = await this.userRepository.findOne(
 			[
@@ -269,10 +268,7 @@ export class UserService extends Service<User> {
 		return { users, meta }
 	}
 
-	public async getStudentsOf(
-		mentorId: User['id'],
-		pagination?: Pagination
-	) {
+	public async getStudentsOf(mentorId: User['id'], pagination?: Pagination) {
 		pagination = new Pagination().assign(pagination)
 		pagination.entriesToSearch = UserModel.entriesToSearch()
 
@@ -367,28 +363,32 @@ export class UserService extends Service<User> {
 		return { students, meta }
 	}
 
-	public async update(user: Partial<User>): Promise<void> {
-		const existingUser = await this.userRepository.findOne({
-			id: user.id,
-		})
+	public async update(
+		id: User['id'],
+		data: UpdateUserDTO,
+		updaterRole: User['role']
+	): Promise<void> {
+		const existingUser = await this.userRepository.findOne({ id })
 
 		if (!existingUser) {
 			throw new NotFoundError()
 		}
 
-		if (user.password) user.password = await Hash.hash(user.password!)
+		if (data.password) data.password = await Hash.hash(data.password!)
 
-		user.createdAt = undefined
-		user.updatedAt = undefined
-		user.slug = undefined
-		user.username = undefined
+		const user = new UserModel({
+			...existingUser,
+			...data,
+			role: existingUser.role,
+		})
 
-		if (existingUser.role !== 'student') {
-			user.role = undefined
-		} else if (user.role && user.role !== 'student') {
-			user.coursesAsStudent = []
-			user.courses = []
-			user.mentor = null as any
+		if (
+			data.role &&
+			data.role !== existingUser.role &&
+			existingUser.role === 'student' &&
+			['teacher', 'admin'].includes(updaterRole)
+		) {
+			user.role = data.role
 		}
 
 		const newUser = new UserModel({ ...existingUser, ...user })
@@ -413,8 +413,8 @@ export class UserService extends Service<User> {
 			Math.random().toString(36).substr(2, 9) +
 			'.com'
 		user.isBlocked = true
-		user.telegramId = undefined
-		user.telegramUsername = undefined
+		user.telegramId = null as any
+		user.telegramUsername = null as any
 
 		await this.userRepository.update(user)
 	}

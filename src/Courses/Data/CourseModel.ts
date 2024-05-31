@@ -16,10 +16,17 @@ import { CourseChapterModel } from './Relations/CourseChapterModel'
 import { CourseChapter } from './Relations/CourseChapter'
 import { MediaModel } from '@modules/Media/Data/MediaModel'
 import { Media } from '@modules/Media/Data/Media'
+import { CourseMaterial } from './Relations/CourseMaterial'
+
+type PartialCourse = Partial<Omit<Course, 'chapters'>> & {
+	chapters?: (Partial<Omit<CourseChapter, 'materials'>> & {
+		materials?: Partial<CourseMaterial>[]
+	})[]
+}
 
 @Entity('course')
 export class CourseModel extends Model implements Course {
-	constructor(data?: Partial<Course>) {
+	constructor(data?: PartialCourse) {
 		super()
 
 		if (data) {
@@ -29,9 +36,7 @@ export class CourseModel extends Model implements Course {
 				(chapter) => new CourseChapterModel(chapter)
 			)
 
-			this.images = (data.images || []).map(
-				(image) => new MediaModel(image)
-			)
+			this.images = (data.images || []).map((image) => new MediaModel(image))
 
 			if (!data.slug) {
 				this.slug = this.sluggify(this.name)

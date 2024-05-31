@@ -11,7 +11,7 @@ export interface WorkTask extends BaseModel {
 	content: DeltaContentType
 	highestScore: number
 	type: 'one_choice' | 'multiple_choice' | 'word' | 'text'
-	workId: Work['id']
+	workId?: Work['id']
 	work?: Work
 	assignedWorkId?: AssignedWork['id']
 	assignedWork?: AssignedWork

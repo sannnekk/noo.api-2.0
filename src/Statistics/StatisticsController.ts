@@ -1,10 +1,10 @@
-import { Controller, Post, Req, Res } from '@decorators/express'
+import { Controller, Post } from 'express-controller-decorator'
 import * as Asserts from '@modules/Core/Security/asserts'
 import { Request, Response } from 'express'
 import { Context } from '@modules/Core/Request/Context'
-import { getErrorData } from '@modules/core/Response/helpers'
 import { StatisticsService } from './Services/StatisticsService'
 import { StatisticsValidator } from './StatisticsValidator'
+import { ApiResponse } from '@modules/Core/Response/ApiResponse'
 
 @Controller('/statistics')
 export class StatisticsController {
@@ -17,27 +17,22 @@ export class StatisticsController {
 	}
 
 	@Post('/:username')
-	async getStatistics(@Req() req: Request, @Res() res: Response) {
-		// @ts-ignore
-		const context = req.context as Context
-		context.setParams(req.params)
-
+	async getStatistics(context: Context): Promise<ApiResponse> {
 		try {
 			await Asserts.isAuthenticated(context)
-			this.statisticsValidator.validateGetStatistics(context.body)
-			this.statisticsValidator.validateSlug(context.params.username)
-
-			const statistics = await this.statisticsService.getStatistics(
-				context.params.username,
-				context.body.from,
-				context.body.to,
-				context.body.type
+			const options = this.statisticsValidator.parseGetStatistics(context.body)
+			const username = this.statisticsValidator.parseSlug(
+				context.params.username
 			)
 
-			res.status(200).send({ data: statistics })
+			const statistics = await this.statisticsService.getStatistics(
+				username,
+				options
+			)
+
+			return new ApiResponse({ data: statistics })
 		} catch (error: any) {
-			const { status, message } = getErrorData(error)
-			res.status(status).send({ error: message })
+			return new ApiResponse(error)
 		}
 	}
 }

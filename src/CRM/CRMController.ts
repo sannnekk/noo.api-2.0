@@ -1,8 +1,8 @@
-import { Controller, Post, Req, Res } from '@decorators/express'
+import { Controller, Post } from 'express-controller-decorator'
 import { DealsService } from './Services/DealsService'
 import { Context } from '@modules/Core/Request/Context'
 import CrmAsserts from './Security/CrmAsserts'
-import { Request, Response } from 'express'
+import { ApiResponse } from '@modules/Core/Response/ApiResponse'
 
 @Controller('/crm')
 export class CRMController {
@@ -13,31 +13,28 @@ export class CRMController {
 	}
 
 	@Post('/deal/create')
-	public async onDealCreation(
-		@Req() req: Request,
-		@Res() res: Response
-	) {
-		// @ts-ignore
-		const context = req.context as Context
-
+	public async onDealCreation(context: Context): Promise<ApiResponse> {
 		try {
 			CrmAsserts.hasSecret(context)
+
+			await this.dealsService.create('mock', 'abracadabra')
+
+			return new ApiResponse()
 		} catch (error: any) {
-		} finally {
-			res.status(201).send({ data: null })
+			return new ApiResponse(error)
 		}
 	}
 
 	@Post('/deal/cancel')
-	public async onDealrefund(@Req() req: Request, @Res() res: Response) {
-		// @ts-ignore
-		const context = req.context as Context
-
+	public async onDealrefund(context: Context): Promise<ApiResponse> {
 		try {
 			CrmAsserts.hasSecret(context)
+
+			await this.dealsService.remove('mock')
+
+			return new ApiResponse()
 		} catch (error: any) {
-		} finally {
-			res.status(201).send({ data: null })
+			return new ApiResponse(error)
 		}
 	}
 }

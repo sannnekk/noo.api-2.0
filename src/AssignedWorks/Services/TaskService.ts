@@ -10,9 +10,7 @@ export class TaskService {
 		const comments: AssignedWorkComment[] = []
 
 		for (const answer of answers) {
-			const relatedTask = tasks.find(
-				(task) => task.id === answer.taskId
-			)
+			const relatedTask = tasks.find((task) => task.id === answer.taskId)
 
 			if (!relatedTask || relatedTask.type === 'text') {
 				continue
@@ -39,10 +37,7 @@ export class TaskService {
 		return comments
 	}
 
-	private checkAnswer(
-		answer: AssignedWorkAnswer,
-		task: WorkTask
-	): number {
+	private checkAnswer(answer: AssignedWorkAnswer, task: WorkTask): number {
 		const maxScore = task.highestScore
 
 		if (task.rightAnswer?.includes('|')) {
@@ -108,11 +103,7 @@ export class TaskService {
 	 * First type (exact match or 0):
 	 *  - 1 symbol difference: 0
 	 */
-	private checkType1(
-		word: string,
-		exact: string,
-		maxScore: number
-	): number {
+	private checkType1(word: string, exact: string, maxScore: number): number {
 		return word.trim().toLowerCase() === exact.trim().toLowerCase()
 			? maxScore
 			: 0
@@ -122,11 +113,7 @@ export class TaskService {
 	 * Second type (for everu wrong character -1):
 	 *  - 1 symbol difference: -1
 	 */
-	private checkType2(
-		word: string,
-		exact: string,
-		maxScore: number
-	): number {
+	private checkType2(word: string, exact: string, maxScore: number): number {
 		exact = exact.trim().toLowerCase()
 		word = word.trim().toLowerCase().padEnd(exact.length, ' ')
 		let score = maxScore
@@ -144,11 +131,7 @@ export class TaskService {
 	 * Third type (for every wrong character -1, for every extra character -1, for every missing character -1):
 	 *  - 1 symbol difference: -1
 	 */
-	private checkType3(
-		word: string,
-		exact: string,
-		maxScore: number
-	): number {
+	private checkType3(word: string, exact: string, maxScore: number): number {
 		exact = exact.trim().toLowerCase()
 		let score = maxScore - Math.abs(word.length - exact.length)
 		word = word.trim().toLowerCase().padEnd(exact.length, ' ')
@@ -168,11 +151,7 @@ export class TaskService {
 	 *  - for every extra character -1
 	 *  - else 0
 	 */
-	private checkType4(
-		word: string,
-		exact: string,
-		maxScore: number
-	): number {
+	private checkType4(word: string, exact: string, maxScore: number): number {
 		exact = exact.trim().toLowerCase()
 		word = word.trim().toLowerCase()
 
@@ -188,10 +167,6 @@ export class TaskService {
 			}
 		}
 
-		return errorCount === 0
-			? maxScore
-			: errorCount <= 2
-			? maxScore - 1
-			: 0
+		return errorCount === 0 ? maxScore : errorCount <= 2 ? maxScore - 1 : 0
 	}
 }

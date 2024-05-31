@@ -4,6 +4,7 @@ import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
 import { WorkRepository } from '../Data/WorkRepository'
 import { Work } from '../Data/Work'
 import { WorkModel } from '../Data/WorkModel'
+import { WorkDTO } from '../DTO/WorkDTO'
 
 export class WorkService extends Service<Work> {
 	private readonly workRepository: WorkRepository
@@ -35,11 +36,9 @@ export class WorkService extends Service<Work> {
 	}
 
 	public async getWorkBySlug(slug: Work['slug']) {
-		const work = await this.workRepository.findOne(
-			{ slug },
-			['tasks'],
-			{ tasks: { order: 'ASC' } }
-		)
+		const work = await this.workRepository.findOne({ slug }, ['tasks'], {
+			tasks: { order: 'ASC' },
+		})
 
 		if (!work) {
 			throw new NotFoundError()
@@ -60,7 +59,8 @@ export class WorkService extends Service<Work> {
 		return work
 	}
 
-	public async createWork(work: Work) {
+	public async createWork(workDTO: WorkDTO) {
+		const work = new WorkModel(workDTO)
 		return await this.workRepository.create(work)
 	}
 
@@ -96,7 +96,7 @@ export class WorkService extends Service<Work> {
 		this.workRepository.create(newWork)
 	}
 
-	public async updateWork(work: Work) {
+	public async updateWork(id: Work['id'], work: WorkDTO) {
 		const foundWork = await this.workRepository.findOne({ id: work.id })
 
 		if (!foundWork) {

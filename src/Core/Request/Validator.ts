@@ -3,19 +3,32 @@ import { Ulid } from '../Data/Ulid'
 import { z } from 'zod'
 import { ErrorConverter } from './ValidatorDecorator'
 
+type PaginationType = {
+	page?: number
+	limit?: number
+	sort?: string
+	order?: 'ASC' | 'DESC'
+	search?: string
+	filter?: Record<string, unknown>
+}
+
 @ErrorConverter()
 export abstract class Validator {
-	public validatePagination(data: unknown): Pagination {
-		const schema = z.object({
-			page: z.coerce.number().int().positive().optional(),
-			limit: z.coerce.number().int().positive().optional(),
-			sort: z.string().optional(),
-			order: z.enum(['ASC', 'DESC']).optional(),
-			search: z.string().optional(),
-			filter: z.record(z.any()).optional(),
-		})
+	public idScheme = z.string().ulid()
 
-		const pagination = schema.parse(data)
+	public slugScheme = z.string().min(1).max(256)
+
+	public paginationScheme = z.object({
+		page: z.coerce.number().int().positive().optional(),
+		limit: z.coerce.number().int().positive().optional(),
+		sort: z.string().optional(),
+		order: z.enum(['ASC', 'DESC']).optional(),
+		search: z.string().optional(),
+		filter: z.record(z.any()).optional(),
+	})
+
+	public parsePagination(data: unknown): Pagination {
+		const pagination = this.parse<PaginationType>(data, this.paginationScheme)
 
 		return new Pagination(
 			pagination.page,
@@ -27,15 +40,15 @@ export abstract class Validator {
 		)
 	}
 
-	public validateId(id: unknown): asserts id is Ulid {
-		const schema = z.string().ulid()
-
-		schema.parse(id)
+	public parseId(id: unknown): Ulid {
+		return this.parse<string>(id, this.idScheme)
 	}
 
-	public validateSlug(slug: unknown): asserts slug is string {
-		const schema = z.string().min(2).max(256)
+	public parseSlug(slug: unknown): string {
+		return this.parse<string>(slug, this.slugScheme)
+	}
 
-		schema.parse(slug)
+	protected parse<T>(o: unknown, schema: z.ZodType): T {
+		return schema.parse(o)
 	}
 }
