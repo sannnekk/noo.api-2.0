@@ -47,11 +47,7 @@ export class AssignedWorkService extends Service {
             : { mentors: { id: userId } };
         pagination = new Pagination().assign(pagination);
         pagination.entriesToSearch = AssignedWorkModel.entriesToSearch();
-        const relations = [
-            'work',
-            'student',
-            'mentors',
-        ];
+        const relations = ['work', 'student', 'mentors'];
         const assignedWorks = await this.assignedWorkRepository.find(conditions, relations, pagination);
         for (const work of assignedWorks) {
             if (work.isNewAttempt && work.work) {
@@ -62,46 +58,46 @@ export class AssignedWorkService extends Service {
         return { assignedWorks, meta };
     }
     async getWorkById(id, role) {
-        const work = await this.assignedWorkRepository.findOne({ id }, ['mentors', 'student', 'work.tasks'], {
+        const assignedWork = await this.assignedWorkRepository.findOne({ id }, ['mentors', 'student', 'work.tasks'], {
             work: {
                 tasks: {
                     order: 'ASC',
                 },
             },
         });
-        if (!work) {
+        if (!assignedWork) {
             throw new NotFoundError();
         }
-        work.answers = [];
-        work.comments = [];
-        this.excludeTasks(work);
-        if (work.isNewAttempt) {
-            work.work.name = `[Пересдача] ${work.work.name}`;
+        assignedWork.answers = [];
+        assignedWork.comments = [];
+        this.excludeTasks(assignedWork);
+        if (assignedWork.isNewAttempt) {
+            assignedWork.work.name = `[Пересдача] ${assignedWork.work.name}`;
         }
-        if (work.solveStatus !== 'not-started') {
+        if (assignedWork.solveStatus !== 'not-started') {
             const answers = await this.answerRepository.findAll({
-                assignedWorkId: work.id,
+                assignedWorkId: assignedWork.id,
             });
-            work.answers = answers;
+            assignedWork.answers = answers;
         }
-        if ((work.checkStatus === 'in-progress' && role === 'mentor') ||
-            (work.checkStatus === 'not-checked' && role === 'mentor') ||
-            work.checkStatus === 'checked-in-deadline' ||
-            work.checkStatus === 'checked-after-deadline' ||
-            work.checkStatus === 'checked-automatically') {
+        if ((assignedWork.checkStatus === 'in-progress' && role === 'mentor') ||
+            (assignedWork.checkStatus === 'not-checked' && role === 'mentor') ||
+            assignedWork.checkStatus === 'checked-in-deadline' ||
+            assignedWork.checkStatus === 'checked-after-deadline' ||
+            assignedWork.checkStatus === 'checked-automatically') {
             const comments = await this.commentRepository.findAll({
-                assignedWorkId: work.id,
+                assignedWorkId: assignedWork.id,
             });
-            work.comments = comments;
+            assignedWork.comments = comments;
         }
-        return work;
+        return assignedWork;
     }
-    async createWork(assignedWork, taskIdsToExclude = []) {
+    async createWork(options, taskIdsToExclude = []) {
         const work = await this.workRepository.findOne({
-            id: assignedWork.workId,
+            id: options.workId,
         }, ['tasks']);
         const student = await this.userRepository.findOne({
-            id: assignedWork.studentId,
+            id: options.studentId,
         }, ['mentor']);
         if (!work) {
             throw new NotFoundError('Работа не найдена');
@@ -112,6 +108,7 @@ export class AssignedWorkService extends Service {
         if (!student.mentor) {
             throw new NotFoundError('У ученика нет куратора');
         }
+        const assignedWork = new AssignedWorkModel();
         assignedWork.work = { id: work.id };
         assignedWork.student = { id: student.id };
         assignedWork.mentors = [{ id: student.mentor.id }];
@@ -131,9 +128,7 @@ export class AssignedWorkService extends Service {
         return createdWork;
     }
     async remakeWork(assignedWorkId, studentId, options) {
-        const assignedWork = await this.getAssignedWork(assignedWorkId, [
-            'work',
-        ]);
+        const assignedWork = await this.getAssignedWork(assignedWorkId, ['work']);
         if (!assignedWork) {
             throw new NotFoundError('Работа не найдена');
         }
@@ -197,8 +192,8 @@ export class AssignedWorkService extends Service {
         });
         return { link: `/assigned-works/${createdWork.id}/solve` };
     }
-    async solveWork(work) {
-        const foundWork = await this.getAssignedWork(work.id, [
+    async solveWork(assignedWorkId, solveOptions, studentId) {
+        const foundWork = await this.getAssignedWork(assignedWorkId, [
             'work',
             'work.tasks',
             'student',
@@ -206,19 +201,21 @@ export class AssignedWorkService extends Service {
         if (!foundWork) {
             throw new NotFoundError();
         }
+        if (foundWork.studentId !== studentId) {
+            throw new UnauthorizedError('Вы не можете решить чужую работу');
+        }
         if (['made-in-deadline', 'made-after-deadline'].includes(foundWork.solveStatus)) {
             throw new WorkAlreadySolvedError();
         }
-        if (foundWork.solveDeadlineAt &&
-            new Date() > foundWork.solveDeadlineAt) {
+        if (foundWork.solveDeadlineAt && new Date() > foundWork.solveDeadlineAt) {
             foundWork.solveStatus = 'made-after-deadline';
         }
         else {
             foundWork.solveStatus = 'made-in-deadline';
         }
         foundWork.solvedAt = new Date();
-        foundWork.answers = work.answers;
-        foundWork.comments = this.taskService.automatedCheck(foundWork.work.tasks, work.answers);
+        foundWork.answers = solveOptions.answers;
+        foundWork.comments = this.taskService.automatedCheck(foundWork.work.tasks, solveOptions.answers);
         if (foundWork.work.tasks.every((task) => task.type !== 'text')) {
             foundWork.checkStatus = 'checked-automatically';
             foundWork.checkedAt = new Date();
@@ -227,8 +224,8 @@ export class AssignedWorkService extends Service {
         await this.assignedWorkRepository.update(foundWork);
         await this.calenderService.createWorkMadeEvent(foundWork);
     }
-    async checkWork(work) {
-        const foundWork = await this.getAssignedWork(work.id, [
+    async checkWork(assignedWorkId, checkOptions) {
+        const foundWork = await this.getAssignedWork(assignedWorkId, [
             'work',
             'mentors',
         ]);
@@ -241,22 +238,21 @@ export class AssignedWorkService extends Service {
         if (['not-started', 'in-progress'].includes(foundWork.solveStatus)) {
             throw new WorkIsNotSolvedYetError();
         }
-        if (foundWork.checkDeadlineAt &&
-            new Date() > foundWork.checkDeadlineAt) {
+        if (foundWork.checkDeadlineAt && new Date() > foundWork.checkDeadlineAt) {
             foundWork.checkStatus = 'checked-after-deadline';
         }
         else {
             foundWork.checkStatus = 'checked-in-deadline';
         }
-        foundWork.answers = work.answers || [];
-        foundWork.comments = work.comments || [];
+        foundWork.answers = checkOptions.answers || [];
+        foundWork.comments = checkOptions.comments || [];
         foundWork.checkedAt = new Date();
-        foundWork.score = this.getScore(work.comments);
+        foundWork.score = this.getScore(foundWork.comments);
         await this.assignedWorkRepository.update(foundWork);
         await this.calenderService.createWorkCheckedEvent(foundWork);
     }
-    async saveProgress(work, role) {
-        const foundWork = await this.getAssignedWork(work.id);
+    async saveProgress(assignedWorkId, saveOptions, role) {
+        const foundWork = await this.getAssignedWork(assignedWorkId);
         if (!foundWork) {
             throw new NotFoundError();
         }
@@ -281,8 +277,8 @@ export class AssignedWorkService extends Service {
             }
             foundWork.checkStatus = 'in-progress';
         }
-        foundWork.answers = work.answers;
-        foundWork.comments = work.comments || [];
+        foundWork.answers = saveOptions.answers;
+        foundWork.comments = saveOptions.comments || [];
         await this.assignedWorkRepository.update(foundWork);
     }
     async archiveWork(id) {
@@ -306,9 +302,11 @@ export class AssignedWorkService extends Service {
         }
         const mentor = await this.userRepository.findOne({
             id: currentMentorId,
+            role: 'mentor',
         });
         const newMentor = await this.userRepository.findOne({
             id: mentorId,
+            role: 'mentor',
         });
         if (!mentor || !newMentor) {
             throw new NotFoundError('Куратор не найден');

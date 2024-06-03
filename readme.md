@@ -18,6 +18,8 @@ Here a todo list
 10. **[IMPR]** Switch from db sync to migrations
 11. **[IMPR]** Make `class Service` not generic, but only it's method `getRequestMeta`
 12. **[REFC]** Utilize all the time and dates to process them correctly
+13. **[REFC]** Comment controllers
+14. **[IMPR]** Configure linter and prettier
 
 ## Tags
 

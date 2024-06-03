@@ -127,7 +127,11 @@ export class AssignedWorkController {
 			const workId = this.assignedWorkValidator.parseId(context.params.id)
 			const options = this.assignedWorkValidator.parseSolve(context.body)
 
-			await this.assignedWorkService.solveWork(workId, options)
+			await this.assignedWorkService.solveWork(
+				workId,
+				options,
+				context.credentials!.userId
+			)
 
 			return new ApiResponse()
 		} catch (error: any) {

@@ -11,6 +11,7 @@ import { Column, Entity, ManyToOne } from 'typeorm';
 import { Model } from '../../Core/Data/Model.js';
 import { CourseMaterialModel } from '../../Courses/Data/Relations/CourseMaterialModel.js';
 import { CourseModel } from '../../Courses/Data/CourseModel.js';
+import { PollAnswerModel } from '../../Polls/Data/Relations/PollAnswerModel.js';
 let MediaModel = class MediaModel extends Model {
     constructor(data) {
         super();
@@ -23,6 +24,7 @@ let MediaModel = class MediaModel extends Model {
     mimeType;
     courseMaterial;
     course;
+    pollAnswer;
 };
 __decorate([
     Column({
@@ -58,6 +60,12 @@ __decorate([
     }),
     __metadata("design:type", CourseModel)
 ], MediaModel.prototype, "course", void 0);
+__decorate([
+    ManyToOne(() => PollAnswerModel, (answer) => answer.files, {
+        onDelete: 'SET NULL',
+    }),
+    __metadata("design:type", PollAnswerModel)
+], MediaModel.prototype, "pollAnswer", void 0);
 MediaModel = __decorate([
     Entity('media'),
     __metadata("design:paramtypes", [Object])

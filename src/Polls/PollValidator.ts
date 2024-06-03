@@ -3,9 +3,15 @@ import { z } from 'zod'
 import { Poll } from './Data/Poll'
 import { PollAnswer } from './Data/Relations/PollAnswer'
 import { ErrorConverter } from '@modules/Core/Request/ValidatorDecorator'
+import { UserRoles } from '@modules/Core/Security/roles'
 
 @ErrorConverter()
 export class PollValidator extends Validator {
+	public readonly visibilityOptionsScheme = z.enum([
+		'everyone',
+		...Object.keys(UserRoles),
+	] as [string, ...string[]])
+
 	public readonly questionTypeSceme = z.enum([
 		'text',
 		'date',
@@ -58,11 +64,14 @@ export class PollValidator extends Validator {
 		requireAuth: z.boolean(),
 		stopAt: z.date(),
 		isStopped: z.boolean(),
+		canSeeResults: z.array(this.visibilityOptionsScheme),
+		canVote: z.array(this.visibilityOptionsScheme),
 		questions: z.array(this.questionScheme),
 	})
 
 	public readonly pollAnswerScheme = z.object({
-		questionId: z.string().uuid(),
+		id: z.string().ulid(),
+		questionId: z.string().ulid(),
 		questionType: this.questionTypeSceme,
 		text: z.string().optional(),
 		number: z.number().optional(),
@@ -78,5 +87,9 @@ export class PollValidator extends Validator {
 
 	public parsePollAnswers(data: unknown): PollAnswer[] {
 		return this.parse<PollAnswer[]>(data, z.array(this.pollAnswerScheme))
+	}
+
+	public parsePollAnswer(data: unknown): PollAnswer {
+		return this.parse(data, this.pollAnswerScheme)
 	}
 }

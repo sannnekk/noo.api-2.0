@@ -8,25 +8,28 @@ import { Pagination } from '../Data/Pagination.js';
 import { z } from 'zod';
 import { ErrorConverter } from './ValidatorDecorator.js';
 let Validator = class Validator {
-    validatePagination(data) {
-        const schema = z.object({
-            page: z.coerce.number().int().positive().optional(),
-            limit: z.coerce.number().int().positive().optional(),
-            sort: z.string().optional(),
-            order: z.enum(['ASC', 'DESC']).optional(),
-            search: z.string().optional(),
-            filter: z.record(z.any()).optional(),
-        });
-        const pagination = schema.parse(data);
+    idScheme = z.string().ulid();
+    slugScheme = z.string().min(1).max(256);
+    paginationScheme = z.object({
+        page: z.coerce.number().int().positive().optional(),
+        limit: z.coerce.number().int().positive().optional(),
+        sort: z.string().optional(),
+        order: z.enum(['ASC', 'DESC']).optional(),
+        search: z.string().optional(),
+        filter: z.record(z.any()).optional(),
+    });
+    parsePagination(data) {
+        const pagination = this.parse(data, this.paginationScheme);
         return new Pagination(pagination.page, pagination.limit, pagination.sort, pagination.order, pagination.search, pagination.filter);
     }
-    validateId(id) {
-        const schema = z.string().ulid();
-        schema.parse(id);
+    parseId(id) {
+        return this.parse(id, this.idScheme);
     }
-    validateSlug(slug) {
-        const schema = z.string().min(2).max(256);
-        schema.parse(slug);
+    parseSlug(slug) {
+        return this.parse(slug, this.slugScheme);
+    }
+    parse(o, schema) {
+        return schema.parse(o);
     }
 };
 Validator = __decorate([

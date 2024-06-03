@@ -6,7 +6,6 @@ export class MediaService {
 	constructor() {}
 
 	async upload(files: Express.Multer.File[]): Promise<UnsavedMedia[]> {
-		console.log(files)
 		return files.map((file) => ({
 			src: file.filename,
 			name: file.originalname,

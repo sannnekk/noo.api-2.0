@@ -15,4 +15,5 @@ export interface Poll extends BaseModel {
 	createdAt: Date
 	updatedAt: Date
 	questions: PollQuestion[]
+	votedUsers?: User[]
 }

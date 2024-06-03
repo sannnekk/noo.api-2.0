@@ -24,6 +24,7 @@ export class Repository {
             await this.repository.save(models);
         }
         catch (error) {
+            console.log(error);
             throw new AlreadyExistError();
         }
     }
@@ -38,7 +39,8 @@ export class Repository {
         }
         const newItem = new this.model({ ...item, ...data, id: item.id });
         try {
-            await this.repository.save(newItem);
+            const saved = await this.repository.save(newItem);
+            return saved;
         }
         catch (error) {
             throw new AlreadyExistError();
@@ -61,7 +63,7 @@ export class Repository {
         }
     }
     async delete(id) {
-        const exists = await this.repository.exist({
+        const exists = await this.repository.exists({
             where: {
                 id,
             },

@@ -11,6 +11,10 @@ import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, RelationId
 import { Model } from '../../Core/Data/Model.js';
 import { CourseModel } from '../../Courses/Data/CourseModel.js';
 import { AssignedWorkModel } from '../../AssignedWorks/Data/AssignedWorkModel.js';
+import { BlogPostModel } from '../../Blog/Data/BlogPostModel.js';
+import { BlogPostReactionModel } from '../../Blog/Data/Relations/BlogPostReactionModel.js';
+import { PollAnswerModel } from '../../Polls/Data/Relations/PollAnswerModel.js';
+import { PollModel } from '../../Polls/Data/PollModel.js';
 let UserModel = class UserModel extends Model {
     constructor(data) {
         super();
@@ -34,6 +38,10 @@ let UserModel = class UserModel extends Model {
     coursesAsStudent;
     assignedWorksAsMentor;
     assignedWorksAsStudent;
+    blogPosts;
+    blogPostReactions;
+    pollAnswers;
+    votedPolls;
     telegramId;
     telegramUsername;
     password;
@@ -120,6 +128,22 @@ __decorate([
     OneToMany(() => AssignedWorkModel, (assignedWork) => assignedWork.student),
     __metadata("design:type", Array)
 ], UserModel.prototype, "assignedWorksAsStudent", void 0);
+__decorate([
+    OneToMany(() => BlogPostModel, (post) => post.author),
+    __metadata("design:type", Array)
+], UserModel.prototype, "blogPosts", void 0);
+__decorate([
+    OneToMany(() => BlogPostReactionModel, (reaction) => reaction.user),
+    __metadata("design:type", Array)
+], UserModel.prototype, "blogPostReactions", void 0);
+__decorate([
+    OneToMany(() => PollAnswerModel, (answer) => answer.user),
+    __metadata("design:type", Array)
+], UserModel.prototype, "pollAnswers", void 0);
+__decorate([
+    ManyToMany(() => PollModel, (poll) => poll.votedUsers),
+    __metadata("design:type", Array)
+], UserModel.prototype, "votedPolls", void 0);
 __decorate([
     Column({
         name: 'telegram_id',

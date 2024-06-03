@@ -31,8 +31,9 @@ export class UserService extends Service {
             throw new UnknownError();
         }
     }
-    async register(user) {
+    async register(registerDTO) {
         // every user is a student at the moment of registration
+        const user = new UserModel(registerDTO);
         user.role = 'student';
         user.verificationToken = await Hash.hash(Math.random().toString());
         const existingUsername = await this.userRepository.findOne({
@@ -209,26 +210,23 @@ export class UserService extends Service {
         const meta = await this.getRequestMeta(this.userRepository, conditions, pagination, relations);
         return { students, meta };
     }
-    async update(user) {
-        const existingUser = await this.userRepository.findOne({
-            id: user.id,
-        });
+    async update(id, data, updaterRole) {
+        const existingUser = await this.userRepository.findOne({ id });
         if (!existingUser) {
             throw new NotFoundError();
         }
-        if (user.password)
-            user.password = await Hash.hash(user.password);
-        user.createdAt = undefined;
-        user.updatedAt = undefined;
-        user.slug = undefined;
-        user.username = undefined;
-        if (existingUser.role !== 'student') {
-            user.role = undefined;
-        }
-        else if (user.role && user.role !== 'student') {
-            user.coursesAsStudent = [];
-            user.courses = [];
-            user.mentor = null;
+        if (data.password)
+            data.password = await Hash.hash(data.password);
+        const user = new UserModel({
+            ...existingUser,
+            ...data,
+            role: existingUser.role,
+        });
+        if (data.role &&
+            data.role !== existingUser.role &&
+            existingUser.role === 'student' &&
+            ['teacher', 'admin'].includes(updaterRole)) {
+            user.role = data.role;
         }
         const newUser = new UserModel({ ...existingUser, ...user });
         await this.userRepository.update(newUser);
@@ -248,8 +246,8 @@ export class UserService extends Service {
                 Math.random().toString(36).substr(2, 9) +
                 '.com';
         user.isBlocked = true;
-        user.telegramId = undefined;
-        user.telegramUsername = undefined;
+        user.telegramId = null;
+        user.telegramUsername = null;
         await this.userRepository.update(user);
     }
 }

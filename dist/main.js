@@ -2,39 +2,26 @@ import express from 'express';
 import cors from 'cors';
 import 'reflect-metadata';
 import { CoreDataSource } from './Core/Data/DataSource.js';
-import { ContextMiddleware } from './Core/Request/ContextMiddleware.js';
-import { attachControllerInstances } from '@decorators/express';
+import { injectControllers, setContextClass, } from 'express-controller-decorator';
+import { Context } from './Core/Request/Context.js';
 // import modules
-import { UserController } from './Users/UserController.js';
-import { CourseController } from './Courses/CourseController.js';
-import { WorkController } from './Works/WorkController.js';
-import { AssignedWorkController } from './AssignedWorks/AssignedWorkController.js';
-import { MediaController } from './Media/MediaController.js';
-import { CalenderController } from './Calender/CalenderController.js';
-import { StatisticsController } from './Statistics/StatisticsController.js';
+import './Users/UserController.js';
+import './Courses/CourseController.js';
+import './Works/WorkController.js';
+import './AssignedWorks/AssignedWorkController.js';
+import './Media/MediaController.js';
+import './Calender/CalenderController.js';
+import './Statistics/StatisticsController.js';
+import './Blog/BlogController.js';
+import './Polls/PollController.js';
+import { config } from './config.js';
 await CoreDataSource.initialize();
 const app = express();
 app.use(cors());
-app.use(express.json({
-    limit: '50mb',
-    reviver: (_, value) => {
-        if (/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)) {
-            return new Date(value);
-        }
-        return value;
-    },
-}));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-//app.use(AccessLogMiddleware)
-app.use(ContextMiddleware);
-attachControllerInstances(app, [
-    new UserController(),
-    new CourseController(),
-    new WorkController(),
-    new AssignedWorkController(),
-    new MediaController(),
-    new CalenderController(),
-    new StatisticsController(),
-]);
+app.use(express.json(config.expressJson));
+app.use(express.urlencoded(config.expressUrlencoded));
+setContextClass(Context);
+injectControllers(app);
 app.listen(process.env.APP_PORT, () => console.log(`Server is running on port ${process.env.APP_PORT}`));
+// for test purposes
 export default app;

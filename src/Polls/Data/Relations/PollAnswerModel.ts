@@ -15,6 +15,14 @@ export class PollAnswerModel extends Model implements PollAnswer {
 
 		if (data) {
 			this.set(data)
+
+			if (data.files) {
+				this.files = data.files.map((file) => new MediaModel(file))
+			}
+
+			if (data.questionId) {
+				this.question = { id: data.questionId } as PollQuestion
+			}
 		}
 	}
 
@@ -26,7 +34,7 @@ export class PollAnswerModel extends Model implements PollAnswer {
 	@RelationId((answer: PollAnswerModel) => answer.question)
 	questionId!: string
 
-	@ManyToOne(() => UserModel, (user) => user.blogpostPollAnswers, {
+	@ManyToOne(() => UserModel, (user) => user.pollAnswers, {
 		onDelete: 'CASCADE',
 	})
 	user!: User

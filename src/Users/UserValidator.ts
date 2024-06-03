@@ -11,6 +11,10 @@ import { UpdateUserDTO } from './DTO/UpdateUserDTO'
 
 @ErrorConverter()
 export class UserValidator extends Validator {
+	public userRoleScheme = z.enum(
+		Object.keys(UserRoles) as [string, ...string[]]
+	)
+
 	public passwordScheme = z
 		.string()
 		.min(8, {

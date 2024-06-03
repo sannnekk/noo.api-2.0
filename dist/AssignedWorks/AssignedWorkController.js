@@ -7,15 +7,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
-import { Controller, Delete, Get, Patch, Post, Req, Res, } from '@decorators/express';
+import { Controller, Delete, Get, Patch, Post, } from 'express-controller-decorator';
 import { AssignedWorkValidator } from './AssignedWorkValidator.js';
 import { AssignedWorkService } from './Services/AssignedWorkService.js';
 import * as Asserts from '../core/Security/asserts.js';
-import { getErrorData } from '../core/Response/helpers.js';
-import json from 'big-json';
+import { Context } from '../core/Request/context.js';
+import { ApiResponse } from '../Core/Response/ApiResponse.js';
+import { AssignedWorkOptions } from './AssignedWorkOptions.js';
 let AssignedWorkController = class AssignedWorkController {
     assignedWorkService;
     assignedWorkValidator;
@@ -23,305 +21,226 @@ let AssignedWorkController = class AssignedWorkController {
         this.assignedWorkService = new AssignedWorkService();
         this.assignedWorkValidator = new AssignedWorkValidator();
     }
-    async get(req, res) {
-        // @ts-ignore
-        const context = req.context;
+    async get(context) {
         try {
             await Asserts.isAuthenticated(context);
-            const pagination = this.assignedWorkValidator.validatePagination(context.query);
+            const pagination = this.assignedWorkValidator.parsePagination(context.query);
             const { assignedWorks, meta } = await this.assignedWorkService.getWorks(context.credentials.userId, context.credentials.role, pagination);
-            res.status(200).send({ data: assignedWorks, meta });
+            return new ApiResponse({ data: assignedWorks, meta });
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async getOne(req, res) {
-        // @ts-ignore
-        const context = req.context;
-        context.setParams(req.params);
+    async getOne(context) {
         try {
             await Asserts.isAuthenticated(context);
-            this.assignedWorkValidator.validateId(context.params.id);
-            const work = await this.assignedWorkService.getWorkById(context.params.id, context.credentials.role);
+            const workId = this.assignedWorkValidator.parseId(context.params.id);
+            const work = await this.assignedWorkService.getWorkById(workId, context.credentials.role);
             if (context.credentials.role == 'student') {
                 Asserts.isAuthorized(context, work.studentId);
             }
-            const stream = json.createStringifyStream({
-                body: { data: work },
-            });
-            res.setHeader('Content-Type', 'application/json');
-            stream.on('data', (data) => {
-                res.write(data);
-            });
-            stream.on('end', () => {
-                res.end();
-            });
+            return new ApiResponse({ data: work });
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async create(req, res) {
-        // @ts-ignore
-        const context = req.context;
+    async create(context) {
         try {
             await Asserts.isAuthenticated(context);
-            this.assignedWorkValidator.validateCreation(context.body);
-            await this.assignedWorkService.createWork(context.body);
-            res.status(201).send({ data: null });
+            const options = this.assignedWorkValidator.parseCreation(context.body);
+            await this.assignedWorkService.createWork(options);
+            return new ApiResponse();
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async remake(req, res) {
-        // @ts-ignore
-        const context = req.context;
-        context.setParams(req.params);
+    async remake(context) {
         try {
             await Asserts.isAuthenticated(context);
             Asserts.student(context);
-            this.assignedWorkValidator.validateId(context.params.id);
-            this.assignedWorkValidator.validateRemake(context.body);
-            await this.assignedWorkService.remakeWork(context.params.id, context.credentials.userId, context.body);
-            res.status(201).send({ data: null });
+            const workId = this.assignedWorkValidator.parseId(context.params.id);
+            const options = this.assignedWorkValidator.parseRemake(context.body);
+            await this.assignedWorkService.remakeWork(workId, context.credentials.userId, options);
+            return new ApiResponse();
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async getOrCreate(req, res) {
-        // @ts-ignore
-        const context = req.context;
-        context.setParams(req.params);
+    async getOrCreate(context) {
         try {
             await Asserts.isAuthenticated(context);
             Asserts.student(context);
-            this.assignedWorkValidator.validateSlug(context.params.materialSlug);
-            const { link } = await this.assignedWorkService.getOrCreateWork(context.params.materialSlug, context.credentials.userId);
-            res.status(200).send({ data: link });
+            const materialSlug = this.assignedWorkValidator.parseSlug(context.params.materialSlug);
+            const { link } = await this.assignedWorkService.getOrCreateWork(materialSlug, context.credentials.userId);
+            return new ApiResponse({ data: { link } });
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async solve(req, res) {
-        // @ts-ignore
-        const context = req.context;
-        context.setParams(req.params);
+    async solve(context) {
         try {
             await Asserts.isAuthenticated(context);
             Asserts.student(context);
-            this.assignedWorkValidator.validateId(context.params.id);
-            this.assignedWorkValidator.validateUpdate(context.body);
-            await this.assignedWorkService.solveWork(context.body);
-            res.status(201).send({ data: null });
+            const workId = this.assignedWorkValidator.parseId(context.params.id);
+            const options = this.assignedWorkValidator.parseSolve(context.body);
+            await this.assignedWorkService.solveWork(workId, options, context.credentials.userId);
+            return new ApiResponse();
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async check(req, res) {
-        // @ts-ignore
-        const context = req.context;
-        context.setParams(req.params);
+    async check(context) {
         try {
             await Asserts.isAuthenticated(context);
             Asserts.mentor(context);
-            this.assignedWorkValidator.validateId(context.params.id);
-            this.assignedWorkValidator.validateUpdate(context.body);
-            await this.assignedWorkService.checkWork(context.body);
-            res.status(201).send({ data: null });
+            const workId = this.assignedWorkValidator.parseId(context.params.id);
+            const checkOptions = this.assignedWorkValidator.parseCheck(context.body);
+            await this.assignedWorkService.checkWork(workId, checkOptions);
+            return new ApiResponse();
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async save(req, res) {
-        // @ts-ignore
-        const context = req.context;
-        context.setParams(req.params);
+    async save(context) {
         try {
             await Asserts.isAuthenticated(context);
             Asserts.mentorOrStudent(context);
-            this.assignedWorkValidator.validateId(context.params.id);
-            this.assignedWorkValidator.validateUpdate(context.body);
-            await this.assignedWorkService.saveProgress(context.body, context.credentials.role);
-            res.status(201).send({ data: null });
+            const workId = this.assignedWorkValidator.parseId(context.params.id);
+            const saveOptions = this.assignedWorkValidator.parseSave(context.body);
+            await this.assignedWorkService.saveProgress(workId, saveOptions, context.credentials.role);
+            return new ApiResponse();
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async archive(req, res) {
-        // @ts-ignore
-        const context = req.context;
-        context.setParams(req.params);
+    async archive(context) {
         try {
             await Asserts.isAuthenticated(context);
             Asserts.mentor(context);
-            this.assignedWorkValidator.validateId(context.params.id);
-            await this.assignedWorkService.archiveWork(context.params.id);
-            res.status(201).send({ data: null });
+            const workId = this.assignedWorkValidator.parseId(context.params.id);
+            await this.assignedWorkService.archiveWork(workId);
+            return new ApiResponse();
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async transfer(req, res) {
-        // @ts-ignore
-        const context = req.context;
-        context.setParams(req.params);
+    async transfer(context) {
         try {
             await Asserts.isAuthenticated(context);
             Asserts.mentor(context);
-            this.assignedWorkValidator.validateId(context.params.workId);
-            this.assignedWorkValidator.validateId(context.params.mentorId);
-            await this.assignedWorkService.transferWorkToAnotherMentor(context.params.workId, context.params.mentorId, context.credentials.userId);
-            res.status(201).send({ data: null });
+            const workId = this.assignedWorkValidator.parseId(context.params.workId);
+            const mentorId = this.assignedWorkValidator.parseId(context.params.mentorId);
+            await this.assignedWorkService.transferWorkToAnotherMentor(workId, mentorId, context.credentials.userId);
+            return new ApiResponse();
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async shiftDeadline(req, res) {
-        // @ts-ignore
-        const context = req.context;
-        context.setParams(req.params);
+    async shiftDeadline(context) {
         try {
             await Asserts.isAuthenticated(context);
             Asserts.mentorOrStudent(context);
-            this.assignedWorkValidator.validateId(context.params.id);
-            await this.assignedWorkService.shiftDeadline(context.params.id, 1, context.credentials.role, context.credentials.userId);
-            res.status(201).send({ data: null });
+            const workId = this.assignedWorkValidator.parseId(context.params.id);
+            await this.assignedWorkService.shiftDeadline(workId, AssignedWorkOptions.deadlineShift, context.credentials.role, context.credentials.userId);
+            return new ApiResponse();
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async delete(req, res) {
-        // @ts-ignore
-        const context = req.context;
-        context.setParams(req.params);
+    async delete(context) {
         try {
             await Asserts.isAuthenticated(context);
             Asserts.mentor(context);
-            this.assignedWorkValidator.validateId(context.params.id);
-            await this.assignedWorkService.deleteWork(context.params.id, context.credentials.id);
-            res.status(200).send({ data: null });
+            const workId = this.assignedWorkValidator.parseId(context.params.id);
+            await this.assignedWorkService.deleteWork(workId, context.credentials.id);
+            return new ApiResponse();
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
 };
 __decorate([
     Get('/'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], AssignedWorkController.prototype, "get", null);
 __decorate([
     Get('/:id'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], AssignedWorkController.prototype, "getOne", null);
 __decorate([
     Post('/'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], AssignedWorkController.prototype, "create", null);
 __decorate([
     Post('/:id/remake'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], AssignedWorkController.prototype, "remake", null);
 __decorate([
     Post('/:materialSlug'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], AssignedWorkController.prototype, "getOrCreate", null);
 __decorate([
     Patch('/:id/solve'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], AssignedWorkController.prototype, "solve", null);
 __decorate([
     Patch('/:id/check'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], AssignedWorkController.prototype, "check", null);
 __decorate([
     Patch('/:id/save'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], AssignedWorkController.prototype, "save", null);
 __decorate([
     Patch('/:id/archive'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], AssignedWorkController.prototype, "archive", null);
 __decorate([
     Patch('/:workId/transfer/:mentorId'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], AssignedWorkController.prototype, "transfer", null);
 __decorate([
     Patch('/:id/shift-deadline'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], AssignedWorkController.prototype, "shiftDeadline", null);
 __decorate([
     Delete('/:id'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], AssignedWorkController.prototype, "delete", null);
 AssignedWorkController = __decorate([

@@ -7,56 +7,47 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
-import { Controller, Post, Req, Res } from '@decorators/express';
+import { Controller, Post } from 'express-controller-decorator';
 import { DealsService } from './Services/DealsService.js';
+import { Context } from '../Core/Request/Context.js';
 import CrmAsserts from './Security/CrmAsserts.js';
+import { ApiResponse } from '../Core/Response/ApiResponse.js';
 let CRMController = class CRMController {
     dealsService;
     constructor() {
         this.dealsService = new DealsService();
     }
-    async onDealCreation(req, res) {
-        // @ts-ignore
-        const context = req.context;
+    async onDealCreation(context) {
         try {
             CrmAsserts.hasSecret(context);
+            await this.dealsService.create('mock', 'abracadabra');
+            return new ApiResponse();
         }
         catch (error) {
-        }
-        finally {
-            res.status(201).send({ data: null });
+            return new ApiResponse(error);
         }
     }
-    async onDealrefund(req, res) {
-        // @ts-ignore
-        const context = req.context;
+    async onDealrefund(context) {
         try {
             CrmAsserts.hasSecret(context);
+            await this.dealsService.remove('mock');
+            return new ApiResponse();
         }
         catch (error) {
-        }
-        finally {
-            res.status(201).send({ data: null });
+            return new ApiResponse(error);
         }
     }
 };
 __decorate([
     Post('/deal/create'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], CRMController.prototype, "onDealCreation", null);
 __decorate([
     Post('/deal/cancel'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], CRMController.prototype, "onDealrefund", null);
 CRMController = __decorate([

@@ -20,6 +20,8 @@ import type { BlogPostReaction } from '@modules/Blog/Data/Relations/BlogPostReac
 import type { BlogPost } from '@modules/Blog/Data/BlogPost'
 import { PollAnswerModel } from '@modules/Polls/Data/Relations/PollAnswerModel'
 import { PollAnswer } from '@modules/Polls/Data/Relations/PollAnswer'
+import { PollModel } from '@modules/Polls/Data/PollModel'
+import { Poll } from '@modules/Polls/Data/Poll'
 
 @Entity('user')
 export class UserModel extends Model implements User {
@@ -103,6 +105,9 @@ export class UserModel extends Model implements User {
 
 	@OneToMany(() => PollAnswerModel, (answer) => answer.user)
 	pollAnswers?: PollAnswer[]
+
+	@ManyToMany(() => PollModel, (poll) => poll.votedUsers)
+	votedPolls!: Poll[]
 
 	@Column({
 		name: 'telegram_id',

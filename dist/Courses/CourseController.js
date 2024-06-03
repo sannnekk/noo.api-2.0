@@ -7,14 +7,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
-import { Controller, Delete, Get, Patch, Post, Req, Res, } from '@decorators/express';
+import { Controller, Delete, Get, Patch, Post, } from 'express-controller-decorator';
 import { CourseService } from './Services/CourseService.js';
 import * as Asserts from '../core/Security/asserts.js';
-import { getErrorData } from '../core/Response/helpers.js';
+import { Context } from '../Core/Request/Context.js';
 import { CourseValidator } from './CourseValidator.js';
+import { ApiResponse } from '../Core/Response/ApiResponse.js';
 let CourseController = class CourseController {
     courseService;
     courseValidator;
@@ -22,201 +20,155 @@ let CourseController = class CourseController {
         this.courseService = new CourseService();
         this.courseValidator = new CourseValidator();
     }
-    async get(req, res) {
-        // @ts-ignore
-        const context = req.context;
+    async get(context) {
         try {
             await Asserts.isAuthenticated(context);
-            const pagination = this.courseValidator.validatePagination(context.query);
+            const pagination = this.courseValidator.parsePagination(context.query);
             const { courses, meta } = await this.courseService.get(pagination, context.credentials.userId, context.credentials.role);
-            res.status(200).send({ data: courses, meta });
+            return new ApiResponse({ data: courses, meta });
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async getBySlug(req, res) {
-        // @ts-ignore
-        const context = req.context;
-        context.setParams(req.params);
+    async getBySlug(context) {
         try {
-            this.courseValidator.validateSlug(context.params.slug);
             await Asserts.isAuthenticated(context);
-            const course = await this.courseService.getBySlug(context.params.slug);
+            const courseSlug = this.courseValidator.parseSlug(context.params.slug);
+            const course = await this.courseService.getBySlug(courseSlug);
             if (context.credentials.role === 'student' ||
                 context.credentials.role == 'mentor') {
                 course.studentIds = [];
-                course.students = [];
             }
-            res.status(200).send({ data: course });
+            return new ApiResponse({ data: course });
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async getAssignedWork(req, res) {
-        // @ts-ignore
-        const context = req.context;
-        context.setParams(req.params);
+    async getAssignedWork(context) {
         try {
-            this.courseValidator.validateSlug(context.params.slug);
+            const materialSlug = this.courseValidator.parseSlug(context.params.slug);
             await Asserts.isAuthenticated(context);
             Asserts.student(context);
-            const assignedWork = await this.courseService.getAssignedWorkToMaterial(context.params.slug, context.credentials.userId);
-            res.status(200).send({ data: assignedWork });
+            const assignedWork = await this.courseService.getAssignedWorkToMaterial(materialSlug, context.credentials.userId);
+            return new ApiResponse({ data: assignedWork });
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async create(req, res) {
-        // @ts-ignore
-        const context = req.context;
-        try {
-            this.courseValidator.validateCreation(context.body);
-            await Asserts.isAuthenticated(context);
-            Asserts.teacher(context);
-            await this.courseService.create(context.body, context.credentials.userId);
-            res.status(201).send({ data: null });
-        }
-        catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
-        }
-    }
-    async update(req, res) {
-        // @ts-ignore
-        const context = req.context;
-        context.setParams(req.params);
-        try {
-            this.courseValidator.validateUpdate(context.body);
-            await Asserts.isAuthenticated(context);
-            Asserts.teacher(context);
-            await this.courseService.update(context.body);
-            res.status(201).send({ data: null });
-        }
-        catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
-        }
-    }
-    async assignWorkToMaterial(req, res) {
-        // @ts-ignore
-        const context = req.context;
-        context.setParams(req.params);
+    async create(context) {
         try {
             await Asserts.isAuthenticated(context);
             Asserts.teacher(context);
-            this.courseValidator.validateSlug(context.params.materialSlug);
-            this.courseValidator.validateId(context.params.workId);
-            this.courseValidator.validateAssignWork(context.body);
-            await this.courseService.assignWorkToMaterial(context.params.materialSlug, context.params.workId, context.body.solveDeadline, context.body.checkDeadline);
-            res.status(201).send({ data: null });
+            const courseCreationOptions = this.courseValidator.parseCreation(context.body);
+            await this.courseService.create(courseCreationOptions, context.credentials.userId);
+            return new ApiResponse();
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async assignStudents(req, res) {
-        // @ts-ignore
-        const context = req.context;
-        context.setParams(req.params);
+    async update(context) {
         try {
             await Asserts.isAuthenticated(context);
             Asserts.teacher(context);
-            this.courseValidator.validateSlug(context.params.courseSlug);
-            this.courseValidator.validateStudentIds(context.body);
-            await this.courseService.assignStudents(context.params.courseSlug, context.body.studentIds);
-            res.status(201).send({ data: null });
+            const courseId = this.courseValidator.parseId(context.params.id);
+            const updateCourseOptions = this.courseValidator.parseUpdate(context.body);
+            await this.courseService.update(courseId, updateCourseOptions);
+            return new ApiResponse();
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async delete(req, res) {
-        // @ts-ignore
-        const context = req.context;
-        context.setParams(req.params);
+    async assignWorkToMaterial(context) {
         try {
-            this.courseValidator.validateId(context.params.id);
             await Asserts.isAuthenticated(context);
             Asserts.teacher(context);
-            await this.courseService.delete(context.params.id);
-            res.status(200).send({ data: null });
+            const materialSlug = this.courseValidator.parseSlug(context.params.materialSlug);
+            const workId = this.courseValidator.parseId(context.params.workId);
+            const assignWorkOptions = this.courseValidator.parseAssignWorkOptions(context.body);
+            await this.courseService.assignWorkToMaterial(materialSlug, workId, assignWorkOptions.solveDeadline, assignWorkOptions.checkDeadline);
+            return new ApiResponse();
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
+        }
+    }
+    async assignStudents(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.teacher(context);
+            const courseSlug = this.courseValidator.parseSlug(context.params.courseSlug);
+            const studentIds = this.courseValidator.parseStudentIds(context.body);
+            await this.courseService.assignStudents(courseSlug, studentIds);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
+    async delete(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.teacher(context);
+            const courseId = this.courseValidator.parseId(context.params.id);
+            await this.courseService.delete(courseId);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error);
         }
     }
 };
 __decorate([
     Get('/'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "get", null);
 __decorate([
     Get('/:slug'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "getBySlug", null);
 __decorate([
     Get('/material/:slug/assigned-work'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "getAssignedWork", null);
 __decorate([
     Post('/'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "create", null);
 __decorate([
     Patch('/:id'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "update", null);
 __decorate([
     Patch('/:materialSlug/assign-work/:workId'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "assignWorkToMaterial", null);
 __decorate([
     Patch('/:courseSlug/assign-students'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "assignStudents", null);
 __decorate([
     Delete('/:id'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "delete", null);
 CourseController = __decorate([

@@ -1,10 +1,21 @@
 import { Model } from '@modules/Core/Data/Model'
 import { Poll, PollVisibility } from './Poll'
-import { Column, Entity, OneToMany, OneToOne } from 'typeorm'
+import {
+	Column,
+	Entity,
+	JoinTable,
+	ManyToMany,
+	ManyToOne,
+	OneToMany,
+	OneToOne,
+	RelationId,
+} from 'typeorm'
 import { PollQuestion } from './Relations/PollQuestion'
 import { PollQuestionModel } from './Relations/PollQuestionModel'
 import { BlogPostModel } from '@modules/Blog/Data/BlogPostModel'
 import { BlogPost } from '@modules/Blog/Data/BlogPost'
+import { User } from '@modules/Users/Data/User'
+import { UserModel } from '@modules/Users/Data/UserModel'
 
 @Entity('poll')
 export class PollModel extends Model implements Poll {
@@ -29,6 +40,13 @@ export class PollModel extends Model implements Poll {
 		cascade: true,
 	})
 	questions!: PollQuestion[]
+
+	@ManyToMany(() => UserModel, (user) => user.votedPolls)
+	@JoinTable()
+	votedUsers!: User[]
+
+	@RelationId((poll: PollModel) => poll.votedUsers)
+	votedUserIds?: User['id'][]
 
 	@Column({
 		name: 'title',

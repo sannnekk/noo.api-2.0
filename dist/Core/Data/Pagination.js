@@ -106,6 +106,22 @@ export class Pagination {
                     .slice(4, -1)
                     .split('|')
                     .map((v) => this.typeConvert(v)));
+                if (parsedFilters[key].length === 0) {
+                    parsedFilters[key] = undefined;
+                }
+                continue;
+            }
+            if (/^tags\([0-9.|:\-\_a-zA-Z]+\)$/.test(value)) {
+                parsedFilters[key] = value
+                    .slice(5, -1)
+                    .split('|')
+                    .map((v) => TypeORM.ILike(`%${this.typeConvert(v)},%`));
+                if (parsedFilters[key].length === 0) {
+                    parsedFilters[key] = undefined;
+                }
+                if (parsedFilters[key].length === 1) {
+                    parsedFilters[key] = parsedFilters[key][0];
+                }
                 continue;
             }
             parsedFilters[key] = this.typeConvert(value);

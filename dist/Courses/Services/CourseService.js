@@ -72,12 +72,10 @@ export class CourseService extends Service {
         });
         return assignedWork;
     }
-    async update(course) {
-        const foundCourse = await this.courseRepository.findOne({
-            id: course.id,
-        });
+    async update(id, course) {
+        const foundCourse = await this.courseRepository.findOne({ id });
         if (!foundCourse) {
-            throw new NotFoundError();
+            throw new NotFoundError('Курс не найден');
         }
         const newCourse = new CourseModel({ ...foundCourse, ...course });
         await this.courseRepository.update(newCourse);
@@ -110,9 +108,12 @@ export class CourseService extends Service {
         material.workCheckDeadline = checkDeadline;
         await this.materialRepository.update(material);
     }
-    async create(course, authorId) {
+    async create(courseDTO, authorId) {
         const author = await this.userRepository.findOne({ id: authorId });
-        course.author = author;
+        if (!author) {
+            throw new NotFoundError('Пользователь не найден');
+        }
+        const course = new CourseModel(courseDTO);
         try {
             await this.courseRepository.create(course);
         }
@@ -120,9 +121,18 @@ export class CourseService extends Service {
             if (error instanceof QueryFailedError) {
                 throw new AlreadyExistError();
             }
+            throw new UnknownError();
         }
     }
     async delete(id) {
+        const course = await this.courseRepository.findOne({
+            id,
+        });
+        if (!course) {
+            throw new NotFoundError();
+        }
+        course.students = [];
+        await this.courseRepository.update(course);
         await this.courseRepository.delete(id);
     }
 }

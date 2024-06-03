@@ -7,14 +7,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
 import { CalenderValidator } from './CalenderValidator.js';
-import { Controller, Delete, Get, Post, Res, Req, } from '@decorators/express';
+import { Controller, Delete, Get, Post } from 'express-controller-decorator';
 import { CalenderService } from './Services/CalenderService.js';
 import * as Asserts from '../core/Security/asserts.js';
-import { getErrorData } from '../core/Response/helpers.js';
+import { Context } from '../Core/Request/Context.js';
+import { ApiResponse } from '../Core/Response/ApiResponse.js';
 let CalenderController = class CalenderController {
     calenderService;
     calenderValidator;
@@ -22,72 +20,56 @@ let CalenderController = class CalenderController {
         this.calenderService = new CalenderService();
         this.calenderValidator = new CalenderValidator();
     }
-    async createCalenderEvent(req, res) {
-        // @ts-ignore
-        const context = req.context;
+    async createCalenderEvent(context) {
         try {
             await Asserts.isAuthenticated(context);
-            this.calenderValidator.validateEventCreation(context.body);
-            const calenderEvent = await this.calenderService.create(context.body, context.credentials.username);
-            res.status(201).send({ data: calenderEvent });
+            const eventCreationOptions = this.calenderValidator.parseEventCreation(context.body);
+            const calenderEvent = await this.calenderService.create(eventCreationOptions, context.credentials.username);
+            return new ApiResponse({ data: calenderEvent });
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async getCalenderEvents(req, res) {
-        // @ts-ignore
-        const context = req.context;
+    async getCalenderEvents(context) {
         try {
             await Asserts.isAuthenticated(context);
-            const pagination = this.calenderValidator.validatePagination(context.query);
+            const pagination = this.calenderValidator.parsePagination(context.query);
             const { events, meta } = await this.calenderService.get(context.credentials.username, pagination);
-            res.status(200).send({ data: events, meta });
+            return new ApiResponse({ data: events, meta });
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async deleteCalenderEvent(req, res) {
-        // @ts-ignore
-        const context = req.context;
-        context.setParams(req.params);
+    async deleteCalenderEvent(context) {
         try {
             await Asserts.isAuthenticated(context);
-            this.calenderValidator.validateId(context.params.id);
-            await this.calenderService.delete(context.params.id, context.credentials.username);
-            res.status(200).send({ data: null });
+            const eventId = this.calenderValidator.parseId(context.params.id);
+            await this.calenderService.delete(eventId, context.credentials.username);
+            return new ApiResponse();
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
 };
 __decorate([
     Post('/'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], CalenderController.prototype, "createCalenderEvent", null);
 __decorate([
     Get('/'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], CalenderController.prototype, "getCalenderEvents", null);
 __decorate([
     Delete('/:id'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], CalenderController.prototype, "deleteCalenderEvent", null);
 CalenderController = __decorate([

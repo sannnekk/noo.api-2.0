@@ -119,10 +119,6 @@ export class TaskService {
                 errorCount++;
             }
         }
-        return errorCount === 0
-            ? maxScore
-            : errorCount <= 2
-                ? maxScore - 1
-                : 0;
+        return errorCount === 0 ? maxScore : errorCount <= 2 ? maxScore - 1 : 0;
     }
 }

@@ -15,7 +15,7 @@ export class Context {
 
 	private readonly userRepository: UserRepository
 
-	public constructor(req: express.Request, res: express.Response) {
+	public constructor(req: express.Request) {
 		this._req = req
 		this.userRepository = new UserRepository()
 		this.body = req.body
@@ -69,11 +69,6 @@ export class Context {
 		return new Promise((resolve, reject) => {
 			const req = this._req
 			MediaHandler(<any>req, <any>undefined, (error: any) => {
-				console.log('files', req.files)
-				console.log('type', typeof req.files)
-				console.log('isArray', Array.isArray(req.files))
-				console.log(arguments)
-
 				if (req.files && Array.isArray(req.files)) {
 					resolve(req.files)
 				} else {

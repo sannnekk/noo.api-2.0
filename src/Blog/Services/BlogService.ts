@@ -24,7 +24,7 @@ export class BlogService extends Service<BlogPost> {
 	}
 
 	public async getAll(pagination: Pagination, userId: User['id']) {
-		const relations: (keyof BlogPost)[] = ['author']
+		const relations: (keyof BlogPost)[] = ['author', 'poll']
 
 		pagination = new Pagination().assign(pagination)
 		pagination.entriesToSearch = BlogPostModel.entriesToSearch()

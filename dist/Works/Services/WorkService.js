@@ -17,7 +17,9 @@ export class WorkService extends Service {
         return { works, meta };
     }
     async getWorkBySlug(slug) {
-        const work = await this.workRepository.findOne({ slug }, ['tasks'], { tasks: { order: 'ASC' } });
+        const work = await this.workRepository.findOne({ slug }, ['tasks'], {
+            tasks: { order: 'ASC' },
+        });
         if (!work) {
             throw new NotFoundError();
         }
@@ -32,7 +34,8 @@ export class WorkService extends Service {
         }
         return work;
     }
-    async createWork(work) {
+    async createWork(workDTO) {
+        const work = new WorkModel(workDTO);
         return await this.workRepository.create(work);
     }
     async copyWork(workSlug) {
@@ -59,7 +62,7 @@ export class WorkService extends Service {
         }));
         this.workRepository.create(newWork);
     }
-    async updateWork(work) {
+    async updateWork(id, work) {
         const foundWork = await this.workRepository.findOne({ id: work.id });
         if (!foundWork) {
             throw new NotFoundError();
