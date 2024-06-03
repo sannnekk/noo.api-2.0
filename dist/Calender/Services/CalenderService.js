@@ -1,10 +1,10 @@
-import { UserRelationService } from './UserRelationService';
-import { Pagination } from '../../Core/Data/Pagination';
-import { Service } from '../../Core/Services/Service';
-import { UnauthorizedError } from '../../Core/Errors/UnauthorizedError';
-import { CalenderEventRepository } from '../Data/CalenderEventRepository';
-import { CalenderEventModel } from '../Data/CalenderEventModel';
-import { NotFoundError } from '../../Core/Errors/NotFoundError';
+import { UserRelationService } from './UserRelationService.js';
+import { Pagination } from '../../Core/Data/Pagination.js';
+import { Service } from '../../Core/Services/Service.js';
+import { UnauthorizedError } from '../../Core/Errors/UnauthorizedError.js';
+import { CalenderEventRepository } from '../Data/CalenderEventRepository.js';
+import { CalenderEventModel } from '../Data/CalenderEventModel.js';
+import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
 export class CalenderService extends Service {
     calenderEventRepository;
     userRelationService;

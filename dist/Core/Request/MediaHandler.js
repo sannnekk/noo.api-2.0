@@ -1,4 +1,4 @@
-import { MediaOptions } from '../../Media/MediaOptions';
+import { MediaOptions } from '../../Media/MediaOptions.js';
 import multer from 'multer';
 import { v4 as uuid } from 'uuid';
 export const MediaHandler = multer({

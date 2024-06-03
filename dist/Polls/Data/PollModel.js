@@ -7,11 +7,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model } from '../../Core/Data/Model';
+import { Model } from '../../Core/Data/Model.js';
 import { Column, Entity, JoinTable, ManyToMany, OneToMany, OneToOne, RelationId, } from 'typeorm';
-import { PollQuestionModel } from './Relations/PollQuestionModel';
-import { BlogPostModel } from '../../Blog/Data/BlogPostModel';
-import { UserModel } from '../../Users/Data/UserModel';
+import { PollQuestionModel } from './Relations/PollQuestionModel.js';
+import { BlogPostModel } from '../../Blog/Data/BlogPostModel.js';
+import { UserModel } from '../../Users/Data/UserModel.js';
 let PollModel = class PollModel extends Model {
     constructor(data) {
         super();

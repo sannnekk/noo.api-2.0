@@ -8,10 +8,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { Column, Entity, ManyToOne } from 'typeorm';
-import { Model } from '../../Core/Data/Model';
-import { CourseMaterialModel } from '../../Courses/Data/Relations/CourseMaterialModel';
-import { CourseModel } from '../../Courses/Data/CourseModel';
-import { PollAnswerModel } from '../../Polls/Data/Relations/PollAnswerModel';
+import { Model } from '../../Core/Data/Model.js';
+import { CourseMaterialModel } from '../../Courses/Data/Relations/CourseMaterialModel.js';
+import { CourseModel } from '../../Courses/Data/CourseModel.js';
+import { PollAnswerModel } from '../../Polls/Data/Relations/PollAnswerModel.js';
 let MediaModel = class MediaModel extends Model {
     constructor(data) {
         super();

@@ -8,11 +8,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { Controller, Post } from 'express-controller-decorator';
-import * as Asserts from '../Core/Security/asserts';
-import { Context } from '../Core/Request/Context';
-import { StatisticsService } from './Services/StatisticsService';
-import { StatisticsValidator } from './StatisticsValidator';
-import { ApiResponse } from '../Core/Response/ApiResponse';
+import * as Asserts from '../Core/Security/asserts.js';
+import { Context } from '../Core/Request/Context.js';
+import { StatisticsService } from './Services/StatisticsService.js';
+import { StatisticsValidator } from './StatisticsValidator.js';
+import { ApiResponse } from '../Core/Response/ApiResponse.js';
 let StatisticsController = class StatisticsController {
     statisticsService;
     statisticsValidator;

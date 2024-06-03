@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { MediaOptions } from './MediaOptions';
+import { MediaOptions } from './MediaOptions.js';
 export const MediaScheme = z.object({
     src: z.string(),
     name: z.string(),

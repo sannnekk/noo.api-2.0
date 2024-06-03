@@ -5,9 +5,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 import { z } from 'zod';
-import { ErrorConverter } from '../Core/Request/ValidatorDecorator';
-import { Validator } from '../Core/Request/Validator';
-import { UserRoles } from '../Core/Security/roles';
+import { ErrorConverter } from '../Core/Request/ValidatorDecorator.js';
+import { Validator } from '../Core/Request/Validator.js';
+import { UserRoles } from '../Core/Security/roles.js';
 let UserValidator = class UserValidator extends Validator {
     userRoleScheme = z.enum(Object.keys(UserRoles));
     passwordScheme = z

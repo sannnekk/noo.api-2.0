@@ -1,15 +1,15 @@
-import { UserRepository } from '../../Users/Data/UserRepository';
-import { CourseRepository } from './../Data/CourseRepository';
-import { AlreadyExistError } from '../../Core/Errors/AlreadyExistError';
-import { NotFoundError } from '../../Core/Errors/NotFoundError';
-import { UnknownError } from '../../Core/Errors/UnknownError';
-import { Pagination } from '../../Core/Data/Pagination';
-import { Service } from '../../Core/Services/Service';
+import { UserRepository } from '../../Users/Data/UserRepository.js';
+import { CourseRepository } from './../Data/CourseRepository.js';
+import { AlreadyExistError } from '../../Core/Errors/AlreadyExistError.js';
+import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
+import { UnknownError } from '../../Core/Errors/UnknownError.js';
+import { Pagination } from '../../Core/Data/Pagination.js';
+import { Service } from '../../Core/Services/Service.js';
 import { QueryFailedError } from 'typeorm';
-import { CourseModel } from '../Data/CourseModel';
-import { CourseMaterialRepository } from '../Data/CourseMaterialRepository';
-import { AssignedWorkService } from '../../AssignedWorks/Services/AssignedWorkService';
-import { AssignedWorkRepository } from '../../AssignedWorks/Data/AssignedWorkRepository';
+import { CourseModel } from '../Data/CourseModel.js';
+import { CourseMaterialRepository } from '../Data/CourseMaterialRepository.js';
+import { AssignedWorkService } from '../../AssignedWorks/Services/AssignedWorkService.js';
+import { AssignedWorkRepository } from '../../AssignedWorks/Data/AssignedWorkRepository.js';
 export class CourseService extends Service {
     courseRepository;
     materialRepository;

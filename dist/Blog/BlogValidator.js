@@ -8,10 +8,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { z } from 'zod';
-import { Validator } from '../Core/Request/Validator';
-import { Reactions } from './Data/BlogPost';
-import { PollValidator } from '../Polls/PollValidator';
-import { ErrorConverter } from '../Core/Request/ValidatorDecorator';
+import { Validator } from '../Core/Request/Validator.js';
+import { Reactions } from './Data/BlogPost.js';
+import { PollValidator } from '../Polls/PollValidator.js';
+import { ErrorConverter } from '../Core/Request/ValidatorDecorator.js';
 let BlogValidator = class BlogValidator extends Validator {
     pollValidator;
     constructor() {

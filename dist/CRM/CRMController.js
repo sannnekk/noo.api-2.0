@@ -8,10 +8,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { Controller, Post } from 'express-controller-decorator';
-import { DealsService } from './Services/DealsService';
-import { Context } from '../Core/Request/Context';
-import CrmAsserts from './Security/CrmAsserts';
-import { ApiResponse } from '../Core/Response/ApiResponse';
+import { DealsService } from './Services/DealsService.js';
+import { Context } from '../Core/Request/Context.js';
+import CrmAsserts from './Security/CrmAsserts.js';
+import { ApiResponse } from '../Core/Response/ApiResponse.js';
 let CRMController = class CRMController {
     dealsService;
     constructor() {

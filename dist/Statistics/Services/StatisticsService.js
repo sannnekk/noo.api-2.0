@@ -1,10 +1,10 @@
-import { AssignedWorkRepository } from './../../AssignedWorks/Data/AssignedWorkRepository';
-import { UserRepository } from '../../Users/Data/UserRepository';
-import { WrongRoleError } from '../../core/Errors/WrongRoleError';
+import { AssignedWorkRepository } from './../../AssignedWorks/Data/AssignedWorkRepository.js';
+import { UserRepository } from '../../Users/Data/UserRepository.js';
+import { WrongRoleError } from '../../core/Errors/WrongRoleError.js';
 import { Brackets } from 'typeorm';
-import { PlotService } from './PlotService';
-import { AssignedWorkModel } from '../../AssignedWorks/Data/AssignedWorkModel';
-import { UserModel } from '../../Users/Data/UserModel';
+import { PlotService } from './PlotService.js';
+import { AssignedWorkModel } from '../../AssignedWorks/Data/AssignedWorkModel.js';
+import { UserModel } from '../../Users/Data/UserModel.js';
 export class StatisticsService {
     assignedWorkRepository;
     userRepository;

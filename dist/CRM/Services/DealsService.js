@@ -1,7 +1,7 @@
-import { Service } from '../../Core/Services/Service';
-import { NotFoundError } from '../../Core/Errors/NotFoundError';
-import { CourseRequestModel } from '../Data/CourseRequestModel';
-import { CourseRequestRepository } from '../Data/CourseRequestRepository';
+import { Service } from '../../Core/Services/Service.js';
+import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
+import { CourseRequestModel } from '../Data/CourseRequestModel.js';
+import { CourseRequestRepository } from '../Data/CourseRequestRepository.js';
 export class DealsService extends Service {
     courseRequestRepository;
     constructor() {

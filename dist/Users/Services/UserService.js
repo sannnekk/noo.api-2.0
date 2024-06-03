@@ -1,15 +1,15 @@
-import * as Hash from '../../Core/Security/hash';
-import * as JWT from '../../Core/Security/jwt';
-import { UnauthenticatedError } from '../../core/Errors/UnauthenticatedError';
-import { NotFoundError } from '../../Core/Errors/NotFoundError';
-import { AlreadyExistError } from '../../Core/Errors/AlreadyExistError';
-import { UnknownError } from '../../Core/Errors/UnknownError';
-import { Pagination } from '../../Core/Data/Pagination';
-import { Service } from '../../Core/Services/Service';
-import { EmailService } from '../../Core/Email/EmailService';
-import { UserRepository } from '../Data/UserRepository';
-import { UserModel } from '../Data/UserModel';
-import { InvalidVerificationTokenError } from '../Errors/InvalidVerificationTokenError';
+import * as Hash from '../../Core/Security/hash.js';
+import * as JWT from '../../Core/Security/jwt.js';
+import { UnauthenticatedError } from '../../core/Errors/UnauthenticatedError.js';
+import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
+import { AlreadyExistError } from '../../Core/Errors/AlreadyExistError.js';
+import { UnknownError } from '../../Core/Errors/UnknownError.js';
+import { Pagination } from '../../Core/Data/Pagination.js';
+import { Service } from '../../Core/Services/Service.js';
+import { EmailService } from '../../Core/Email/EmailService.js';
+import { UserRepository } from '../Data/UserRepository.js';
+import { UserModel } from '../Data/UserModel.js';
+import { InvalidVerificationTokenError } from '../Errors/InvalidVerificationTokenError.js';
 import { v4 as uuid } from 'uuid';
 export class UserService extends Service {
     userRepository;

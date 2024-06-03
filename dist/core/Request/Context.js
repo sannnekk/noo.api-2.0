@@ -1,7 +1,7 @@
-import { UserRepository } from '../../Users/Data/UserRepository';
-import { parseHeader } from '../Security/jwt';
-import { RoleChangedButNotReloggedInError } from '../Errors/RoleChangedButNotReloggedInError';
-import { MediaHandler } from './MediaHandler';
+import { UserRepository } from '../../Users/Data/UserRepository.js';
+import { parseHeader } from '../Security/jwt.js';
+import { RoleChangedButNotReloggedInError } from '../Errors/RoleChangedButNotReloggedInError.js';
+import { MediaHandler } from './MediaHandler.js';
 export class Context {
     params;
     body;

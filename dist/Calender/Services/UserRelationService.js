@@ -1,5 +1,5 @@
-import { UserRepository } from '../../Users/Data/UserRepository';
-import { NotFoundError } from '../../Core/Errors/NotFoundError';
+import { UserRepository } from '../../Users/Data/UserRepository.js';
+import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
 export class UserRelationService {
     userRepository;
     visibilities = {

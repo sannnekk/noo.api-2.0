@@ -1,5 +1,5 @@
-import { Repository } from '../../Core/Data/Repository';
-import { AssignedWorkCommentModel } from './Relations/AssignedWorkCommentModel';
+import { Repository } from '../../Core/Data/Repository.js';
+import { AssignedWorkCommentModel } from './Relations/AssignedWorkCommentModel.js';
 export class AssignedWorkCommentRepository extends Repository {
     constructor() {
         super(AssignedWorkCommentModel);

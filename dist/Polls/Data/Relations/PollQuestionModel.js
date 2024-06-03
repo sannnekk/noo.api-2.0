@@ -7,10 +7,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model } from '../../../Core/Data/Model';
+import { Model } from '../../../Core/Data/Model.js';
 import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm';
-import { PollModel } from '../PollModel';
-import { PollAnswerModel } from './PollAnswerModel';
+import { PollModel } from '../PollModel.js';
+import { PollAnswerModel } from './PollAnswerModel.js';
 let PollQuestionModel = class PollQuestionModel extends Model {
     constructor(data) {
         super();

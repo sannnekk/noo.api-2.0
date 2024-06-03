@@ -1,6 +1,6 @@
-import { UnauthenticatedError } from '../Errors/UnauthenticatedError';
-import { UnauthorizedError } from '../Errors/UnauthorizedError';
-import { WrongRoleError } from '../Errors/WrongRoleError';
+import { UnauthenticatedError } from '../Errors/UnauthenticatedError.js';
+import { UnauthorizedError } from '../Errors/UnauthorizedError.js';
+import { WrongRoleError } from '../Errors/WrongRoleError.js';
 export function student(context) {
     if (context.credentials?.role !== 'student') {
         throw new WrongRoleError();
