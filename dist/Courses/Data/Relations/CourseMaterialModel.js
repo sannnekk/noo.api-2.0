@@ -8,12 +8,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { Column, Entity, ManyToOne, OneToMany, RelationId, } from 'typeorm';
-import { Model } from '../../../Core/Data/Model.js';
-import * as ULID from '../../../Core/Data/Ulid.js';
-import * as Transliteration from '../../../Core/Utils/transliteration.js';
-import { CourseChapterModel } from './CourseChapterModel.js';
-import { WorkModel } from '../../../Works/Data/WorkModel.js';
-import { MediaModel } from '../../../Media/Data/MediaModel.js';
+import { Model } from '../../../Core/Data/Model';
+import * as ULID from '../../../Core/Data/Ulid';
+import * as Transliteration from '../../../Core/Utils/transliteration';
+import { CourseChapterModel } from './CourseChapterModel';
+import { WorkModel } from '../../../Works/Data/WorkModel';
+import { MediaModel } from '../../../Media/Data/MediaModel';
 let CourseMaterialModel = class CourseMaterialModel extends Model {
     constructor(data) {
         super();

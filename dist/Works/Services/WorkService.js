@@ -1,8 +1,8 @@
-import { Service } from '../../Core/Services/Service.js';
-import { Pagination } from '../../Core/Data/Pagination.js';
-import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
-import { WorkRepository } from '../Data/WorkRepository.js';
-import { WorkModel } from '../Data/WorkModel.js';
+import { Service } from '../../Core/Services/Service';
+import { Pagination } from '../../Core/Data/Pagination';
+import { NotFoundError } from '../../Core/Errors/NotFoundError';
+import { WorkRepository } from '../Data/WorkRepository';
+import { WorkModel } from '../Data/WorkModel';
 export class WorkService extends Service {
     workRepository;
     constructor() {

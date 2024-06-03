@@ -7,10 +7,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model } from '../../../Core/Data/Model.js';
+import { Model } from '../../../Core/Data/Model';
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
-import { BlogPostModel } from '../BlogPostModel.js';
-import { UserModel } from '../../../Users/Data/UserModel.js';
+import { BlogPostModel } from '../BlogPostModel';
+import { UserModel } from '../../../Users/Data/UserModel';
 let BlogPostReactionModel = class BlogPostReactionModel extends Model {
     constructor(data) {
         super();

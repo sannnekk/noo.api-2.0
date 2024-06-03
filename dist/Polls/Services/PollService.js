@@ -1,14 +1,14 @@
-import { Service } from '../../Core/Services/Service.js';
-import { PollRepository } from '../Data/PollRepository.js';
-import { PollAnswerRepository } from '../Data/PollAnswerRepository.js';
-import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
-import { Pagination } from '../../Core/Data/Pagination.js';
-import { PollAnswerModel } from '../Data/Relations/PollAnswerModel.js';
-import { AlreadyVotedError } from '../Errors/AlreadyVotedError.js';
-import { CantVoteInPollError } from '../Errors/CantVoteInPollError.js';
-import { UnauthorizedError } from '../../core/Errors/UnauthorizedError.js';
-import { UserRepository } from '../../Users/Data/UserRepository.js';
-import { UserModel } from '../../Users/Data/UserModel.js';
+import { Service } from '../../Core/Services/Service';
+import { PollRepository } from '../Data/PollRepository';
+import { PollAnswerRepository } from '../Data/PollAnswerRepository';
+import { NotFoundError } from '../../Core/Errors/NotFoundError';
+import { Pagination } from '../../Core/Data/Pagination';
+import { PollAnswerModel } from '../Data/Relations/PollAnswerModel';
+import { AlreadyVotedError } from '../Errors/AlreadyVotedError';
+import { CantVoteInPollError } from '../Errors/CantVoteInPollError';
+import { UnauthorizedError } from '../../core/Errors/UnauthorizedError';
+import { UserRepository } from '../../Users/Data/UserRepository';
+import { UserModel } from '../../Users/Data/UserModel';
 export class PollService extends Service {
     pollRepository;
     pollAnswerRepository;

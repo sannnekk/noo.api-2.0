@@ -8,11 +8,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { Controller, Get, Patch, Post, } from 'express-controller-decorator';
-import { PollValidator } from './PollValidator.js';
-import { PollService } from './Services/PollService.js';
-import { Context } from '../Core/Request/Context.js';
-import { ApiResponse } from '../Core/Response/ApiResponse.js';
-import * as Asserts from '../Core/Security/asserts.js';
+import { PollValidator } from './PollValidator';
+import { PollService } from './Services/PollService';
+import { Context } from '../Core/Request/Context';
+import { ApiResponse } from '../Core/Response/ApiResponse';
+import * as Asserts from '../Core/Security/asserts';
 let PollController = class PollController {
     pollService;
     pollValidator;

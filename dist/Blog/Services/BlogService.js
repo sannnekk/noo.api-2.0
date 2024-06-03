@@ -1,13 +1,13 @@
-import { Service } from '../../Core/Services/Service.js';
-import { BlogPostRepository } from '../Data/BlogPostRepository.js';
-import { Pagination } from '../../Core/Data/Pagination.js';
-import { BlogPostModel } from '../Data/BlogPostModel.js';
-import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
+import { Service } from '../../Core/Services/Service';
+import { BlogPostRepository } from '../Data/BlogPostRepository';
+import { Pagination } from '../../Core/Data/Pagination';
+import { BlogPostModel } from '../Data/BlogPostModel';
+import { NotFoundError } from '../../Core/Errors/NotFoundError';
 import { QueryFailedError } from 'typeorm';
-import { AlreadyExistError } from '../../Core/Errors/AlreadyExistError.js';
-import { UnknownError } from '../../Core/Errors/UnknownError.js';
-import { BlogPostReactionRepository } from '../Data/Relations/BlogPostReactionRepository.js';
-import { BlogPostReactionModel } from '../Data/Relations/BlogPostReactionModel.js';
+import { AlreadyExistError } from '../../Core/Errors/AlreadyExistError';
+import { UnknownError } from '../../Core/Errors/UnknownError';
+import { BlogPostReactionRepository } from '../Data/Relations/BlogPostReactionRepository';
+import { BlogPostReactionModel } from '../Data/Relations/BlogPostReactionModel';
 export class BlogService extends Service {
     repository;
     reactionRepository;

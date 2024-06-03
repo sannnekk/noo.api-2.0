@@ -7,12 +7,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Context } from '../core/Request/Context.js';
-import { UserService } from './Services/UserService.js';
-import { UserValidator } from './UserValidator.js';
-import * as Asserts from '../core/Security/asserts.js';
+import { Context } from '../core/Request/Context';
+import { UserService } from './Services/UserService';
+import { UserValidator } from './UserValidator';
+import * as Asserts from '../core/Security/asserts';
 import { Controller, Delete, Get, Patch, Post, } from 'express-controller-decorator';
-import { ApiResponse } from '../Core/Response/ApiResponse.js';
+import { ApiResponse } from '../Core/Response/ApiResponse';
 let UserController = class UserController {
     userValidator;
     userService;

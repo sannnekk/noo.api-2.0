@@ -7,12 +7,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { BlogValidator } from './BlogValidator.js';
+import { BlogValidator } from './BlogValidator';
 import { Controller, Get, Post, Patch, Delete, } from 'express-controller-decorator';
-import { BlogService } from './Services/BlogService.js';
-import * as Asserts from '../core/Security/asserts.js';
-import { Context } from '../Core/Request/Context.js';
-import { ApiResponse } from '../Core/Response/ApiResponse.js';
+import { BlogService } from './Services/BlogService';
+import * as Asserts from '../core/Security/asserts';
+import { Context } from '../Core/Request/Context';
+import { ApiResponse } from '../Core/Response/ApiResponse';
 let BlogController = class BlogController {
     blogService;
     blogValidator;

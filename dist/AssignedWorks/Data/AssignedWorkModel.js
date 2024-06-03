@@ -7,14 +7,14 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model } from '../../Core/Data/Model.js';
-import * as ULID from '../../Core/Data/Ulid.js';
+import { Model } from '../../Core/Data/Model';
+import * as ULID from '../../Core/Data/Ulid';
 import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, RelationId, } from 'typeorm';
-import { UserModel } from '../../Users/Data/UserModel.js';
-import { WorkModel } from '../../Works/Data/WorkModel.js';
-import { AssignedWorkAnswerModel } from './Relations/AssignedWorkAnswerModel.js';
-import { AssignedWorkCommentModel } from './Relations/AssignedWorkCommentModel.js';
-import { CalenderEventModel } from '../../Calender/Data/CalenderEventModel.js';
+import { UserModel } from '../../Users/Data/UserModel';
+import { WorkModel } from '../../Works/Data/WorkModel';
+import { AssignedWorkAnswerModel } from './Relations/AssignedWorkAnswerModel';
+import { AssignedWorkCommentModel } from './Relations/AssignedWorkCommentModel';
+import { CalenderEventModel } from '../../Calender/Data/CalenderEventModel';
 let AssignedWorkModel = class AssignedWorkModel extends Model {
     constructor(data) {
         super();

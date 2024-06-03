@@ -1,5 +1,5 @@
-import { Repository } from '../../Core/Data/Repository.js';
-import { CourseMaterialModel } from './Relations/CourseMaterialModel.js';
+import { Repository } from '../../Core/Data/Repository';
+import { CourseMaterialModel } from './Relations/CourseMaterialModel';
 export class CourseMaterialRepository extends Repository {
     constructor() {
         super(CourseMaterialModel);

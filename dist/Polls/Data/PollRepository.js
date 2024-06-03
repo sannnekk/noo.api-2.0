@@ -1,5 +1,5 @@
-import { Repository } from '../../Core/Data/Repository.js';
-import { PollModel } from './PollModel.js';
+import { Repository } from '../../Core/Data/Repository';
+import { PollModel } from './PollModel';
 export class PollRepository extends Repository {
     constructor() {
         super(PollModel);

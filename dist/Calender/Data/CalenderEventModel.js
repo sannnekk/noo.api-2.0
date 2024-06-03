@@ -7,9 +7,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model } from '../../Core/Data/Model.js';
+import { Model } from '../../Core/Data/Model';
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
-import { AssignedWorkModel } from '../../AssignedWorks/Data/AssignedWorkModel.js';
+import { AssignedWorkModel } from '../../AssignedWorks/Data/AssignedWorkModel';
 let CalenderEventModel = class CalenderEventModel extends Model {
     constructor(data) {
         super();
