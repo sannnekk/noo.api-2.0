@@ -7,78 +7,49 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { ErrorConverter } from '../Core/Request/ValidatorDecorator.js';
 import { Validator } from '../Core/Request/Validator.js';
 import { z } from 'zod';
+import { DeltaScheme } from '../Core/Schemas/DeltaScheme.js';
 let WorkValidator = class WorkValidator extends Validator {
-    validateCreation(data) {
-        const schema = z.object({
-            slug: z.string().optional(),
-            name: z
-                .string()
-                .min(1, 'Нет названия работы')
-                .max(100, 'Название работы слишком длинное, максимум 100 символов разрешено'),
-            type: z.enum([
-                'trial-work',
-                'phrase',
-                'mini-test',
-                'test',
-                'second-part',
-            ]),
-            description: z.string().optional(),
-            tasks: z.array(z.object({
-                content: z.any(),
-                highestScore: z.number().int().positive(),
-                type: z.enum([
-                    'text',
-                    'one_choice',
-                    'multiple_choice',
-                    'word',
-                ]),
-                rightAnswer: z.string().optional(),
-                solveHint: z.any().optional(),
-                checkHint: z.any().optional(),
-                checkingStrategy: z
-                    .enum(['type1', 'type2', 'type3', 'type4'])
-                    .optional(),
-            })),
-        });
-        schema.parse(data);
+    workTypeScheme = z.enum([
+        'trial-work',
+        'phrase',
+        'mini-test',
+        'test',
+        'second-part',
+    ]);
+    taskTypeScheme = z.enum([
+        'text',
+        'one_choice',
+        'multiple_choice',
+        'word',
+    ]);
+    checkingStrategyScheme = z.enum(['type1', 'type2', 'type3', 'type4']);
+    taskScheme = z.object({
+        id: z.string().optional(),
+        content: DeltaScheme,
+        order: z.number(),
+        highestScore: z.number().int().positive(),
+        type: this.taskTypeScheme,
+        rightAnswer: z.string().optional(),
+        solveHint: DeltaScheme.optional(),
+        checkHint: DeltaScheme.optional(),
+        checkingStrategy: this.checkingStrategyScheme.optional(),
+    });
+    workScheme = z.object({
+        id: z.string().optional(),
+        slug: z.string().optional(),
+        name: z
+            .string()
+            .min(1, 'Нет названия работы')
+            .max(100, 'Название работы слишком длинное, максимум 100 символов разрешено'),
+        type: this.workTypeScheme,
+        description: z.string().optional(),
+        tasks: z.array(this.taskScheme),
+    });
+    parseCreation(data) {
+        return this.parse(data, this.workScheme.omit({ id: true }));
     }
-    validateUpdate(data) {
-        const schema = z.object({
-            id: z.string().ulid(),
-            slug: z.string().optional(),
-            type: z
-                .enum([
-                'trial-work',
-                'phrase',
-                'mini-test',
-                'test',
-                'second-part',
-            ])
-                .optional(),
-            name: z
-                .string()
-                .min(1, 'Нет названия работы')
-                .max(100, 'Название работы слишком длинное, максимум 100 символов разрешено')
-                .optional(),
-            description: z.string().optional(),
-            tasks: z
-                .array(z.object({
-                id: z.string().ulid().optional(),
-                content: z.any().optional(),
-                type: z
-                    .enum(['text', 'one_choice', 'multiple_choice', 'word'])
-                    .optional(),
-                rightAnswer: z.string().optional().nullable(),
-                solveHint: z.any().optional().nullable(),
-                checkHint: z.any().optional().nullable(),
-                checkingStrategy: z
-                    .enum(['type1', 'type2', 'type3', 'type4'])
-                    .optional(),
-                highestScore: z.number().int().positive().optional(),
-            }))
-                .optional(),
-        });
-        schema.parse(data);
+    parseUpdate(data) {
+        return this.parse(data, this.workScheme);
     }
 };
 WorkValidator = __decorate([

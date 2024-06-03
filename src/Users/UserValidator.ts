@@ -2,198 +2,113 @@ import { z } from 'zod'
 import { ErrorConverter } from '@modules/Core/Request/ValidatorDecorator'
 import { Validator } from '@modules/Core/Request/Validator'
 import { UserRoles } from '@modules/Core/Security/roles'
-import { User } from './Data/User'
-import { LoginCredentials } from './Data/LoginCredentials'
-import { ForgotPasswordCredentials } from './Data/ForgotPasswordCredentials'
+import { LoginDTO } from './DTO/LoginDTO'
+import { ForgotPasswordDTO } from './DTO/ForgotPasswordDTO'
+import { ResendVerificationDTO } from './DTO/ResendVerificationDTO'
+import { VerificationDTO } from './DTO/VerificationDTO'
+import { RegisterDTO } from './DTO/RegisterDTO'
+import { UpdateUserDTO } from './DTO/UpdateUserDTO'
 
 @ErrorConverter()
 export class UserValidator extends Validator {
-	public validateCreation(user: unknown): asserts user is User {
-		const schema = z.object({
-			name: z
-				.string()
-				.min(3, {
-					message: 'ФИО должен быть длиннее двух символов',
-				})
-				.max(255, {
-					message: 'ФИО должен быть короче 32 символов',
-				}),
-			username: z
-				.string()
-				.min(3, {
-					message: 'Никнейм должен быть длиннее двух символов',
-				})
-				.max(32, {
-					message: 'Никнейм должен быть короче 32 символов',
-				})
-				.regex(/^[A-Za-z0-9_-]+$/i),
-			email: z.string().email({ message: 'Неверный формат почты' }),
-			role: z.enum(Object.keys(UserRoles) as any),
-			password: z
-				.string()
-				.min(8, {
-					message: 'Пароль должен быть 8 символов или длиннее',
-				})
-				.max(255, {
-					message: 'Пароль должен быть короче 255 символов',
-				}),
-			isBlocked: z.boolean().optional(),
-			forbidden: z.number().optional(),
+	public userRoleScheme = z.enum(
+		Object.keys(UserRoles) as [string, ...string[]]
+	)
+
+	public passwordScheme = z
+		.string()
+		.min(8, {
+			message: 'Пароль должен быть 8 символов или длиннее',
+		})
+		.max(64, {
+			message: 'Пароль должен быть короче 64 символов',
+		})
+		.regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/, {
+			message:
+				'Пароль должен содержать хотя бы одну цифру, одну заглавную и одну строчную букву',
 		})
 
-		schema.parse(user)
-	}
-
-	public validateLogin(
-		user: unknown
-	): asserts user is LoginCredentials {
-		const schema = z.object({
-			usernameOrEmail: z
-				.string()
-				.min(3, {
-					message: 'Логин должен быть длиннее двух символов',
-				})
-				.max(100, {
-					message: 'Логин должен быть короче 100 символов',
-				}),
-			password: z
-				.string()
-				.min(8, {
-					message: 'Пароль должен быть 8 символов или длиннее',
-				})
-				.max(255, {
-					message: 'Пароль должен быть короче 255 символов',
-				}),
+	public usernameScheme = z
+		.string()
+		.min(3, {
+			message: 'Никнейм должен быть длиннее двух символов',
 		})
-
-		schema.parse(user)
-	}
-
-	public validateVerification(
-		data: unknown
-	): asserts data is { username: string; token: string } {
-		const schema = z.object({
-			username: z
-				.string()
-				.min(3, { message: 'Неверный никнейм' })
-				.max(32, { message: 'Неверный никнейм' }),
-			token: z
-				.string()
-				.min(8, { message: 'Неверный токен' })
-				.max(255, { message: 'Неверный токен' }),
+		.max(32, {
+			message: 'Никнейм должен быть короче 32 символов',
 		})
+		.regex(/^[A-Za-z0-9_-]+$/i)
 
-		schema.parse(data)
-	}
+	public emailScheme = z.string().email({ message: 'Неверный формат почты' })
 
-	public validateResendVerification(
-		data: unknown
-	): asserts data is { email: string } {
-		const schema = z.object({
-			email: z.string().email({
-				message: 'Неверный формат почты',
+	public registerScheme = z.object({
+		name: z
+			.string()
+			.min(3, {
+				message: 'ФИО должен быть длиннее двух символов',
+			})
+			.max(255, {
+				message: 'ФИО должен быть короче 32 символов',
 			}),
-		})
+		username: this.usernameScheme,
+		email: this.emailScheme,
+		password: this.passwordScheme,
+	})
 
-		schema.parse(data)
+	public updateScheme = z.object({
+		id: z.string().ulid(),
+		email: this.emailScheme.optional(),
+		name: z.string().optional(),
+		telegramUsername: z.string().optional(),
+		password: this.passwordScheme.optional(),
+		role: z.nativeEnum(UserRoles).optional(),
+		isBlocked: z.boolean().optional(),
+	})
+
+	public loginScheme = z.object({
+		usernameOrEmail: this.usernameScheme.or(this.emailScheme),
+		password: this.passwordScheme,
+	})
+
+	public verificationScheme = z.object({
+		token: z
+			.string()
+			.min(8, { message: 'Неверный токен' })
+			.max(255, { message: 'Неверный токен' }),
+		username: this.usernameScheme,
+	})
+
+	public resendVerificationScheme = z.object({
+		email: this.emailScheme,
+	})
+
+	public forgotPasswordScheme = z.object({
+		email: this.emailScheme,
+	})
+
+	public parseRegister(data: unknown): RegisterDTO {
+		return this.parse<RegisterDTO>(data, this.registerScheme)
 	}
 
-	public validateRegister(user: unknown): asserts user is User {
-		const schema = z.object({
-			name: z
-				.string()
-				.min(3, {
-					message: 'ФИО должно быть длиннее двух символов',
-				})
-				.max(255, {
-					message: 'ФИО должно быть короче 255 символов',
-				}),
-			username: z
-				.string()
-				.min(3, {
-					message: 'Никнейм должен быть длиннее двух символов',
-				})
-				.max(32, {
-					message: 'Никнейм должен быть короче 32 символов',
-				})
-				.regex(/^[A-Za-z0-9_-]+$/i, {
-					message: 'Неверный формат никнейма',
-				}),
-			email: z.string().email({
-				message: 'Неверный формат почты',
-			}),
-			password: z
-				.string()
-				.min(8, {
-					message: 'Пароль должен быть 8 символов или длиннее',
-				})
-				.max(255, {
-					message: 'Пароль должен быть короче 255 символов',
-				}),
-		})
-
-		schema.parse(user)
+	public parseLogin(user: unknown): LoginDTO {
+		return this.parse<LoginDTO>(user, this.loginScheme)
 	}
 
-	public validateUpdate(user: unknown): asserts user is User {
-		const schema = z.object({
-			id: z.string().ulid(),
-			slug: z.string().min(3).max(32).optional(),
-			name: z
-				.string()
-				.min(3, {
-					message: 'ФИО должно быть длиннее двух символов',
-				})
-				.max(255, {
-					message: 'ФИО должно быть короче 255 символов',
-				})
-				.optional(),
-			username: z
-				.string()
-				.min(3, {
-					message: 'Никнейм должен быть длиннее двух символов',
-				})
-				.max(32, {
-					message: 'Никнейм должен быть короче 32 символов',
-				})
-				.regex(/^[A-Za-z0-9_-]+$/i, {
-					message: 'Неверный формат никнейма',
-				})
-				.optional(),
-			email: z
-				.string()
-				.email({
-					message: 'Неверный формат почты',
-				})
-				.optional(),
-			role: z.enum(Object.keys(UserRoles) as any).optional(),
-			password: z
-				.string()
-				.min(8, {
-					message: 'Пароль должен быть 8 символов или длиннее',
-				})
-				.max(255, {
-					message: 'Пароль должен быть короче 255 символов',
-				})
-				.optional(),
-			isBlocked: z.boolean().optional(),
-			forbidden: z.number().optional(),
-			createdAt: z.date().optional(),
-			updatedAt: z.date().optional(),
-		})
-
-		schema.parse(user)
+	public parseVerification(data: unknown): VerificationDTO {
+		return this.parse<VerificationDTO>(data, this.verificationScheme)
 	}
 
-	public validateForgotPassword(
-		data: unknown
-	): asserts data is ForgotPasswordCredentials {
-		const schema = z.object({
-			email: z.string().email({
-				message: 'Неверный формат почты',
-			}),
-		})
+	public parseResendVerification(data: unknown): ResendVerificationDTO {
+		return this.parse<ResendVerificationDTO>(
+			data,
+			this.resendVerificationScheme
+		)
+	}
 
-		schema.parse(data)
+	public parseUpdate(user: unknown): UpdateUserDTO {
+		return this.parse<UpdateUserDTO>(user, this.updateScheme)
+	}
+
+	public validateForgotPassword(data: unknown): ForgotPasswordDTO {
+		return this.parse<ForgotPasswordDTO>(data, this.forgotPasswordScheme)
 	}
 }

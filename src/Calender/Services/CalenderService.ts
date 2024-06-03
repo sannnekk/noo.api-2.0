@@ -1,5 +1,4 @@
 import { UserRelationService } from './UserRelationService'
-import { UserRepository } from '@modules/Users/Data/UserRepository'
 import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
 import { Pagination } from '@modules/Core/Data/Pagination'
 import { Service } from '@modules/Core/Services/Service'
@@ -9,6 +8,7 @@ import { CalenderEventRepository } from '../Data/CalenderEventRepository'
 import { User } from '@modules/Users/Data/User'
 import { CalenderEventModel } from '../Data/CalenderEventModel'
 import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
+import { EventCreationOptions } from '../DTO/EventCreationOptions'
 
 export class CalenderService extends Service<CalenderEvent> {
 	private readonly calenderEventRepository: CalenderEventRepository
@@ -22,16 +22,16 @@ export class CalenderService extends Service<CalenderEvent> {
 	}
 
 	public async create(
-		event: CalenderEvent,
+		options: EventCreationOptions,
 		username: User['username'],
 		type: CalenderEvent['type'] = 'event'
 	): Promise<CalenderEvent> {
-		return await this.calenderEventRepository.create({
-			...event,
-			username,
-			type,
-			url: event.url || '',
-		})
+		const event = new CalenderEventModel(options)
+
+		event.type = type
+		event.username = username
+
+		return await this.calenderEventRepository.create(event)
 	}
 
 	public async updateDeadlineFromWork(
@@ -39,9 +39,7 @@ export class CalenderService extends Service<CalenderEvent> {
 		type: 'student-deadline' | 'mentor-deadline'
 	): Promise<void> {
 		const newDate =
-			type === 'student-deadline'
-				? work.solveDeadlineAt
-				: work.checkDeadlineAt
+			type === 'student-deadline' ? work.solveDeadlineAt : work.checkDeadlineAt
 
 		const event = await this.calenderEventRepository.findOne({
 			assignedWork: {
@@ -55,16 +53,12 @@ export class CalenderService extends Service<CalenderEvent> {
 		}
 
 		event.date = newDate
-		event.description =
-			event.description + ' (Дедлайн сдивнут на эту дату)'
+		event.description = event.description + ' (Дедлайн сдивнут на эту дату)'
 
 		await this.calenderEventRepository.update(event)
 	}
 
-	public async get(
-		requester: User['username'],
-		pagination?: Pagination
-	) {
+	public async get(requester: User['username'], pagination?: Pagination) {
 		if (!pagination?.getFilter('username')) {
 			throw new UnauthorizedError()
 		}
@@ -138,9 +132,7 @@ export class CalenderService extends Service<CalenderEvent> {
 		await this.calenderEventRepository.delete(id)
 	}
 
-	public async createSolveDeadlineEvent(
-		work: AssignedWork
-	): Promise<void> {
+	public async createSolveDeadlineEvent(work: AssignedWork): Promise<void> {
 		await this.calenderEventRepository.create({
 			title: 'Дедлайн по работе',
 			description: `Работа: ${work.work.name}`,
@@ -153,9 +145,7 @@ export class CalenderService extends Service<CalenderEvent> {
 		} as CalenderEvent)
 	}
 
-	public async createCheckDeadlineEvent(
-		work: AssignedWork
-	): Promise<void> {
+	public async createCheckDeadlineEvent(work: AssignedWork): Promise<void> {
 		await Promise.all(
 			(work.mentors || []).map((mentor) => {
 				return this.calenderEventRepository.create(
@@ -189,9 +179,7 @@ export class CalenderService extends Service<CalenderEvent> {
 		)
 	}
 
-	public async createWorkCheckedEvent(
-		work: AssignedWork
-	): Promise<void> {
+	public async createWorkCheckedEvent(work: AssignedWork): Promise<void> {
 		await Promise.all(
 			(work.mentors || []).map((mentor) => {
 				return this.calenderEventRepository.create(

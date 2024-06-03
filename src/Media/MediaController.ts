@@ -1,10 +1,9 @@
-import { Controller, Post, Req, Res } from '@decorators/express'
+import { Controller, Post } from 'express-controller-decorator'
 import { MediaService } from './Services/MediaService'
 import * as Asserts from '@modules/Core/Security/asserts'
 import { Context } from '@modules/Core/Request/Context'
-import { MediaMiddleware } from '@modules/Core/Request/MediaMiddleware'
-import { getErrorData } from '@modules/Core/Response/helpers'
-import { Request, Response } from 'express'
+import { ApiResponse } from '@modules/Core/Response/ApiResponse'
+import { NoFilesProvidedError } from '@modules/core/Errors/NoFilesProvidedError'
 
 @Controller('/media')
 export class MediaController {
@@ -14,22 +13,22 @@ export class MediaController {
 		this.mediaService = new MediaService()
 	}
 
-	@Post('/', [MediaMiddleware])
-	public async get(@Req() req: Request, @Res() res: Response) {
-		// @ts-ignore
-		const context = req.context as Context
-
+	@Post('/')
+	public async get(context: Context): Promise<ApiResponse> {
 		try {
 			await Asserts.isAuthenticated(context)
 
-			const mediaFiles = await this.mediaService.upload(
-				req.files as Express.Multer.File[]
-			)
+			const requestFiles = await context.getFiles()
 
-			res.status(201).send({ data: mediaFiles })
+			if (!requestFiles?.length) {
+				throw new NoFilesProvidedError()
+			}
+
+			const mediaFiles = await this.mediaService.upload(requestFiles)
+
+			return new ApiResponse({ data: mediaFiles })
 		} catch (error: any) {
-			const { status, message } = getErrorData(error)
-			res.status(status).send({ error: message })
+			return new ApiResponse(error)
 		}
 	}
 }

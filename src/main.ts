@@ -2,52 +2,38 @@ import express from 'express'
 import cors from 'cors'
 import 'reflect-metadata'
 import { CoreDataSource } from '@modules/Core/Data/DataSource'
-import { ContextMiddleware } from '@modules/Core/Request/ContextMiddleware'
-import { attachControllerInstances } from '@decorators/express'
+import {
+	injectControllers,
+	setContextClass,
+} from 'express-controller-decorator'
+import { Context } from '@modules/Core/Request/Context'
 
 // import modules
-import { UserController } from '@modules/Users/UserController'
-import { CourseController } from '@modules/Courses/CourseController'
-import { WorkController } from '@modules/Works/WorkController'
-import { AssignedWorkController } from '@modules/AssignedWorks/AssignedWorkController'
-import { MediaController } from '@modules/Media/MediaController'
-import { CalenderController } from '@modules/Calender/CalenderController'
-import { StatisticsController } from '@modules/Statistics/StatisticsController'
+import '@modules/Users/UserController'
+import '@modules/Courses/CourseController'
+import '@modules/Works/WorkController'
+import '@modules/AssignedWorks/AssignedWorkController'
+import '@modules/Media/MediaController'
+import '@modules/Calender/CalenderController'
+import '@modules/Statistics/StatisticsController'
+import '@modules/Blog/BlogController'
+import '@modules/Polls/PollController'
+import { config } from './config'
 
 await CoreDataSource.initialize()
 
 const app = express()
 
 app.use(cors())
-app.use(
-	express.json({
-		limit: '50mb',
-		reviver: (_, value) => {
-			if (/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)) {
-				return new Date(value)
-			}
+app.use(express.json(config.expressJson))
+app.use(express.urlencoded(config.expressUrlencoded))
 
-			return value
-		},
-	})
-)
-app.use(express.urlencoded({ extended: true, limit: '50mb' }))
-
-//app.use(AccessLogMiddleware)
-app.use(ContextMiddleware)
-
-attachControllerInstances(app, [
-	new UserController(),
-	new CourseController(),
-	new WorkController(),
-	new AssignedWorkController(),
-	new MediaController(),
-	new CalenderController(),
-	new StatisticsController(),
-])
+setContextClass(Context)
+injectControllers(app)
 
 app.listen(process.env.APP_PORT, () =>
 	console.log(`Server is running on port ${process.env.APP_PORT}`)
 )
 
+// for test purposes
 export default app

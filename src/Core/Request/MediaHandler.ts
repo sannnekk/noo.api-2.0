@@ -1,16 +1,17 @@
+import { Media } from '@modules/Media/Data/Media'
+import { MediaOptions } from '@modules/Media/MediaOptions'
 import multer from 'multer'
-import getSlug from 'speakingurl'
 import { v4 as uuid } from 'uuid'
 
-export const MediaMiddleware = multer({
+export const MediaHandler = multer({
 	storage: multer.diskStorage({
 		destination: function (req, file, cb) {
-			cb(null, '/noo-cdn/uploads')
+			cb(null, MediaOptions.fileDestinationFolder)
 		},
 		filename: function (req, file, cb) {
 			let name = uuid() + '-' + uuid()
 
-			switch (file.mimetype) {
+			switch (file.mimetype as Media['mimeType']) {
 				case 'image/jpeg':
 					name += '.jpg'
 					break
@@ -26,7 +27,7 @@ export const MediaMiddleware = multer({
 		},
 	}),
 	fileFilter(req, file, callback) {
-		if (!file.originalname.match(/\.(jpg|jpeg|png|pdf)$/)) {
+		if (!MediaOptions.allowedFileTypes.includes(file.mimetype)) {
 			return callback(
 				new Error(
 					'Только изображения формата JPG/JPEG, PNG и PDF-файлы разрешены.'
@@ -34,15 +35,10 @@ export const MediaMiddleware = multer({
 			)
 		}
 
-		if (file.size > 1024 * 1024 * 50) {
-			return callback(
-				new Error('Слишком большой файл. Максимальный размер 50МБ.')
-			)
-		}
-
 		callback(null, true)
 	},
 	limits: {
-		fileSize: 1024 * 1024 * 50,
+		fileSize: MediaOptions.maxFileSize,
+		files: MediaOptions.maxFileCount,
 	},
 }).array('files')

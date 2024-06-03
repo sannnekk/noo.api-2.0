@@ -1,18 +1,15 @@
 import { WorkService } from './Services/WorkService'
 import { WorkValidator } from './WorkValidator'
 import * as Asserts from '@modules/Core/Security/asserts'
-import { getErrorData } from '@modules/Core/Response/helpers'
 import { Context } from '@modules/Core/Request/Context'
-import { Request, Response } from 'express'
 import {
-	Req,
-	Res,
 	Controller,
 	Delete,
 	Get,
 	Patch,
 	Post,
-} from '@decorators/express'
+} from 'express-controller-decorator'
+import { ApiResponse } from '@modules/Core/Response/ApiResponse'
 
 @Controller('/work')
 export class WorkController {
@@ -25,135 +22,98 @@ export class WorkController {
 	}
 
 	@Get('/')
-	public async getWorks(@Req() req: Request, @Res() res: Response) {
-		// @ts-ignore
-		const context = req.context as Context
-
+	public async getWorks(context: Context): Promise<ApiResponse> {
 		try {
 			await Asserts.isAuthenticated(context)
 			Asserts.teacherOrAdmin(context)
 
-			const pagination = this.workValidator.validatePagination(
-				context.query
-			)
+			const pagination = this.workValidator.parsePagination(context.query)
 
-			const { works, meta } = await this.workService.getWorks(
-				pagination
-			)
+			const { works, meta } = await this.workService.getWorks(pagination)
 
-			res.status(200).send({ data: works, meta })
+			return new ApiResponse({ data: works, meta })
 		} catch (error: any) {
-			const { status, message } = getErrorData(error)
-			res.status(status).send({ error: message })
+			return new ApiResponse(error)
 		}
 	}
 
 	@Get('/:slug')
-	public async getWorkBySlug(
-		@Req() req: Request,
-		@Res() res: Response
-	) {
-		// @ts-ignore
-		const context = req.context as Context
-		context.setParams(req.params)
-
+	public async getWorkBySlug(context: Context): Promise<ApiResponse> {
 		try {
 			await Asserts.isAuthenticated(context)
 
-			this.workValidator.validateSlug(context.params.slug)
+			const workSlug = this.workValidator.parseSlug(context.params.slug)
 
-			const work = await this.workService.getWorkBySlug(
-				context.params.slug
-			)
+			const work = await this.workService.getWorkBySlug(workSlug)
 
-			res.status(200).send({ data: work })
+			return new ApiResponse({ data: work })
 		} catch (error: any) {
-			const { status, message } = getErrorData(error)
-			res.status(status).send({ error: message })
+			return new ApiResponse(error)
 		}
 	}
 
 	@Post('/')
-	public async createWork(@Req() req: Request, @Res() res: Response) {
-		// @ts-ignore
-		const context = req.context as Context
-
+	public async createWork(context: Context): Promise<ApiResponse> {
 		try {
 			await Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
 
-			this.workValidator.validateCreation(context.body)
+			const workDTO = this.workValidator.parseCreation(context.body)
 
-			await this.workService.createWork(context.body)
+			await this.workService.createWork(workDTO)
 
-			res.status(201).send({ data: null })
+			return new ApiResponse()
 		} catch (error: any) {
-			const { status, message } = getErrorData(error)
-			res.status(status).send({ error: message })
+			return new ApiResponse(error)
 		}
 	}
 
 	@Post('/copy/:slug')
-	public async copyWork(@Req() req: Request, @Res() res: Response) {
-		// @ts-ignore
-		const context = req.context as Context
-		context.setParams(req.params)
-
+	public async copyWork(context: Context): Promise<ApiResponse> {
 		try {
 			await Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
 
-			this.workValidator.validateSlug(context.params.slug)
+			const workSlug = this.workValidator.parseSlug(context.params.slug)
 
-			await this.workService.copyWork(context.params.slug)
+			await this.workService.copyWork(workSlug)
 
-			res.status(201).send({ data: null })
+			return new ApiResponse()
 		} catch (error: any) {
-			const { status, message } = getErrorData(error)
-			res.status(status).send({ error: message })
+			return new ApiResponse(error)
 		}
 	}
 
 	@Patch('/:id')
-	public async updateWork(@Req() req: Request, @Res() res: Response) {
-		// @ts-ignore
-		const context = req.context as Context
-		context.setParams(req.params)
-
+	public async updateWork(context: Context): Promise<ApiResponse> {
 		try {
 			await Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
 
-			this.workValidator.validateUpdate(context.body)
-			this.workValidator.validateId(context.params.id)
+			const workDTO = this.workValidator.parseUpdate(context.body)
+			const id = this.workValidator.parseId(context.params.id)
 
-			await this.workService.updateWork(context.body)
+			await this.workService.updateWork(id, workDTO)
 
-			res.status(201).send({ data: null })
+			return new ApiResponse()
 		} catch (error: any) {
-			const { status, message } = getErrorData(error)
-			res.status(status).send({ error: message })
+			return new ApiResponse(error)
 		}
 	}
 
 	@Delete('/:id')
-	public async deleteWork(@Req() req: Request, @Res() res: Response) {
-		// @ts-ignore
-		const context = req.context as Context
-		context.setParams(req.params)
-
+	public async deleteWork(context: Context): Promise<ApiResponse> {
 		try {
 			await Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
 
-			this.workValidator.validateId(context.params.id)
+			const id = this.workValidator.parseId(context.params.id)
 
-			await this.workService.deleteWork(context.params.id)
+			await this.workService.deleteWork(id)
 
-			res.status(200).send({ data: null })
+			return new ApiResponse()
 		} catch (error: any) {
-			const { status, message } = getErrorData(error)
-			res.status(status).send({ error: message })
+			return new ApiResponse(error)
 		}
 	}
 }

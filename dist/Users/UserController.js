@@ -7,14 +7,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
+import { Context } from '../core/Request/Context.js';
 import { UserService } from './Services/UserService.js';
 import { UserValidator } from './UserValidator.js';
 import * as Asserts from '../core/Security/asserts.js';
-import { getErrorData } from '../core/Response/helpers.js';
-import { Req, Res, Controller, Delete, Get, Patch, Post, } from '@decorators/express';
+import { Controller, Delete, Get, Patch, Post, } from 'express-controller-decorator';
+import { ApiResponse } from '../Core/Response/ApiResponse.js';
 let UserController = class UserController {
     userValidator;
     userService;
@@ -22,395 +20,286 @@ let UserController = class UserController {
         this.userValidator = new UserValidator();
         this.userService = new UserService();
     }
-    async create(req, res) {
-        // @ts-ignore
-        const context = req.context;
+    async login(context) {
         try {
-            this.userValidator.validateCreation(context.body);
-            await Asserts.isAuthenticated(context);
-            Asserts.teacherOrAdmin(context);
-            await this.userService.create(context.body);
-            res.status(201).send({ data: null });
+            const loginDTO = this.userValidator.parseLogin(context.body);
+            const payload = await this.userService.login(loginDTO);
+            return new ApiResponse({ data: payload });
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async login(req, res) {
-        // @ts-ignore
-        const context = req.context;
+    async register(context) {
         try {
-            this.userValidator.validateLogin(context.body);
-            const payload = await this.userService.login(context.body);
-            res.status(200).send({ data: payload });
+            const registerDTO = this.userValidator.parseRegister(context.body);
+            await this.userService.register(registerDTO);
+            return new ApiResponse();
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async register(req, res) {
-        // @ts-ignore
-        const context = req.context;
+    async checkUsername(context) {
         try {
-            this.userValidator.validateRegister(context.body);
-            await this.userService.register(context.body);
-            res.status(201).send({ data: null });
+            const username = this.userValidator.parseSlug(context.params.username);
+            const exists = await this.userService.checkUsername(username);
+            return new ApiResponse({ data: { exists } });
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async checkUsername(req, res) {
-        // @ts-ignore
-        const context = req.context;
-        context.setParams(req.params);
+    async resendVerification(context) {
         try {
-            this.userValidator.validateSlug(context.params.username);
-            const exists = await this.userService.checkUsername(context.params.username);
-            res.status(200).send({ data: exists });
+            const resendVerificationDTO = this.userValidator.parseResendVerification(context.body);
+            await this.userService.resendVerification(resendVerificationDTO.email);
+            return new ApiResponse();
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async resendVerification(req, res) {
-        // @ts-ignore
-        const context = req.context;
+    async verify(context) {
         try {
-            this.userValidator.validateResendVerification(context.body);
-            await this.userService.resendVerification(context.body.email);
-            res.status(201).send({ data: null });
+            const verificationDTO = this.userValidator.parseVerification(context.body);
+            await this.userService.verify(verificationDTO.username, verificationDTO.token);
+            return new ApiResponse();
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async verify(req, res) {
-        // @ts-ignore
-        const context = req.context;
+    async forgotPassword(context) {
         try {
-            this.userValidator.validateVerification(context.body);
-            await this.userService.verify(context.body.username, context.body.token);
-            res.status(201).send({ data: null });
+            const forgotPasswordDTO = this.userValidator.validateForgotPassword(context.body);
+            await this.userService.forgotPassword(forgotPasswordDTO.email);
+            return new ApiResponse();
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async forgotPassword(req, res) {
-        // @ts-ignore
-        const context = req.context;
-        try {
-            this.userValidator.validateForgotPassword(context.body);
-            await this.userService.forgotPassword(context.body.email);
-            res.status(201).send({ data: null });
-        }
-        catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
-        }
-    }
-    async getByUsername(req, res) {
-        // @ts-ignore
-        const context = req.context;
-        context.setParams(req.params);
+    async getByUsername(context) {
         try {
             await Asserts.isAuthenticated(context);
-            this.userValidator.validateSlug(context.params.username);
-            const user = await this.userService.getByUsername(context.params.username);
-            res.status(200).send({ data: user });
+            const username = this.userValidator.parseSlug(context.params.username);
+            const user = await this.userService.getByUsername(username);
+            return new ApiResponse({ data: user });
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async verifyManual(req, res) {
-        // @ts-ignore
-        const context = req.context;
-        context.setParams(req.params);
+    async verifyManual(context) {
         try {
             await Asserts.isAuthenticated(context);
             Asserts.teacherOrAdmin(context);
-            this.userValidator.validateSlug(context.params.username);
-            await this.userService.verifyManual(context.params.username);
-            res.status(201).send({ data: null });
+            const username = this.userValidator.parseSlug(context.params.username);
+            await this.userService.verifyManual(username);
+            return new ApiResponse();
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async getMentors(req, res) {
-        // @ts-ignore
-        const context = req.context;
+    async getMentors(context) {
         try {
             await Asserts.isAuthenticated(context);
             Asserts.notStudent(context);
-            const pagination = this.userValidator.validatePagination(context.query);
+            const pagination = this.userValidator.parsePagination(context.query);
             const { mentors, meta } = await this.userService.getMentors(pagination);
-            res.status(200).send({ data: mentors, meta });
+            return new ApiResponse({ data: mentors, meta });
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async getTeachers(req, res) {
-        // @ts-ignore
-        const context = req.context;
+    async getTeachers(context) {
         try {
             await Asserts.isAuthenticated(context);
             Asserts.notStudent(context);
-            const pagination = this.userValidator.validatePagination(context.query);
+            const pagination = this.userValidator.parsePagination(context.query);
             const { teachers, meta } = await this.userService.getTeachers(pagination);
-            res.status(200).send({ data: teachers, meta });
+            return new ApiResponse({ data: teachers, meta });
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async getStudents(req, res) {
-        // @ts-ignore
-        const context = req.context;
+    async getStudents(context) {
         try {
             await Asserts.isAuthenticated(context);
             Asserts.notStudent(context);
-            const pagination = this.userValidator.validatePagination(context.query);
+            const pagination = this.userValidator.parsePagination(context.query);
             const { students, meta } = await this.userService.getStudents(pagination);
-            res.status(200).send({ data: students, meta });
+            return new ApiResponse({ data: students, meta });
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async getMyStudents(req, res) {
-        // @ts-ignore
-        const context = req.context;
+    async getMyStudents(context) {
         try {
             await Asserts.isAuthenticated(context);
             Asserts.mentor(context);
-            const pagination = this.userValidator.validatePagination(context.query);
+            const pagination = this.userValidator.parsePagination(context.query);
             const { students, meta } = await this.userService.getStudentsOf(context.credentials.userId, pagination);
-            res.status(200).send({ data: students, meta });
+            return new ApiResponse({ data: students, meta });
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async getUsers(req, res) {
-        // @ts-ignore
-        const context = req.context;
+    async getUsers(context) {
         try {
             await Asserts.isAuthenticated(context);
             Asserts.notStudent(context);
-            const pagination = this.userValidator.validatePagination(context.query);
+            const pagination = this.userValidator.parsePagination(context.query);
             const { users, meta } = await this.userService.getUsers(pagination);
-            res.status(200).send({ data: users, meta });
+            return new ApiResponse({ data: users, meta });
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async update(req, res) {
-        // @ts-ignore
-        const context = req.context;
-        context.setParams(req.params);
+    async update(context) {
         try {
             await Asserts.isAuthenticated(context);
-            this.userValidator.validateId(context.params.id);
-            this.userValidator.validateUpdate(context.body);
+            const id = this.userValidator.parseId(context.params.id);
+            const updateUserDTO = this.userValidator.parseUpdate(context.body);
             if (!['teacher', 'admin'].includes(context.credentials.role)) {
-                Asserts.isAuthorized(context, context.params.id);
-                context.body.role = undefined;
+                Asserts.isAuthorized(context, id);
+                updateUserDTO.role = undefined;
             }
-            await this.userService.update(context.body);
-            res.status(200).send({ data: null });
+            await this.userService.update(id, updateUserDTO, context.credentials.role);
+            return new ApiResponse();
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async assignMentor(req, res) {
-        // @ts-ignore
-        const context = req.context;
-        context.setParams(req.params);
+    async assignMentor(context) {
         try {
             Asserts.notStudent(context);
-            this.userValidator.validateId(context.params.studentId);
-            this.userValidator.validateId(context.params.mentorId);
-            await this.userService.assignMentor(context.params.studentId, context.params.mentorId);
-            res.status(201).send({ data: null });
+            const studentId = this.userValidator.parseId(context.params.studentId);
+            const mentorId = this.userValidator.parseId(context.params.mentorId);
+            await this.userService.assignMentor(studentId, mentorId);
+            return new ApiResponse();
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
-    async delete(req, res) {
-        // @ts-ignore
-        const context = req.context;
-        context.setParams(req.params);
+    async delete(context) {
         try {
             await Asserts.isAuthenticated(context);
-            this.userValidator.validateId(context.params.id);
+            const id = this.userValidator.parseId(context.params.id);
             if (!['teacher', 'admin'].includes(context.credentials.role)) {
-                Asserts.isAuthorized(context, context.params.id);
+                Asserts.isAuthorized(context, id);
             }
-            await this.userService.delete(context.params.id);
-            res.status(200).send({ data: null });
+            await this.userService.delete(id);
+            return new ApiResponse();
         }
         catch (error) {
-            const { status, message } = getErrorData(error);
-            res.status(status).send({ error: message });
+            return new ApiResponse(error);
         }
     }
 };
 __decorate([
-    Post('/'),
-    __param(0, Req()),
-    __param(1, Res()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
-    __metadata("design:returntype", Promise)
-], UserController.prototype, "create", null);
-__decorate([
     Post('/auth/login'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "login", null);
 __decorate([
     Post('/auth/register'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "register", null);
 __decorate([
     Get('/auth/check-username/:username'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "checkUsername", null);
 __decorate([
     Post('/auth/resend-verification'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "resendVerification", null);
 __decorate([
     Patch('/auth/verify'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "verify", null);
 __decorate([
     Post('/auth/forgot-password'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "forgotPassword", null);
 __decorate([
     Get('/:username'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "getByUsername", null);
 __decorate([
     Patch('/:username/verify-manual'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "verifyManual", null);
 __decorate([
     Get('/mentor/search'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "getMentors", null);
 __decorate([
     Get('/teacher/search'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "getTeachers", null);
 __decorate([
     Get('/student/search'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "getStudents", null);
 __decorate([
     Get('/student/search/own'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "getMyStudents", null);
 __decorate([
     Get('/'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "getUsers", null);
 __decorate([
     Patch('/:id'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "update", null);
 __decorate([
     Patch('/:studentId/assign-mentor/:mentorId'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "assignMentor", null);
 __decorate([
     Delete('/:id'),
-    __param(0, Req()),
-    __param(1, Res()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "delete", null);
 UserController = __decorate([

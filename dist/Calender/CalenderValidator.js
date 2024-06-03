@@ -8,24 +8,24 @@ import { ErrorConverter } from '../Core/Request/ValidatorDecorator.js';
 import { Validator } from '../Core/Request/Validator.js';
 import { z } from 'zod';
 let CalenderValidator = class CalenderValidator extends Validator {
-    validateEventCreation(event) {
-        const schema = z.object({
-            title: z
-                .string()
-                .min(1, 'Название события не должно быть пустым')
-                .max(255, 'Название события не должно превышать 255 символов'),
-            description: z.string().optional(),
-            date: z.date(),
-            url: z.string().url().optional(),
-            visibility: z.enum([
-                'all',
-                'own-students',
-                'all-mentors',
-                'own-mentor',
-                'private',
-            ]),
-        });
-        schema.parse(event);
+    eventVisibilityScheme = z.enum([
+        'all',
+        'own-students',
+        'all-mentors',
+        'own-mentor',
+        'private',
+    ]);
+    eventCreationScheme = z.object({
+        title: z
+            .string()
+            .min(1, 'Название события не должно быть пустым')
+            .max(255, 'Название события не должно превышать 255 символов'),
+        description: z.string().optional(),
+        date: z.date(),
+        visibility: this.eventVisibilityScheme,
+    });
+    parseEventCreation(event) {
+        return this.parse(event, this.eventCreationScheme);
     }
 };
 CalenderValidator = __decorate([

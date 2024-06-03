@@ -14,7 +14,8 @@ export class StatisticsService {
         this.userRepository = new UserRepository();
         this.plotService = new PlotService();
     }
-    async getStatistics(username, from, to, type) {
+    async getStatistics(username, options) {
+        const { from, to, type } = options;
         const user = await this.userRepository.findOne({ username });
         if (!user) {
             throw new Error('Пользователь не найден');
@@ -34,9 +35,7 @@ export class StatisticsService {
     async getTeacherStatistics(teacherId, from, to, type) {
         const userRepositoryQueryBuilder = this.userRepository.queryBuilder('user');
         const assignedWorkRepositoryQueryBuilder = this.assignedWorkRepository.queryBuilder('assigned_work');
-        const usersCount = await userRepositoryQueryBuilder
-            .clone()
-            .getCount();
+        const usersCount = await userRepositoryQueryBuilder.clone().getCount();
         const studentsCount = await userRepositoryQueryBuilder
             .clone()
             .where('user.role = :role', { role: 'student' })

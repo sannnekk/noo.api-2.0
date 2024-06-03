@@ -1,13 +1,16 @@
 import { UserRepository } from '../../Users/Data/UserRepository.js';
 import { parseHeader } from '../Security/jwt.js';
 import { RoleChangedButNotReloggedInError } from '../Errors/RoleChangedButNotReloggedInError.js';
+import { MediaHandler } from './MediaHandler.js';
 export class Context {
     params;
     body;
     credentials;
     query;
+    _req;
     userRepository;
     constructor(req) {
+        this._req = req;
         this.userRepository = new UserRepository();
         this.body = req.body;
         this.params = req.params;
@@ -43,7 +46,17 @@ export class Context {
         }
         return true;
     }
-    setParams(params) {
-        this.params = params;
+    async getFiles() {
+        return new Promise((resolve, reject) => {
+            const req = this._req;
+            MediaHandler(req, undefined, (error) => {
+                if (req.files && Array.isArray(req.files)) {
+                    resolve(req.files);
+                }
+                else {
+                    reject(error);
+                }
+            });
+        });
     }
 }

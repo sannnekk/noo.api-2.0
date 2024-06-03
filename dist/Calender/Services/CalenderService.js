@@ -13,18 +13,14 @@ export class CalenderService extends Service {
         this.calenderEventRepository = new CalenderEventRepository();
         this.userRelationService = new UserRelationService();
     }
-    async create(event, username, type = 'event') {
-        return await this.calenderEventRepository.create({
-            ...event,
-            username,
-            type,
-            url: event.url || '',
-        });
+    async create(options, username, type = 'event') {
+        const event = new CalenderEventModel(options);
+        event.type = type;
+        event.username = username;
+        return await this.calenderEventRepository.create(event);
     }
     async updateDeadlineFromWork(work, type) {
-        const newDate = type === 'student-deadline'
-            ? work.solveDeadlineAt
-            : work.checkDeadlineAt;
+        const newDate = type === 'student-deadline' ? work.solveDeadlineAt : work.checkDeadlineAt;
         const event = await this.calenderEventRepository.findOne({
             assignedWork: {
                 id: work.id,
@@ -35,8 +31,7 @@ export class CalenderService extends Service {
             return;
         }
         event.date = newDate;
-        event.description =
-            event.description + ' (Дедлайн сдивнут на эту дату)';
+        event.description = event.description + ' (Дедлайн сдивнут на эту дату)';
         await this.calenderEventRepository.update(event);
     }
     async get(requester, pagination) {

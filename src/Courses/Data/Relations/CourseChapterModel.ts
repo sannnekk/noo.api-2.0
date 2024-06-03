@@ -4,19 +4,17 @@ import * as ULID from '@modules/Core/Data/Ulid'
 import { CourseChapter } from './CourseChapter'
 import { Course } from '../Course'
 import { CourseMaterial } from './CourseMaterial'
-import {
-	Column,
-	Entity,
-	ManyToOne,
-	OneToMany,
-	RelationId,
-} from 'typeorm'
+import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm'
 import { CourseModel } from '../CourseModel'
 import { CourseMaterialModel } from './CourseMaterialModel'
 
+type PartialCourseChapter = Partial<Omit<CourseChapter, 'materials'>> & {
+	materials?: Partial<CourseMaterial>[]
+}
+
 @Entity('course_chapter')
 export class CourseChapterModel extends Model implements CourseChapter {
-	constructor(data?: Partial<CourseChapter>) {
+	constructor(data?: PartialCourseChapter) {
 		super()
 
 		if (data) {

@@ -3,36 +3,70 @@ import { Validator } from '@modules/Core/Request/Validator'
 import { AssignedWork } from './Data/AssignedWork'
 import { z } from 'zod'
 import { RemakeOptions } from './DTO/RemakeOptions'
+import { CreateOptions } from './DTO/CreateOptions'
+import { SolveOptions } from './DTO/SolveOptions'
+import { SaveOptions } from './DTO/SaveOptions'
+import { CheckOptions } from './DTO/CheckOptions'
+import { DeltaScheme } from '@modules/Core/Schemas/DeltaScheme'
 
 @ErrorConverter()
 export class AssignedWorkValidator extends Validator {
-	validateRemake(body: unknown): asserts body is RemakeOptions {
-		const schema = z.object({
-			onlyFalse: z.boolean().optional(),
-		})
+	public readonly answerScheme = z.object({
+		id: z.string().optional(),
+		slug: z.string().optional(),
+		content: DeltaScheme.optional(),
+		word: z.string().optional(),
+		taskId: z.string().ulid(),
+	})
 
-		schema.parse(body)
+	public readonly commentScheme = z.object({
+		id: z.string().optional(),
+		slug: z.string().optional(),
+		content: DeltaScheme.optional(),
+		score: z.number(),
+		taskId: z.string().ulid(),
+	})
+
+	public readonly remakeOptionsScheme = z.object({
+		onlyFalse: z.boolean().optional(),
+	})
+
+	public readonly createOptionsScheme = z.object({
+		studentId: z.string().ulid(),
+		workId: z.string().ulid(),
+	})
+
+	public readonly solveOptionsScheme = z.object({
+		answers: z.record(this.answerScheme),
+	})
+
+	public readonly checkOptionsScheme = z.object({
+		answers: z.array(this.answerScheme),
+		comments: z.array(this.commentScheme),
+	})
+
+	public readonly saveOptionsScheme = z.object({
+		answers: z.array(this.answerScheme),
+		comments: z.array(this.commentScheme).optional(),
+	})
+
+	public parseRemake(body: unknown): RemakeOptions {
+		return this.parse<RemakeOptions>(body, this.remakeOptionsScheme)
 	}
 
-	public validateCreation(data: unknown): asserts data is AssignedWork {
-		const schema = z.object({
-			studentId: z.string().ulid(),
-			workId: z.string().ulid(),
-		})
-
-		schema.parse(data)
+	public parseCreation(data: unknown): CreateOptions {
+		return this.parse<CreateOptions>(data, this.createOptionsScheme)
 	}
 
-	public validateUpdate(data: unknown): asserts data is AssignedWork {
-		const schema = z.object({
-			id: z.string().ulid(),
-			studentId: z.string().ulid().optional().nullable(),
-			workId: z.string().ulid().optional().nullable(),
-			mentorIds: z.array(z.string().ulid()).optional(),
-			answers: z.any().optional().nullable(),
-			comments: z.any().optional().nullable(),
-		})
+	public parseSolve(data: unknown): SolveOptions {
+		return this.parse<SolveOptions>(data, this.solveOptionsScheme)
+	}
 
-		schema.parse(data)
+	public parseCheck(data: unknown): CheckOptions {
+		return this.parse<CheckOptions>(data, this.checkOptionsScheme)
+	}
+
+	public parseSave(data: unknown): SaveOptions {
+		return this.parse<SaveOptions>(data, this.saveOptionsScheme)
 	}
 }

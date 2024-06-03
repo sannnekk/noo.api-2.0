@@ -1,19 +1,10 @@
-import { CalenderEvent } from './Data/CalenderEvent'
 import { CalenderValidator } from './CalenderValidator'
-import {
-	Controller,
-	Delete,
-	Get,
-	Patch,
-	Post,
-	Res,
-	Req,
-} from '@decorators/express'
+import { Controller, Delete, Get, Post } from 'express-controller-decorator'
 import { CalenderService } from './Services/CalenderService'
 import * as Asserts from '@modules/core/Security/asserts'
 import { Context } from '@modules/Core/Request/Context'
-import { getErrorData } from '@modules/core/Response/helpers'
 import { Request, Response } from 'express'
+import { ApiResponse } from '@modules/Core/Response/ApiResponse'
 
 @Controller('/calender')
 export class CalenderController {
@@ -26,77 +17,52 @@ export class CalenderController {
 	}
 
 	@Post('/')
-	public async createCalenderEvent(
-		@Req() req: Request,
-		@Res() res: Response
-	) {
-		// @ts-ignore
-		const context = req.context as Context
-
+	public async createCalenderEvent(context: Context): Promise<ApiResponse> {
 		try {
 			await Asserts.isAuthenticated(context)
-			this.calenderValidator.validateEventCreation(context.body)
+			const eventCreationOptions = this.calenderValidator.parseEventCreation(
+				context.body
+			)
 
 			const calenderEvent = await this.calenderService.create(
-				context.body,
+				eventCreationOptions,
 				context.credentials!.username
 			)
 
-			res.status(201).send({ data: calenderEvent })
+			return new ApiResponse({ data: calenderEvent })
 		} catch (error: any) {
-			const { status, message } = getErrorData(error)
-			res.status(status).send({ error: message })
+			return new ApiResponse(error)
 		}
 	}
 
 	@Get('/')
-	public async getCalenderEvents(
-		@Req() req: Request,
-		@Res() res: Response
-	) {
-		// @ts-ignore
-		const context = req.context as Context
-
+	public async getCalenderEvents(context: Context): Promise<ApiResponse> {
 		try {
 			await Asserts.isAuthenticated(context)
-			const pagination = this.calenderValidator.validatePagination(
-				context.query
-			)
+			const pagination = this.calenderValidator.parsePagination(context.query)
 
 			const { events, meta } = await this.calenderService.get(
 				context.credentials!.username,
 				pagination
 			)
 
-			res.status(200).send({ data: events, meta })
+			return new ApiResponse({ data: events, meta })
 		} catch (error: any) {
-			const { status, message } = getErrorData(error)
-			res.status(status).send({ error: message })
+			return new ApiResponse(error)
 		}
 	}
 
 	@Delete('/:id')
-	public async deleteCalenderEvent(
-		@Req() req: Request,
-		@Res() res: Response
-	) {
-		// @ts-ignore
-		const context = req.context as Context
-		context.setParams(req.params)
-
+	public async deleteCalenderEvent(context: Context): Promise<ApiResponse> {
 		try {
 			await Asserts.isAuthenticated(context)
-			this.calenderValidator.validateId(context.params.id)
+			const eventId = this.calenderValidator.parseId(context.params.id)
 
-			await this.calenderService.delete(
-				context.params.id,
-				context.credentials!.username
-			)
+			await this.calenderService.delete(eventId, context.credentials!.username)
 
-			res.status(200).send({ data: null })
+			return new ApiResponse()
 		} catch (error: any) {
-			const { status, message } = getErrorData(error)
-			res.status(status).send({ error: message })
+			return new ApiResponse(error)
 		}
 	}
 }

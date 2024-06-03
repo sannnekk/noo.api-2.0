@@ -3,6 +3,7 @@ import { Media } from './Media'
 import { Model } from '@modules/Core/Data/Model'
 import { CourseMaterialModel } from '@modules/Courses/Data/Relations/CourseMaterialModel'
 import { CourseModel } from '@modules/Courses/Data/CourseModel'
+import { PollAnswerModel } from '@modules/Polls/Data/Relations/PollAnswerModel'
 
 @Entity('media')
 export class MediaModel extends Model implements Media {
@@ -46,4 +47,9 @@ export class MediaModel extends Model implements Media {
 		onDelete: 'CASCADE',
 	})
 	course?: CourseModel
+
+	@ManyToOne(() => PollAnswerModel, (answer) => answer.files, {
+		onDelete: 'SET NULL',
+	})
+	pollAnswer?: PollAnswerModel
 }

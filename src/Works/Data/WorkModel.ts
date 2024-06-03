@@ -1,24 +1,22 @@
 import * as ULID from '@modules/Core/Data/Ulid'
-import { Model } from '@modules/Core/Data/Model'
 import * as Transliteration from '@modules/Core/Utils/transliteration'
+import { Model } from '@modules/Core/Data/Model'
 import { Work } from './Work'
 import { CourseMaterial } from '@modules/Courses/Data/Relations/CourseMaterial'
 import { WorkTask } from './Relations/WorkTask'
-import {
-	Column,
-	Entity,
-	OneToMany,
-	OneToOne,
-	RelationId,
-} from 'typeorm'
+import { Column, Entity, OneToMany, RelationId } from 'typeorm'
 import { CourseMaterialModel } from '@modules/Courses/Data/Relations/CourseMaterialModel'
 import { WorkTaskModel } from './Relations/WorkTaskModel'
 import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
 import { AssignedWorkModel } from '@modules/AssignedWorks/Data/AssignedWorkModel'
 
+type PartialWork = Omit<Partial<Work>, 'tasks'> & {
+	tasks?: Partial<WorkTask>[]
+}
+
 @Entity('work')
 export class WorkModel extends Model implements Work {
-	constructor(data?: Partial<Work>) {
+	constructor(data?: PartialWork) {
 		super()
 
 		if (data) {
@@ -52,8 +50,7 @@ export class WorkModel extends Model implements Work {
 		enum: ['trial-work', 'phrase', 'mini-test', 'test', 'second-part'],
 		default: 'test',
 	})
-	type: 'trial-work' | 'phrase' | 'mini-test' | 'test' | 'second-part' =
-		'test'
+	type: 'trial-work' | 'phrase' | 'mini-test' | 'test' | 'second-part' = 'test'
 
 	@Column({
 		name: 'description',
@@ -72,10 +69,7 @@ export class WorkModel extends Model implements Work {
 	@RelationId((work: WorkModel) => work.tasks)
 	taskIds!: string[]
 
-	@OneToMany(
-		() => AssignedWorkModel,
-		(assignedWork) => assignedWork.work
-	)
+	@OneToMany(() => AssignedWorkModel, (assignedWork) => assignedWork.work)
 	assignedWorks!: AssignedWork[]
 
 	static entriesToSearch() {

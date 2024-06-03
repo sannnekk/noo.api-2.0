@@ -1,40 +1,15 @@
-import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
-import { MediaRepository } from '../Data/MediaRepository'
+import { Media } from '../Data/Media'
 
-export type MediaFile = {
-	link: string
-	name: string
-}
+type UnsavedMedia = Omit<Media, 'id' | 'createdAt' | 'updatedAt'>
 
 export class MediaService {
-	private readonly mediaRepository: MediaRepository
+	constructor() {}
 
-	constructor() {
-		this.mediaRepository = new MediaRepository()
-	}
-
-	async upload(files: Express.Multer.File[]): Promise<MediaFile[]> {
-		/* try {
-			await this.mediaRepository.createMany(
-				files.map(
-					(file) =>
-						new MediaModel({
-							src: file.filename,
-							mimeType: file.mimetype as MediaModel['mimeType'],
-						})
-				)
-			)
-		} catch (error: any) {
-			if (error.code === '23505') {
-				throw new AlreadyExistError()
-			}
-
-			throw new UnknownError()
-		} */
-
+	async upload(files: Express.Multer.File[]): Promise<UnsavedMedia[]> {
 		return files.map((file) => ({
-			link: file.filename,
+			src: file.filename,
 			name: file.originalname,
+			mimeType: file.mimetype as Media['mimeType'],
 		}))
 	}
 }

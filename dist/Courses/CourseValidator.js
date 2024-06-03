@@ -7,60 +7,73 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { ErrorConverter } from '../Core/Request/ValidatorDecorator.js';
 import { Validator } from '../Core/Request/Validator.js';
 import { z } from 'zod';
+import { DeltaScheme } from '../Core/Schemas/DeltaScheme.js';
+import { MediaScheme } from '../Media/MediaScheme.js';
 let CourseValidator = class CourseValidator extends Validator {
-    validateCreation(course) {
-        const schema = z.object({
-            name: z.string().min(3).max(255),
-            description: z.string().max(255).optional(),
-            chapters: z
-                .array(z.object({
-                name: z.string().max(255),
-                materials: z
-                    .array(z.object({
-                    name: z.string().max(255),
-                    description: z.string().optional(),
-                    content: z.any().optional(),
-                }))
-                    .optional(),
-            }))
-                .optional(),
-        });
-        schema.parse(course);
+    materialScheme = z.object({
+        name: z
+            .string()
+            .min(1, { message: 'Название материала слишком короткое' })
+            .max(255, {
+            message: 'Название материала не может быть длиннее 255 символов',
+        }),
+        order: z.number(),
+        description: z.string().optional(),
+        content: DeltaScheme,
+    });
+    materialWithIdScheme = this.materialScheme.extend({
+        id: z.string().uuid(),
+    });
+    chapterScheme = z.object({
+        name: z
+            .string()
+            .min(1, { message: 'Название главы слишком короткое' })
+            .max(255, {
+            message: 'Название главы не может быть длиннее 255 символов',
+        }),
+        order: z.number(),
+        materials: z.array(this.materialScheme),
+    });
+    chapterUpdateScheme = this.chapterScheme.extend({
+        id: z.string().uuid(),
+        materials: z.array(this.materialWithIdScheme),
+    });
+    courseScheme = z.object({
+        name: z
+            .string()
+            .min(1, { message: 'Название курса слишком короткое' })
+            .max(255, {
+            message: 'Название курса не может быть длиннее 255 символов',
+        }),
+        description: z
+            .string()
+            .max(255, {
+            message: 'Описание курса не может быть длиннее 255 символов',
+        })
+            .optional(),
+        images: z.array(MediaScheme),
+        chapters: z.array(this.chapterScheme),
+    });
+    courseUpdateScheme = this.courseScheme.extend({
+        id: z.string().uuid(),
+        chapters: z.array(this.chapterUpdateScheme),
+    });
+    idsScheme = z.array(this.idScheme);
+    assignWorkOptionsScheme = z.object({
+        checkDeadline: z.date().optional(),
+        solveDeadline: z.date().optional(),
+    });
+    parseCreation(course) {
+        return this.parse(course, this.courseScheme);
     }
-    validateUpdate(course) {
-        const schema = z.object({
-            id: z.string().ulid(),
-            name: z.string().min(3).max(255).optional(),
-            description: z.string().optional(),
-            chapters: z
-                .array(z.object({
-                id: z.string().ulid().optional(),
-                name: z.string().max(255).optional(),
-                materials: z
-                    .array(z.object({
-                    id: z.string().ulid().optional(),
-                    name: z.string().max(255).optional(),
-                    description: z.string().optional(),
-                    content: z.any().optional(),
-                }))
-                    .optional(),
-            }))
-                .optional(),
-        });
-        schema.parse(course);
+    parseUpdate(course) {
+        return this.parse(course, this.courseUpdateScheme);
     }
-    validateStudentIds(body) {
-        const schema = z.object({
-            studentIds: z.array(z.string().ulid()),
-        });
-        schema.parse(body);
+    parseStudentIds(body) {
+        return this.parse(body, this.idsScheme);
     }
-    validateAssignWork(data) {
-        const schema = z.object({
-            checkDeadline: z.date().optional(),
-            solveDeadline: z.date().optional(),
-        });
-        schema.parse(data);
+    parseAssignWorkOptions(data) {
+        return this.parse(data, this.assignWorkOptionsScheme);
     }
 };
 CourseValidator = __decorate([

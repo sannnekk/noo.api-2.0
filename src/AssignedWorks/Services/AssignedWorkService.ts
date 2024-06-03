@@ -26,6 +26,10 @@ import { AssignedWorkAnswerRepository } from '../Data/AssignedWorkAnswerReposito
 import { CourseMaterial } from '@modules/Courses/Data/Relations/CourseMaterial'
 import { CourseMaterialRepository } from '@modules/Courses/Data/CourseMaterialRepository'
 import { RemakeOptions } from '../DTO/RemakeOptions'
+import { CreateOptions } from '../DTO/CreateOptions'
+import { SolveOptions } from '../DTO/SolveOptions'
+import { CheckOptions } from '../DTO/CheckOptions'
+import { SaveOptions } from '../DTO/SaveOptions'
 
 export class AssignedWorkService extends Service<AssignedWork> {
 	private readonly taskService: TaskService
@@ -64,11 +68,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		pagination = new Pagination().assign(pagination)
 		pagination.entriesToSearch = AssignedWorkModel.entriesToSearch()
 
-		const relations = [
-			'work' as const,
-			'student' as const,
-			'mentors' as const,
-		]
+		const relations = ['work', 'student', 'mentors'] as const
 
 		const assignedWorks = await this.assignedWorkRepository.find(
 			conditions,
@@ -93,9 +93,9 @@ export class AssignedWorkService extends Service<AssignedWork> {
 	}
 
 	public async getWorkById(id: AssignedWork['id'], role: User['role']) {
-		const work = await this.assignedWorkRepository.findOne(
+		const assignedWork = await this.assignedWorkRepository.findOne(
 			{ id },
-			['mentors', 'student', 'work.tasks' as any],
+			['mentors', 'student', 'work.tasks'],
 			{
 				work: {
 					tasks: {
@@ -105,58 +105,58 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			}
 		)
 
-		if (!work) {
+		if (!assignedWork) {
 			throw new NotFoundError()
 		}
 
-		work.answers = []
-		work.comments = []
+		assignedWork.answers = []
+		assignedWork.comments = []
 
-		this.excludeTasks(work)
+		this.excludeTasks(assignedWork)
 
-		if (work.isNewAttempt) {
-			work.work.name = `[Пересдача] ${work.work.name}`
+		if (assignedWork.isNewAttempt) {
+			assignedWork.work.name = `[Пересдача] ${assignedWork.work.name}`
 		}
 
-		if (work.solveStatus !== 'not-started') {
+		if (assignedWork.solveStatus !== 'not-started') {
 			const answers = await this.answerRepository.findAll({
-				assignedWorkId: work.id,
+				assignedWorkId: assignedWork.id,
 			})
 
-			work.answers = answers
+			assignedWork.answers = answers
 		}
 
 		if (
-			(work.checkStatus === 'in-progress' && role === 'mentor') ||
-			(work.checkStatus === 'not-checked' && role === 'mentor') ||
-			work.checkStatus === 'checked-in-deadline' ||
-			work.checkStatus === 'checked-after-deadline' ||
-			work.checkStatus === 'checked-automatically'
+			(assignedWork.checkStatus === 'in-progress' && role === 'mentor') ||
+			(assignedWork.checkStatus === 'not-checked' && role === 'mentor') ||
+			assignedWork.checkStatus === 'checked-in-deadline' ||
+			assignedWork.checkStatus === 'checked-after-deadline' ||
+			assignedWork.checkStatus === 'checked-automatically'
 		) {
 			const comments = await this.commentRepository.findAll({
-				assignedWorkId: work.id,
+				assignedWorkId: assignedWork.id,
 			})
 
-			work.comments = comments
+			assignedWork.comments = comments
 		}
 
-		return work
+		return assignedWork
 	}
 
 	public async createWork(
-		assignedWork: AssignedWork,
+		options: CreateOptions,
 		taskIdsToExclude: string[] = []
 	) {
 		const work = await this.workRepository.findOne(
 			{
-				id: assignedWork.workId,
+				id: options.workId,
 			},
 			['tasks']
 		)
 
 		const student = await this.userRepository.findOne(
 			{
-				id: assignedWork.studentId,
+				id: options.studentId,
 			},
 			['mentor']
 		)
@@ -173,18 +173,15 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			throw new NotFoundError('У ученика нет куратора')
 		}
 
+		const assignedWork = new AssignedWorkModel()
+
 		assignedWork.work = { id: work.id } as Work
 		assignedWork.student = { id: student.id } as User
 		assignedWork.mentors = [{ id: student.mentor.id } as User]
 		assignedWork.excludedTaskIds = taskIdsToExclude
-		assignedWork.maxScore = this.getMaxScore(
-			work.tasks,
-			taskIdsToExclude
-		)
+		assignedWork.maxScore = this.getMaxScore(work.tasks, taskIdsToExclude)
 
-		const createdWork = await this.assignedWorkRepository.create(
-			assignedWork
-		)
+		const createdWork = await this.assignedWorkRepository.create(assignedWork)
 
 		work.tasks = []
 
@@ -208,24 +205,18 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		studentId: User['id'],
 		options: RemakeOptions
 	) {
-		const assignedWork = await this.getAssignedWork(assignedWorkId, [
-			'work',
-		])
+		const assignedWork = await this.getAssignedWork(assignedWorkId, ['work'])
 
 		if (!assignedWork) {
 			throw new NotFoundError('Работа не найдена')
 		}
 
 		if (assignedWork.isArchived) {
-			throw new WorkIsArchived(
-				'Работа архивирована и не может быть пересдана'
-			)
+			throw new WorkIsArchived('Работа архивирована и не может быть пересдана')
 		}
 
 		if (!assignedWork.work) {
-			throw new NotFoundError(
-				'Работа не найдена. Возможно, она была удалена'
-			)
+			throw new NotFoundError('Работа не найдена. Возможно, она была удалена')
 		}
 
 		if (assignedWork.studentId !== studentId) {
@@ -243,9 +234,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			)
 
 			const newExcludes = comments
-				.filter(
-					(comment) => comment.task?.highestScore === comment.score
-				)
+				.filter((comment) => comment.task?.highestScore === comment.score)
 				.map((comment) => comment.task?.id)
 				.filter(Boolean) as string[]
 
@@ -310,8 +299,12 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		return { link: `/assigned-works/${createdWork.id}/solve` }
 	}
 
-	public async solveWork(work: AssignedWork) {
-		const foundWork = await this.getAssignedWork(work.id, [
+	public async solveWork(
+		assignedWorkId: AssignedWork['id'],
+		solveOptions: SolveOptions,
+		studentId: User['id']
+	) {
+		const foundWork = await this.getAssignedWork(assignedWorkId, [
 			'work',
 			'work.tasks' as any,
 			'student',
@@ -319,6 +312,10 @@ export class AssignedWorkService extends Service<AssignedWork> {
 
 		if (!foundWork) {
 			throw new NotFoundError()
+		}
+
+		if (foundWork.studentId !== studentId) {
+			throw new UnauthorizedError('Вы не можете решить чужую работу')
 		}
 
 		if (
@@ -329,20 +326,17 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			throw new WorkAlreadySolvedError()
 		}
 
-		if (
-			foundWork.solveDeadlineAt &&
-			new Date() > foundWork.solveDeadlineAt
-		) {
+		if (foundWork.solveDeadlineAt && new Date() > foundWork.solveDeadlineAt) {
 			foundWork.solveStatus = 'made-after-deadline'
 		} else {
 			foundWork.solveStatus = 'made-in-deadline'
 		}
 
 		foundWork.solvedAt = new Date()
-		foundWork.answers = work.answers
+		foundWork.answers = solveOptions.answers
 		foundWork.comments = this.taskService.automatedCheck(
 			foundWork.work.tasks,
-			work.answers
+			solveOptions.answers
 		)
 
 		if (foundWork.work.tasks.every((task) => task.type !== 'text')) {
@@ -356,8 +350,11 @@ export class AssignedWorkService extends Service<AssignedWork> {
 		await this.calenderService.createWorkMadeEvent(foundWork)
 	}
 
-	public async checkWork(work: AssignedWork) {
-		const foundWork = await this.getAssignedWork(work.id, [
+	public async checkWork(
+		assignedWorkId: AssignedWork['id'],
+		checkOptions: CheckOptions
+	) {
+		const foundWork = await this.getAssignedWork(assignedWorkId, [
 			'work',
 			'mentors',
 		])
@@ -374,33 +371,31 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			throw new WorkAlreadyCheckedError()
 		}
 
-		if (
-			['not-started', 'in-progress'].includes(foundWork.solveStatus)
-		) {
+		if (['not-started', 'in-progress'].includes(foundWork.solveStatus)) {
 			throw new WorkIsNotSolvedYetError()
 		}
 
-		if (
-			foundWork.checkDeadlineAt &&
-			new Date() > foundWork.checkDeadlineAt
-		) {
+		if (foundWork.checkDeadlineAt && new Date() > foundWork.checkDeadlineAt) {
 			foundWork.checkStatus = 'checked-after-deadline'
 		} else {
 			foundWork.checkStatus = 'checked-in-deadline'
 		}
 
-		foundWork.answers = work.answers || []
-		foundWork.comments = work.comments || []
+		foundWork.answers = checkOptions.answers || []
+		foundWork.comments = checkOptions.comments || []
 		foundWork.checkedAt = new Date()
-		foundWork.score = this.getScore(work.comments)
+		foundWork.score = this.getScore(foundWork.comments)
 
 		await this.assignedWorkRepository.update(foundWork)
-
 		await this.calenderService.createWorkCheckedEvent(foundWork)
 	}
 
-	public async saveProgress(work: AssignedWork, role: User['role']) {
-		const foundWork = await this.getAssignedWork(work.id)
+	public async saveProgress(
+		assignedWorkId: AssignedWork['id'],
+		saveOptions: SaveOptions,
+		role: User['role']
+	) {
+		const foundWork = await this.getAssignedWork(assignedWorkId)
 
 		if (!foundWork) {
 			throw new NotFoundError()
@@ -437,8 +432,8 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			foundWork.checkStatus = 'in-progress'
 		}
 
-		foundWork.answers = work.answers
-		foundWork.comments = work.comments || []
+		foundWork.answers = saveOptions.answers
+		foundWork.comments = saveOptions.comments || []
 
 		await this.assignedWorkRepository.update(foundWork)
 	}
@@ -476,9 +471,12 @@ export class AssignedWorkService extends Service<AssignedWork> {
 
 		const mentor = await this.userRepository.findOne({
 			id: currentMentorId,
+			role: 'mentor',
 		})
+
 		const newMentor = await this.userRepository.findOne({
 			id: mentorId,
+			role: 'mentor',
 		})
 
 		if (!mentor || !newMentor) {
@@ -511,9 +509,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 				throw new DeadlineAlreadyShiftedError()
 			}
 
-			work.solveDeadlineAt.setDate(
-				work.solveDeadlineAt.getDate() + days
-			)
+			work.solveDeadlineAt.setDate(work.solveDeadlineAt.getDate() + days)
 			work.solveDeadlineShifted = true
 
 			await this.calenderService.updateDeadlineFromWork(
@@ -533,24 +529,16 @@ export class AssignedWorkService extends Service<AssignedWork> {
 				throw new DeadlineAlreadyShiftedError()
 			}
 
-			work.checkDeadlineAt.setDate(
-				work.checkDeadlineAt.getDate() + days
-			)
+			work.checkDeadlineAt.setDate(work.checkDeadlineAt.getDate() + days)
 			work.checkDeadlineShifted = true
 
-			await this.calenderService.updateDeadlineFromWork(
-				work,
-				'mentor-deadline'
-			)
+			await this.calenderService.updateDeadlineFromWork(work, 'mentor-deadline')
 		}
 
 		await this.assignedWorkRepository.update(work)
 	}
 
-	public async deleteWork(
-		id: AssignedWork['id'],
-		mentorId: User['id']
-	) {
+	public async deleteWork(id: AssignedWork['id'], mentorId: User['id']) {
 		const foundWork = await this.assignedWorkRepository.findOne({ id })
 
 		if (!foundWork) {
@@ -600,10 +588,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
 			(task) => !excludedTaskIds.includes(task.id)
 		)
 
-		return filteredTasks.reduce(
-			(acc, task) => acc + task.highestScore,
-			0
-		)
+		return filteredTasks.reduce((acc, task) => acc + task.highestScore, 0)
 	}
 
 	private getScore(comments: AssignedWorkComment[]) {

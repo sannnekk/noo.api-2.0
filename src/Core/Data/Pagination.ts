@@ -159,6 +159,30 @@ export class Pagination {
 						.split('|')
 						.map((v: any) => this.typeConvert(v))
 				)
+
+				if (parsedFilters[key].length === 0) {
+					parsedFilters[key] = undefined
+				}
+
+				continue
+			}
+
+			if (/^tags\([0-9.|:\-\_a-zA-Z]+\)$/.test(value)) {
+				parsedFilters[key] = value
+					.slice(5, -1)
+					.split('|')
+					.map((v: string) =>
+						TypeORM.ILike(`%${this.typeConvert(v) as string},%`)
+					)
+
+				if (parsedFilters[key].length === 0) {
+					parsedFilters[key] = undefined
+				}
+
+				if (parsedFilters[key].length === 1) {
+					parsedFilters[key] = parsedFilters[key][0]
+				}
+
 				continue
 			}
 
@@ -168,9 +192,7 @@ export class Pagination {
 		return parsedFilters
 	}
 
-	private typeConvert(
-		value: string
-	): string | number | boolean | Date | null {
+	private typeConvert(value: string): string | number | boolean | Date | null {
 		if (value === 'null') {
 			return null
 		}

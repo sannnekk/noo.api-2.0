@@ -9,6 +9,7 @@ import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
 import { Work } from '@modules/Works/Data/Work'
 import { User } from '@modules/Users/Data/User'
 import { UserModel } from '@modules/Users/Data/UserModel'
+import { StatisticsOptions } from '../DTO/StatisticsOptions'
 
 export class StatisticsService {
 	private readonly assignedWorkRepository: AssignedWorkRepository
@@ -21,12 +22,8 @@ export class StatisticsService {
 		this.plotService = new PlotService()
 	}
 
-	public async getStatistics(
-		username: string,
-		from: Date,
-		to: Date,
-		type?: Work['type']
-	) {
+	public async getStatistics(username: string, options: StatisticsOptions) {
+		const { from, to, type } = options
 		const user = await this.userRepository.findOne({ username })
 
 		if (!user) {
@@ -52,15 +49,12 @@ export class StatisticsService {
 		to: Date,
 		type?: Work['type']
 	): Promise<Statistics> {
-		const userRepositoryQueryBuilder =
-			this.userRepository.queryBuilder('user')
+		const userRepositoryQueryBuilder = this.userRepository.queryBuilder('user')
 
 		const assignedWorkRepositoryQueryBuilder =
 			this.assignedWorkRepository.queryBuilder('assigned_work')
 
-		const usersCount = await userRepositoryQueryBuilder
-			.clone()
-			.getCount()
+		const usersCount = await userRepositoryQueryBuilder.clone().getCount()
 
 		const studentsCount = await userRepositoryQueryBuilder
 			.clone()
@@ -112,19 +106,14 @@ export class StatisticsService {
 		const totalAssignedWorksInDateRange =
 			await assignedWorkRepositoryQueryBuilder
 				.clone()
-				.andWhere(
-					this.getDateRange('assigned_work.created_at', from, to)
-				)
+				.andWhere(this.getDateRange('assigned_work.created_at', from, to))
 				.getCount()
 
-		const checkedWorksInDateRange =
-			await assignedWorkRepositoryQueryBuilder
-				.clone()
-				.andWhere('assigned_work.checked_at IS NOT NULL')
-				.andWhere(
-					this.getDateRange('assigned_work.created_at', from, to)
-				)
-				.getCount()
+		const checkedWorksInDateRange = await assignedWorkRepositoryQueryBuilder
+			.clone()
+			.andWhere('assigned_work.checked_at IS NOT NULL')
+			.andWhere(this.getDateRange('assigned_work.created_at', from, to))
+			.getCount()
 
 		const newUsersPerDay = (
 			await userRepositoryQueryBuilder
@@ -381,8 +370,7 @@ export class StatisticsService {
 		)
 
 		const completed = completedInDeadline + completedAfterDeadline
-		const notCompleted =
-			total - completedInDeadline - completedAfterDeadline
+		const notCompleted = total - completedInDeadline - completedAfterDeadline
 
 		const { averageScore } = (await assignedWorksQueryBuilder
 			.clone()

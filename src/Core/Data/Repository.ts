@@ -7,6 +7,11 @@ import { AlreadyExistError } from '../Errors/AlreadyExistError'
 
 type ConstructableModel = { new (data?: Partial<Model>): Model }
 
+type RelationsType<T> = (
+	| keyof Partial<T>
+	| `${Exclude<keyof Partial<T>, Symbol | number>}.${string}`
+)[]
+
 export abstract class Repository<T extends BaseModel> {
 	protected readonly model: ConstructableModel
 	protected readonly repository: TypeORM.Repository<Model>
@@ -31,11 +36,12 @@ export abstract class Repository<T extends BaseModel> {
 		try {
 			await this.repository.save(models)
 		} catch (error) {
+			console.log(error)
 			throw new AlreadyExistError()
 		}
 	}
 
-	async update(data: Partial<T> & { id: T['id'] }): Promise<void> {
+	async update(data: Partial<T> & { id: T['id'] }): Promise<T> {
 		const item = await this.repository.findOne({
 			where: {
 				id: data.id,
@@ -49,7 +55,9 @@ export abstract class Repository<T extends BaseModel> {
 		const newItem = new this.model({ ...item, ...data, id: item.id })
 
 		try {
-			await this.repository.save(newItem)
+			const saved = await this.repository.save(newItem)
+
+			return saved as unknown as T
 		} catch (error) {
 			throw new AlreadyExistError()
 		}
@@ -74,7 +82,7 @@ export abstract class Repository<T extends BaseModel> {
 	}
 
 	async delete(id: string): Promise<void> {
-		const exists = await this.repository.exist({
+		const exists = await this.repository.exists({
 			where: {
 				id,
 			},
@@ -89,7 +97,7 @@ export abstract class Repository<T extends BaseModel> {
 
 	async find(
 		conditions?: Partial<T> | Partial<T>[],
-		relations?: (keyof Partial<T>)[],
+		relations?: Readonly<RelationsType<T>>,
 		pagination: Pagination = new Pagination()
 	): Promise<T[]> {
 		return (await this.repository.find({
@@ -103,7 +111,7 @@ export abstract class Repository<T extends BaseModel> {
 
 	async findAll(
 		conditions?: Partial<T> | Partial<T>[],
-		relations?: (keyof Partial<T>)[],
+		relations?: Readonly<RelationsType<T>>,
 		sort?: any
 	): Promise<T[]> {
 		return (await this.repository.find({
@@ -115,7 +123,7 @@ export abstract class Repository<T extends BaseModel> {
 
 	async findOne(
 		conditions: Record<string, unknown> | Record<string, unknown>[],
-		relations?: (keyof Partial<T>)[],
+		relations?: Readonly<RelationsType<T>>,
 		sort?: any | undefined
 	): Promise<T | null> {
 		return this.repository.findOne({

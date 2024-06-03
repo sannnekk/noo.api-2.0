@@ -4,15 +4,12 @@ import {
 	Get,
 	Patch,
 	Post,
-	Req,
-	Res,
-} from '@decorators/express'
-import { Request, Response } from 'express'
+} from 'express-controller-decorator'
 import { CourseService } from './Services/CourseService'
 import * as Asserts from '@modules/core/Security/asserts'
 import { Context } from '@modules/Core/Request/Context'
-import { getErrorData } from '@modules/core/Response/helpers'
 import { CourseValidator } from './CourseValidator'
+import { ApiResponse } from '@modules/Core/Response/ApiResponse'
 
 @Controller('/course')
 export class CourseController {
@@ -25,15 +22,10 @@ export class CourseController {
 	}
 
 	@Get('/')
-	public async get(@Req() req: Request, @Res() res: Response) {
-		// @ts-ignore
-		const context = req.context as Context
-
+	public async get(context: Context): Promise<ApiResponse> {
 		try {
 			await Asserts.isAuthenticated(context)
-			const pagination = this.courseValidator.validatePagination(
-				context.query
-			)
+			const pagination = this.courseValidator.parsePagination(context.query)
 
 			const { courses, meta } = await this.courseService.get(
 				pagination,
@@ -41,185 +33,143 @@ export class CourseController {
 				context.credentials!.role
 			)
 
-			res.status(200).send({ data: courses, meta })
+			return new ApiResponse({ data: courses, meta })
 		} catch (error: any) {
-			const { status, message } = getErrorData(error)
-			res.status(status).send({ error: message })
+			return new ApiResponse(error)
 		}
 	}
 
 	@Get('/:slug')
-	public async getBySlug(@Req() req: Request, @Res() res: Response) {
-		// @ts-ignore
-		const context = req.context as Context
-		context.setParams(req.params)
-
+	public async getBySlug(context: Context): Promise<ApiResponse> {
 		try {
-			this.courseValidator.validateSlug(context.params.slug)
 			await Asserts.isAuthenticated(context)
+			const courseSlug = this.courseValidator.parseSlug(context.params.slug)
 
-			const course = await this.courseService.getBySlug(
-				context.params.slug
-			)
+			const course = await this.courseService.getBySlug(courseSlug)
 
 			if (
 				context.credentials!.role === 'student' ||
 				context.credentials!.role == 'mentor'
 			) {
 				course.studentIds = []
-				course.students = []
 			}
 
-			res.status(200).send({ data: course })
+			return new ApiResponse({ data: course })
 		} catch (error: any) {
-			const { status, message } = getErrorData(error)
-			res.status(status).send({ error: message })
+			return new ApiResponse(error)
 		}
 	}
 
 	@Get('/material/:slug/assigned-work')
-	public async getAssignedWork(
-		@Req() req: Request,
-		@Res() res: Response
-	) {
-		// @ts-ignore
-		const context = req.context as Context
-		context.setParams(req.params)
-
+	public async getAssignedWork(context: Context): Promise<ApiResponse> {
 		try {
-			this.courseValidator.validateSlug(context.params.slug)
+			const materialSlug = this.courseValidator.parseSlug(context.params.slug)
 			await Asserts.isAuthenticated(context)
 			Asserts.student(context)
 
-			const assignedWork =
-				await this.courseService.getAssignedWorkToMaterial(
-					context.params.slug,
-					context.credentials.userId
-				)
+			const assignedWork = await this.courseService.getAssignedWorkToMaterial(
+				materialSlug,
+				context.credentials.userId
+			)
 
-			res.status(200).send({ data: assignedWork })
+			return new ApiResponse({ data: assignedWork })
 		} catch (error: any) {
-			const { status, message } = getErrorData(error)
-			res.status(status).send({ error: message })
+			return new ApiResponse(error)
 		}
 	}
 
 	@Post('/')
-	public async create(@Req() req: Request, @Res() res: Response) {
-		// @ts-ignore
-		const context = req.context as Context
-
+	public async create(context: Context): Promise<ApiResponse> {
 		try {
-			this.courseValidator.validateCreation(context.body)
 			await Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
+			const courseCreationOptions = this.courseValidator.parseCreation(
+				context.body
+			)
 
 			await this.courseService.create(
-				context.body,
+				courseCreationOptions,
 				context.credentials.userId
 			)
 
-			res.status(201).send({ data: null })
+			return new ApiResponse()
 		} catch (error: any) {
-			const { status, message } = getErrorData(error)
-			res.status(status).send({ error: message })
+			return new ApiResponse(error)
 		}
 	}
 
 	@Patch('/:id')
-	public async update(@Req() req: Request, @Res() res: Response) {
-		// @ts-ignore
-		const context = req.context as Context
-		context.setParams(req.params)
-
+	public async update(context: Context): Promise<ApiResponse> {
 		try {
-			this.courseValidator.validateUpdate(context.body)
 			await Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
+			const courseId = this.courseValidator.parseId(context.params.id)
+			const updateCourseOptions = this.courseValidator.parseUpdate(context.body)
 
-			await this.courseService.update(context.body)
+			await this.courseService.update(courseId, updateCourseOptions)
 
-			res.status(201).send({ data: null })
+			return new ApiResponse()
 		} catch (error: any) {
-			const { status, message } = getErrorData(error)
-			res.status(status).send({ error: message })
+			return new ApiResponse(error)
 		}
 	}
 
 	@Patch('/:materialSlug/assign-work/:workId')
-	public async assignWorkToMaterial(
-		@Req() req: Request,
-		@Res() res: Response
-	) {
-		// @ts-ignore
-		const context = req.context as Context
-		context.setParams(req.params)
-
+	public async assignWorkToMaterial(context: Context): Promise<ApiResponse> {
 		try {
 			await Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
-			this.courseValidator.validateSlug(context.params.materialSlug)
-			this.courseValidator.validateId(context.params.workId)
-			this.courseValidator.validateAssignWork(context.body)
-
-			await this.courseService.assignWorkToMaterial(
-				context.params.materialSlug,
-				context.params.workId,
-				context.body.solveDeadline,
-				context.body.checkDeadline
+			const materialSlug = this.courseValidator.parseSlug(
+				context.params.materialSlug
+			)
+			const workId = this.courseValidator.parseId(context.params.workId)
+			const assignWorkOptions = this.courseValidator.parseAssignWorkOptions(
+				context.body
 			)
 
-			res.status(201).send({ data: null })
+			await this.courseService.assignWorkToMaterial(
+				materialSlug,
+				workId,
+				assignWorkOptions.solveDeadline,
+				assignWorkOptions.checkDeadline
+			)
+
+			return new ApiResponse()
 		} catch (error: any) {
-			const { status, message } = getErrorData(error)
-			res.status(status).send({ error: message })
+			return new ApiResponse(error)
 		}
 	}
 
 	@Patch('/:courseSlug/assign-students')
-	public async assignStudents(
-		@Req() req: Request,
-		@Res() res: Response
-	) {
-		// @ts-ignore
-		const context = req.context as Context
-		context.setParams(req.params)
-
+	public async assignStudents(context: Context): Promise<ApiResponse> {
 		try {
 			await Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
-			this.courseValidator.validateSlug(context.params.courseSlug)
-			this.courseValidator.validateStudentIds(context.body)
-
-			await this.courseService.assignStudents(
-				context.params.courseSlug,
-				context.body.studentIds
+			const courseSlug = this.courseValidator.parseSlug(
+				context.params.courseSlug
 			)
+			const studentIds = this.courseValidator.parseStudentIds(context.body)
 
-			res.status(201).send({ data: null })
+			await this.courseService.assignStudents(courseSlug, studentIds)
+
+			return new ApiResponse()
 		} catch (error: any) {
-			const { status, message } = getErrorData(error)
-			res.status(status).send({ error: message })
+			return new ApiResponse(error)
 		}
 	}
 
 	@Delete('/:id')
-	public async delete(@Req() req: Request, @Res() res: Response) {
-		// @ts-ignore
-		const context = req.context as Context
-		context.setParams(req.params)
-
+	public async delete(context: Context): Promise<ApiResponse> {
 		try {
-			this.courseValidator.validateId(context.params.id)
 			await Asserts.isAuthenticated(context)
 			Asserts.teacher(context)
+			const courseId = this.courseValidator.parseId(context.params.id)
 
-			await this.courseService.delete(context.params.id)
+			await this.courseService.delete(courseId)
 
-			res.status(200).send({ data: null })
+			return new ApiResponse()
 		} catch (error: any) {
-			const { status, message } = getErrorData(error)
-			res.status(status).send({ error: message })
+			return new ApiResponse(error)
 		}
 	}
 }

@@ -14,6 +14,9 @@ import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
 import { AssignedWorkService } from '@modules/AssignedWorks/Services/AssignedWorkService'
 import { CourseMaterial } from '../Data/Relations/CourseMaterial'
 import { AssignedWorkRepository } from '@modules/AssignedWorks/Data/AssignedWorkRepository'
+import { CourseCreationDTO } from '../DTO/CourseCreationDTO'
+import { InternalError } from '@modules/Core/Errors/InternalError'
+import { CourseUpdateDTO } from '../DTO/CourseUpdateDTO'
 
 export class CourseService extends Service<Course> {
 	private readonly courseRepository: CourseRepository
@@ -113,13 +116,14 @@ export class CourseService extends Service<Course> {
 		return assignedWork
 	}
 
-	public async update(course: Course): Promise<void> {
-		const foundCourse = await this.courseRepository.findOne({
-			id: course.id,
-		})
+	public async update(
+		id: Course['id'],
+		course: CourseUpdateDTO
+	): Promise<void> {
+		const foundCourse = await this.courseRepository.findOne({ id })
 
 		if (!foundCourse) {
-			throw new NotFoundError()
+			throw new NotFoundError('Курс не найден')
 		}
 
 		const newCourse = new CourseModel({ ...foundCourse, ...course })
@@ -177,12 +181,16 @@ export class CourseService extends Service<Course> {
 	}
 
 	public async create(
-		course: Course,
+		courseDTO: CourseCreationDTO,
 		authorId: Course['authorId']
 	): Promise<void> {
 		const author = await this.userRepository.findOne({ id: authorId })
 
-		course.author = author!
+		if (!author) {
+			throw new NotFoundError('Пользователь не найден')
+		}
+
+		const course = new CourseModel(courseDTO)
 
 		try {
 			await this.courseRepository.create(course)
@@ -190,10 +198,23 @@ export class CourseService extends Service<Course> {
 			if (error instanceof QueryFailedError) {
 				throw new AlreadyExistError()
 			}
+
+			throw new UnknownError()
 		}
 	}
 
 	public async delete(id: Course['id']): Promise<void> {
+		const course = await this.courseRepository.findOne({
+			id,
+		})
+
+		if (!course) {
+			throw new NotFoundError()
+		}
+
+		course.students = []
+
+		await this.courseRepository.update(course)
 		await this.courseRepository.delete(id)
 	}
 }

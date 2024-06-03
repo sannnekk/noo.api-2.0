@@ -9,12 +9,9 @@ export abstract class Service<T extends BaseModel> {
 	 */
 	public async getRequestMeta(
 		repository: Repository<T>,
-		condition:
-			| Record<string, unknown>
-			| Record<string, unknown>[]
-			| undefined,
+		condition: Record<string, unknown> | Record<string, unknown>[] | undefined,
 		pagination: Pagination,
-		relations: string[]
+		relations: Readonly<string[]>
 	): Promise<RequestMeta> {
 		const total = await repository.count(condition, pagination)
 
