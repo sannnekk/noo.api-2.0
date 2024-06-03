@@ -7,6 +7,7 @@ import {
 	setContextClass,
 } from 'express-controller-decorator'
 import { Context } from '@modules/Core/Request/Context'
+import { config } from './config'
 
 // import modules
 import '@modules/Users/UserController'
@@ -18,7 +19,6 @@ import '@modules/Calender/CalenderController'
 import '@modules/Statistics/StatisticsController'
 import '@modules/Blog/BlogController'
 import '@modules/Polls/PollController'
-import { config } from './config'
 
 await CoreDataSource.initialize()
 

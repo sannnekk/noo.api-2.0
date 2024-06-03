@@ -4,6 +4,7 @@ import 'reflect-metadata';
 import { CoreDataSource } from './Core/Data/DataSource.js';
 import { injectControllers, setContextClass, } from 'express-controller-decorator';
 import { Context } from './Core/Request/Context.js';
+import { config } from './config.js';
 // import modules
 import './Users/UserController.js';
 import './Courses/CourseController.js';
@@ -14,7 +15,6 @@ import './Calender/CalenderController.js';
 import './Statistics/StatisticsController.js';
 import './Blog/BlogController.js';
 import './Polls/PollController.js';
-import { config } from './config.js';
 await CoreDataSource.initialize();
 const app = express();
 app.use(cors());

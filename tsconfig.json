@@ -6,6 +6,7 @@
 			"module": "NodeNext"
 		}
 	},
+	"forceConsistentCasingInFileNames": true,
 	"compilerOptions": {
 		"target": "ESNext",
 		"module": "esnext",

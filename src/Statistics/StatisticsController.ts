@@ -1,6 +1,5 @@
 import { Controller, Post } from 'express-controller-decorator'
 import * as Asserts from '@modules/Core/Security/asserts'
-import { Request, Response } from 'express'
 import { Context } from '@modules/Core/Request/Context'
 import { StatisticsService } from './Services/StatisticsService'
 import { StatisticsValidator } from './StatisticsValidator'

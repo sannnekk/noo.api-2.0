@@ -11,7 +11,7 @@ import { Controller, Delete, Get, Patch, Post, } from 'express-controller-decora
 import { AssignedWorkValidator } from './AssignedWorkValidator.js';
 import { AssignedWorkService } from './Services/AssignedWorkService.js';
 import * as Asserts from '../core/Security/asserts.js';
-import { Context } from '../core/Request/context.js';
+import { Context } from '../core/Request/Context.js';
 import { ApiResponse } from '../Core/Response/ApiResponse.js';
 import { AssignedWorkOptions } from './AssignedWorkOptions.js';
 let AssignedWorkController = class AssignedWorkController {

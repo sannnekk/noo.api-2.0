@@ -1,6 +1,5 @@
 import { ErrorConverter } from '@modules/Core/Request/ValidatorDecorator'
 import { Validator } from '@modules/Core/Request/Validator'
-import { AssignedWork } from './Data/AssignedWork'
 import { z } from 'zod'
 import { RemakeOptions } from './DTO/RemakeOptions'
 import { CreateOptions } from './DTO/CreateOptions'

@@ -9,7 +9,6 @@ import {
 	Patch,
 	Post,
 } from 'express-controller-decorator'
-import { Request, Response } from 'express'
 import { ApiResponse } from '@modules/Core/Response/ApiResponse'
 
 @Controller('/user')

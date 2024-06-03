@@ -8,9 +8,7 @@ import {
 import { AssignedWorkValidator } from './AssignedWorkValidator'
 import { AssignedWorkService } from './Services/AssignedWorkService'
 import * as Asserts from '@modules/core/Security/asserts'
-import { Context } from '@modules/core/Request/context'
-import { Request, Response } from 'express'
-import json from 'big-json'
+import { Context } from '@modules/core/Request/Context'
 import { ApiResponse } from '@modules/Core/Response/ApiResponse'
 import { AssignedWorkOptions } from './AssignedWorkOptions'
 
