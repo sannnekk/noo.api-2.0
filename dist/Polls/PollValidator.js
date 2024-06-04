@@ -62,7 +62,7 @@ let PollValidator = class PollValidator extends Validator {
         questions: z.array(this.questionScheme),
     });
     pollAnswerScheme = z.object({
-        id: z.string().ulid(),
+        id: z.string().ulid().optional(),
         questionId: z.string().ulid(),
         questionType: this.questionTypeSceme,
         text: z.string().optional(),

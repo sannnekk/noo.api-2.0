@@ -70,7 +70,7 @@ export class PollValidator extends Validator {
 	})
 
 	public readonly pollAnswerScheme = z.object({
-		id: z.string().ulid(),
+		id: z.string().ulid().optional(),
 		questionId: z.string().ulid(),
 		questionType: this.questionTypeSceme,
 		text: z.string().optional(),
