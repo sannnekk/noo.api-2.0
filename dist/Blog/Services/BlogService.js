@@ -115,8 +115,6 @@ export class BlogService extends Service {
             if (error instanceof QueryFailedError) {
                 throw new AlreadyExistError();
             }
-            console.log('Error while creating a blogpost');
-            console.log(error);
             throw new UnknownError();
         }
     }
