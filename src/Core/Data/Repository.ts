@@ -26,8 +26,6 @@ export abstract class Repository<T extends BaseModel> {
 		try {
 			return (await this.repository.save(model)) as unknown as T
 		} catch (error: any) {
-			console.log('Creating error')
-			console.log(error)
 			throw new AlreadyExistError()
 		}
 	}

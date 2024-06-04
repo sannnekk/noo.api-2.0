@@ -15,8 +15,6 @@ export class Repository {
             return (await this.repository.save(model));
         }
         catch (error) {
-            console.log('Creating error');
-            console.log(error);
             throw new AlreadyExistError();
         }
     }
