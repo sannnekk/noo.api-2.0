@@ -20,6 +20,7 @@ Here a todo list
 12. **[REFC]** Utilize all the time and dates to process them correctly
 13. **[REFC]** Comment controllers
 14. **[IMPR]** Configure linter and prettier
+15. **[IMPR]** Logs
 
 ## Tags
 
