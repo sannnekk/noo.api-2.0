@@ -48,7 +48,7 @@ let UserValidator = class UserValidator extends Validator {
         id: z.string().ulid(),
         email: this.emailScheme.optional(),
         name: z.string().optional(),
-        telegramUsername: z.string().optional(),
+        telegramUsername: z.string().nullable().optional(),
         password: this.passwordScheme.optional(),
         role: this.userRoleScheme.optional(),
         isBlocked: z.boolean().optional(),
