@@ -36,7 +36,7 @@ export class AssignedWorkValidator extends Validator {
 	})
 
 	public readonly solveOptionsScheme = z.object({
-		answers: z.record(this.answerScheme),
+		answers: z.array(this.answerScheme),
 	})
 
 	public readonly checkOptionsScheme = z.object({

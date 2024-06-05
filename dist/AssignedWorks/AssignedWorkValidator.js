@@ -31,7 +31,7 @@ let AssignedWorkValidator = class AssignedWorkValidator extends Validator {
         workId: z.string().ulid(),
     });
     solveOptionsScheme = z.object({
-        answers: z.record(this.answerScheme),
+        answers: z.array(this.answerScheme),
     });
     checkOptionsScheme = z.object({
         answers: z.array(this.answerScheme),
