@@ -10,7 +10,6 @@ import { EmailService } from '../../Core/Email/EmailService.js';
 import { UserRepository } from '../Data/UserRepository.js';
 import { UserModel } from '../Data/UserModel.js';
 import { InvalidVerificationTokenError } from '../Errors/InvalidVerificationTokenError.js';
-import { v4 as uuid } from 'uuid';
 export class UserService extends Service {
     userRepository;
     emailService;
@@ -146,7 +145,7 @@ export class UserService extends Service {
         if (user.verificationToken) {
             throw new UnauthenticatedError('Этот аккаунт не подтвержден. Перейдите по ссылке в письме, отправленном на вашу почту, чтобы подтвердить регистрацию.');
         }
-        const newPassword = uuid();
+        const newPassword = this.generatePassword();
         user.password = await Hash.hash(newPassword);
         await this.userRepository.update(user);
         await this.emailService.sendForgotPasswordEmail(user.email, user.name, newPassword);
@@ -249,5 +248,27 @@ export class UserService extends Service {
         user.telegramId = null;
         user.telegramUsername = null;
         await this.userRepository.update(user);
+    }
+    /**
+     * Generates a random password
+     * Requirements:
+     * - 12 characters
+     * - 1 uppercase letter
+     * - 1 lowercase letter
+     * - 1 number
+     */
+    generatePassword() {
+        const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+        const numbers = '0123456789';
+        const characters = uppercase + lowercase + numbers;
+        let password = '';
+        password += uppercase[Math.floor(Math.random() * uppercase.length)];
+        password += lowercase[Math.floor(Math.random() * lowercase.length)];
+        password += numbers[Math.floor(Math.random() * numbers.length)];
+        for (let i = 0; i < 9; i++) {
+            password += characters[Math.floor(Math.random() * characters.length)];
+        }
+        return password;
     }
 }

@@ -218,7 +218,7 @@ export class UserService extends Service<User> {
 			)
 		}
 
-		const newPassword = uuid()
+		const newPassword = this.generatePassword()
 
 		user.password = await Hash.hash(newPassword)
 
@@ -417,5 +417,33 @@ export class UserService extends Service<User> {
 		user.telegramUsername = null as any
 
 		await this.userRepository.update(user)
+	}
+
+	/**
+	 * Generates a random password
+	 * Requirements:
+	 * - 12 characters
+	 * - 1 uppercase letter
+	 * - 1 lowercase letter
+	 * - 1 number
+	 */
+	private generatePassword(): string {
+		const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+		const lowercase = 'abcdefghijklmnopqrstuvwxyz'
+		const numbers = '0123456789'
+
+		const characters = uppercase + lowercase + numbers
+
+		let password = ''
+
+		password += uppercase[Math.floor(Math.random() * uppercase.length)]
+		password += lowercase[Math.floor(Math.random() * lowercase.length)]
+		password += numbers[Math.floor(Math.random() * numbers.length)]
+
+		for (let i = 0; i < 9; i++) {
+			password += characters[Math.floor(Math.random() * characters.length)]
+		}
+
+		return password
 	}
 }
