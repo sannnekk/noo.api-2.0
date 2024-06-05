@@ -160,7 +160,7 @@ export class PollService extends Service<Poll | PollAnswer | User> {
 		userId: User['id'],
 		pollId: Poll['id']
 	): Promise<boolean> {
-		const answerCount = await this.pollAnswerRepository.count({
+		const existingAnswer = await this.pollAnswerRepository.findOne({
 			question: {
 				poll: {
 					id: pollId,
@@ -171,7 +171,7 @@ export class PollService extends Service<Poll | PollAnswer | User> {
 			},
 		})
 
-		return answerCount > 0
+		return existingAnswer !== null
 	}
 
 	private async canVote(

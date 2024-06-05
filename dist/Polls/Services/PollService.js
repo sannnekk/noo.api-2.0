@@ -95,7 +95,7 @@ export class PollService extends Service {
         await this.pollAnswerRepository.update(newAnswer);
     }
     async userAlreadyVoted(userId, pollId) {
-        const answerCount = await this.pollAnswerRepository.count({
+        const existingAnswer = await this.pollAnswerRepository.findOne({
             question: {
                 poll: {
                     id: pollId,
@@ -105,7 +105,7 @@ export class PollService extends Service {
                 id: userId,
             },
         });
-        return answerCount > 0;
+        return existingAnswer !== null;
     }
     async canVote(role, pollId) {
         const poll = await this.pollRepository.findOne({
