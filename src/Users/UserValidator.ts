@@ -60,8 +60,9 @@ export class UserValidator extends Validator {
 		name: z.string().optional(),
 		telegramUsername: z.string().optional(),
 		password: this.passwordScheme.optional(),
-		role: z.nativeEnum(UserRoles).optional(),
+		role: this.userRoleScheme.optional(),
 		isBlocked: z.boolean().optional(),
+		forbidden: z.number().optional(),
 	})
 
 	public loginScheme = z.object({
