@@ -29,10 +29,10 @@ let WorkValidator = class WorkValidator extends Validator {
         order: z.number(),
         highestScore: z.number().int().positive(),
         type: this.taskTypeScheme,
-        rightAnswer: z.string().optional(),
-        solveHint: DeltaScheme.optional(),
-        checkHint: DeltaScheme.optional(),
-        checkingStrategy: this.checkingStrategyScheme.optional(),
+        rightAnswer: z.string().nullable().optional(),
+        solveHint: DeltaScheme.nullable().optional(),
+        checkHint: DeltaScheme.nullable().optional(),
+        checkingStrategy: this.checkingStrategyScheme.nullable().optional(),
     });
     workScheme = z.object({
         id: z.string().optional(),

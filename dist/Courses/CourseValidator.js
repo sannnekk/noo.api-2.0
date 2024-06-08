@@ -18,11 +18,11 @@ let CourseValidator = class CourseValidator extends Validator {
             message: 'Название материала не может быть длиннее 255 символов',
         }),
         order: z.number(),
-        description: z.string().optional(),
+        description: z.string().nullable().optional(),
         content: DeltaScheme,
     });
     materialWithIdScheme = this.materialScheme.extend({
-        id: z.string().uuid(),
+        id: z.string().ulid(),
     });
     chapterScheme = z.object({
         name: z
@@ -35,7 +35,7 @@ let CourseValidator = class CourseValidator extends Validator {
         materials: z.array(this.materialScheme),
     });
     chapterUpdateScheme = this.chapterScheme.extend({
-        id: z.string().uuid(),
+        id: z.string().ulid(),
         materials: z.array(this.materialWithIdScheme),
     });
     courseScheme = z.object({
@@ -55,7 +55,7 @@ let CourseValidator = class CourseValidator extends Validator {
         chapters: z.array(this.chapterScheme),
     });
     courseUpdateScheme = this.courseScheme.extend({
-        id: z.string().uuid(),
+        id: z.string().ulid(),
         chapters: z.array(this.chapterUpdateScheme),
     });
     idsScheme = z.array(this.idScheme);
