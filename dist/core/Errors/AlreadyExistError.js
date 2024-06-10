@@ -1,9 +1,8 @@
 import { StatusCodes } from 'http-status-codes';
-export class AlreadyExistError extends Error {
-    code = StatusCodes.CONFLICT;
-    message;
+import { AppError } from './AppError.js';
+export class AlreadyExistError extends AppError {
     constructor(message = 'Такой объект уже существует.') {
-        super();
-        this.message = message;
+        super(message);
+        this.code = StatusCodes.CONFLICT;
     }
 }

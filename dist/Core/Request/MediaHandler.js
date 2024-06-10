@@ -3,11 +3,11 @@ import multer from 'multer';
 import { v4 as uuid } from 'uuid';
 export const MediaHandler = multer({
     storage: multer.diskStorage({
-        destination: function (req, file, cb) {
+        destination(req, file, cb) {
             cb(null, MediaOptions.fileDestinationFolder);
         },
-        filename: function (req, file, cb) {
-            let name = uuid() + '-' + uuid();
+        filename(req, file, cb) {
+            let name = `${uuid()}-${uuid()}`;
             switch (file.mimetype) {
                 case 'image/jpeg':
                     name += '.jpg';

@@ -1,13 +1,11 @@
 import { StatusCodes } from 'http-status-codes'
+import { AppError } from './AppError'
 
-export class WrongRoleError extends Error {
-	code = StatusCodes.FORBIDDEN
-	message: string
-
-	constructor(
-		message = 'У вас недостаточно прав для выполнения этого действия.'
-	) {
-		super()
-		this.message = message
-	}
+export class WrongRoleError extends AppError {
+  constructor(
+    message = 'У вас недостаточно прав для выполнения этого действия.'
+  ) {
+    super(message)
+    this.code = StatusCodes.FORBIDDEN
+  }
 }

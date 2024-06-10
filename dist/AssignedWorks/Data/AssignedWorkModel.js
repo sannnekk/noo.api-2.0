@@ -12,9 +12,9 @@ import * as ULID from '../../Core/Data/Ulid.js';
 import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, RelationId, } from 'typeorm';
 import { UserModel } from '../../Users/Data/UserModel.js';
 import { WorkModel } from '../../Works/Data/WorkModel.js';
+import { CalenderEventModel } from '../../Calender/Data/CalenderEventModel.js';
 import { AssignedWorkAnswerModel } from './Relations/AssignedWorkAnswerModel.js';
 import { AssignedWorkCommentModel } from './Relations/AssignedWorkCommentModel.js';
-import { CalenderEventModel } from '../../Calender/Data/CalenderEventModel.js';
 let AssignedWorkModel = class AssignedWorkModel extends Model {
     constructor(data) {
         super();
@@ -212,7 +212,9 @@ __decorate([
     __metadata("design:type", Object)
 ], AssignedWorkModel.prototype, "checkedAt", void 0);
 __decorate([
-    OneToMany(() => AssignedWorkAnswerModel, (answer) => answer.assignedWork, { cascade: true }),
+    OneToMany(() => AssignedWorkAnswerModel, (answer) => answer.assignedWork, {
+        cascade: true,
+    }),
     __metadata("design:type", Array)
 ], AssignedWorkModel.prototype, "answers", void 0);
 __decorate([

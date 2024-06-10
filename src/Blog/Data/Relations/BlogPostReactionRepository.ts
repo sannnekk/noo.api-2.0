@@ -3,7 +3,7 @@ import { BlogPostReaction } from './BlogPostReaction'
 import { BlogPostReactionModel } from './BlogPostReactionModel'
 
 export class BlogPostReactionRepository extends Repository<BlogPostReaction> {
-	constructor() {
-		super(BlogPostReactionModel)
-	}
+  constructor() {
+    super(BlogPostReactionModel)
+  }
 }

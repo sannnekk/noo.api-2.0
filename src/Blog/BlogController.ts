@@ -1,128 +1,129 @@
-import { BlogValidator } from './BlogValidator'
 import {
-	Controller,
-	Get,
-	Post,
-	Patch,
-	Delete,
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
 } from 'express-controller-decorator'
-import { BlogService } from './Services/BlogService'
-import * as Asserts from '@modules/core/Security/asserts'
+import * as Asserts from '@modules/Core/Security/asserts'
 import { Context } from '@modules/Core/Request/Context'
 import { ApiResponse } from '@modules/Core/Response/ApiResponse'
+import { BlogService } from './Services/BlogService'
+import { BlogValidator } from './BlogValidator'
 
 @Controller('/blog')
 export class BlogController {
-	private readonly blogService: BlogService
-	private readonly blogValidator: BlogValidator
+  private readonly blogService: BlogService
 
-	constructor() {
-		this.blogService = new BlogService()
-		this.blogValidator = new BlogValidator()
-	}
+  private readonly blogValidator: BlogValidator
 
-	@Get('/')
-	public async getPosts(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			const pagination = this.blogValidator.parsePagination(context.query)
+  constructor() {
+    this.blogService = new BlogService()
+    this.blogValidator = new BlogValidator()
+  }
 
-			const { posts, meta } = await this.blogService.getAll(
-				pagination,
-				context.credentials!.userId
-			)
+  @Get('/')
+  public async getPosts(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      const pagination = this.blogValidator.parsePagination(context.query)
 
-			return new ApiResponse({
-				data: posts,
-				meta,
-			})
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      const { posts, meta } = await this.blogService.getAll(
+        pagination,
+        context.credentials!.userId
+      )
 
-	@Get('/:id')
-	public async getPost(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			const blogId = this.blogValidator.parseId(context.params.id)
+      return new ApiResponse({
+        data: posts,
+        meta,
+      })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			const post = await this.blogService.getById(
-				blogId,
-				context.credentials!.userId
-			)
+  @Get('/:id')
+  public async getPost(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      const blogId = this.blogValidator.parseId(context.params.id)
 
-			return new ApiResponse({ data: post })
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      const post = await this.blogService.getById(
+        blogId,
+        context.credentials!.userId
+      )
 
-	@Patch('/:id/react/:reaction')
-	public async reactToPost(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			const postId = this.blogValidator.parseId(context.params.id)
-			const reaction = this.blogValidator.parseReaction(context.params.reaction)
+      return new ApiResponse({ data: post })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			const newCounts = await this.blogService.toggleReaction(
-				postId,
-				context.credentials!.userId,
-				reaction
-			)
+  @Patch('/:id/react/:reaction')
+  public async reactToPost(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      const postId = this.blogValidator.parseId(context.params.id)
+      const reaction = this.blogValidator.parseReaction(context.params.reaction)
 
-			return new ApiResponse({ data: newCounts })
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      const newCounts = await this.blogService.toggleReaction(
+        postId,
+        context.credentials!.userId,
+        reaction
+      )
 
-	@Post('/')
-	public async createPost(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			Asserts.teacherOrAdmin(context)
-			const post = this.blogValidator.parseCreateBlog(context.body)
+      return new ApiResponse({ data: newCounts })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			const createdPost = await this.blogService.create(
-				post,
-				context.credentials!.userId
-			)
+  @Post('/')
+  public async createPost(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.teacherOrAdmin(context)
+      const post = this.blogValidator.parseCreateBlog(context.body)
 
-			return new ApiResponse({ data: createdPost })
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      const createdPost = await this.blogService.create(
+        post,
+        context.credentials.userId
+      )
 
-	@Patch('/:id')
-	public async updatePost(context: Context): Promise<ApiResponse> {
-		try {
-			Asserts.isAuthenticated(context)
-			Asserts.teacherOrAdmin(context)
-			this.blogValidator.parseId(context.params.id)
-			const post = this.blogValidator.parseUpdateBlog(context.body)
+      return new ApiResponse({ data: createdPost })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			await this.blogService.update(post)
+  @Patch('/:id')
+  public async updatePost(context: Context): Promise<ApiResponse> {
+    try {
+      Asserts.isAuthenticated(context)
+      Asserts.teacherOrAdmin(context)
+      this.blogValidator.parseId(context.params.id)
+      const post = this.blogValidator.parseUpdateBlog(context.body)
 
-			return new ApiResponse()
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      await this.blogService.update(post)
 
-	@Delete('/:id')
-	public async deletePost(context: Context): Promise<ApiResponse> {
-		try {
-			Asserts.isAuthenticated(context)
-			Asserts.teacherOrAdmin(context)
-			const postId = this.blogValidator.parseId(context.params.id)
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			await this.blogService.delete(postId)
+  @Delete('/:id')
+  public async deletePost(context: Context): Promise<ApiResponse> {
+    try {
+      Asserts.isAuthenticated(context)
+      Asserts.teacherOrAdmin(context)
+      const postId = this.blogValidator.parseId(context.params.id)
 
-			return new ApiResponse()
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      await this.blogService.delete(postId)
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 }

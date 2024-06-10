@@ -1,8 +1,8 @@
-export class UnknownError extends Error {
-    code = 500;
-    message;
+import { StatusCodes } from 'http-status-codes';
+import { AppError } from './AppError.js';
+export class UnknownError extends AppError {
     constructor(message = 'Произошла неизвестная ошибка.') {
-        super();
-        this.message = message;
+        super(message);
+        this.code = StatusCodes.INTERNAL_SERVER_ERROR;
     }
 }

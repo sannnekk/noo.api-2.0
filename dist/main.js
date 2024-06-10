@@ -22,6 +22,8 @@ app.use(express.json(config.expressJson));
 app.use(express.urlencoded(config.expressUrlencoded));
 setContextClass(Context);
 injectControllers(app);
-app.listen(process.env.APP_PORT, () => console.log(`Server is running on port ${process.env.APP_PORT}`));
+app.listen(process.env.APP_PORT, () => 
+// eslint-disable-next-line no-console
+console.log(`Server is running on port ${process.env.APP_PORT}`));
 // for test purposes
 export default app;

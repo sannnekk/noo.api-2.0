@@ -1,9 +1,8 @@
+import { AppError } from '../../Core/Errors/AppError.js';
 import { StatusCodes } from 'http-status-codes';
-export class WorkIsNotSolvedYetError extends Error {
-    code = StatusCodes.CONFLICT;
-    message;
+export class WorkIsNotSolvedYetError extends AppError {
     constructor(message = 'Работа еще не выполнена.') {
-        super();
-        this.message = message;
+        super(message);
+        this.code = StatusCodes.CONFLICT;
     }
 }

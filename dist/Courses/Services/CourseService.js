@@ -1,15 +1,15 @@
 import { UserRepository } from '../../Users/Data/UserRepository.js';
-import { CourseRepository } from './../Data/CourseRepository.js';
 import { AlreadyExistError } from '../../Core/Errors/AlreadyExistError.js';
 import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
 import { UnknownError } from '../../Core/Errors/UnknownError.js';
 import { Pagination } from '../../Core/Data/Pagination.js';
 import { Service } from '../../Core/Services/Service.js';
 import { QueryFailedError } from 'typeorm';
-import { CourseModel } from '../Data/CourseModel.js';
-import { CourseMaterialRepository } from '../Data/CourseMaterialRepository.js';
 import { AssignedWorkService } from '../../AssignedWorks/Services/AssignedWorkService.js';
 import { AssignedWorkRepository } from '../../AssignedWorks/Data/AssignedWorkRepository.js';
+import { CourseMaterialRepository } from '../Data/CourseMaterialRepository.js';
+import { CourseModel } from '../Data/CourseModel.js';
+import { CourseRepository } from '../Data/CourseRepository.js';
 export class CourseService extends Service {
     courseRepository;
     materialRepository;
@@ -27,7 +27,7 @@ export class CourseService extends Service {
     async get(pagination, userId, userRole) {
         pagination = new Pagination().assign(pagination);
         pagination.entriesToSearch = CourseModel.entriesToSearch();
-        let conditions = undefined;
+        let conditions;
         if (userRole === 'student') {
             conditions = {
                 students: {

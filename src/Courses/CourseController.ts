@@ -1,175 +1,176 @@
 import {
-	Controller,
-	Delete,
-	Get,
-	Patch,
-	Post,
+  Controller,
+  Delete,
+  Get,
+  Patch,
+  Post,
 } from 'express-controller-decorator'
-import { CourseService } from './Services/CourseService'
-import * as Asserts from '@modules/core/Security/asserts'
+import * as Asserts from '@modules/Core/Security/asserts'
 import { Context } from '@modules/Core/Request/Context'
-import { CourseValidator } from './CourseValidator'
 import { ApiResponse } from '@modules/Core/Response/ApiResponse'
+import { CourseValidator } from './CourseValidator'
+import { CourseService } from './Services/CourseService'
 
 @Controller('/course')
 export class CourseController {
-	private readonly courseService: CourseService
-	private readonly courseValidator: CourseValidator
+  private readonly courseService: CourseService
 
-	constructor() {
-		this.courseService = new CourseService()
-		this.courseValidator = new CourseValidator()
-	}
+  private readonly courseValidator: CourseValidator
 
-	@Get('/')
-	public async get(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			const pagination = this.courseValidator.parsePagination(context.query)
+  constructor() {
+    this.courseService = new CourseService()
+    this.courseValidator = new CourseValidator()
+  }
 
-			const { courses, meta } = await this.courseService.get(
-				pagination,
-				context.credentials!.userId,
-				context.credentials!.role
-			)
+  @Get('/')
+  public async get(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      const pagination = this.courseValidator.parsePagination(context.query)
 
-			return new ApiResponse({ data: courses, meta })
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      const { courses, meta } = await this.courseService.get(
+        pagination,
+        context.credentials!.userId,
+        context.credentials!.role
+      )
 
-	@Get('/:slug')
-	public async getBySlug(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			const courseSlug = this.courseValidator.parseSlug(context.params.slug)
+      return new ApiResponse({ data: courses, meta })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			const course = await this.courseService.getBySlug(courseSlug)
+  @Get('/:slug')
+  public async getBySlug(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      const courseSlug = this.courseValidator.parseSlug(context.params.slug)
 
-			if (
-				context.credentials!.role === 'student' ||
-				context.credentials!.role == 'mentor'
-			) {
-				course.studentIds = []
-			}
+      const course = await this.courseService.getBySlug(courseSlug)
 
-			return new ApiResponse({ data: course })
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      if (
+        context.credentials!.role === 'student' ||
+        context.credentials!.role == 'mentor'
+      ) {
+        course.studentIds = []
+      }
 
-	@Get('/material/:slug/assigned-work')
-	public async getAssignedWork(context: Context): Promise<ApiResponse> {
-		try {
-			const materialSlug = this.courseValidator.parseSlug(context.params.slug)
-			await Asserts.isAuthenticated(context)
-			Asserts.student(context)
+      return new ApiResponse({ data: course })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			const assignedWork = await this.courseService.getAssignedWorkToMaterial(
-				materialSlug,
-				context.credentials.userId
-			)
+  @Get('/material/:slug/assigned-work')
+  public async getAssignedWork(context: Context): Promise<ApiResponse> {
+    try {
+      const materialSlug = this.courseValidator.parseSlug(context.params.slug)
+      await Asserts.isAuthenticated(context)
+      Asserts.student(context)
 
-			return new ApiResponse({ data: assignedWork })
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      const assignedWork = await this.courseService.getAssignedWorkToMaterial(
+        materialSlug,
+        context.credentials.userId
+      )
 
-	@Post('/')
-	public async create(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			Asserts.teacher(context)
-			const courseCreationOptions = this.courseValidator.parseCreation(
-				context.body
-			)
+      return new ApiResponse({ data: assignedWork })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			await this.courseService.create(
-				courseCreationOptions,
-				context.credentials.userId
-			)
+  @Post('/')
+  public async create(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.teacher(context)
+      const courseCreationOptions = this.courseValidator.parseCreation(
+        context.body
+      )
 
-			return new ApiResponse()
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      await this.courseService.create(
+        courseCreationOptions,
+        context.credentials.userId
+      )
 
-	@Patch('/:id')
-	public async update(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			Asserts.teacher(context)
-			const courseId = this.courseValidator.parseId(context.params.id)
-			const updateCourseOptions = this.courseValidator.parseUpdate(context.body)
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			await this.courseService.update(courseId, updateCourseOptions)
+  @Patch('/:id')
+  public async update(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.teacher(context)
+      const courseId = this.courseValidator.parseId(context.params.id)
+      const updateCourseOptions = this.courseValidator.parseUpdate(context.body)
 
-			return new ApiResponse()
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      await this.courseService.update(courseId, updateCourseOptions)
 
-	@Patch('/:materialSlug/assign-work/:workId')
-	public async assignWorkToMaterial(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			Asserts.teacher(context)
-			const materialSlug = this.courseValidator.parseSlug(
-				context.params.materialSlug
-			)
-			const workId = this.courseValidator.parseId(context.params.workId)
-			const assignWorkOptions = this.courseValidator.parseAssignWorkOptions(
-				context.body
-			)
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			await this.courseService.assignWorkToMaterial(
-				materialSlug,
-				workId,
-				assignWorkOptions.solveDeadline,
-				assignWorkOptions.checkDeadline
-			)
+  @Patch('/:materialSlug/assign-work/:workId')
+  public async assignWorkToMaterial(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.teacher(context)
+      const materialSlug = this.courseValidator.parseSlug(
+        context.params.materialSlug
+      )
+      const workId = this.courseValidator.parseId(context.params.workId)
+      const assignWorkOptions = this.courseValidator.parseAssignWorkOptions(
+        context.body
+      )
 
-			return new ApiResponse()
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      await this.courseService.assignWorkToMaterial(
+        materialSlug,
+        workId,
+        assignWorkOptions.solveDeadline,
+        assignWorkOptions.checkDeadline
+      )
 
-	@Patch('/:courseSlug/assign-students')
-	public async assignStudents(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			Asserts.teacher(context)
-			const courseSlug = this.courseValidator.parseSlug(
-				context.params.courseSlug
-			)
-			const studentIds = this.courseValidator.parseStudentIds(context.body)
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			await this.courseService.assignStudents(courseSlug, studentIds)
+  @Patch('/:courseSlug/assign-students')
+  public async assignStudents(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.teacher(context)
+      const courseSlug = this.courseValidator.parseSlug(
+        context.params.courseSlug
+      )
+      const studentIds = this.courseValidator.parseStudentIds(context.body)
 
-			return new ApiResponse()
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      await this.courseService.assignStudents(courseSlug, studentIds)
 
-	@Delete('/:id')
-	public async delete(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			Asserts.teacher(context)
-			const courseId = this.courseValidator.parseId(context.params.id)
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			await this.courseService.delete(courseId)
+  @Delete('/:id')
+  public async delete(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.teacher(context)
+      const courseId = this.courseValidator.parseId(context.params.id)
 
-			return new ApiResponse()
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      await this.courseService.delete(courseId)
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 }

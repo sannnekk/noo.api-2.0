@@ -60,13 +60,7 @@ __decorate([
     Column({
         name: 'visibility',
         type: 'enum',
-        enum: [
-            'all',
-            'own-students',
-            'all-mentors',
-            'own-mentor',
-            'private',
-        ],
+        enum: ['all', 'own-students', 'all-mentors', 'own-mentor', 'private'],
         default: 'private',
     }),
     __metadata("design:type", Object)

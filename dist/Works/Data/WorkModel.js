@@ -12,8 +12,8 @@ import * as Transliteration from '../../Core/Utils/transliteration.js';
 import { Model } from '../../Core/Data/Model.js';
 import { Column, Entity, OneToMany, RelationId } from 'typeorm';
 import { CourseMaterialModel } from '../../Courses/Data/Relations/CourseMaterialModel.js';
-import { WorkTaskModel } from './Relations/WorkTaskModel.js';
 import { AssignedWorkModel } from '../../AssignedWorks/Data/AssignedWorkModel.js';
+import { WorkTaskModel } from './Relations/WorkTaskModel.js';
 let WorkModel = class WorkModel extends Model {
     constructor(data) {
         super();
@@ -37,7 +37,7 @@ let WorkModel = class WorkModel extends Model {
         return ['name', 'description'];
     }
     sluggify(text) {
-        return ULID.generate() + '-' + Transliteration.sluggify(text);
+        return `${ULID.generate()}-${Transliteration.sluggify(text)}`;
     }
 };
 __decorate([

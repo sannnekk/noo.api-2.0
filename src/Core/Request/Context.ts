@@ -1,80 +1,81 @@
+import express from 'express'
 import { UserRepository } from '@modules/Users/Data/UserRepository'
 import { JWTPayload, parseHeader } from '../Security/jwt'
-import express from 'express'
-import multer from 'multer'
 import { RoleChangedButNotReloggedInError } from '../Errors/RoleChangedButNotReloggedInError'
 import { MediaHandler } from './MediaHandler'
 
 export class Context {
-	public readonly params: Record<string, string | number | undefined>
-	public readonly body: unknown
-	public readonly credentials?: JWTPayload
-	public readonly query: Record<string, string | number | undefined>
+  public readonly params: Record<string, string | number | undefined>
 
-	public readonly _req: Express.Request
+  public readonly body: unknown
 
-	private readonly userRepository: UserRepository
+  public readonly credentials?: JWTPayload
 
-	public constructor(req: express.Request) {
-		this._req = req
-		this.userRepository = new UserRepository()
-		this.body = req.body
-		this.params = req.params as typeof this.params
-		this.query = req.query as typeof this.query
+  public readonly query: Record<string, string | number | undefined>
 
-		const authHeader = req.headers.authorization
+  public readonly _req: Express.Request
 
-		if (!authHeader) {
-			return
-		}
+  private readonly userRepository: UserRepository
 
-		this.credentials = parseHeader(authHeader)
+  public constructor(req: express.Request) {
+    this._req = req
+    this.userRepository = new UserRepository()
+    this.body = req.body
+    this.params = req.params as typeof this.params
+    this.query = req.query as typeof this.query
 
-		if (!this.credentials) {
-			return
-		}
+    const authHeader = req.headers.authorization
 
-		if (this.credentials.isBlocked) {
-			this.credentials = undefined
-			return
-		}
-	}
+    if (!authHeader) {
+      return
+    }
 
-	public async isAuthenticated(): Promise<boolean> {
-		const username = this.credentials?.username
-		const claimedRole = this.credentials?.role
+    this.credentials = parseHeader(authHeader)
 
-		if (!username) {
-			return false
-		}
+    if (!this.credentials) {
+      return
+    }
 
-		const user = await this.userRepository.findOne({ username })
+    if (this.credentials.isBlocked) {
+      this.credentials = undefined
+    }
+  }
 
-		if (!user) {
-			return false
-		}
+  public async isAuthenticated(): Promise<boolean> {
+    const username = this.credentials?.username
+    const claimedRole = this.credentials?.role
 
-		if (user.isBlocked) {
-			return false
-		}
+    if (!username) {
+      return false
+    }
 
-		if (claimedRole !== user.role) {
-			throw new RoleChangedButNotReloggedInError()
-		}
+    const user = await this.userRepository.findOne({ username })
 
-		return true
-	}
+    if (!user) {
+      return false
+    }
 
-	public async getFiles(): Promise<Express.Multer.File[]> {
-		return new Promise((resolve, reject) => {
-			const req = this._req
-			MediaHandler(<any>req, <any>undefined, (error: any) => {
-				if (req.files && Array.isArray(req.files)) {
-					resolve(req.files)
-				} else {
-					reject(error)
-				}
-			})
-		})
-	}
+    if (user.isBlocked) {
+      return false
+    }
+
+    if (claimedRole !== user.role) {
+      throw new RoleChangedButNotReloggedInError()
+    }
+
+    return true
+  }
+
+  public async getFiles(): Promise<Express.Multer.File[]> {
+    return new Promise((resolve, reject) => {
+      const req = this._req
+      MediaHandler(<any>req, <any>undefined, (error: any) => {
+        if (req.files && Array.isArray(req.files)) {
+          resolve(req.files)
+        } else {
+          reject(error)
+        }
+      })
+    })
+  }
 }

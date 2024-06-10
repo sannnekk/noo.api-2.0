@@ -1,200 +1,201 @@
-import { UserRelationService } from './UserRelationService'
 import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
 import { Pagination } from '@modules/Core/Data/Pagination'
 import { Service } from '@modules/Core/Services/Service'
 import { UnauthorizedError } from '@modules/Core/Errors/UnauthorizedError'
+import { User } from '@modules/Users/Data/User'
+import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
 import { CalenderEvent } from '../Data/CalenderEvent'
 import { CalenderEventRepository } from '../Data/CalenderEventRepository'
-import { User } from '@modules/Users/Data/User'
 import { CalenderEventModel } from '../Data/CalenderEventModel'
-import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
+import { UserRelationService } from './UserRelationService'
 import { EventCreationOptions } from '../DTO/EventCreationOptions'
 
 export class CalenderService extends Service<CalenderEvent> {
-	private readonly calenderEventRepository: CalenderEventRepository
-	private readonly userRelationService: UserRelationService
+  private readonly calenderEventRepository: CalenderEventRepository
 
-	constructor() {
-		super()
+  private readonly userRelationService: UserRelationService
 
-		this.calenderEventRepository = new CalenderEventRepository()
-		this.userRelationService = new UserRelationService()
-	}
+  constructor() {
+    super()
 
-	public async create(
-		options: EventCreationOptions,
-		username: User['username'],
-		type: CalenderEvent['type'] = 'event'
-	): Promise<CalenderEvent> {
-		const event = new CalenderEventModel(options)
+    this.calenderEventRepository = new CalenderEventRepository()
+    this.userRelationService = new UserRelationService()
+  }
 
-		event.type = type
-		event.username = username
+  public async create(
+    options: EventCreationOptions,
+    username: User['username'],
+    type: CalenderEvent['type'] = 'event'
+  ): Promise<CalenderEvent> {
+    const event = new CalenderEventModel(options)
 
-		return await this.calenderEventRepository.create(event)
-	}
+    event.type = type
+    event.username = username
 
-	public async updateDeadlineFromWork(
-		work: AssignedWork,
-		type: 'student-deadline' | 'mentor-deadline'
-	): Promise<void> {
-		const newDate =
-			type === 'student-deadline' ? work.solveDeadlineAt : work.checkDeadlineAt
+    return this.calenderEventRepository.create(event)
+  }
 
-		const event = await this.calenderEventRepository.findOne({
-			assignedWork: {
-				id: work.id,
-			},
-			type,
-		})
+  public async updateDeadlineFromWork(
+    work: AssignedWork,
+    type: 'student-deadline' | 'mentor-deadline'
+  ): Promise<void> {
+    const newDate =
+      type === 'student-deadline' ? work.solveDeadlineAt : work.checkDeadlineAt
 
-		if (!event || !newDate) {
-			return
-		}
+    const event = await this.calenderEventRepository.findOne({
+      assignedWork: {
+        id: work.id,
+      },
+      type,
+    })
 
-		event.date = newDate
-		event.description = event.description + ' (Дедлайн сдивнут на эту дату)'
+    if (!event || !newDate) {
+      return
+    }
 
-		await this.calenderEventRepository.update(event)
-	}
+    event.date = newDate
+    event.description += ' (Дедлайн сдивнут на эту дату)'
 
-	public async get(requester: User['username'], pagination?: Pagination) {
-		if (!pagination?.getFilter('username')) {
-			throw new UnauthorizedError()
-		}
+    await this.calenderEventRepository.update(event)
+  }
 
-		const condition = await this.userRelationService.getCondition(
-			requester,
-			pagination?.getFilter('username')
-		)
+  public async get(requester: User['username'], pagination?: Pagination) {
+    if (!pagination?.getFilter('username')) {
+      throw new UnauthorizedError()
+    }
 
-		const events = await this.calenderEventRepository.find(
-			condition,
-			undefined,
-			pagination
-		)
+    const condition = await this.userRelationService.getCondition(
+      requester,
+      pagination?.getFilter('username')
+    )
 
-		const meta = await this.getRequestMeta(
-			this.calenderEventRepository,
-			condition,
-			pagination || new Pagination(),
-			[]
-		)
+    const events = await this.calenderEventRepository.find(
+      condition,
+      undefined,
+      pagination
+    )
 
-		return { events, meta }
-	}
+    const meta = await this.getRequestMeta(
+      this.calenderEventRepository,
+      condition,
+      pagination || new Pagination(),
+      []
+    )
 
-	public async getOne(
-		id: CalenderEvent['id'],
-		username: User['username']
-	): Promise<CalenderEvent | null> {
-		const event = await this.calenderEventRepository.findOne({ id })
+    return { events, meta }
+  }
 
-		if (event && event?.username !== username) {
-			throw new UnauthorizedError()
-		}
+  public async getOne(
+    id: CalenderEvent['id'],
+    username: User['username']
+  ): Promise<CalenderEvent | null> {
+    const event = await this.calenderEventRepository.findOne({ id })
 
-		return event
-	}
+    if (event && event?.username !== username) {
+      throw new UnauthorizedError()
+    }
 
-	public async update(
-		id: CalenderEvent['id'],
-		event: Partial<CalenderEvent>,
-		username: User['username']
-	): Promise<void> {
-		const foundEvent = await this.calenderEventRepository.findOne({
-			id,
-		})
+    return event
+  }
 
-		if (foundEvent && foundEvent?.username !== username) {
-			throw new UnauthorizedError()
-		}
+  public async update(
+    id: CalenderEvent['id'],
+    event: Partial<CalenderEvent>,
+    username: User['username']
+  ): Promise<void> {
+    const foundEvent = await this.calenderEventRepository.findOne({
+      id,
+    })
 
-		await this.calenderEventRepository.update({ ...event, id })
-	}
+    if (foundEvent && foundEvent?.username !== username) {
+      throw new UnauthorizedError()
+    }
 
-	public async delete(
-		id: CalenderEvent['id'],
-		username: User['username']
-	): Promise<void> {
-		const foundEvent = await this.calenderEventRepository.findOne({
-			id,
-		})
+    await this.calenderEventRepository.update({ ...event, id })
+  }
 
-		if (!foundEvent) {
-			throw new NotFoundError('Событие не найдено')
-		}
+  public async delete(
+    id: CalenderEvent['id'],
+    username: User['username']
+  ): Promise<void> {
+    const foundEvent = await this.calenderEventRepository.findOne({
+      id,
+    })
 
-		if (foundEvent.username !== username) {
-			throw new UnauthorizedError()
-		}
+    if (!foundEvent) {
+      throw new NotFoundError('Событие не найдено')
+    }
 
-		await this.calenderEventRepository.delete(id)
-	}
+    if (foundEvent.username !== username) {
+      throw new UnauthorizedError()
+    }
 
-	public async createSolveDeadlineEvent(work: AssignedWork): Promise<void> {
-		await this.calenderEventRepository.create({
-			title: 'Дедлайн по работе',
-			description: `Работа: ${work.work.name}`,
-			date: work.solveDeadlineAt!,
-			url: `/assigned-works/${work.id}/solve`,
-			visibility: 'all',
-			type: 'student-deadline',
-			username: work.student!.username,
-			assignedWork: work,
-		} as CalenderEvent)
-	}
+    await this.calenderEventRepository.delete(id)
+  }
 
-	public async createCheckDeadlineEvent(work: AssignedWork): Promise<void> {
-		await Promise.all(
-			(work.mentors || []).map((mentor) => {
-				return this.calenderEventRepository.create(
-					new CalenderEventModel({
-						title: 'Дедлайн по проверке работы',
-						description: `Работа: ${work.work.name}`,
-						date: work.checkDeadlineAt!,
-						url: `/assigned-works/${work.id}/check`,
-						visibility: 'all',
-						type: 'mentor-deadline',
-						username: mentor.username,
-						assignedWork: work,
-					})
-				)
-			})
-		)
-	}
+  public async createSolveDeadlineEvent(work: AssignedWork): Promise<void> {
+    await this.calenderEventRepository.create({
+      title: 'Дедлайн по работе',
+      description: `Работа: ${work.work.name}`,
+      date: work.solveDeadlineAt!,
+      url: `/assigned-works/${work.id}/solve`,
+      visibility: 'all',
+      type: 'student-deadline',
+      username: work.student!.username,
+      assignedWork: work,
+    } as CalenderEvent)
+  }
 
-	public async createWorkMadeEvent(work: AssignedWork): Promise<void> {
-		await this.calenderEventRepository.create(
-			new CalenderEventModel({
-				title: 'Работа сдана',
-				description: `Работа: ${work.work.name}`,
-				date: work.solvedAt!,
-				url: `/assigned-works/${work.id}/read`,
-				visibility: 'all',
-				type: 'work-made',
-				username: work.student!.username,
-				assignedWork: work,
-			})
-		)
-	}
+  public async createCheckDeadlineEvent(work: AssignedWork): Promise<void> {
+    await Promise.all(
+      (work.mentors || []).map((mentor) => {
+        return this.calenderEventRepository.create(
+          new CalenderEventModel({
+            title: 'Дедлайн по проверке работы',
+            description: `Работа: ${work.work.name}`,
+            date: work.checkDeadlineAt!,
+            url: `/assigned-works/${work.id}/check`,
+            visibility: 'all',
+            type: 'mentor-deadline',
+            username: mentor.username,
+            assignedWork: work,
+          })
+        )
+      })
+    )
+  }
 
-	public async createWorkCheckedEvent(work: AssignedWork): Promise<void> {
-		await Promise.all(
-			(work.mentors || []).map((mentor) => {
-				return this.calenderEventRepository.create(
-					new CalenderEventModel({
-						title: 'Работа проверена',
-						description: `Работа: ${work.work.name}`,
-						date: work.checkedAt!,
-						url: `/assigned-works/${work.id}/read`,
-						visibility: 'all',
-						type: 'work-checked',
-						username: mentor.username,
-						assignedWork: work,
-					})
-				)
-			})
-		)
-	}
+  public async createWorkMadeEvent(work: AssignedWork): Promise<void> {
+    await this.calenderEventRepository.create(
+      new CalenderEventModel({
+        title: 'Работа сдана',
+        description: `Работа: ${work.work.name}`,
+        date: work.solvedAt!,
+        url: `/assigned-works/${work.id}/read`,
+        visibility: 'all',
+        type: 'work-made',
+        username: work.student!.username,
+        assignedWork: work,
+      })
+    )
+  }
+
+  public async createWorkCheckedEvent(work: AssignedWork): Promise<void> {
+    await Promise.all(
+      (work.mentors || []).map((mentor) => {
+        return this.calenderEventRepository.create(
+          new CalenderEventModel({
+            title: 'Работа проверена',
+            description: `Работа: ${work.work.name}`,
+            date: work.checkedAt!,
+            url: `/assigned-works/${work.id}/read`,
+            visibility: 'all',
+            type: 'work-checked',
+            username: mentor.username,
+            assignedWork: work,
+          })
+        )
+      })
+    )
+  }
 }

@@ -9,10 +9,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 import { Model } from '../../../Core/Data/Model.js';
 import * as ULID from '../../../Core/Data/Ulid.js';
-import { Column, Entity, ManyToOne, OneToMany, RelationId, } from 'typeorm';
-import { WorkModel } from '../WorkModel.js';
+import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm';
 import { AssignedWorkAnswerModel } from '../../../AssignedWorks/Data/Relations/AssignedWorkAnswerModel.js';
 import { AssignedWorkCommentModel } from '../../../AssignedWorks/Data/Relations/AssignedWorkCommentModel.js';
+import { WorkModel } from '../WorkModel.js';
 let WorkTaskModel = class WorkTaskModel extends Model {
     constructor(data) {
         super();

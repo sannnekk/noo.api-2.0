@@ -3,7 +3,7 @@ import { PollAnswer } from './Relations/PollAnswer'
 import { PollAnswerModel } from './Relations/PollAnswerModel'
 
 export class PollAnswerRepository extends Repository<PollAnswer> {
-	public constructor() {
-		super(PollAnswerModel)
-	}
+  public constructor() {
+    super(PollAnswerModel)
+  }
 }

@@ -1,9 +1,8 @@
+import { AppError } from '../../Core/Errors/AppError.js';
 import { StatusCodes } from 'http-status-codes';
-export class SolveDeadlineNotSetError extends Error {
-    code = StatusCodes.BAD_REQUEST;
-    message;
-    constructor(message = 'Срок выполнения задания не установлен.') {
-        super();
-        this.message = message;
+export class SolveDeadlineNotSetError extends AppError {
+    constructor(message = 'Срок выполнения не установлен.') {
+        super(message);
+        this.code = StatusCodes.BAD_REQUEST;
     }
 }

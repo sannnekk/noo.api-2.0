@@ -1,13 +1,13 @@
 import { Service } from '../../Core/Services/Service.js';
-import { BlogPostRepository } from '../Data/BlogPostRepository.js';
 import { Pagination } from '../../Core/Data/Pagination.js';
-import { BlogPostModel } from '../Data/BlogPostModel.js';
 import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
 import { QueryFailedError } from 'typeorm';
 import { AlreadyExistError } from '../../Core/Errors/AlreadyExistError.js';
 import { UnknownError } from '../../Core/Errors/UnknownError.js';
 import { BlogPostReactionRepository } from '../Data/Relations/BlogPostReactionRepository.js';
 import { BlogPostReactionModel } from '../Data/Relations/BlogPostReactionModel.js';
+import { BlogPostModel } from '../Data/BlogPostModel.js';
+import { BlogPostRepository } from '../Data/BlogPostRepository.js';
 export class BlogService extends Service {
     repository;
     reactionRepository;
@@ -57,7 +57,7 @@ export class BlogService extends Service {
         if (!post) {
             throw new NotFoundError('Пост не найден');
         }
-        const reactionCounts = post.reactionCounts;
+        const { reactionCounts } = post;
         const reactionCount = reactionCounts[reaction];
         if (reactionCount === undefined) {
             throw new UnknownError('Неизвестная реакция');

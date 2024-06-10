@@ -1,15 +1,14 @@
 import {
-	Column,
-	Entity,
-	JoinTable,
-	ManyToMany,
-	ManyToOne,
-	OneToMany,
-	RelationId,
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  RelationId,
 } from 'typeorm'
 import { Model } from '@modules/Core/Data/Model'
 import type { UserRolesType } from '@modules/Core/Security/roles'
-import type { User } from './User'
 import { CourseModel } from '@modules/Courses/Data/CourseModel'
 import type { Course } from '@modules/Courses/Data/Course'
 import type { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
@@ -22,142 +21,143 @@ import { PollAnswerModel } from '@modules/Polls/Data/Relations/PollAnswerModel'
 import { PollAnswer } from '@modules/Polls/Data/Relations/PollAnswer'
 import { PollModel } from '@modules/Polls/Data/PollModel'
 import { Poll } from '@modules/Polls/Data/Poll'
+import type { User } from './User'
 
 @Entity('user')
 export class UserModel extends Model implements User {
-	constructor(data?: Partial<User>) {
-		super()
+  constructor(data?: Partial<User>) {
+    super()
 
-		if (data) {
-			this.set(data)
+    if (data) {
+      this.set(data)
 
-			if (!data.slug && data.username) {
-				this.slug = this.sluggify(this.username)
-			}
-		}
-	}
+      if (!data.slug && data.username) {
+        this.slug = this.sluggify(this.username)
+      }
+    }
+  }
 
-	@Column({
-		name: 'username',
-		type: 'varchar',
-		nullable: false,
-		unique: true,
-	})
-	username!: string
+  @Column({
+    name: 'username',
+    type: 'varchar',
+    nullable: false,
+    unique: true,
+  })
+  username!: string
 
-	@Column({
-		name: 'slug',
-		type: 'varchar',
-	})
-	slug!: string
+  @Column({
+    name: 'slug',
+    type: 'varchar',
+  })
+  slug!: string
 
-	@Column({
-		name: 'role',
-		type: 'enum',
-		enum: ['student', 'mentor', 'teacher', 'admin'] as UserRolesType,
-		default: 'student',
-	})
-	role!: User['role']
+  @Column({
+    name: 'role',
+    type: 'enum',
+    enum: ['student', 'mentor', 'teacher', 'admin'] as UserRolesType,
+    default: 'student',
+  })
+  role!: User['role']
 
-	@Column({
-		name: 'name',
-		type: 'varchar',
-	})
-	name!: string
+  @Column({
+    name: 'name',
+    type: 'varchar',
+  })
+  name!: string
 
-	@Column({
-		name: 'email',
-		type: 'varchar',
-		unique: true,
-	})
-	email!: string
+  @Column({
+    name: 'email',
+    type: 'varchar',
+    unique: true,
+  })
+  email!: string
 
-	@OneToMany(() => UserModel, (user) => user.mentor)
-	students?: User[]
+  @OneToMany(() => UserModel, (user) => user.mentor)
+  students?: User[]
 
-	@RelationId((user: UserModel) => user.mentor)
-	mentorId?: string
+  @RelationId((user: UserModel) => user.mentor)
+  mentorId?: string
 
-	@ManyToOne(() => UserModel, (user) => user.students)
-	mentor?: User
+  @ManyToOne(() => UserModel, (user) => user.students)
+  mentor?: User
 
-	@OneToMany(() => CourseModel, (course) => course.author)
-	courses?: Course[]
+  @OneToMany(() => CourseModel, (course) => course.author)
+  courses?: Course[]
 
-	@RelationId((user: UserModel) => user.courses)
-	courseIds!: string[]
+  @RelationId((user: UserModel) => user.courses)
+  courseIds!: string[]
 
-	@ManyToMany(() => CourseModel, (course) => course.students)
-	@JoinTable()
-	coursesAsStudent?: Course[]
+  @ManyToMany(() => CourseModel, (course) => course.students)
+  @JoinTable()
+  coursesAsStudent?: Course[]
 
-	@ManyToMany(() => AssignedWorkModel, (assignedWork) => assignedWork.mentors)
-	assignedWorksAsMentor?: AssignedWork[]
+  @ManyToMany(() => AssignedWorkModel, (assignedWork) => assignedWork.mentors)
+  assignedWorksAsMentor?: AssignedWork[]
 
-	@OneToMany(() => AssignedWorkModel, (assignedWork) => assignedWork.student)
-	assignedWorksAsStudent?: AssignedWork[]
+  @OneToMany(() => AssignedWorkModel, (assignedWork) => assignedWork.student)
+  assignedWorksAsStudent?: AssignedWork[]
 
-	@OneToMany(() => BlogPostModel, (post) => post.author)
-	blogPosts?: BlogPost[]
+  @OneToMany(() => BlogPostModel, (post) => post.author)
+  blogPosts?: BlogPost[]
 
-	@OneToMany(() => BlogPostReactionModel, (reaction) => reaction.user)
-	blogPostReactions?: BlogPostReaction[]
+  @OneToMany(() => BlogPostReactionModel, (reaction) => reaction.user)
+  blogPostReactions?: BlogPostReaction[]
 
-	@OneToMany(() => PollAnswerModel, (answer) => answer.user)
-	pollAnswers?: PollAnswer[]
+  @OneToMany(() => PollAnswerModel, (answer) => answer.user)
+  pollAnswers?: PollAnswer[]
 
-	@ManyToMany(() => PollModel, (poll) => poll.votedUsers)
-	votedPolls!: Poll[]
+  @ManyToMany(() => PollModel, (poll) => poll.votedUsers)
+  votedPolls!: Poll[]
 
-	@Column({
-		name: 'telegram_id',
-		type: 'varchar',
-		nullable: true,
-		default: null,
-	})
-	telegramId?: string | undefined
+  @Column({
+    name: 'telegram_id',
+    type: 'varchar',
+    nullable: true,
+    default: null,
+  })
+  telegramId?: string | undefined
 
-	@Column({
-		name: 'telegram_username',
-		type: 'varchar',
-		nullable: true,
-		default: null,
-	})
-	telegramUsername?: string | undefined
+  @Column({
+    name: 'telegram_username',
+    type: 'varchar',
+    nullable: true,
+    default: null,
+  })
+  telegramUsername?: string | undefined
 
-	@Column({
-		name: 'password',
-		type: 'varchar',
-		nullable: true,
-	})
-	password!: string
+  @Column({
+    name: 'password',
+    type: 'varchar',
+    nullable: true,
+  })
+  password!: string
 
-	@Column({
-		name: 'is_blocked',
-		type: 'boolean',
-		default: false,
-	})
-	isBlocked!: boolean
+  @Column({
+    name: 'is_blocked',
+    type: 'boolean',
+    default: false,
+  })
+  isBlocked!: boolean
 
-	@Column({
-		name: 'forbidden',
-		type: 'int',
-		default: 0,
-	})
-	forbidden!: number
+  @Column({
+    name: 'forbidden',
+    type: 'int',
+    default: 0,
+  })
+  forbidden!: number
 
-	@Column({
-		name: 'verification_token',
-		type: 'varchar',
-		nullable: true,
-	})
-	verificationToken?: string
+  @Column({
+    name: 'verification_token',
+    type: 'varchar',
+    nullable: true,
+  })
+  verificationToken?: string
 
-	static entriesToSearch(): string[] {
-		return ['username', 'name', 'email', 'telegramUsername']
-	}
+  static entriesToSearch(): string[] {
+    return ['username', 'name', 'email', 'telegramUsername']
+  }
 
-	private sluggify(username: string): string {
-		return username.toLowerCase().replace(/\s/g, '-')
-	}
+  private sluggify(username: string): string {
+    return username.toLowerCase().replace(/\s/g, '-')
+  }
 }

@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { PrimaryColumn, CreateDateColumn, UpdateDateColumn, } from 'typeorm';
+import { PrimaryColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { generate } from './Ulid.js';
 export class Model {
     set(data) {
@@ -17,14 +17,13 @@ export class Model {
     createdAt;
     updatedAt;
     toJSON() {
-        const jsonObj = Object.assign({}, this);
+        const jsonObj = { ...this };
         const proto = Object.getPrototypeOf(this);
         for (const key of Object.getOwnPropertyNames(proto)) {
             const desc = Object.getOwnPropertyDescriptor(proto, key);
             const hasGetter = desc && typeof desc.get === 'function';
             if (hasGetter) {
-                jsonObj[key] =
-                    this[key];
+                jsonObj[key] = this[key];
             }
         }
         return { ...jsonObj, password: undefined };

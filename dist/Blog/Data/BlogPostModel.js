@@ -10,8 +10,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 import { Model } from '../../Core/Data/Model.js';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, RelationId, } from 'typeorm';
 import { UserModel } from '../../Users/Data/UserModel.js';
-import { BlogPostReactionModel } from './Relations/BlogPostReactionModel.js';
 import { PollModel } from '../../Polls/Data/PollModel.js';
+import { BlogPostReactionModel } from './Relations/BlogPostReactionModel.js';
 let BlogPostModel = class BlogPostModel extends Model {
     constructor(data) {
         super();

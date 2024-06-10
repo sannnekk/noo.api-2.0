@@ -5,37 +5,37 @@ import { AssignedWorkComment } from './Relations/AssignedWorkComment'
 import { AssignedWorkAnswer } from './Relations/AssignedWorkAnswer'
 
 export interface AssignedWork extends BaseModel {
-	slug: string
-	mentorIds: User['id'][]
-	mentors?: User[]
-	studentId: User['id']
-	student?: User
-	workId: Work['id']
-	work: Work
-	solveStatus:
-		| 'not-started'
-		| 'in-progress'
-		| 'made-in-deadline'
-		| 'made-after-deadline'
-	checkStatus:
-		| 'not-checked'
-		| 'in-progress'
-		| 'checked-in-deadline'
-		| 'checked-after-deadline'
-		| 'checked-automatically'
-	solveDeadlineAt?: Date
-	solveDeadlineShifted: boolean
-	checkDeadlineAt?: Date
-	checkDeadlineShifted: boolean
-	solvedAt?: Date
-	checkedAt?: Date
-	score?: number
-	maxScore: number
-	isArchived: boolean
-	isNewAttempt: boolean
-	excludedTaskIds: string[]
-	answers: AssignedWorkAnswer[]
-	answerIds: AssignedWorkAnswer['id'][]
-	comments: AssignedWorkComment[]
-	commentIds: AssignedWorkComment['id'][]
+  slug: string
+  mentorIds: User['id'][]
+  mentors?: User[]
+  studentId: User['id']
+  student?: User
+  workId: Work['id']
+  work: Work
+  solveStatus:
+    | 'not-started'
+    | 'in-progress'
+    | 'made-in-deadline'
+    | 'made-after-deadline'
+  checkStatus:
+    | 'not-checked'
+    | 'in-progress'
+    | 'checked-in-deadline'
+    | 'checked-after-deadline'
+    | 'checked-automatically'
+  solveDeadlineAt?: Date
+  solveDeadlineShifted: boolean
+  checkDeadlineAt?: Date
+  checkDeadlineShifted: boolean
+  solvedAt?: Date
+  checkedAt?: Date
+  score?: number
+  maxScore: number
+  isArchived: boolean
+  isNewAttempt: boolean
+  excludedTaskIds: string[]
+  answers: AssignedWorkAnswer[]
+  answerIds: AssignedWorkAnswer['id'][]
+  comments: AssignedWorkComment[]
+  commentIds: AssignedWorkComment['id'][]
 }

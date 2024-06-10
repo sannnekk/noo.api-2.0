@@ -1,209 +1,211 @@
 import { Service } from '@modules/Core/Services/Service'
+import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
+import { Pagination } from '@modules/Core/Data/Pagination'
+import { User } from '@modules/Users/Data/User'
+import { UnauthorizedError } from '@modules/Core/Errors/UnauthorizedError'
+import { UserRepository } from '@modules/Users/Data/UserRepository'
+import { UserModel } from '@modules/Users/Data/UserModel'
 import { Poll } from '../Data/Poll'
 import { PollRepository } from '../Data/PollRepository'
 import { PollAnswerRepository } from '../Data/PollAnswerRepository'
-import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
-import { Pagination } from '@modules/Core/Data/Pagination'
 import { PollAnswer } from '../Data/Relations/PollAnswer'
 import { PollAnswerModel } from '../Data/Relations/PollAnswerModel'
-import { User } from '@modules/Users/Data/User'
 import { AlreadyVotedError } from '../Errors/AlreadyVotedError'
 import { CantVoteInPollError } from '../Errors/CantVoteInPollError'
-import { UnauthorizedError } from '@modules/core/Errors/UnauthorizedError'
-import { UserRepository } from '@modules/Users/Data/UserRepository'
-import { UserModel } from '@modules/Users/Data/UserModel'
 
 export class PollService extends Service<Poll | PollAnswer | User> {
-	private readonly pollRepository: PollRepository
-	private readonly pollAnswerRepository: PollAnswerRepository
-	private readonly userRepository: UserRepository
+  private readonly pollRepository: PollRepository
 
-	constructor() {
-		super()
+  private readonly pollAnswerRepository: PollAnswerRepository
 
-		this.pollRepository = new PollRepository()
-		this.pollAnswerRepository = new PollAnswerRepository()
-		this.userRepository = new UserRepository()
-	}
+  private readonly userRepository: UserRepository
 
-	public async getPollById(id: Poll['id']): Promise<Poll> {
-		const poll = await this.pollRepository.findOne({ id }, ['questions'])
+  constructor() {
+    super()
 
-		if (!poll) {
-			throw new NotFoundError('Опрос не найден')
-		}
+    this.pollRepository = new PollRepository()
+    this.pollAnswerRepository = new PollAnswerRepository()
+    this.userRepository = new UserRepository()
+  }
 
-		return poll
-	}
+  public async getPollById(id: Poll['id']): Promise<Poll> {
+    const poll = await this.pollRepository.findOne({ id }, ['questions'])
 
-	public async getPollInfo(id: Poll['id']): Promise<Poll> {
-		const poll = await this.pollRepository.findOne({ id })
+    if (!poll) {
+      throw new NotFoundError('Опрос не найден')
+    }
 
-		if (!poll) {
-			throw new NotFoundError('Опрос не найден')
-		}
+    return poll
+  }
 
-		return poll
-	}
+  public async getPollInfo(id: Poll['id']): Promise<Poll> {
+    const poll = await this.pollRepository.findOne({ id })
 
-	public async searchWhoVoted(
-		userRole: User['role'],
-		pollId: Poll['id'],
-		pagination: Pagination
-	) {
-		if (!(await this.canSeeResults(userRole, pollId))) {
-			throw new UnauthorizedError()
-		}
+    if (!poll) {
+      throw new NotFoundError('Опрос не найден')
+    }
 
-		pagination = new Pagination().assign(pagination)
-		pagination.entriesToSearch = UserModel.entriesToSearch()
+    return poll
+  }
 
-		const relations = [] as (keyof User)[]
-		const conditions = {
-			votedPolls: {
-				id: pollId,
-			} as unknown as Poll[],
-		}
+  public async searchWhoVoted(
+    userRole: User['role'],
+    pollId: Poll['id'],
+    pagination: Pagination
+  ) {
+    if (!(await this.canSeeResults(userRole, pollId))) {
+      throw new UnauthorizedError()
+    }
 
-		const users = await this.userRepository.find(
-			conditions,
-			relations,
-			pagination
-		)
+    pagination = new Pagination().assign(pagination)
+    pagination.entriesToSearch = UserModel.entriesToSearch()
 
-		const meta = await this.getRequestMeta(
-			this.userRepository,
-			conditions,
-			pagination,
-			relations
-		)
+    const relations = [] as (keyof User)[]
+    const conditions = {
+      votedPolls: {
+        id: pollId,
+      } as unknown as Poll[],
+    }
 
-		return { users, meta }
-	}
+    const users = await this.userRepository.find(
+      conditions,
+      relations,
+      pagination
+    )
 
-	public async getAnswers(
-		userRole: User['role'],
-		pollId: Poll['id'],
-		userId: User['id']
-	) {
-		if (!(await this.canSeeResults(userRole, pollId))) {
-			throw new UnauthorizedError()
-		}
+    const meta = await this.getRequestMeta(
+      this.userRepository,
+      conditions,
+      pagination,
+      relations
+    )
 
-		const relations = [] as (keyof PollAnswer)[]
-		const conditions: Partial<PollAnswer> = {
-			question: {
-				poll: {
-					id: pollId,
-				},
-			},
-			user: {
-				id: userId,
-			} as User,
-		} as any
+    return { users, meta }
+  }
 
-		const answers = await this.pollAnswerRepository.find(conditions, relations)
+  public async getAnswers(
+    userRole: User['role'],
+    pollId: Poll['id'],
+    userId: User['id']
+  ) {
+    if (!(await this.canSeeResults(userRole, pollId))) {
+      throw new UnauthorizedError()
+    }
 
-		return answers
-	}
+    const relations = [] as (keyof PollAnswer)[]
+    const conditions: Partial<PollAnswer> = {
+      question: {
+        poll: {
+          id: pollId,
+        },
+      },
+      user: {
+        id: userId,
+      } as User,
+    } as any
 
-	public async saveAnswers(
-		userId: User['id'],
-		userRole: User['role'],
-		pollId: Poll['id'],
-		answers: PollAnswer[]
-	): Promise<void> {
-		if (!(await this.canVote(userRole, pollId))) {
-			throw new CantVoteInPollError()
-		}
+    const answers = await this.pollAnswerRepository.find(conditions, relations)
 
-		if (await this.userAlreadyVoted(userId, pollId)) {
-			throw new AlreadyVotedError()
-		}
+    return answers
+  }
 
-		const poll = await this.pollRepository.findOne({ id: pollId }, [
-			'votedUsers',
-		])
+  public async saveAnswers(
+    userId: User['id'],
+    userRole: User['role'],
+    pollId: Poll['id'],
+    answers: PollAnswer[]
+  ): Promise<void> {
+    if (!(await this.canVote(userRole, pollId))) {
+      throw new CantVoteInPollError()
+    }
 
-		if (!poll) {
-			throw new NotFoundError()
-		}
+    if (await this.userAlreadyVoted(userId, pollId)) {
+      throw new AlreadyVotedError()
+    }
 
-		// TODO: add user more efficient
-		poll.votedUsers!.push({ id: userId } as User)
+    const poll = await this.pollRepository.findOne({ id: pollId }, [
+      'votedUsers',
+    ])
 
-		const answerModels = answers.map(
-			(answer) =>
-				new PollAnswerModel({ ...answer, user: { id: userId } as User })
-		)
+    if (!poll) {
+      throw new NotFoundError()
+    }
 
-		this.pollRepository.update(poll)
-		this.pollAnswerRepository.createMany(answerModels)
-	}
+    // TODO: add user more efficient
+    poll.votedUsers!.push({ id: userId } as User)
 
-	public async editAnswer(
-		id: PollAnswer['id'],
-		data: PollAnswer
-	): Promise<void> {
-		const answer = await this.pollAnswerRepository.findOne({ id })
+    const answerModels = answers.map(
+      (answer) =>
+        new PollAnswerModel({ ...answer, user: { id: userId } as User })
+    )
 
-		if (!answer) {
-			throw new NotFoundError('Ответ не найден')
-		}
+    this.pollRepository.update(poll)
+    this.pollAnswerRepository.createMany(answerModels)
+  }
 
-		const newAnswer = new PollAnswerModel({ ...answer, ...data, id })
+  public async editAnswer(
+    id: PollAnswer['id'],
+    data: PollAnswer
+  ): Promise<void> {
+    const answer = await this.pollAnswerRepository.findOne({ id })
 
-		await this.pollAnswerRepository.update(newAnswer)
-	}
+    if (!answer) {
+      throw new NotFoundError('Ответ не найден')
+    }
 
-	private async userAlreadyVoted(
-		userId: User['id'],
-		pollId: Poll['id']
-	): Promise<boolean> {
-		const existingAnswer = await this.pollAnswerRepository.findOne({
-			question: {
-				poll: {
-					id: pollId,
-				},
-			},
-			user: {
-				id: userId,
-			},
-		})
+    const newAnswer = new PollAnswerModel({ ...answer, ...data, id })
 
-		return existingAnswer !== null
-	}
+    await this.pollAnswerRepository.update(newAnswer)
+  }
 
-	private async canVote(
-		role: User['role'],
-		pollId: Poll['id']
-	): Promise<boolean> {
-		const poll = await this.pollRepository.findOne({
-			id: pollId,
-		})
+  private async userAlreadyVoted(
+    userId: User['id'],
+    pollId: Poll['id']
+  ): Promise<boolean> {
+    const existingAnswer = await this.pollAnswerRepository.findOne({
+      question: {
+        poll: {
+          id: pollId,
+        },
+      },
+      user: {
+        id: userId,
+      },
+    })
 
-		if (!poll) {
-			throw new NotFoundError('Опрос не найден')
-		}
+    return existingAnswer !== null
+  }
 
-		return poll.canVote.includes(role) || poll.canVote.includes('everyone')
-	}
+  private async canVote(
+    role: User['role'],
+    pollId: Poll['id']
+  ): Promise<boolean> {
+    const poll = await this.pollRepository.findOne({
+      id: pollId,
+    })
 
-	private async canSeeResults(
-		role: User['role'],
-		pollId: Poll['id']
-	): Promise<boolean> {
-		const poll = await this.pollRepository.findOne({
-			id: pollId,
-		})
+    if (!poll) {
+      throw new NotFoundError('Опрос не найден')
+    }
 
-		if (!poll) {
-			throw new NotFoundError('Опрос не найден')
-		}
+    return poll.canVote.includes(role) || poll.canVote.includes('everyone')
+  }
 
-		return (
-			poll.canSeeResults.includes(role) ||
-			poll.canSeeResults.includes('everyone')
-		)
-	}
+  private async canSeeResults(
+    role: User['role'],
+    pollId: Poll['id']
+  ): Promise<boolean> {
+    const poll = await this.pollRepository.findOne({
+      id: pollId,
+    })
+
+    if (!poll) {
+      throw new NotFoundError('Опрос не найден')
+    }
+
+    return (
+      poll.canSeeResults.includes(role) ||
+      poll.canSeeResults.includes('everyone')
+    )
+  }
 }

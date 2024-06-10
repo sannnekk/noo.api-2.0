@@ -12,8 +12,8 @@ import * as Transliteration from '../../Core/Utils/transliteration.js';
 import * as ULID from '../../Core/Data/Ulid.js';
 import { UserModel } from '../../Users/Data/UserModel.js';
 import { Column, Entity, ManyToMany, ManyToOne, OneToMany, RelationId, } from 'typeorm';
-import { CourseChapterModel } from './Relations/CourseChapterModel.js';
 import { MediaModel } from '../../Media/Data/MediaModel.js';
+import { CourseChapterModel } from './Relations/CourseChapterModel.js';
 let CourseModel = class CourseModel extends Model {
     constructor(data) {
         super();
@@ -39,7 +39,7 @@ let CourseModel = class CourseModel extends Model {
         return ['name', 'description'];
     }
     sluggify(text) {
-        return ULID.generate() + '-' + Transliteration.sluggify(text);
+        return `${ULID.generate()}-${Transliteration.sluggify(text)}`;
     }
 };
 __decorate([

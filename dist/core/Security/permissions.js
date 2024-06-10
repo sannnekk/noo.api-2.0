@@ -9,7 +9,6 @@ export class PermissionResolver {
         this.permissions = permissions;
     }
     has(permission) {
-        return ((this.permissions & Permissions[permission]) ===
-            Permissions[permission]);
+        return ((this.permissions & Permissions[permission]) === Permissions[permission]);
     }
 }

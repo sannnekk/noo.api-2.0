@@ -7,13 +7,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Column, Entity, ManyToOne, OneToMany, RelationId, } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm';
 import { Model } from '../../../Core/Data/Model.js';
 import * as ULID from '../../../Core/Data/Ulid.js';
 import * as Transliteration from '../../../Core/Utils/transliteration.js';
-import { CourseChapterModel } from './CourseChapterModel.js';
 import { WorkModel } from '../../../Works/Data/WorkModel.js';
 import { MediaModel } from '../../../Media/Data/MediaModel.js';
+import { CourseChapterModel } from './CourseChapterModel.js';
 let CourseMaterialModel = class CourseMaterialModel extends Model {
     constructor(data) {
         super();
@@ -38,7 +38,7 @@ let CourseMaterialModel = class CourseMaterialModel extends Model {
     workId;
     files;
     sluggify(text) {
-        return ULID.generate() + '-' + Transliteration.sluggify(text);
+        return `${ULID.generate()}-${Transliteration.sluggify(text)}`;
     }
 };
 __decorate([

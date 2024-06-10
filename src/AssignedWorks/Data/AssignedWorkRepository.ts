@@ -3,7 +3,7 @@ import { AssignedWork } from './AssignedWork'
 import { AssignedWorkModel } from './AssignedWorkModel'
 
 export class AssignedWorkRepository extends Repository<AssignedWork> {
-	constructor() {
-		super(AssignedWorkModel)
-	}
+  constructor() {
+    super(AssignedWorkModel)
+  }
 }

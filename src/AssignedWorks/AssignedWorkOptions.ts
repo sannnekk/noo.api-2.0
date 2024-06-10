@@ -1,3 +1,3 @@
 export const AssignedWorkOptions = {
-	deadlineShift: 1,
+  deadlineShift: 1,
 } as const

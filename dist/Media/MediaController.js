@@ -8,11 +8,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { Controller, Post } from 'express-controller-decorator';
-import { MediaService } from './Services/MediaService.js';
 import * as Asserts from '../Core/Security/asserts.js';
 import { Context } from '../Core/Request/Context.js';
 import { ApiResponse } from '../Core/Response/ApiResponse.js';
-import { NoFilesProvidedError } from '../core/Errors/NoFilesProvidedError.js';
+import { NoFilesProvidedError } from '../Core/Errors/NoFilesProvidedError.js';
+import { MediaService } from './Services/MediaService.js';
 let MediaController = class MediaController {
     mediaService;
     constructor() {

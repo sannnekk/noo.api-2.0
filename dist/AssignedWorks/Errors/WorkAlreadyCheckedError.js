@@ -1,9 +1,8 @@
+import { AppError } from '../../Core/Errors/AppError.js';
 import { StatusCodes } from 'http-status-codes';
-export class WorkAlreadyCheckedError extends Error {
-    code = StatusCodes.CONFLICT;
-    message;
+export class WorkAlreadyCheckedError extends AppError {
     constructor(message = 'Работа уже проверена.') {
-        super();
-        this.message = message;
+        super(message);
+        this.code = StatusCodes.CONFLICT;
     }
 }

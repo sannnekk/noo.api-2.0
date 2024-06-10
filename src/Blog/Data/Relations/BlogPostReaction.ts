@@ -1,11 +1,11 @@
 import { User } from '@modules/Users/Data/User'
-import { BlogPost, Reaction } from '../BlogPost'
 import { BaseModel } from '@modules/Core/Data/Model'
+import { BlogPost, Reaction } from '../BlogPost'
 
 export interface BlogPostReaction extends BaseModel {
-	post: BlogPost
-	postId: string
-	user: User
-	userId: string
-	reaction: Reaction
+  post: BlogPost
+  postId: string
+  user: User
+  userId: string
+  reaction: Reaction
 }

@@ -1,9 +1,8 @@
+import { AppError } from '../../Core/Errors/AppError.js';
 import { StatusCodes } from 'http-status-codes';
-export class DeadlineAlreadyShiftedError extends Error {
-    code = StatusCodes.CONFLICT;
-    message;
+export class DeadlineAlreadyShiftedError extends AppError {
     constructor(message = 'Дедлайн уже был сдвинут.') {
-        super();
-        this.message = message;
+        super(message);
+        this.code = StatusCodes.CONFLICT;
     }
 }

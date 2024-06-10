@@ -1,11 +1,9 @@
+import { AppError } from '@modules/Core/Errors/AppError'
 import { StatusCodes } from 'http-status-codes'
 
-export class StudentFromAnotherMentorError extends Error {
-	code = StatusCodes.BAD_REQUEST
-	message: string
-
-	constructor(message = 'Ученик принадлежит другому куратору.') {
-		super()
-		this.message = message
-	}
+export class StudentFromAnotherMentorError extends AppError {
+  constructor(message = 'Ученик принадлежит другому куратору.') {
+    super(message)
+    this.code = StatusCodes.FORBIDDEN
+  }
 }

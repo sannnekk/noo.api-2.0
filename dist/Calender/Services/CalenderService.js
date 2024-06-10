@@ -1,10 +1,10 @@
-import { UserRelationService } from './UserRelationService.js';
 import { Pagination } from '../../Core/Data/Pagination.js';
 import { Service } from '../../Core/Services/Service.js';
 import { UnauthorizedError } from '../../Core/Errors/UnauthorizedError.js';
+import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
 import { CalenderEventRepository } from '../Data/CalenderEventRepository.js';
 import { CalenderEventModel } from '../Data/CalenderEventModel.js';
-import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
+import { UserRelationService } from './UserRelationService.js';
 export class CalenderService extends Service {
     calenderEventRepository;
     userRelationService;
@@ -17,7 +17,7 @@ export class CalenderService extends Service {
         const event = new CalenderEventModel(options);
         event.type = type;
         event.username = username;
-        return await this.calenderEventRepository.create(event);
+        return this.calenderEventRepository.create(event);
     }
     async updateDeadlineFromWork(work, type) {
         const newDate = type === 'student-deadline' ? work.solveDeadlineAt : work.checkDeadlineAt;
@@ -31,7 +31,7 @@ export class CalenderService extends Service {
             return;
         }
         event.date = newDate;
-        event.description = event.description + ' (Дедлайн сдивнут на эту дату)';
+        event.description += ' (Дедлайн сдивнут на эту дату)';
         await this.calenderEventRepository.update(event);
     }
     async get(requester, pagination) {

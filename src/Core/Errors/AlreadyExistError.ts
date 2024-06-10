@@ -1,11 +1,9 @@
 import { StatusCodes } from 'http-status-codes'
+import { AppError } from './AppError'
 
-export class AlreadyExistError extends Error {
-	code = StatusCodes.CONFLICT
-	message: string
-
-	constructor(message = 'Такой объект уже существует.') {
-		super()
-		this.message = message
-	}
+export class AlreadyExistError extends AppError {
+  constructor(message = 'Такой объект уже существует.') {
+    super(message)
+    this.code = StatusCodes.CONFLICT
+  }
 }

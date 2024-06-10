@@ -36,7 +36,7 @@ export class WorkService extends Service {
     }
     async createWork(workDTO) {
         const work = new WorkModel(workDTO);
-        return await this.workRepository.create(work);
+        return this.workRepository.create(work);
     }
     async copyWork(workSlug) {
         const work = await this.workRepository.findOne({ slug: workSlug }, [

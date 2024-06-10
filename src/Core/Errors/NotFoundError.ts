@@ -1,11 +1,9 @@
 import { StatusCodes } from 'http-status-codes'
+import { AppError } from './AppError'
 
-export class NotFoundError extends Error {
-	readonly code: number = StatusCodes.NOT_FOUND
-	message: string
-
-	constructor(message = 'Запрашиваемый ресурс не найден.') {
-		super()
-		this.message = message
-	}
+export class NotFoundError extends AppError {
+  constructor(message = 'Запрашиваемый ресурс не найден.') {
+    super(message)
+    this.code = StatusCodes.NOT_FOUND
+  }
 }

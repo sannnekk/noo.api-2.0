@@ -3,8 +3,8 @@ import cors from 'cors'
 import 'reflect-metadata'
 import { CoreDataSource } from '@modules/Core/Data/DataSource'
 import {
-	injectControllers,
-	setContextClass,
+  injectControllers,
+  setContextClass,
 } from 'express-controller-decorator'
 import { Context } from '@modules/Core/Request/Context'
 import { config } from './config'
@@ -32,7 +32,8 @@ setContextClass(Context)
 injectControllers(app)
 
 app.listen(process.env.APP_PORT, () =>
-	console.log(`Server is running on port ${process.env.APP_PORT}`)
+  // eslint-disable-next-line no-console
+  console.log(`Server is running on port ${process.env.APP_PORT}`)
 )
 
 // for test purposes

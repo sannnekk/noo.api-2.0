@@ -1,247 +1,248 @@
 import {
-	Controller,
-	Delete,
-	Get,
-	Patch,
-	Post,
+  Controller,
+  Delete,
+  Get,
+  Patch,
+  Post,
 } from 'express-controller-decorator'
-import { AssignedWorkValidator } from './AssignedWorkValidator'
-import { AssignedWorkService } from './Services/AssignedWorkService'
-import * as Asserts from '@modules/core/Security/asserts'
-import { Context } from '@modules/core/Request/Context'
+import * as Asserts from '@modules/Core/Security/asserts'
+import { Context } from '@modules/Core/Request/Context'
 import { ApiResponse } from '@modules/Core/Response/ApiResponse'
+import { AssignedWorkService } from './Services/AssignedWorkService'
+import { AssignedWorkValidator } from './AssignedWorkValidator'
 import { AssignedWorkOptions } from './AssignedWorkOptions'
 
 @Controller('/assigned-work')
 export class AssignedWorkController {
-	private readonly assignedWorkService: AssignedWorkService
-	private readonly assignedWorkValidator: AssignedWorkValidator
+  private readonly assignedWorkService: AssignedWorkService
 
-	constructor() {
-		this.assignedWorkService = new AssignedWorkService()
-		this.assignedWorkValidator = new AssignedWorkValidator()
-	}
+  private readonly assignedWorkValidator: AssignedWorkValidator
 
-	@Get('/')
-	public async get(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			const pagination = this.assignedWorkValidator.parsePagination(
-				context.query
-			)
+  constructor() {
+    this.assignedWorkService = new AssignedWorkService()
+    this.assignedWorkValidator = new AssignedWorkValidator()
+  }
 
-			const { assignedWorks, meta } = await this.assignedWorkService.getWorks(
-				context.credentials!.userId,
-				context.credentials!.role,
-				pagination
-			)
+  @Get('/')
+  public async get(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      const pagination = this.assignedWorkValidator.parsePagination(
+        context.query
+      )
 
-			return new ApiResponse({ data: assignedWorks, meta })
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      const { assignedWorks, meta } = await this.assignedWorkService.getWorks(
+        context.credentials!.userId,
+        context.credentials!.role,
+        pagination
+      )
 
-	@Get('/:id')
-	public async getOne(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			const workId = this.assignedWorkValidator.parseId(context.params.id)
+      return new ApiResponse({ data: assignedWorks, meta })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			const work = await this.assignedWorkService.getWorkById(
-				workId,
-				context.credentials!.role
-			)
+  @Get('/:id')
+  public async getOne(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      const workId = this.assignedWorkValidator.parseId(context.params.id)
 
-			if (context.credentials!.role == 'student') {
-				Asserts.isAuthorized(context, work.studentId)
-			}
+      const work = await this.assignedWorkService.getWorkById(
+        workId,
+        context.credentials!.role
+      )
 
-			return new ApiResponse({ data: work })
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      if (context.credentials!.role == 'student') {
+        Asserts.isAuthorized(context, work.studentId)
+      }
 
-	@Post('/')
-	public async create(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			const options = this.assignedWorkValidator.parseCreation(context.body)
+      return new ApiResponse({ data: work })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			await this.assignedWorkService.createWork(options)
+  @Post('/')
+  public async create(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      const options = this.assignedWorkValidator.parseCreation(context.body)
 
-			return new ApiResponse()
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      await this.assignedWorkService.createWork(options)
 
-	@Post('/:id/remake')
-	public async remake(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			Asserts.student(context)
-			const workId = this.assignedWorkValidator.parseId(context.params.id)
-			const options = this.assignedWorkValidator.parseRemake(context.body)
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			await this.assignedWorkService.remakeWork(
-				workId,
-				context.credentials.userId,
-				options
-			)
+  @Post('/:id/remake')
+  public async remake(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.student(context)
+      const workId = this.assignedWorkValidator.parseId(context.params.id)
+      const options = this.assignedWorkValidator.parseRemake(context.body)
 
-			return new ApiResponse()
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      await this.assignedWorkService.remakeWork(
+        workId,
+        context.credentials.userId,
+        options
+      )
 
-	@Post('/:materialSlug')
-	public async getOrCreate(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			Asserts.student(context)
-			const materialSlug = this.assignedWorkValidator.parseSlug(
-				context.params.materialSlug
-			)
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			const { link } = await this.assignedWorkService.getOrCreateWork(
-				materialSlug,
-				context.credentials.userId
-			)
+  @Post('/:materialSlug')
+  public async getOrCreate(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.student(context)
+      const materialSlug = this.assignedWorkValidator.parseSlug(
+        context.params.materialSlug
+      )
 
-			return new ApiResponse({ data: { link } })
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      const { link } = await this.assignedWorkService.getOrCreateWork(
+        materialSlug,
+        context.credentials.userId
+      )
 
-	@Patch('/:id/solve')
-	public async solve(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			Asserts.student(context)
-			const workId = this.assignedWorkValidator.parseId(context.params.id)
-			const options = this.assignedWorkValidator.parseSolve(context.body)
+      return new ApiResponse({ data: { link } })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			await this.assignedWorkService.solveWork(
-				workId,
-				options,
-				context.credentials!.userId
-			)
+  @Patch('/:id/solve')
+  public async solve(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.student(context)
+      const workId = this.assignedWorkValidator.parseId(context.params.id)
+      const options = this.assignedWorkValidator.parseSolve(context.body)
 
-			return new ApiResponse()
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      await this.assignedWorkService.solveWork(
+        workId,
+        options,
+        context.credentials.userId
+      )
 
-	@Patch('/:id/check')
-	public async check(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			Asserts.mentor(context)
-			const workId = this.assignedWorkValidator.parseId(context.params.id)
-			const checkOptions = this.assignedWorkValidator.parseCheck(context.body)
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			await this.assignedWorkService.checkWork(workId, checkOptions)
+  @Patch('/:id/check')
+  public async check(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.mentor(context)
+      const workId = this.assignedWorkValidator.parseId(context.params.id)
+      const checkOptions = this.assignedWorkValidator.parseCheck(context.body)
 
-			return new ApiResponse()
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      await this.assignedWorkService.checkWork(workId, checkOptions)
 
-	@Patch('/:id/save')
-	public async save(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			Asserts.mentorOrStudent(context)
-			const workId = this.assignedWorkValidator.parseId(context.params.id)
-			const saveOptions = this.assignedWorkValidator.parseSave(context.body)
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			await this.assignedWorkService.saveProgress(
-				workId,
-				saveOptions,
-				context.credentials.role
-			)
+  @Patch('/:id/save')
+  public async save(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.mentorOrStudent(context)
+      const workId = this.assignedWorkValidator.parseId(context.params.id)
+      const saveOptions = this.assignedWorkValidator.parseSave(context.body)
 
-			return new ApiResponse()
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      await this.assignedWorkService.saveProgress(
+        workId,
+        saveOptions,
+        context.credentials.role
+      )
 
-	@Patch('/:id/archive')
-	public async archive(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			Asserts.mentor(context)
-			const workId = this.assignedWorkValidator.parseId(context.params.id)
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			await this.assignedWorkService.archiveWork(workId)
+  @Patch('/:id/archive')
+  public async archive(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.mentor(context)
+      const workId = this.assignedWorkValidator.parseId(context.params.id)
 
-			return new ApiResponse()
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      await this.assignedWorkService.archiveWork(workId)
 
-	@Patch('/:workId/transfer/:mentorId')
-	public async transfer(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			Asserts.mentor(context)
-			const workId = this.assignedWorkValidator.parseId(context.params.workId)
-			const mentorId = this.assignedWorkValidator.parseId(
-				context.params.mentorId
-			)
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			await this.assignedWorkService.transferWorkToAnotherMentor(
-				workId,
-				mentorId,
-				context.credentials.userId
-			)
+  @Patch('/:workId/transfer/:mentorId')
+  public async transfer(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.mentor(context)
+      const workId = this.assignedWorkValidator.parseId(context.params.workId)
+      const mentorId = this.assignedWorkValidator.parseId(
+        context.params.mentorId
+      )
 
-			return new ApiResponse()
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      await this.assignedWorkService.transferWorkToAnotherMentor(
+        workId,
+        mentorId,
+        context.credentials.userId
+      )
 
-	@Patch('/:id/shift-deadline')
-	public async shiftDeadline(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			Asserts.mentorOrStudent(context)
-			const workId = this.assignedWorkValidator.parseId(context.params.id)
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			await this.assignedWorkService.shiftDeadline(
-				workId,
-				AssignedWorkOptions.deadlineShift,
-				context.credentials.role,
-				context.credentials.userId
-			)
+  @Patch('/:id/shift-deadline')
+  public async shiftDeadline(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.mentorOrStudent(context)
+      const workId = this.assignedWorkValidator.parseId(context.params.id)
 
-			return new ApiResponse()
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      await this.assignedWorkService.shiftDeadline(
+        workId,
+        AssignedWorkOptions.deadlineShift,
+        context.credentials.role,
+        context.credentials.userId
+      )
 
-	@Delete('/:id')
-	public async delete(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			Asserts.mentor(context)
-			const workId = this.assignedWorkValidator.parseId(context.params.id)
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			await this.assignedWorkService.deleteWork(workId, context.credentials.id)
+  @Delete('/:id')
+  public async delete(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.mentor(context)
+      const workId = this.assignedWorkValidator.parseId(context.params.id)
 
-			return new ApiResponse()
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      await this.assignedWorkService.deleteWork(workId, context.credentials.id)
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 }

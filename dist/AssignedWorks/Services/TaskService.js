@@ -1,3 +1,4 @@
+import Dates from '../../Core/Utils/date.js';
 export class TaskService {
     automatedCheck(tasks, answers) {
         const comments = [];
@@ -17,8 +18,8 @@ export class TaskService {
                 score: this.checkAnswer(answer, relatedTask),
                 task: answer.taskId,
                 taskId: answer.taskId,
-                createdAt: new Date(),
-                updatedAt: new Date(),
+                createdAt: Dates.now(),
+                updatedAt: Dates.now(),
             };
             comments.push(comment);
         }
@@ -111,7 +112,7 @@ export class TaskService {
     checkType4(word, exact, maxScore) {
         exact = exact.trim().toLowerCase();
         word = word.trim().toLowerCase();
-        maxScore = maxScore - Math.abs(word.length - exact.length);
+        maxScore -= Math.abs(word.length - exact.length);
         word = word.padEnd(exact.length, ' ');
         let errorCount = 0;
         for (let i = 0; i < word.length; i++) {

@@ -6,9 +6,9 @@ export class UserRelationService {
         all: () => true,
         private: (requester, target) => requester.username === target.username,
         'own-mentor': (requester, target) => {
-            return (requester.role === 'mentor' && requester.id === target.mentorId);
+            return requester.role === 'mentor' && requester.id === target.mentorId;
         },
-        'all-mentors': (requester, target) => {
+        'all-mentors': (requester) => {
             return requester.role === 'mentor';
         },
         'own-students': (requester, target) => {

@@ -1,10 +1,11 @@
-import { AssignedWorkRepository } from './../../AssignedWorks/Data/AssignedWorkRepository.js';
 import { UserRepository } from '../../Users/Data/UserRepository.js';
-import { WrongRoleError } from '../../core/Errors/WrongRoleError.js';
+import { WrongRoleError } from '../../Core/Errors/WrongRoleError.js';
 import { Brackets } from 'typeorm';
-import { PlotService } from './PlotService.js';
 import { AssignedWorkModel } from '../../AssignedWorks/Data/AssignedWorkModel.js';
 import { UserModel } from '../../Users/Data/UserModel.js';
+import { PlotService } from './PlotService.js';
+import { AssignedWorkRepository } from '../../AssignedWorks/Data/AssignedWorkRepository.js';
+import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
 export class StatisticsService {
     assignedWorkRepository;
     userRepository;
@@ -18,11 +19,11 @@ export class StatisticsService {
         const { from, to, type } = options;
         const user = await this.userRepository.findOne({ username });
         if (!user) {
-            throw new Error('Пользователь не найден');
+            throw new NotFoundError('Пользователь не найден');
         }
         switch (user.role) {
             case 'teacher':
-                return this.getTeacherStatistics(user.id, from, to, type);
+                return this.getTeacherStatistics(user.id, from, to);
             case 'mentor':
                 return this.getMentorStatistics(user.id, from, to, type);
             case 'student':
@@ -32,7 +33,7 @@ export class StatisticsService {
                 throw new WrongRoleError('У администраторов нет статистики');
         }
     }
-    async getTeacherStatistics(teacherId, from, to, type) {
+    async getTeacherStatistics(teacherId, from, to) {
         const userRepositoryQueryBuilder = this.userRepository.queryBuilder('user');
         const assignedWorkRepositoryQueryBuilder = this.assignedWorkRepository.queryBuilder('assigned_work');
         const usersCount = await userRepositoryQueryBuilder.clone().getCount();
@@ -161,7 +162,7 @@ export class StatisticsService {
                 .leftJoin('assigned_work.work', 'work')
                 .andWhere('work.type = :type', { type });
         }
-        let total = await assignedWorksQueryBuilder
+        const total = await assignedWorksQueryBuilder
             .clone()
             .getCount();
         const checked = await assignedWorksQueryBuilder
@@ -191,12 +192,12 @@ export class StatisticsService {
             .getCount();
         // TODO: Implement transfered works count
         /* const transfered = await assignedWorksQueryBuilder
-            .leftJoin('assigned_work.mentors', 'mentor')
-            .where('mentor.id = :mentorId', { mentorId })
-            .andWhere('transfered = true')
-            .andWhere(this.getDateRange('created_at', from, to))
-            .getCount() */
-        const scores = (await assignedWorksQueryBuilder
+                .leftJoin('assigned_work.mentors', 'mentor')
+                .where('mentor.id = :mentorId', { mentorId })
+                .andWhere('transfered = true')
+                .andWhere(this.getDateRange('created_at', from, to))
+                .getCount() */
+        const scores = await assignedWorksQueryBuilder
             .clone()
             .select([
             'AVG(assigned_work.score / assigned_work.max_score * 100) as score',
@@ -204,7 +205,7 @@ export class StatisticsService {
         ])
             .andWhere('assigned_work.score IS NOT NULL')
             .groupBy('created_at')
-            .getRawMany());
+            .getRawMany();
         const scorePlot = this.plotService.generatePlot('Средний балл по работам учеников (в %)', scores, 'secondary', (e) => e.created_at.toISOString().split('T')[0], (e) => parseFloat(e.score || '0'));
         return {
             entries: [
@@ -286,7 +287,7 @@ export class StatisticsService {
             solve_deadline_shifted: true,
         })
             .getCount();
-        const scores = (await assignedWorksQueryBuilder
+        const scores = await assignedWorksQueryBuilder
             .clone()
             .select([
             'ROUND(assigned_work.score / assigned_work.max_score * 100) as score',
@@ -294,7 +295,7 @@ export class StatisticsService {
             'assigned_work.created_at as created_at',
         ])
             .andWhere('assigned_work.score IS NOT NULL')
-            .getRawMany());
+            .getRawMany();
         const scorePlot = this.plotService.generatePlot('Балл по работам (в %)', scores, 'secondary', (e) => e.created_at.toISOString().split('T')[0], (e) => parseFloat(e.score || '0'), (e) => AssignedWorkModel.readableSolveStatus(e.solve_status));
         const monthPlot = await this.getStudentMonthPlot(studentId);
         return {
@@ -340,49 +341,47 @@ export class StatisticsService {
         };
     }
     async getStudentMonthPlot(studentId) {
-        const scores = (await this.assignedWorkRepository
+        const scores = await this.assignedWorkRepository
             .queryBuilder('assigned_work')
             .select([
             'AVG(ROUND(assigned_work.score / assigned_work.max_score * 100)) as score',
             'COUNT(assigned_work.id) as count',
-            `CONCAT(MONTH(assigned_work.created_at), ' ', YEAR(assigned_work.created_at)) as date`,
+            "CONCAT(MONTH(assigned_work.created_at), ' ', YEAR(assigned_work.created_at)) as date",
         ])
             .where('assigned_work.studentId = :studentId', { studentId })
             .andWhere('assigned_work.score IS NOT NULL')
             .groupBy('date')
-            .getRawMany());
-        const monthPlot = this.plotService.generatePlot('Балл по работам (в %) по месяцам', scores, 'secondary', (e) => this.getMonth(parseInt(e.date.split(' ')[0]) - 1) +
-            ' ' +
-            e.date.split(' ')[1], (e) => parseFloat(e.score || '0'), (e) => `Количество работ: ${e.count.toString()}`);
+            .getRawMany();
+        const monthPlot = this.plotService.generatePlot('Балл по работам (в %) по месяцам', scores, 'secondary', (e) => `${this.getMonth(parseInt(e.date.split(' ')[0]) - 1)} ${e.date.split(' ')[1]}`, (e) => parseFloat(e.score || '0'), (e) => `Количество работ: ${e.count.toString()}`);
         return monthPlot;
     }
     getMonth(month) {
         switch (month) {
             case 0:
-                return `Январь`;
+                return 'Январь';
             case 1:
-                return `Февраль`;
+                return 'Февраль';
             case 2:
-                return `Март`;
+                return 'Март';
             case 3:
-                return `Апрель`;
+                return 'Апрель';
             case 4:
-                return `Май`;
+                return 'Май';
             case 5:
-                return `Июнь`;
+                return 'Июнь';
             case 6:
-                return `Июль`;
+                return 'Июль';
             case 7:
-                return `Август`;
+                return 'Август';
             case 8:
-                return `Сентябрь`;
+                return 'Сентябрь';
             case 9:
-                return `Октябрь`;
+                return 'Октябрь';
             case 10:
-                return `Ноябрь`;
+                return 'Ноябрь';
             case 11:
             default:
-                return `Декабрь`;
+                return 'Декабрь';
         }
     }
     getDateRange(prop, from, to) {

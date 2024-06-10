@@ -1,20 +1,19 @@
 export const Permissions = Object.freeze({
-	checkWorks: 1 << 0,
-	createWorks: 1 << 1,
-	createCourses: 1 << 2,
+  checkWorks: 1 << 0,
+  createWorks: 1 << 1,
+  createCourses: 1 << 2,
 } as const)
 
 export class PermissionResolver {
-	private permissions: number
+  private permissions: number
 
-	constructor(permissions: number) {
-		this.permissions = permissions
-	}
+  constructor(permissions: number) {
+    this.permissions = permissions
+  }
 
-	public has(permission: keyof typeof Permissions): boolean {
-		return (
-			(this.permissions & Permissions[permission]) ===
-			Permissions[permission]
-		)
-	}
+  public has(permission: keyof typeof Permissions): boolean {
+    return (
+      (this.permissions & Permissions[permission]) === Permissions[permission]
+    )
+  }
 }

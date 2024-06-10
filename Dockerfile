@@ -2,6 +2,7 @@ FROM node:20-alpine as base
 
 RUN mkdir noo-cdn
 RUN mkdir noo-cdn/uploads
+RUN mkdir noo-cdn/logs
 
 # Add package file
 COPY package*.json ./

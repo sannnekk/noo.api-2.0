@@ -7,12 +7,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { WorkService } from './Services/WorkService.js';
-import { WorkValidator } from './WorkValidator.js';
 import * as Asserts from '../Core/Security/asserts.js';
 import { Context } from '../Core/Request/Context.js';
 import { Controller, Delete, Get, Patch, Post, } from 'express-controller-decorator';
 import { ApiResponse } from '../Core/Response/ApiResponse.js';
+import { WorkValidator } from './WorkValidator.js';
+import { WorkService } from './Services/WorkService.js';
 let WorkController = class WorkController {
     workService;
     workValidator;

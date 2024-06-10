@@ -1,13 +1,11 @@
+import { AppError } from '@modules/Core/Errors/AppError'
 import { StatusCodes } from 'http-status-codes'
 
-export class WorkAlreadyAssignedToEnoughMentorsError extends Error {
-	code = StatusCodes.CONFLICT
-	message: string
-
-	constructor(
-		message = 'Работа уже назначена достаточному количеству кураторов.'
-	) {
-		super()
-		this.message = message
-	}
+export class WorkAlreadyAssignedToEnoughMentorsError extends AppError {
+  constructor(
+    message = 'Работа уже назначена достаточному количеству кураторов.'
+  ) {
+    super(message)
+    this.code = StatusCodes.CONFLICT
+  }
 }

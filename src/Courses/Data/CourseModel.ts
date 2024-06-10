@@ -1,98 +1,98 @@
 import { Model } from '@modules/Core/Data/Model'
 import * as Transliteration from '@modules/Core/Utils/transliteration'
 import * as ULID from '@modules/Core/Data/Ulid'
-import { Course } from './Course'
 import { UserModel } from '@modules/Users/Data/UserModel'
 import { User } from '@modules/Users/Data/User'
 import {
-	Column,
-	Entity,
-	ManyToMany,
-	ManyToOne,
-	OneToMany,
-	RelationId,
+  Column,
+  Entity,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  RelationId,
 } from 'typeorm'
-import { CourseChapterModel } from './Relations/CourseChapterModel'
-import { CourseChapter } from './Relations/CourseChapter'
 import { MediaModel } from '@modules/Media/Data/MediaModel'
 import { Media } from '@modules/Media/Data/Media'
+import { CourseChapterModel } from './Relations/CourseChapterModel'
+import { CourseChapter } from './Relations/CourseChapter'
+import { Course } from './Course'
 import { CourseMaterial } from './Relations/CourseMaterial'
 
 type PartialCourse = Partial<Omit<Course, 'chapters'>> & {
-	chapters?: (Partial<Omit<CourseChapter, 'materials'>> & {
-		materials?: Partial<CourseMaterial>[]
-	})[]
+  chapters?: (Partial<Omit<CourseChapter, 'materials'>> & {
+    materials?: Partial<CourseMaterial>[]
+  })[]
 }
 
 @Entity('course')
 export class CourseModel extends Model implements Course {
-	constructor(data?: PartialCourse) {
-		super()
+  constructor(data?: PartialCourse) {
+    super()
 
-		if (data) {
-			this.set(data)
+    if (data) {
+      this.set(data)
 
-			this.chapters = (data.chapters || []).map(
-				(chapter) => new CourseChapterModel(chapter)
-			)
+      this.chapters = (data.chapters || []).map(
+        (chapter) => new CourseChapterModel(chapter)
+      )
 
-			this.images = (data.images || []).map((image) => new MediaModel(image))
+      this.images = (data.images || []).map((image) => new MediaModel(image))
 
-			if (!data.slug) {
-				this.slug = this.sluggify(this.name)
-			}
-		}
-	}
+      if (!data.slug) {
+        this.slug = this.sluggify(this.name)
+      }
+    }
+  }
 
-	@Column({
-		name: 'slug',
-		type: 'varchar',
-	})
-	slug!: string
+  @Column({
+    name: 'slug',
+    type: 'varchar',
+  })
+  slug!: string
 
-	@Column({
-		name: 'name',
-		type: 'varchar',
-	})
-	name!: string
+  @Column({
+    name: 'name',
+    type: 'varchar',
+  })
+  name!: string
 
-	@ManyToOne(() => UserModel, (user) => user.courses)
-	author!: User
+  @ManyToOne(() => UserModel, (user) => user.courses)
+  author!: User
 
-	@RelationId((course: CourseModel) => course.author)
-	authorId!: User['id']
+  @RelationId((course: CourseModel) => course.author)
+  authorId!: User['id']
 
-	@ManyToMany(() => UserModel, (user) => user.coursesAsStudent, {
-		cascade: true,
-	})
-	students?: User[]
+  @ManyToMany(() => UserModel, (user) => user.coursesAsStudent, {
+    cascade: true,
+  })
+  students?: User[]
 
-	@RelationId((course: CourseModel) => course.students)
-	studentIds!: string[]
+  @RelationId((course: CourseModel) => course.students)
+  studentIds!: string[]
 
-	@Column({
-		name: 'description',
-		type: 'text',
-	})
-	description!: string
+  @Column({
+    name: 'description',
+    type: 'text',
+  })
+  description!: string
 
-	@OneToMany(() => CourseChapterModel, (chapter) => chapter.course, {
-		eager: true,
-		cascade: true,
-	})
-	chapters!: CourseChapter[]
+  @OneToMany(() => CourseChapterModel, (chapter) => chapter.course, {
+    eager: true,
+    cascade: true,
+  })
+  chapters!: CourseChapter[]
 
-	@OneToMany(() => MediaModel, (media) => media.course, {
-		eager: true,
-		cascade: true,
-	})
-	images!: Media[]
+  @OneToMany(() => MediaModel, (media) => media.course, {
+    eager: true,
+    cascade: true,
+  })
+  images!: Media[]
 
-	static entriesToSearch() {
-		return ['name', 'description']
-	}
+  static entriesToSearch() {
+    return ['name', 'description']
+  }
 
-	private sluggify(text: string): string {
-		return ULID.generate() + '-' + Transliteration.sluggify(text)
-	}
+  private sluggify(text: string): string {
+    return `${ULID.generate()}-${Transliteration.sluggify(text)}`
+  }
 }

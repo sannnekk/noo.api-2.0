@@ -1,9 +1,8 @@
+import { AppError } from '../../Core/Errors/AppError.js';
 import { StatusCodes } from 'http-status-codes';
-export class WorkAlreadyAssignedToThisMentorError extends Error {
-    code = StatusCodes.CONFLICT;
-    message;
+export class WorkAlreadyAssignedToThisMentorError extends AppError {
     constructor(message = 'Работа уже назначена этому куратору.') {
-        super();
-        this.message = message;
+        super(message);
+        this.code = StatusCodes.CONFLICT;
     }
 }

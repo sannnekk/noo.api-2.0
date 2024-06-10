@@ -1,9 +1,8 @@
 import { StatusCodes } from 'http-status-codes';
-export class InvalidRequestError extends Error {
-    code = StatusCodes.BAD_REQUEST;
-    message;
+import { AppError } from './AppError.js';
+export class InvalidRequestError extends AppError {
     constructor(message = 'Неверный запрос.') {
         super(message);
-        this.message = message;
+        this.code = StatusCodes.BAD_REQUEST;
     }
 }

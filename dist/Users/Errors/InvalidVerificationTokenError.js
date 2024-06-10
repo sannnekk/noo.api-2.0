@@ -1,9 +1,8 @@
+import { AppError } from '../../Core/Errors/AppError.js';
 import { StatusCodes } from 'http-status-codes';
-export class InvalidVerificationTokenError extends Error {
-    code = StatusCodes.BAD_REQUEST;
-    message;
+export class InvalidVerificationTokenError extends AppError {
     constructor(message = 'Ссылка для подтверждения аккаунта недействительна') {
-        super();
-        this.message = message;
+        super(message);
+        this.code = StatusCodes.BAD_REQUEST;
     }
 }

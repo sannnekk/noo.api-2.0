@@ -1,37 +1,38 @@
 import { Controller, Post } from 'express-controller-decorator'
 import * as Asserts from '@modules/Core/Security/asserts'
 import { Context } from '@modules/Core/Request/Context'
+import { ApiResponse } from '@modules/Core/Response/ApiResponse'
 import { StatisticsService } from './Services/StatisticsService'
 import { StatisticsValidator } from './StatisticsValidator'
-import { ApiResponse } from '@modules/Core/Response/ApiResponse'
 
 @Controller('/statistics')
 export class StatisticsController {
-	private readonly statisticsService: StatisticsService
-	private readonly statisticsValidator: StatisticsValidator
+  private readonly statisticsService: StatisticsService
 
-	public constructor() {
-		this.statisticsService = new StatisticsService()
-		this.statisticsValidator = new StatisticsValidator()
-	}
+  private readonly statisticsValidator: StatisticsValidator
 
-	@Post('/:username')
-	async getStatistics(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			const options = this.statisticsValidator.parseGetStatistics(context.body)
-			const username = this.statisticsValidator.parseSlug(
-				context.params.username
-			)
+  public constructor() {
+    this.statisticsService = new StatisticsService()
+    this.statisticsValidator = new StatisticsValidator()
+  }
 
-			const statistics = await this.statisticsService.getStatistics(
-				username,
-				options
-			)
+  @Post('/:username')
+  async getStatistics(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      const options = this.statisticsValidator.parseGetStatistics(context.body)
+      const username = this.statisticsValidator.parseSlug(
+        context.params.username
+      )
 
-			return new ApiResponse({ data: statistics })
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      const statistics = await this.statisticsService.getStatistics(
+        username,
+        options
+      )
+
+      return new ApiResponse({ data: statistics })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 }

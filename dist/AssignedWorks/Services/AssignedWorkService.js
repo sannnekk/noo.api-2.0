@@ -2,6 +2,10 @@ import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
 import { Pagination } from '../../Core/Data/Pagination.js';
 import { Service } from '../../Core/Services/Service.js';
 import { UnauthorizedError } from '../../Core/Errors/UnauthorizedError.js';
+import { UserRepository } from '../../Users/Data/UserRepository.js';
+import { WorkRepository } from '../../Works/Data/WorkRepository.js';
+import { CalenderService } from '../../Calender/Services/CalenderService.js';
+import { CourseMaterialRepository } from '../../Courses/Data/CourseMaterialRepository.js';
 import { AssignedWorkRepository } from '../Data/AssignedWorkRepository.js';
 import { AssignedWorkModel } from '../Data/AssignedWorkModel.js';
 import { WorkAlreadySolvedError } from '../Errors/WorkAlreadySolvedError.js';
@@ -11,15 +15,12 @@ import { WorkAlreadyAssignedToThisMentorError } from '../Errors/WorkAlreadyAssig
 import { WorkAlreadyAssignedToEnoughMentorsError } from '../Errors/WorkAlreadyAssignedToEnoughMentorsError.js';
 import { SolveDeadlineNotSetError } from '../Errors/SolveDeadlineNotSetError.js';
 import { CheckDeadlineNotSetError } from '../Errors/CheckDeadlineNotSetError.js';
-import { UserRepository } from '../../Users/Data/UserRepository.js';
-import { WorkRepository } from '../../Works/Data/WorkRepository.js';
 import { DeadlineAlreadyShiftedError } from '../Errors/DeadlineAlreadyShiftedError.js';
 import { WorkIsArchived } from '../Errors/WorkIsArchived.js';
 import { TaskService } from './TaskService.js';
-import { CalenderService } from '../../Calender/Services/CalenderService.js';
 import { AssignedWorkCommentRepository } from '../Data/AssignedWorkCommentRepository.js';
 import { AssignedWorkAnswerRepository } from '../Data/AssignedWorkAnswerRepository.js';
-import { CourseMaterialRepository } from '../../Courses/Data/CourseMaterialRepository.js';
+import Dates from '../../Core/Utils/date.js';
 export class AssignedWorkService extends Service {
     taskService;
     assignedWorkRepository;
@@ -141,7 +142,7 @@ export class AssignedWorkService extends Service {
         if (assignedWork.studentId !== studentId) {
             throw new UnauthorizedError('Вы не можете пересдать чужую работу');
         }
-        let rightTaskIds = assignedWork.excludedTaskIds;
+        const rightTaskIds = assignedWork.excludedTaskIds;
         if (options.onlyFalse) {
             const comments = await this.commentRepository.findAll({
                 assignedWorkId,
@@ -207,18 +208,19 @@ export class AssignedWorkService extends Service {
         if (['made-in-deadline', 'made-after-deadline'].includes(foundWork.solveStatus)) {
             throw new WorkAlreadySolvedError();
         }
-        if (foundWork.solveDeadlineAt && new Date() > foundWork.solveDeadlineAt) {
+        if (foundWork.solveDeadlineAt &&
+            Dates.isInPast(foundWork.solveDeadlineAt)) {
             foundWork.solveStatus = 'made-after-deadline';
         }
         else {
             foundWork.solveStatus = 'made-in-deadline';
         }
-        foundWork.solvedAt = new Date();
+        foundWork.solvedAt = Dates.now();
         foundWork.answers = solveOptions.answers;
         foundWork.comments = this.taskService.automatedCheck(foundWork.work.tasks, solveOptions.answers);
         if (foundWork.work.tasks.every((task) => task.type !== 'text')) {
             foundWork.checkStatus = 'checked-automatically';
-            foundWork.checkedAt = new Date();
+            foundWork.checkedAt = Dates.now();
             foundWork.score = this.getScore(foundWork.comments);
         }
         await this.assignedWorkRepository.update(foundWork);
@@ -238,7 +240,8 @@ export class AssignedWorkService extends Service {
         if (['not-started', 'in-progress'].includes(foundWork.solveStatus)) {
             throw new WorkIsNotSolvedYetError();
         }
-        if (foundWork.checkDeadlineAt && new Date() > foundWork.checkDeadlineAt) {
+        if (foundWork.checkDeadlineAt &&
+            Dates.isInPast(foundWork.checkDeadlineAt)) {
             foundWork.checkStatus = 'checked-after-deadline';
         }
         else {
@@ -246,7 +249,7 @@ export class AssignedWorkService extends Service {
         }
         foundWork.answers = checkOptions.answers || [];
         foundWork.comments = checkOptions.comments || [];
-        foundWork.checkedAt = new Date();
+        foundWork.checkedAt = Dates.now();
         foundWork.score = this.getScore(foundWork.comments);
         await this.assignedWorkRepository.update(foundWork);
         await this.calenderService.createWorkCheckedEvent(foundWork);
@@ -326,7 +329,7 @@ export class AssignedWorkService extends Service {
             if (work.solveDeadlineShifted) {
                 throw new DeadlineAlreadyShiftedError();
             }
-            work.solveDeadlineAt.setDate(work.solveDeadlineAt.getDate() + days);
+            work.solveDeadlineAt = Dates.addDays(work.solveDeadlineAt, days);
             work.solveDeadlineShifted = true;
             await this.calenderService.updateDeadlineFromWork(work, 'student-deadline');
         }
@@ -340,7 +343,7 @@ export class AssignedWorkService extends Service {
             if (work.checkDeadlineShifted) {
                 throw new DeadlineAlreadyShiftedError();
             }
-            work.checkDeadlineAt.setDate(work.checkDeadlineAt.getDate() + days);
+            work.checkDeadlineAt = Dates.addDays(work.checkDeadlineAt, days);
             work.checkDeadlineShifted = true;
             await this.calenderService.updateDeadlineFromWork(work, 'mentor-deadline');
         }

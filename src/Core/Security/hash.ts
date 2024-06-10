@@ -1,12 +1,12 @@
 import bcrypt from 'bcrypt'
 
 export async function hash(value: string): Promise<string> {
-	return await bcrypt.hash(value, 10)
+  return bcrypt.hash(value, 10)
 }
 
 export async function compare(
-	value: string,
-	hash: string
+  value: string,
+  hashStr: string
 ): Promise<boolean> {
-	return await bcrypt.compare(value, hash)
+  return bcrypt.compare(value, hashStr)
 }

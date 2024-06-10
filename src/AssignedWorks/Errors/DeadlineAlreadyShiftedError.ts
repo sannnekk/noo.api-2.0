@@ -1,11 +1,9 @@
+import { AppError } from '@modules/Core/Errors/AppError'
 import { StatusCodes } from 'http-status-codes'
 
-export class DeadlineAlreadyShiftedError extends Error {
-	code = StatusCodes.CONFLICT
-	message: string
-
-	constructor(message = 'Дедлайн уже был сдвинут.') {
-		super()
-		this.message = message
-	}
+export class DeadlineAlreadyShiftedError extends AppError {
+  constructor(message = 'Дедлайн уже был сдвинут.') {
+    super(message)
+    this.code = StatusCodes.CONFLICT
+  }
 }

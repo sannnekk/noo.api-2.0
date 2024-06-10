@@ -1,272 +1,273 @@
-import { Context } from '@modules/core/Request/Context'
-import { UserService } from './Services/UserService'
-import { UserValidator } from './UserValidator'
-import * as Asserts from '@modules/core/Security/asserts'
+import { Context } from '@modules/Core/Request/Context'
+import * as Asserts from '@modules/Core/Security/asserts'
 import {
-	Controller,
-	Delete,
-	Get,
-	Patch,
-	Post,
+  Controller,
+  Delete,
+  Get,
+  Patch,
+  Post,
 } from 'express-controller-decorator'
 import { ApiResponse } from '@modules/Core/Response/ApiResponse'
+import { UserValidator } from './UserValidator'
+import { UserService } from './Services/UserService'
 
 @Controller('/user')
 export class UserController {
-	private readonly userValidator: UserValidator
-	private readonly userService: UserService
+  private readonly userValidator: UserValidator
 
-	constructor() {
-		this.userValidator = new UserValidator()
-		this.userService = new UserService()
-	}
+  private readonly userService: UserService
 
-	@Post('/auth/login')
-	async login(context: Context): Promise<ApiResponse> {
-		try {
-			const loginDTO = this.userValidator.parseLogin(context.body)
+  constructor() {
+    this.userValidator = new UserValidator()
+    this.userService = new UserService()
+  }
 
-			const payload = await this.userService.login(loginDTO)
+  @Post('/auth/login')
+  async login(context: Context): Promise<ApiResponse> {
+    try {
+      const loginDTO = this.userValidator.parseLogin(context.body)
 
-			return new ApiResponse({ data: payload })
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      const payload = await this.userService.login(loginDTO)
 
-	@Post('/auth/register')
-	async register(context: Context): Promise<ApiResponse> {
-		try {
-			const registerDTO = this.userValidator.parseRegister(context.body)
-			await this.userService.register(registerDTO)
+      return new ApiResponse({ data: payload })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			return new ApiResponse()
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+  @Post('/auth/register')
+  async register(context: Context): Promise<ApiResponse> {
+    try {
+      const registerDTO = this.userValidator.parseRegister(context.body)
+      await this.userService.register(registerDTO)
 
-	@Get('/auth/check-username/:username')
-	async checkUsername(context: Context): Promise<ApiResponse> {
-		try {
-			const username = this.userValidator.parseSlug(context.params.username)
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			const exists = await this.userService.checkUsername(username)
+  @Get('/auth/check-username/:username')
+  async checkUsername(context: Context): Promise<ApiResponse> {
+    try {
+      const username = this.userValidator.parseSlug(context.params.username)
 
-			return new ApiResponse({ data: { exists } })
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      const exists = await this.userService.checkUsername(username)
 
-	@Post('/auth/resend-verification')
-	async resendVerification(context: Context): Promise<ApiResponse> {
-		try {
-			const resendVerificationDTO = this.userValidator.parseResendVerification(
-				context.body
-			)
-			await this.userService.resendVerification(resendVerificationDTO.email)
+      return new ApiResponse({ data: { exists } })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			return new ApiResponse()
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+  @Post('/auth/resend-verification')
+  async resendVerification(context: Context): Promise<ApiResponse> {
+    try {
+      const resendVerificationDTO = this.userValidator.parseResendVerification(
+        context.body
+      )
+      await this.userService.resendVerification(resendVerificationDTO.email)
 
-	@Patch('/auth/verify')
-	async verify(context: Context): Promise<ApiResponse> {
-		try {
-			const verificationDTO = this.userValidator.parseVerification(context.body)
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			await this.userService.verify(
-				verificationDTO.username,
-				verificationDTO.token
-			)
+  @Patch('/auth/verify')
+  async verify(context: Context): Promise<ApiResponse> {
+    try {
+      const verificationDTO = this.userValidator.parseVerification(context.body)
 
-			return new ApiResponse()
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      await this.userService.verify(
+        verificationDTO.username,
+        verificationDTO.token
+      )
 
-	@Post('/auth/forgot-password')
-	async forgotPassword(context: Context): Promise<ApiResponse> {
-		try {
-			const forgotPasswordDTO = this.userValidator.validateForgotPassword(
-				context.body
-			)
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			await this.userService.forgotPassword(forgotPasswordDTO.email)
+  @Post('/auth/forgot-password')
+  async forgotPassword(context: Context): Promise<ApiResponse> {
+    try {
+      const forgotPasswordDTO = this.userValidator.validateForgotPassword(
+        context.body
+      )
 
-			return new ApiResponse()
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      await this.userService.forgotPassword(forgotPasswordDTO.email)
 
-	@Get('/:username')
-	async getByUsername(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			const username = this.userValidator.parseSlug(context.params.username)
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			const user = await this.userService.getByUsername(username)
+  @Get('/:username')
+  async getByUsername(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      const username = this.userValidator.parseSlug(context.params.username)
 
-			return new ApiResponse({ data: user })
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      const user = await this.userService.getByUsername(username)
 
-	@Patch('/:username/verify-manual')
-	async verifyManual(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			Asserts.teacherOrAdmin(context)
+      return new ApiResponse({ data: user })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			const username = this.userValidator.parseSlug(context.params.username)
+  @Patch('/:username/verify-manual')
+  async verifyManual(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.teacherOrAdmin(context)
 
-			await this.userService.verifyManual(username)
+      const username = this.userValidator.parseSlug(context.params.username)
 
-			return new ApiResponse()
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      await this.userService.verifyManual(username)
 
-	@Get('/mentor/search')
-	async getMentors(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			Asserts.notStudent(context)
-			const pagination = this.userValidator.parsePagination(context.query)
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			const { mentors, meta } = await this.userService.getMentors(pagination)
+  @Get('/mentor/search')
+  async getMentors(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.notStudent(context)
+      const pagination = this.userValidator.parsePagination(context.query)
 
-			return new ApiResponse({ data: mentors, meta })
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      const { mentors, meta } = await this.userService.getMentors(pagination)
 
-	@Get('/teacher/search')
-	async getTeachers(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			Asserts.notStudent(context)
-			const pagination = this.userValidator.parsePagination(context.query)
+      return new ApiResponse({ data: mentors, meta })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			const { teachers, meta } = await this.userService.getTeachers(pagination)
+  @Get('/teacher/search')
+  async getTeachers(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.notStudent(context)
+      const pagination = this.userValidator.parsePagination(context.query)
 
-			return new ApiResponse({ data: teachers, meta })
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      const { teachers, meta } = await this.userService.getTeachers(pagination)
 
-	@Get('/student/search')
-	async getStudents(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			Asserts.notStudent(context)
-			const pagination = this.userValidator.parsePagination(context.query)
+      return new ApiResponse({ data: teachers, meta })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			const { students, meta } = await this.userService.getStudents(pagination)
+  @Get('/student/search')
+  async getStudents(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.notStudent(context)
+      const pagination = this.userValidator.parsePagination(context.query)
 
-			return new ApiResponse({ data: students, meta })
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      const { students, meta } = await this.userService.getStudents(pagination)
 
-	@Get('/student/search/own')
-	async getMyStudents(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			Asserts.mentor(context)
+      return new ApiResponse({ data: students, meta })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			const pagination = this.userValidator.parsePagination(context.query)
+  @Get('/student/search/own')
+  async getMyStudents(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.mentor(context)
 
-			const { students, meta } = await this.userService.getStudentsOf(
-				context.credentials.userId,
-				pagination
-			)
+      const pagination = this.userValidator.parsePagination(context.query)
 
-			return new ApiResponse({ data: students, meta })
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      const { students, meta } = await this.userService.getStudentsOf(
+        context.credentials.userId,
+        pagination
+      )
 
-	@Get('/')
-	async getUsers(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			Asserts.notStudent(context)
-			const pagination = this.userValidator.parsePagination(context.query)
+      return new ApiResponse({ data: students, meta })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			const { users, meta } = await this.userService.getUsers(pagination)
+  @Get('/')
+  async getUsers(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.notStudent(context)
+      const pagination = this.userValidator.parsePagination(context.query)
 
-			return new ApiResponse({ data: users, meta })
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      const { users, meta } = await this.userService.getUsers(pagination)
 
-	@Patch('/:id')
-	async update(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			const id = this.userValidator.parseId(context.params.id)
-			const updateUserDTO = this.userValidator.parseUpdate(context.body)
+      return new ApiResponse({ data: users, meta })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			if (!['teacher', 'admin'].includes(context.credentials!.role)) {
-				Asserts.isAuthorized(context, id)
-				updateUserDTO.role = undefined
-			}
+  @Patch('/:id')
+  async update(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      const id = this.userValidator.parseId(context.params.id)
+      const updateUserDTO = this.userValidator.parseUpdate(context.body)
 
-			await this.userService.update(
-				id,
-				updateUserDTO,
-				context.credentials!.role
-			)
+      if (!['teacher', 'admin'].includes(context.credentials!.role)) {
+        Asserts.isAuthorized(context, id)
+        updateUserDTO.role = undefined
+      }
 
-			return new ApiResponse()
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      await this.userService.update(
+        id,
+        updateUserDTO,
+        context.credentials!.role
+      )
 
-	@Patch('/:studentId/assign-mentor/:mentorId')
-	async assignMentor(context: Context): Promise<ApiResponse> {
-		try {
-			Asserts.notStudent(context)
-			const studentId = this.userValidator.parseId(context.params.studentId)
-			const mentorId = this.userValidator.parseId(context.params.mentorId)
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			await this.userService.assignMentor(studentId, mentorId)
+  @Patch('/:studentId/assign-mentor/:mentorId')
+  async assignMentor(context: Context): Promise<ApiResponse> {
+    try {
+      Asserts.notStudent(context)
+      const studentId = this.userValidator.parseId(context.params.studentId)
+      const mentorId = this.userValidator.parseId(context.params.mentorId)
 
-			return new ApiResponse()
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      await this.userService.assignMentor(studentId, mentorId)
 
-	@Delete('/:id')
-	async delete(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			const id = this.userValidator.parseId(context.params.id)
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			if (!['teacher', 'admin'].includes(context.credentials!.role)) {
-				Asserts.isAuthorized(context, id)
-			}
+  @Delete('/:id')
+  async delete(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      const id = this.userValidator.parseId(context.params.id)
 
-			await this.userService.delete(id)
+      if (!['teacher', 'admin'].includes(context.credentials!.role)) {
+        Asserts.isAuthorized(context, id)
+      }
 
-			return new ApiResponse()
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      await this.userService.delete(id)
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 }

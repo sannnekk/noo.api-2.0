@@ -9,7 +9,7 @@ export class PlotService {
                     key = key.toISOString().split('T')[0];
                 }
                 return {
-                    key: key,
+                    key,
                     value: valFunc(item),
                     annotation: annotationFunc ? annotationFunc(item) : undefined,
                 };

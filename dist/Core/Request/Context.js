@@ -25,7 +25,6 @@ export class Context {
         }
         if (this.credentials.isBlocked) {
             this.credentials = undefined;
-            return;
         }
     }
     async isAuthenticated() {

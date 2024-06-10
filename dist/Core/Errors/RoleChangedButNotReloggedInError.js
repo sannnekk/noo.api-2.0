@@ -1,9 +1,8 @@
 import { StatusCodes } from 'http-status-codes';
-export class RoleChangedButNotReloggedInError extends Error {
-    code = StatusCodes.CONFLICT;
-    message;
+import { AppError } from './AppError.js';
+export class RoleChangedButNotReloggedInError extends AppError {
     constructor(message = 'Похоже, у этого аккаунта изменилась роль. Пожалуйста, перезайдите.') {
-        super();
-        this.message = message;
+        super(message);
+        this.code = StatusCodes.FORBIDDEN;
     }
 }

@@ -1,12 +1,33 @@
-import fs from 'fs';
-import path from 'path';
-const logFile = `${new Date().toUTCString()}.txt`;
-const logFolder = path.join(process.cwd(), 'logs', logFile);
-function log(data) {
-    fs.appendFile(logFolder, toLog(data), (err) => { });
+import winston from 'winston';
+const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.json(),
+    transports: [
+        new winston.transports.File({
+            filename: process.env.LOG_ERROR_FILE,
+            level: 'error',
+            dirname: process.env.LOG_DIR,
+            maxsize: 5 * 1024 * 1024, // 5MB
+        }),
+        new winston.transports.File({
+            filename: process.env.LOG_DEBUG_FILE,
+            level: 'debug',
+            dirname: process.env.LOG_DIR,
+            maxsize: 5 * 1024 * 1024, // 5MB
+        }),
+        new winston.transports.File({
+            filename: process.env.LOG_COMBINED_FILE,
+            dirname: process.env.LOG_DIR,
+            maxsize: 5 * 1024 * 1024, // 5MB
+        }),
+    ],
+});
+if (process.env.APP_ENV === 'dev') {
+    logger.add(new winston.transports.Console({
+        format: winston.format.simple(),
+    }));
 }
-function toLog(data) {
-    const str = typeof data === 'object' ? JSON.stringify(data, null, 2) : data;
-    return `${new Date().toUTCString()}: ${str} \n`;
+function log(level, data) {
+    logger.log(level, data);
 }
-export { log };
+export default log;

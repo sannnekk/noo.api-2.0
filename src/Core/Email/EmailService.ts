@@ -3,7 +3,7 @@ import path, { dirname } from 'path'
 import fs from 'fs'
 
 export class EmailService {
-	private readonly stylesTemplate = `
+  private readonly stylesTemplate = `
     <style>
       * {
         font-family: 'Montserrat', sans-serif;
@@ -60,8 +60,7 @@ export class EmailService {
       }
     </style>`
 
-	private readonly registrationTemplate =
-		`
+  private readonly registrationTemplate = `
     <h1><b>НОО.</b>Платформа - подтверждение регистрации</h1>
     <br><br>
     <p>Здравствуйте, {{name}}!</p>
@@ -79,10 +78,9 @@ export class EmailService {
       <a href="https://no-os.ru/confidentiality">Политика конфиденциальности</a> |
       <a href="https://no-os.ru/oferta">Пользовательское соглашение</a>
     </div>
-  ` + this.stylesTemplate
+  ${this.stylesTemplate}`
 
-	private readonly forgotPasswordTemplate =
-		`
+  private readonly forgotPasswordTemplate = `
     <h1><b>НОО.</b>Платформа - восстановление пароля</h1>
     <br><br>
     <p>Здравствуйте, {{name}}!</p>
@@ -97,85 +95,85 @@ export class EmailService {
       <a href="https://no-os.ru/confidentiality">Политика конфиденциальности</a> |
       <a href="https://no-os.ru/oferta">Пользовательское соглашение</a>
     </div>
-  ` + this.stylesTemplate
+  ${this.stylesTemplate}`
 
-	public async sendForgotPasswordEmail(
-		email: string,
-		name: string,
-		newPassword: string
-	): Promise<void> {
-		const subject = 'НОО.Платформа - Восстановление пароля'
-		const htmlTemplate = this.forgotPasswordTemplate
-			.replaceAll('{{newPassword}}', newPassword)
-			.replaceAll('{{name}}', name)
+  public async sendForgotPasswordEmail(
+    email: string,
+    name: string,
+    newPassword: string
+  ): Promise<void> {
+    const subject = 'НОО.Платформа - Восстановление пароля'
+    const htmlTemplate = this.forgotPasswordTemplate
+      .replaceAll('{{newPassword}}', newPassword)
+      .replaceAll('{{name}}', name)
 
-		await this.sendEmail(email, subject, htmlTemplate)
-	}
+    await this.sendEmail(email, subject, htmlTemplate)
+  }
 
-	public async sendVerificationEmail(
-		email: string,
-		username: string,
-		name: string,
-		token: string
-	): Promise<void> {
-		const subject = 'НОО.Платформа - Подтверждение почты'
-		const htmlTemplate = this.registrationTemplate
-			.replaceAll('{{token}}', token)
-			.replaceAll('{{name}}', name)
-			.replaceAll('{{username}}', username)
+  public async sendVerificationEmail(
+    email: string,
+    username: string,
+    name: string,
+    token: string
+  ): Promise<void> {
+    const subject = 'НОО.Платформа - Подтверждение почты'
+    const htmlTemplate = this.registrationTemplate
+      .replaceAll('{{token}}', token)
+      .replaceAll('{{name}}', name)
+      .replaceAll('{{username}}', username)
 
-		await this.sendEmail(email, subject, htmlTemplate)
-	}
+    await this.sendEmail(email, subject, htmlTemplate)
+  }
 
-	private async sendEmail(
-		email: string,
-		subject: string,
-		htmlTemplate: string
-	): Promise<void> {
-		if (process.env.NODE_ENV === 'test') {
-			await this.mockSendEmail(email, subject, htmlTemplate)
-			return
-		}
+  private async sendEmail(
+    email: string,
+    subject: string,
+    htmlTemplate: string
+  ): Promise<void> {
+    if (process.env.NODE_ENV === 'test') {
+      await this.mockSendEmail(email, subject, htmlTemplate)
+      return
+    }
 
-		// Send email
-		const transport = Mailer.createTransport({
-			host: process.env.SMTP_HOST, //'root04.hmnet.eu',
-			port: process.env.SMTP_PORT, // 465,
-			secure: false,
-			auth: {
-				user: process.env.SMTP_LOGIN, //'noreply@noo-school.ru',
-				pass: process.env.SMTP_PASSWORD, //'983dAb2x!'
-			},
-		} as any)
+    // Send email
+    const transport = Mailer.createTransport({
+      host: process.env.SMTP_HOST, // 'root04.hmnet.eu',
+      port: process.env.SMTP_PORT, // 465,
+      secure: false,
+      auth: {
+        user: process.env.SMTP_LOGIN, // 'noreply@noo-school.ru',
+        pass: process.env.SMTP_PASSWORD, // '983dAb2x!'
+      },
+    } as any)
 
-		const mailOptions = {
-			from: process.env.SMTP_FROM, //'noreply@noo-school.ru',
-			to: email,
-			subject,
-			html: htmlTemplate,
-		}
+    const mailOptions = {
+      from: process.env.SMTP_FROM, // 'noreply@noo-school.ru',
+      to: email,
+      subject,
+      html: htmlTemplate,
+    }
 
-		await transport.sendMail(mailOptions)
-	}
+    await transport.sendMail(mailOptions)
+  }
 
-	private async mockSendEmail(
-		email: string,
-		subject: string,
-		htmlTemplate: string
-	): Promise<void> {
-		// save email to file in test/email
+  private async mockSendEmail(
+    email: string,
+    subject: string,
+    htmlTemplate: string
+  ): Promise<void> {
+    // save email to file in test/email
 
-		const content = `
+    const content = `
       <h1>${subject}</h1>
       <hr>
       ${htmlTemplate}
     `
 
-		const filename = `${email}.html`
-		const directory = path.join(process.cwd(), 'test/email', filename)
+    const filename = `${email}.html`
+    const directory = path.join(process.cwd(), 'test/email', filename)
 
-		await fs.promises.mkdir(dirname(directory), { recursive: true })
+    await fs.promises.mkdir(dirname(directory), { recursive: true })
 
-		await fs.promises.writeFile(directory, content)
-	}
+    await fs.promises.writeFile(directory, content)
+  }
 }

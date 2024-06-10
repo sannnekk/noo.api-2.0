@@ -1,9 +1,8 @@
 import { StatusCodes } from 'http-status-codes';
-export class UnauthenticatedError extends Error {
-    code = StatusCodes.UNAUTHORIZED;
-    message;
+import { AppError } from './AppError.js';
+export class UnauthenticatedError extends AppError {
     constructor(message = 'Вы не авторизованы.') {
-        super();
-        this.message = message;
+        super(message);
+        this.code = StatusCodes.UNAUTHORIZED;
     }
 }

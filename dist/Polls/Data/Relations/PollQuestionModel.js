@@ -129,7 +129,7 @@ __decorate([
         type: 'text',
         nullable: true,
     }),
-    __metadata("design:type", Object)
+    __metadata("design:type", String)
 ], PollQuestionModel.prototype, "description", void 0);
 __decorate([
     Column({
@@ -153,7 +153,7 @@ __decorate([
         type: 'simple-array',
         nullable: true,
     }),
-    __metadata("design:type", Object)
+    __metadata("design:type", Array)
 ], PollQuestionModel.prototype, "choices", void 0);
 __decorate([
     Column({
@@ -161,7 +161,7 @@ __decorate([
         type: 'int',
         nullable: true,
     }),
-    __metadata("design:type", Object)
+    __metadata("design:type", Number)
 ], PollQuestionModel.prototype, "minChoices", void 0);
 __decorate([
     Column({
@@ -169,7 +169,7 @@ __decorate([
         type: 'int',
         nullable: true,
     }),
-    __metadata("design:type", Object)
+    __metadata("design:type", Number)
 ], PollQuestionModel.prototype, "maxChoices", void 0);
 __decorate([
     Column({
@@ -177,7 +177,7 @@ __decorate([
         type: 'int',
         nullable: true,
     }),
-    __metadata("design:type", Object)
+    __metadata("design:type", Number)
 ], PollQuestionModel.prototype, "minRating", void 0);
 __decorate([
     Column({
@@ -185,7 +185,7 @@ __decorate([
         type: 'int',
         nullable: true,
     }),
-    __metadata("design:type", Object)
+    __metadata("design:type", Number)
 ], PollQuestionModel.prototype, "maxRating", void 0);
 __decorate([
     Column({
@@ -193,7 +193,7 @@ __decorate([
         type: 'boolean',
         default: false,
     }),
-    __metadata("design:type", Object)
+    __metadata("design:type", Boolean)
 ], PollQuestionModel.prototype, "onlyIntegerRating", void 0);
 __decorate([
     Column({
@@ -201,7 +201,7 @@ __decorate([
         type: 'int',
         nullable: true,
     }),
-    __metadata("design:type", Object)
+    __metadata("design:type", Number)
 ], PollQuestionModel.prototype, "maxFileSize", void 0);
 __decorate([
     Column({
@@ -209,7 +209,7 @@ __decorate([
         type: 'int',
         nullable: true,
     }),
-    __metadata("design:type", Object)
+    __metadata("design:type", Number)
 ], PollQuestionModel.prototype, "maxFileCount", void 0);
 __decorate([
     Column({
@@ -217,7 +217,7 @@ __decorate([
         type: 'simple-array',
         nullable: true,
     }),
-    __metadata("design:type", Object)
+    __metadata("design:type", Array)
 ], PollQuestionModel.prototype, "allowedFileTypes", void 0);
 __decorate([
     Column({
@@ -225,7 +225,7 @@ __decorate([
         type: 'int',
         nullable: true,
     }),
-    __metadata("design:type", Object)
+    __metadata("design:type", Number)
 ], PollQuestionModel.prototype, "minLength", void 0);
 __decorate([
     Column({
@@ -233,7 +233,7 @@ __decorate([
         type: 'int',
         nullable: true,
     }),
-    __metadata("design:type", Object)
+    __metadata("design:type", Number)
 ], PollQuestionModel.prototype, "maxLength", void 0);
 __decorate([
     Column({
@@ -241,7 +241,7 @@ __decorate([
         type: 'int',
         nullable: true,
     }),
-    __metadata("design:type", Object)
+    __metadata("design:type", Number)
 ], PollQuestionModel.prototype, "minValue", void 0);
 __decorate([
     Column({
@@ -249,7 +249,7 @@ __decorate([
         type: 'int',
         nullable: true,
     }),
-    __metadata("design:type", Object)
+    __metadata("design:type", Number)
 ], PollQuestionModel.prototype, "maxValue", void 0);
 __decorate([
     Column({
@@ -257,7 +257,7 @@ __decorate([
         type: 'boolean',
         default: false,
     }),
-    __metadata("design:type", Object)
+    __metadata("design:type", Boolean)
 ], PollQuestionModel.prototype, "onlyIntegerValue", void 0);
 __decorate([
     Column({
@@ -265,7 +265,7 @@ __decorate([
         type: 'boolean',
         default: false,
     }),
-    __metadata("design:type", Object)
+    __metadata("design:type", Boolean)
 ], PollQuestionModel.prototype, "onlyFutureDate", void 0);
 __decorate([
     Column({
@@ -273,7 +273,7 @@ __decorate([
         type: 'boolean',
         default: false,
     }),
-    __metadata("design:type", Object)
+    __metadata("design:type", Boolean)
 ], PollQuestionModel.prototype, "onlyPastDate", void 0);
 PollQuestionModel = __decorate([
     Entity('poll_question'),

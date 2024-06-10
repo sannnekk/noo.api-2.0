@@ -76,7 +76,7 @@ export class EmailService {
       <a href="https://no-os.ru/confidentiality">Политика конфиденциальности</a> |
       <a href="https://no-os.ru/oferta">Пользовательское соглашение</a>
     </div>
-  ` + this.stylesTemplate;
+  ${this.stylesTemplate}`;
     forgotPasswordTemplate = `
     <h1><b>НОО.</b>Платформа - восстановление пароля</h1>
     <br><br>
@@ -92,7 +92,7 @@ export class EmailService {
       <a href="https://no-os.ru/confidentiality">Политика конфиденциальности</a> |
       <a href="https://no-os.ru/oferta">Пользовательское соглашение</a>
     </div>
-  ` + this.stylesTemplate;
+  ${this.stylesTemplate}`;
     async sendForgotPasswordEmail(email, name, newPassword) {
         const subject = 'НОО.Платформа - Восстановление пароля';
         const htmlTemplate = this.forgotPasswordTemplate
@@ -115,16 +115,16 @@ export class EmailService {
         }
         // Send email
         const transport = Mailer.createTransport({
-            host: process.env.SMTP_HOST, //'root04.hmnet.eu',
+            host: process.env.SMTP_HOST, // 'root04.hmnet.eu',
             port: process.env.SMTP_PORT, // 465,
             secure: false,
             auth: {
-                user: process.env.SMTP_LOGIN, //'noreply@noo-school.ru',
-                pass: process.env.SMTP_PASSWORD, //'983dAb2x!'
+                user: process.env.SMTP_LOGIN, // 'noreply@noo-school.ru',
+                pass: process.env.SMTP_PASSWORD, // '983dAb2x!'
             },
         });
         const mailOptions = {
-            from: process.env.SMTP_FROM, //'noreply@noo-school.ru',
+            from: process.env.SMTP_FROM, // 'noreply@noo-school.ru',
             to: email,
             subject,
             html: htmlTemplate,

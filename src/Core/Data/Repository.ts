@@ -1,150 +1,166 @@
+import TypeORM from 'typeorm'
 import { BaseModel, Model } from './Model'
 import { CoreDataSource } from './DataSource'
 import { Pagination } from './Pagination'
 import { NotFoundError } from '../Errors/NotFoundError'
-import TypeORM from 'typeorm'
 import { AlreadyExistError } from '../Errors/AlreadyExistError'
 
 type ConstructableModel = { new (data?: Partial<Model>): Model }
 
 type RelationsType<T> = (
-	| keyof Partial<T>
-	| `${Exclude<keyof Partial<T>, Symbol | number>}.${string}`
+  | keyof Partial<T>
+  | `${Exclude<keyof Partial<T>, symbol | number>}.${string}`
 )[]
 
 export abstract class Repository<T extends BaseModel> {
-	protected readonly model: ConstructableModel
-	protected readonly repository: TypeORM.Repository<Model>
+  protected readonly model: ConstructableModel
 
-	constructor(model: ConstructableModel) {
-		this.model = model
-		this.repository = CoreDataSource.getRepository(model)
-	}
+  protected readonly repository: TypeORM.Repository<Model>
 
-	async create(data: T): Promise<T> {
-		const model = new this.model(data)
-		try {
-			return (await this.repository.save(model)) as unknown as T
-		} catch (error: any) {
-			throw new AlreadyExistError()
-		}
-	}
+  constructor(model: ConstructableModel) {
+    this.model = model
+    this.repository = CoreDataSource.getRepository(model)
+  }
 
-	async createMany(data: T[]): Promise<void> {
-		const models = data.map((item) => new this.model(item))
+  async create(data: T): Promise<T> {
+    const model = new this.model(data)
+    try {
+      return (await this.repository.save(model)) as unknown as T
+    } catch (error: any) {
+      if (error?.code === '23505') {
+        throw new AlreadyExistError()
+      }
 
-		try {
-			await this.repository.save(models)
-		} catch (error) {
-			console.log(error)
-			throw new AlreadyExistError()
-		}
-	}
+      throw error
+    }
+  }
 
-	async update(data: Partial<T> & { id: T['id'] }): Promise<T> {
-		const item = await this.repository.findOne({
-			where: {
-				id: data.id,
-			},
-		})
+  async createMany(data: T[]): Promise<void> {
+    const models = data.map((item) => new this.model(item))
 
-		if (!item) {
-			throw new NotFoundError()
-		}
+    try {
+      await this.repository.save(models)
+    } catch (error: any) {
+      if (error?.code === '23505') {
+        throw new AlreadyExistError()
+      }
 
-		const newItem = new this.model({ ...item, ...data, id: item.id })
+      throw error
+    }
+  }
 
-		try {
-			const saved = await this.repository.save(newItem)
+  async update(data: Partial<T> & { id: T['id'] }): Promise<T> {
+    const item = await this.repository.findOne({
+      where: {
+        id: data.id,
+      },
+    })
 
-			return saved as unknown as T
-		} catch (error) {
-			throw new AlreadyExistError()
-		}
-	}
+    if (!item) {
+      throw new NotFoundError()
+    }
 
-	async updateRaw(data: Partial<T> & { id: T['id'] }): Promise<void> {
-		const item = await this.repository.findOne({
-			where: {
-				id: data.id,
-			},
-		})
+    const newItem = new this.model({ ...item, ...data, id: item.id })
 
-		if (!item) {
-			throw new NotFoundError()
-		}
+    try {
+      const saved = await this.repository.save(newItem)
 
-		try {
-			await this.repository.save(data)
-		} catch (error) {
-			throw new AlreadyExistError()
-		}
-	}
+      return saved as unknown as T
+    } catch (error: any) {
+      if (error?.code === '23505') {
+        throw new AlreadyExistError()
+      }
 
-	async delete(id: string): Promise<void> {
-		const exists = await this.repository.exists({
-			where: {
-				id,
-			},
-		})
+      throw error
+    }
+  }
 
-		if (!exists) {
-			throw new NotFoundError()
-		}
+  async updateRaw(data: Partial<T> & { id: T['id'] }): Promise<void> {
+    const item = await this.repository.findOne({
+      where: {
+        id: data.id,
+      },
+    })
 
-		await this.repository.delete(id)
-	}
+    if (!item) {
+      throw new NotFoundError()
+    }
 
-	async find(
-		conditions?: Partial<T> | Partial<T>[],
-		relations?: Readonly<RelationsType<T>>,
-		pagination: Pagination = new Pagination()
-	): Promise<T[]> {
-		return (await this.repository.find({
-			relations: (relations as string[]) || undefined,
-			where: pagination.getCondition(conditions),
-			order: pagination.orderOptions,
-			skip: pagination.offset,
-			take: pagination.take,
-		})) as unknown as Promise<T[]>
-	}
+    try {
+      await this.repository.save(data)
+    } catch (error: any) {
+      if (error?.code === '23505') {
+        throw new AlreadyExistError()
+      }
 
-	async findAll(
-		conditions?: Partial<T> | Partial<T>[],
-		relations?: Readonly<RelationsType<T>>,
-		sort?: any
-	): Promise<T[]> {
-		return (await this.repository.find({
-			relations: (relations as string[]) || undefined,
-			where: conditions,
-			order: sort,
-		})) as unknown as Promise<T[]>
-	}
+      throw error
+    }
+  }
 
-	async findOne(
-		conditions: Record<string, unknown> | Record<string, unknown>[],
-		relations?: Readonly<RelationsType<T>>,
-		sort?: any | undefined
-	): Promise<T | null> {
-		return this.repository.findOne({
-			relations: (relations as string[]) || undefined,
-			where: conditions,
-			order: sort,
-		}) as Promise<T | null>
-	}
+  async delete(id: string): Promise<void> {
+    const exists = await this.repository.exists({
+      where: {
+        id,
+      },
+    })
 
-	async count(
-		conditions?: Record<string, unknown> | Record<string, unknown>[],
-		pagination?: Pagination
-	): Promise<number> {
-		return this.repository.count({
-			where: pagination?.getCondition(conditions),
-		})
-	}
+    if (!exists) {
+      throw new NotFoundError()
+    }
 
-	queryBuilder(alias?: string): TypeORM.SelectQueryBuilder<T> {
-		return this.repository.createQueryBuilder(
-			alias
-		) as unknown as TypeORM.SelectQueryBuilder<T>
-	}
+    await this.repository.delete(id)
+  }
+
+  async find(
+    conditions?: Partial<T> | Partial<T>[],
+    relations?: Readonly<RelationsType<T>>,
+    pagination: Pagination = new Pagination()
+  ): Promise<T[]> {
+    return (await this.repository.find({
+      relations: (relations as string[]) || undefined,
+      where: pagination.getCondition(conditions),
+      order: pagination.orderOptions,
+      skip: pagination.offset,
+      take: pagination.take,
+    })) as unknown as Promise<T[]>
+  }
+
+  async findAll(
+    conditions?: Partial<T> | Partial<T>[],
+    relations?: Readonly<RelationsType<T>>,
+    sort?: any
+  ): Promise<T[]> {
+    return (await this.repository.find({
+      relations: (relations as string[]) || undefined,
+      where: conditions,
+      order: sort,
+    })) as unknown as Promise<T[]>
+  }
+
+  async findOne(
+    conditions: Record<string, unknown> | Record<string, unknown>[],
+    relations?: Readonly<RelationsType<T>>,
+    sort?: any | undefined
+  ): Promise<T | null> {
+    return this.repository.findOne({
+      relations: (relations as string[]) || undefined,
+      where: conditions,
+      order: sort,
+    }) as Promise<T | null>
+  }
+
+  async count(
+    conditions?: Record<string, unknown> | Record<string, unknown>[],
+    pagination?: Pagination
+  ): Promise<number> {
+    return this.repository.count({
+      where: pagination?.getCondition(conditions),
+    })
+  }
+
+  queryBuilder(alias?: string): TypeORM.SelectQueryBuilder<T> {
+    return this.repository.createQueryBuilder(
+      alias
+    ) as unknown as TypeORM.SelectQueryBuilder<T>
+  }
 }

@@ -32,7 +32,7 @@ let CourseChapterModel = class CourseChapterModel extends Model {
     materials;
     materialIds;
     sluggify(text) {
-        return ULID.generate() + '-' + Transliteration.sluggify(text);
+        return `${ULID.generate()}-${Transliteration.sluggify(text)}`;
     }
 };
 __decorate([

@@ -15,7 +15,10 @@ export class Repository {
             return (await this.repository.save(model));
         }
         catch (error) {
-            throw new AlreadyExistError();
+            if (error?.code === '23505') {
+                throw new AlreadyExistError();
+            }
+            throw error;
         }
     }
     async createMany(data) {
@@ -24,8 +27,10 @@ export class Repository {
             await this.repository.save(models);
         }
         catch (error) {
-            console.log(error);
-            throw new AlreadyExistError();
+            if (error?.code === '23505') {
+                throw new AlreadyExistError();
+            }
+            throw error;
         }
     }
     async update(data) {
@@ -43,7 +48,10 @@ export class Repository {
             return saved;
         }
         catch (error) {
-            throw new AlreadyExistError();
+            if (error?.code === '23505') {
+                throw new AlreadyExistError();
+            }
+            throw error;
         }
     }
     async updateRaw(data) {
@@ -59,7 +67,10 @@ export class Repository {
             await this.repository.save(data);
         }
         catch (error) {
-            throw new AlreadyExistError();
+            if (error?.code === '23505') {
+                throw new AlreadyExistError();
+            }
+            throw error;
         }
     }
     async delete(id) {

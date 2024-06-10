@@ -1,4 +1,4 @@
 export interface AssignWorkOptions {
-	checkDeadline?: Date
-	solveDeadline?: Date
+  checkDeadline?: Date
+  solveDeadline?: Date
 }

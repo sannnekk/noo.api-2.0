@@ -1,9 +1,8 @@
 import { StatusCodes } from 'http-status-codes';
-export class UnauthorizedError extends Error {
-    code = StatusCodes.FORBIDDEN;
-    message;
+import { AppError } from './AppError.js';
+export class UnauthorizedError extends AppError {
     constructor(message = 'У вас недостаточно прав для выполнения этого действия.') {
-        super();
-        this.message = message;
+        super(message);
+        this.code = StatusCodes.FORBIDDEN;
     }
 }

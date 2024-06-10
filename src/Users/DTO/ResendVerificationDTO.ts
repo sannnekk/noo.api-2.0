@@ -1,3 +1,3 @@
 export interface ResendVerificationDTO {
-	email: string
+  email: string
 }

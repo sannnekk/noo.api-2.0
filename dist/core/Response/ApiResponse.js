@@ -1,6 +1,8 @@
 import { ControllerResponse } from 'express-controller-decorator';
-import { InternalError } from '../Errors/InternalError.js';
 import { StatusCodes } from 'http-status-codes';
+import { InternalError } from '../Errors/InternalError.js';
+import { AppError } from '../Errors/AppError.js';
+import log from '../Logs/Logger.js';
 export class ApiResponse extends ControllerResponse {
     /*
      * constructor
@@ -19,6 +21,14 @@ export class ApiResponse extends ControllerResponse {
             return;
         }
         if (payload instanceof Error) {
+            if (!(payload instanceof AppError)) {
+                this.status = 500;
+                this.body = {
+                    error: 'Системная ошибка. Пожалуйста, сообщите об этом в поддержку',
+                };
+                log('error', payload);
+                return;
+            }
             const { status, message } = this.getErrorData(payload);
             this.status = status;
             this.body = { error: message };

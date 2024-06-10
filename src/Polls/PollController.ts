@@ -1,125 +1,126 @@
 import {
-	Controller,
-	ControllerResponse,
-	Get,
-	Patch,
-	Post,
+  Controller,
+  ControllerResponse,
+  Get,
+  Patch,
+  Post,
 } from 'express-controller-decorator'
-import { PollValidator } from './PollValidator'
-import { PollService } from './Services/PollService'
 import { Context } from '@modules/Core/Request/Context'
 import { ApiResponse } from '@modules/Core/Response/ApiResponse'
 import * as Asserts from '@modules/Core/Security/asserts'
+import { PollService } from './Services/PollService'
+import { PollValidator } from './PollValidator'
 
 @Controller('/poll')
 export class PollController {
-	private readonly pollService: PollService
-	private readonly pollValidator: PollValidator
+  private readonly pollService: PollService
 
-	constructor() {
-		this.pollService = new PollService()
-		this.pollValidator = new PollValidator()
-	}
+  private readonly pollValidator: PollValidator
 
-	@Get('/:id')
-	public async getPoll(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			const id = this.pollValidator.parseId(context.params.id)
+  constructor() {
+    this.pollService = new PollService()
+    this.pollValidator = new PollValidator()
+  }
 
-			const poll = await this.pollService.getPollById(id)
+  @Get('/:id')
+  public async getPoll(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      const id = this.pollValidator.parseId(context.params.id)
 
-			return new ApiResponse({ data: poll })
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      const poll = await this.pollService.getPollById(id)
 
-	@Get('/:id/info')
-	public async getPollInfo(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			const id = this.pollValidator.parseId(context.params.id)
+      return new ApiResponse({ data: poll })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			const poll = await this.pollService.getPollInfo(id)
+  @Get('/:id/info')
+  public async getPollInfo(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      const id = this.pollValidator.parseId(context.params.id)
 
-			return new ApiResponse({ data: poll })
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      const poll = await this.pollService.getPollInfo(id)
 
-	@Get('/:pollId/user')
-	public async searchWhoVoted(context: Context): Promise<ControllerResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			const pollId = this.pollValidator.parseId(context.params.pollId)
-			const pagination = this.pollValidator.parsePagination(context.query)
+      return new ApiResponse({ data: poll })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			const { users, meta } = await this.pollService.searchWhoVoted(
-				context.credentials!.role,
-				pollId,
-				pagination
-			)
+  @Get('/:pollId/user')
+  public async searchWhoVoted(context: Context): Promise<ControllerResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      const pollId = this.pollValidator.parseId(context.params.pollId)
+      const pagination = this.pollValidator.parsePagination(context.query)
 
-			return new ApiResponse({ data: users, meta })
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      const { users, meta } = await this.pollService.searchWhoVoted(
+        context.credentials!.role,
+        pollId,
+        pagination
+      )
 
-	@Get('/:pollId/user/:userId/answer')
-	public async getAnswers(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			const pollId = this.pollValidator.parseId(context.params.pollId)
-			const userId = this.pollValidator.parseId(context.params.userId)
+      return new ApiResponse({ data: users, meta })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			const answers = await this.pollService.getAnswers(
-				context.credentials!.role,
-				pollId,
-				userId
-			)
+  @Get('/:pollId/user/:userId/answer')
+  public async getAnswers(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      const pollId = this.pollValidator.parseId(context.params.pollId)
+      const userId = this.pollValidator.parseId(context.params.userId)
 
-			return new ApiResponse({ data: answers })
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      const answers = await this.pollService.getAnswers(
+        context.credentials!.role,
+        pollId,
+        userId
+      )
 
-	@Patch('/answer/:id')
-	public async editAnswer(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			Asserts.teacherOrAdmin(context)
-			const answerId = this.pollValidator.parseId(context.params.id)
-			const answer = this.pollValidator.parsePollAnswer(context.body)
+      return new ApiResponse({ data: answers })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			await this.pollService.editAnswer(answerId, answer)
+  @Patch('/answer/:id')
+  public async editAnswer(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.teacherOrAdmin(context)
+      const answerId = this.pollValidator.parseId(context.params.id)
+      const answer = this.pollValidator.parsePollAnswer(context.body)
 
-			return new ApiResponse()
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      await this.pollService.editAnswer(answerId, answer)
 
-	@Post('/:id/answer')
-	public async saveAnswers(context: Context): Promise<ApiResponse> {
-		try {
-			await Asserts.isAuthenticated(context)
-			const pollId = this.pollValidator.parseId(context.params.id)
-			const answers = this.pollValidator.parsePollAnswers(context.body)
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 
-			await this.pollService.saveAnswers(
-				context.credentials!.userId,
-				context.credentials!.role,
-				pollId,
-				answers
-			)
+  @Post('/:id/answer')
+  public async saveAnswers(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      const pollId = this.pollValidator.parseId(context.params.id)
+      const answers = this.pollValidator.parsePollAnswers(context.body)
 
-			return new ApiResponse()
-		} catch (error: any) {
-			return new ApiResponse(error)
-		}
-	}
+      await this.pollService.saveAnswers(
+        context.credentials!.userId,
+        context.credentials!.role,
+        pollId,
+        answers
+      )
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 }

@@ -1,220 +1,222 @@
 import { UserRepository } from '@modules/Users/Data/UserRepository'
-import { CourseRepository } from './../Data/CourseRepository'
-import { Course } from '../Data/Course'
 import { AlreadyExistError } from '@modules/Core/Errors/AlreadyExistError'
 import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
 import { UnknownError } from '@modules/Core/Errors/UnknownError'
 import { Pagination } from '@modules/Core/Data/Pagination'
 import { Service } from '@modules/Core/Services/Service'
 import { QueryFailedError } from 'typeorm'
-import { CourseModel } from '../Data/CourseModel'
-import { CourseMaterialRepository } from '../Data/CourseMaterialRepository'
 import { User } from '@modules/Users/Data/User'
 import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
 import { AssignedWorkService } from '@modules/AssignedWorks/Services/AssignedWorkService'
-import { CourseMaterial } from '../Data/Relations/CourseMaterial'
 import { AssignedWorkRepository } from '@modules/AssignedWorks/Data/AssignedWorkRepository'
 import { CourseCreationDTO } from '../DTO/CourseCreationDTO'
-import { InternalError } from '@modules/Core/Errors/InternalError'
+import { CourseMaterialRepository } from '../Data/CourseMaterialRepository'
+import { CourseModel } from '../Data/CourseModel'
+import { Course } from '../Data/Course'
+import { CourseRepository } from '../Data/CourseRepository'
 import { CourseUpdateDTO } from '../DTO/CourseUpdateDTO'
 
 export class CourseService extends Service<Course> {
-	private readonly courseRepository: CourseRepository
-	private readonly materialRepository: CourseMaterialRepository
-	private readonly userRepository: UserRepository
-	private readonly assignedWorkService: AssignedWorkService
-	private readonly assignedWorkRepository: AssignedWorkRepository
+  private readonly courseRepository: CourseRepository
 
-	constructor() {
-		super()
+  private readonly materialRepository: CourseMaterialRepository
 
-		this.courseRepository = new CourseRepository()
-		this.userRepository = new UserRepository()
-		this.materialRepository = new CourseMaterialRepository()
-		this.assignedWorkService = new AssignedWorkService()
-		this.assignedWorkRepository = new AssignedWorkRepository()
-	}
+  private readonly userRepository: UserRepository
 
-	public async get(
-		pagination: Pagination | undefined,
-		userId: User['id'],
-		userRole: User['role']
-	) {
-		pagination = new Pagination().assign(pagination)
-		pagination.entriesToSearch = CourseModel.entriesToSearch()
+  private readonly assignedWorkService: AssignedWorkService
 
-		let conditions = undefined
+  private readonly assignedWorkRepository: AssignedWorkRepository
 
-		if (userRole === 'student') {
-			conditions = {
-				students: {
-					id: userId,
-				} as any,
-			}
-		}
+  constructor() {
+    super()
 
-		const relations: (keyof Course)[] = ['author']
+    this.courseRepository = new CourseRepository()
+    this.userRepository = new UserRepository()
+    this.materialRepository = new CourseMaterialRepository()
+    this.assignedWorkService = new AssignedWorkService()
+    this.assignedWorkRepository = new AssignedWorkRepository()
+  }
 
-		const courses = await this.courseRepository.find(
-			conditions,
-			relations,
-			pagination
-		)
+  public async get(
+    pagination: Pagination | undefined,
+    userId: User['id'],
+    userRole: User['role']
+  ) {
+    pagination = new Pagination().assign(pagination)
+    pagination.entriesToSearch = CourseModel.entriesToSearch()
 
-		const meta = await this.getRequestMeta(
-			this.courseRepository,
-			conditions,
-			pagination,
-			relations
-		)
+    let conditions
 
-		// Clear chapters, students and materials as they are not needed in the list
-		for (const course of courses) {
-			course.chapters = []
-			course.studentIds = []
-		}
+    if (userRole === 'student') {
+      conditions = {
+        students: {
+          id: userId,
+        } as any,
+      }
+    }
 
-		return { courses, meta }
-	}
+    const relations: (keyof Course)[] = ['author']
 
-	public async getBySlug(slug: string): Promise<Course> {
-		const course = await this.courseRepository.findOne(
-			{ slug },
-			['chapters.materials.work' as any, 'author'],
-			{
-				chapters: {
-					order: 'ASC',
-					materials: {
-						order: 'ASC',
-					},
-				},
-			}
-		)
+    const courses = await this.courseRepository.find(
+      conditions,
+      relations,
+      pagination
+    )
 
-		if (!course) {
-			throw new NotFoundError()
-		}
+    const meta = await this.getRequestMeta(
+      this.courseRepository,
+      conditions,
+      pagination,
+      relations
+    )
 
-		return course
-	}
+    // Clear chapters, students and materials as they are not needed in the list
+    for (const course of courses) {
+      course.chapters = []
+      course.studentIds = []
+    }
 
-	public async getAssignedWorkToMaterial(
-		materialSlug: string,
-		userId: User['id']
-	): Promise<AssignedWork | null> {
-		const assignedWork = await this.assignedWorkRepository.findOne({
-			student: {
-				id: userId,
-			},
-			work: {
-				materials: {
-					slug: materialSlug,
-				},
-			},
-		})
+    return { courses, meta }
+  }
 
-		return assignedWork
-	}
+  public async getBySlug(slug: string): Promise<Course> {
+    const course = await this.courseRepository.findOne(
+      { slug },
+      ['chapters.materials.work' as any, 'author'],
+      {
+        chapters: {
+          order: 'ASC',
+          materials: {
+            order: 'ASC',
+          },
+        },
+      }
+    )
 
-	public async update(
-		id: Course['id'],
-		course: CourseUpdateDTO
-	): Promise<void> {
-		const foundCourse = await this.courseRepository.findOne({ id })
+    if (!course) {
+      throw new NotFoundError()
+    }
 
-		if (!foundCourse) {
-			throw new NotFoundError('Курс не найден')
-		}
+    return course
+  }
 
-		const newCourse = new CourseModel({ ...foundCourse, ...course })
+  public async getAssignedWorkToMaterial(
+    materialSlug: string,
+    userId: User['id']
+  ): Promise<AssignedWork | null> {
+    const assignedWork = await this.assignedWorkRepository.findOne({
+      student: {
+        id: userId,
+      },
+      work: {
+        materials: {
+          slug: materialSlug,
+        },
+      },
+    })
 
-		await this.courseRepository.update(newCourse)
-	}
+    return assignedWork
+  }
 
-	public async assignStudents(
-		courseSlug: Course['slug'],
-		studentIds: User['id'][]
-	) {
-		const course = await this.courseRepository.findOne(
-			{
-				slug: courseSlug,
-			},
-			['chapters.materials' as any]
-		)
+  public async update(
+    id: Course['id'],
+    course: CourseUpdateDTO
+  ): Promise<void> {
+    const foundCourse = await this.courseRepository.findOne({ id })
 
-		if (!course) {
-			throw new NotFoundError()
-		}
+    if (!foundCourse) {
+      throw new NotFoundError('Курс не найден')
+    }
 
-		course.students = studentIds.map((id) => ({ id } as User))
+    const newCourse = new CourseModel({ ...foundCourse, ...course })
 
-		try {
-			await this.courseRepository.updateRaw(course)
-		} catch (e: any) {
-			throw new UnknownError('Не удалось обновить список учеников')
-		}
-	}
+    await this.courseRepository.update(newCourse)
+  }
 
-	public async assignWorkToMaterial(
-		materialSlug: string,
-		workId: string,
-		solveDeadline?: Date | undefined,
-		checkDeadline?: Date | undefined
-	) {
-		const material = await this.materialRepository.findOne(
-			{
-				slug: materialSlug,
-			},
-			['chapter.course' as any]
-		)
+  public async assignStudents(
+    courseSlug: Course['slug'],
+    studentIds: User['id'][]
+  ) {
+    const course = await this.courseRepository.findOne(
+      {
+        slug: courseSlug,
+      },
+      ['chapters.materials' as any]
+    )
 
-		if (!material) {
-			throw new NotFoundError()
-		}
+    if (!course) {
+      throw new NotFoundError()
+    }
 
-		material.work = { id: workId } as any
-		material.workId = workId
-		material.workSolveDeadline = solveDeadline
-		material.workCheckDeadline = checkDeadline
+    course.students = studentIds.map((id) => ({ id }) as User)
 
-		await this.materialRepository.update(material)
-	}
+    try {
+      await this.courseRepository.updateRaw(course)
+    } catch (e) {
+      throw new UnknownError('Не удалось обновить список учеников')
+    }
+  }
 
-	public async create(
-		courseDTO: CourseCreationDTO,
-		authorId: Course['authorId']
-	): Promise<void> {
-		const author = await this.userRepository.findOne({ id: authorId })
+  public async assignWorkToMaterial(
+    materialSlug: string,
+    workId: string,
+    solveDeadline?: Date,
+    checkDeadline?: Date
+  ) {
+    const material = await this.materialRepository.findOne(
+      {
+        slug: materialSlug,
+      },
+      ['chapter.course' as any]
+    )
 
-		if (!author) {
-			throw new NotFoundError('Пользователь не найден')
-		}
+    if (!material) {
+      throw new NotFoundError()
+    }
 
-		const course = new CourseModel(courseDTO)
+    material.work = { id: workId } as any
+    material.workId = workId
+    material.workSolveDeadline = solveDeadline
+    material.workCheckDeadline = checkDeadline
 
-		try {
-			await this.courseRepository.create(course)
-		} catch (error: any) {
-			if (error instanceof QueryFailedError) {
-				throw new AlreadyExistError()
-			}
+    await this.materialRepository.update(material)
+  }
 
-			throw new UnknownError()
-		}
-	}
+  public async create(
+    courseDTO: CourseCreationDTO,
+    authorId: Course['authorId']
+  ): Promise<void> {
+    const author = await this.userRepository.findOne({ id: authorId })
 
-	public async delete(id: Course['id']): Promise<void> {
-		const course = await this.courseRepository.findOne({
-			id,
-		})
+    if (!author) {
+      throw new NotFoundError('Пользователь не найден')
+    }
 
-		if (!course) {
-			throw new NotFoundError()
-		}
+    const course = new CourseModel(courseDTO)
 
-		course.students = []
+    try {
+      await this.courseRepository.create(course)
+    } catch (error) {
+      if (error instanceof QueryFailedError) {
+        throw new AlreadyExistError()
+      }
 
-		await this.courseRepository.update(course)
-		await this.courseRepository.delete(id)
-	}
+      throw new UnknownError()
+    }
+  }
+
+  public async delete(id: Course['id']): Promise<void> {
+    const course = await this.courseRepository.findOne({
+      id,
+    })
+
+    if (!course) {
+      throw new NotFoundError()
+    }
+
+    course.students = []
+
+    await this.courseRepository.update(course)
+    await this.courseRepository.delete(id)
+  }
 }

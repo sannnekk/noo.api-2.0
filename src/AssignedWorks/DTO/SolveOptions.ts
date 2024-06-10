@@ -1,5 +1,5 @@
 import { AssignedWork } from '../Data/AssignedWork'
 
 export interface SolveOptions {
-	answers: AssignedWork['answers']
+  answers: AssignedWork['answers']
 }

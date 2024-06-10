@@ -1,6 +1,6 @@
 import * as Hash from '../../Core/Security/hash.js';
 import * as JWT from '../../Core/Security/jwt.js';
-import { UnauthenticatedError } from '../../core/Errors/UnauthenticatedError.js';
+import { UnauthenticatedError } from '../../Core/Errors/UnauthenticatedError.js';
 import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
 import { AlreadyExistError } from '../../Core/Errors/AlreadyExistError.js';
 import { UnknownError } from '../../Core/Errors/UnknownError.js';
@@ -24,7 +24,7 @@ export class UserService extends Service {
             await this.userRepository.create(user);
         }
         catch (error) {
-            if (error.code === '23505') {
+            if (error?.code === '23505') {
                 throw new AlreadyExistError();
             }
             throw new UnknownError();
@@ -236,14 +236,12 @@ export class UserService extends Service {
             throw new NotFoundError();
         }
         user.name = 'Deleted User';
-        user.username = user.slug =
-            'deleted-' + Math.random().toString(36).substr(2, 9);
-        user.email =
-            'deleted-' +
-                Math.random().toString(36).substr(2, 9) +
-                '@' +
-                Math.random().toString(36).substr(2, 9) +
-                '.com';
+        user.username = user.slug = `deleted-${Math.random()
+            .toString(36)
+            .substr(2, 9)}`;
+        user.email = `deleted-${Math.random()
+            .toString(36)
+            .substr(2, 9)}@${Math.random().toString(36).substr(2, 9)}.com`;
         user.isBlocked = true;
         user.telegramId = null;
         user.telegramUsername = null;

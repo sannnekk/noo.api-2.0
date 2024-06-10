@@ -1,9 +1,8 @@
+import { AppError } from '../../Core/Errors/AppError.js';
 import { StatusCodes } from 'http-status-codes';
-export class PollAlreadyEndedError extends Error {
-    code = StatusCodes.GONE;
-    message;
+export class PollAlreadyEndedError extends AppError {
     constructor(message = 'Опрос уже завершен') {
-        super();
-        this.message = message;
+        super(message);
+        this.code = StatusCodes.CONFLICT;
     }
 }
