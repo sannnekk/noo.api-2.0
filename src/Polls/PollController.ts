@@ -25,7 +25,7 @@ export class PollController {
   @Get('/:id')
   public async getPoll(context: Context): Promise<ApiResponse> {
     try {
-      await Asserts.isAuthenticated(context)
+      //await Asserts.isAuthenticated(context)
       const id = this.pollValidator.parseId(context.params.id)
 
       const poll = await this.pollService.getPollById(id)
@@ -107,13 +107,13 @@ export class PollController {
   @Post('/:id/answer')
   public async saveAnswers(context: Context): Promise<ApiResponse> {
     try {
-      await Asserts.isAuthenticated(context)
+      //await Asserts.isAuthenticated(context)
       const pollId = this.pollValidator.parseId(context.params.id)
       const answers = this.pollValidator.parsePollAnswers(context.body)
 
       await this.pollService.saveAnswers(
-        context.credentials!.userId,
-        context.credentials!.role,
+        context.credentials?.userId,
+        context.credentials?.role,
         pollId,
         answers
       )

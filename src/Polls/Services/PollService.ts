@@ -28,11 +28,15 @@ export class PollService extends Service<Poll | PollAnswer | User> {
     this.userRepository = new UserRepository()
   }
 
-  public async getPollById(id: Poll['id']): Promise<Poll> {
+  public async getPollById(id: Poll['id'], userId?: User['id']): Promise<Poll> {
     const poll = await this.pollRepository.findOne({ id }, ['questions'])
 
     if (!poll) {
       throw new NotFoundError('Опрос не найден')
+    }
+
+    if (poll.requireAuth && !userId) {
+      throw new UnauthorizedError('Необходимо авторизоваться для голосования')
     }
 
     return poll
@@ -110,17 +114,19 @@ export class PollService extends Service<Poll | PollAnswer | User> {
   }
 
   public async saveAnswers(
-    userId: User['id'],
-    userRole: User['role'],
+    userId: User['id'] | undefined,
+    userRole: User['role'] | undefined,
     pollId: Poll['id'],
     answers: PollAnswer[]
   ): Promise<void> {
-    if (!(await this.canVote(userRole, pollId))) {
-      throw new CantVoteInPollError()
-    }
+    if (userId && userRole) {
+      if (!(await this.canVote(userRole, pollId))) {
+        throw new CantVoteInPollError()
+      }
 
-    if (await this.userAlreadyVoted(userId, pollId)) {
-      throw new AlreadyVotedError()
+      if (await this.userAlreadyVoted(userId, pollId)) {
+        throw new AlreadyVotedError()
+      }
     }
 
     const poll = await this.pollRepository.findOne({ id: pollId }, [
@@ -131,8 +137,14 @@ export class PollService extends Service<Poll | PollAnswer | User> {
       throw new NotFoundError()
     }
 
+    if (poll.requireAuth && !userId) {
+      throw new UnauthorizedError('Необходимо авторизоваться для голосования')
+    }
+
     // TODO: add user more efficient
-    poll.votedUsers!.push({ id: userId } as User)
+    if (userId) {
+      poll.votedUsers!.push({ id: userId } as User)
+    }
 
     const answerModels = answers.map(
       (answer) =>

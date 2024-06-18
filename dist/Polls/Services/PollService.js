@@ -19,10 +19,13 @@ export class PollService extends Service {
         this.pollAnswerRepository = new PollAnswerRepository();
         this.userRepository = new UserRepository();
     }
-    async getPollById(id) {
+    async getPollById(id, userId) {
         const poll = await this.pollRepository.findOne({ id }, ['questions']);
         if (!poll) {
             throw new NotFoundError('Опрос не найден');
+        }
+        if (poll.requireAuth && !userId) {
+            throw new UnauthorizedError('Необходимо авторизоваться для голосования');
         }
         return poll;
     }
@@ -68,11 +71,13 @@ export class PollService extends Service {
         return answers;
     }
     async saveAnswers(userId, userRole, pollId, answers) {
-        if (!(await this.canVote(userRole, pollId))) {
-            throw new CantVoteInPollError();
-        }
-        if (await this.userAlreadyVoted(userId, pollId)) {
-            throw new AlreadyVotedError();
+        if (userId && userRole) {
+            if (!(await this.canVote(userRole, pollId))) {
+                throw new CantVoteInPollError();
+            }
+            if (await this.userAlreadyVoted(userId, pollId)) {
+                throw new AlreadyVotedError();
+            }
         }
         const poll = await this.pollRepository.findOne({ id: pollId }, [
             'votedUsers',
@@ -80,8 +85,13 @@ export class PollService extends Service {
         if (!poll) {
             throw new NotFoundError();
         }
+        if (poll.requireAuth && !userId) {
+            throw new UnauthorizedError('Необходимо авторизоваться для голосования');
+        }
         // TODO: add user more efficient
-        poll.votedUsers.push({ id: userId });
+        if (userId) {
+            poll.votedUsers.push({ id: userId });
+        }
         const answerModels = answers.map((answer) => new PollAnswerModel({ ...answer, user: { id: userId } }));
         this.pollRepository.update(poll);
         this.pollAnswerRepository.createMany(answerModels);

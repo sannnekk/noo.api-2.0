@@ -1,5 +1,5 @@
 import { Controller, Post } from 'express-controller-decorator'
-import * as Asserts from '@modules/Core/Security/asserts'
+//import * as Asserts from '@modules/Core/Security/asserts'
 import { Context } from '@modules/Core/Request/Context'
 import { ApiResponse } from '@modules/Core/Response/ApiResponse'
 import { NoFilesProvidedError } from '@modules/Core/Errors/NoFilesProvidedError'
@@ -16,7 +16,7 @@ export class MediaController {
   @Post('/')
   public async get(context: Context): Promise<ApiResponse> {
     try {
-      await Asserts.isAuthenticated(context)
+      //await Asserts.isAuthenticated(context)
 
       const requestFiles = await context.getFiles()
 

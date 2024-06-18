@@ -22,7 +22,7 @@ let PollController = class PollController {
     }
     async getPoll(context) {
         try {
-            await Asserts.isAuthenticated(context);
+            //await Asserts.isAuthenticated(context)
             const id = this.pollValidator.parseId(context.params.id);
             const poll = await this.pollService.getPollById(id);
             return new ApiResponse({ data: poll });
@@ -81,10 +81,10 @@ let PollController = class PollController {
     }
     async saveAnswers(context) {
         try {
-            await Asserts.isAuthenticated(context);
+            //await Asserts.isAuthenticated(context)
             const pollId = this.pollValidator.parseId(context.params.id);
             const answers = this.pollValidator.parsePollAnswers(context.body);
-            await this.pollService.saveAnswers(context.credentials.userId, context.credentials.role, pollId, answers);
+            await this.pollService.saveAnswers(context.credentials?.userId, context.credentials?.role, pollId, answers);
             return new ApiResponse();
         }
         catch (error) {

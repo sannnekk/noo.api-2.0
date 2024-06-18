@@ -8,7 +8,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { Controller, Post } from 'express-controller-decorator';
-import * as Asserts from '../Core/Security/asserts.js';
+//import * as Asserts from '../Core/Security/asserts.js'
 import { Context } from '../Core/Request/Context.js';
 import { ApiResponse } from '../Core/Response/ApiResponse.js';
 import { NoFilesProvidedError } from '../Core/Errors/NoFilesProvidedError.js';
@@ -20,7 +20,7 @@ let MediaController = class MediaController {
     }
     async get(context) {
         try {
-            await Asserts.isAuthenticated(context);
+            //await Asserts.isAuthenticated(context)
             const requestFiles = await context.getFiles();
             if (!requestFiles?.length) {
                 throw new NoFilesProvidedError();
