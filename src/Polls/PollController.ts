@@ -28,7 +28,10 @@ export class PollController {
       //await Asserts.isAuthenticated(context)
       const id = this.pollValidator.parseId(context.params.id)
 
-      const poll = await this.pollService.getPollById(id)
+      const poll = await this.pollService.getPollById(
+        id,
+        context.credentials?.userId
+      )
 
       return new ApiResponse({ data: poll })
     } catch (error: any) {
