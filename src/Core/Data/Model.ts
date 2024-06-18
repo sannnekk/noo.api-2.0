@@ -41,7 +41,11 @@ export abstract class Model implements BaseModel {
       const desc = Object.getOwnPropertyDescriptor(proto, key)
 
       if (desc && typeof desc.get === 'function') {
-        jsonObj[key as keyof typeof this] = desc.get()
+        const value = desc.get.call(this)
+
+        if (value !== undefined) {
+          jsonObj[key as keyof typeof this] = value
+        }
       }
     }
     return { ...jsonObj, password: undefined }

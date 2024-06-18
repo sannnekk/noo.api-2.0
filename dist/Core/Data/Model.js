@@ -22,7 +22,10 @@ export class Model {
         for (const key of Object.getOwnPropertyNames(proto)) {
             const desc = Object.getOwnPropertyDescriptor(proto, key);
             if (desc && typeof desc.get === 'function') {
-                jsonObj[key] = desc.get();
+                const value = desc.get.call(this);
+                if (value !== undefined) {
+                    jsonObj[key] = value;
+                }
             }
         }
         return { ...jsonObj, password: undefined };
