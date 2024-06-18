@@ -12,6 +12,7 @@ export type PollQuestionType =
 
 export interface PollQuestion extends BaseModel {
   text: string
+  order: number
   description?: string
   type: PollQuestionType
   required: boolean

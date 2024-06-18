@@ -64,6 +64,7 @@ let PollQuestionModel = class PollQuestionModel extends Model {
     pollId;
     answers;
     text;
+    order;
     description;
     type;
     required;
@@ -129,6 +130,14 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], PollQuestionModel.prototype, "text", void 0);
+__decorate([
+    Column({
+        name: 'order',
+        type: 'int',
+        default: 0,
+    }),
+    __metadata("design:type", Number)
+], PollQuestionModel.prototype, "order", void 0);
 __decorate([
     Column({
         name: 'description',

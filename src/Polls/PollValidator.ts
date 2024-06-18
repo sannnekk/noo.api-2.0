@@ -23,6 +23,7 @@ export class PollValidator extends Validator {
 
   public readonly questionScheme = z.object({
     text: z.string(),
+    order: z.number(),
     description: z.string().optional(),
     type: this.questionTypeSceme,
     required: z.boolean(),

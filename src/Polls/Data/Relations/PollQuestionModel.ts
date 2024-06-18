@@ -79,6 +79,13 @@ export class PollQuestionModel extends Model implements PollQuestion {
   text!: string
 
   @Column({
+    name: 'order',
+    type: 'int',
+    default: 0,
+  })
+  order!: number
+
+  @Column({
     name: 'description',
     type: 'text',
     nullable: true,

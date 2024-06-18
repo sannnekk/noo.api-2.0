@@ -29,7 +29,11 @@ export class PollService extends Service<Poll | PollAnswer | User> {
   }
 
   public async getPollById(id: Poll['id'], userId?: User['id']): Promise<Poll> {
-    const poll = await this.pollRepository.findOne({ id }, ['questions'])
+    const poll = await this.pollRepository.findOne({ id }, ['questions'], {
+      questions: {
+        order: 'ASC',
+      },
+    })
 
     if (!poll) {
       throw new NotFoundError('Опрос не найден')
