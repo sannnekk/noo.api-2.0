@@ -21,9 +21,8 @@ export class Model {
         const proto = Object.getPrototypeOf(this);
         for (const key of Object.getOwnPropertyNames(proto)) {
             const desc = Object.getOwnPropertyDescriptor(proto, key);
-            const hasGetter = desc && typeof desc.get === 'function';
-            if (hasGetter) {
-                jsonObj[key] = this[key];
+            if (desc && typeof desc.get === 'function') {
+                jsonObj[key] = desc.get();
             }
         }
         return { ...jsonObj, password: undefined };
