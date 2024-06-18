@@ -67,7 +67,13 @@ let PollQuestionModel = class PollQuestionModel extends Model {
     description;
     type;
     required;
-    choices;
+    _choices;
+    get choices() {
+        return this._choices?.split('|');
+    }
+    set choices(choices) {
+        this._choices = choices?.join('|');
+    }
     minChoices;
     maxChoices;
     minRating;
@@ -150,11 +156,11 @@ __decorate([
 __decorate([
     Column({
         name: 'choices',
-        type: 'simple-array',
+        type: 'text',
         nullable: true,
     }),
-    __metadata("design:type", Array)
-], PollQuestionModel.prototype, "choices", void 0);
+    __metadata("design:type", String)
+], PollQuestionModel.prototype, "_choices", void 0);
 __decorate([
     Column({
         name: 'min_choices',

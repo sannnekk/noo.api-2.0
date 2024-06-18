@@ -101,10 +101,18 @@ export class PollQuestionModel extends Model implements PollQuestion {
 
   @Column({
     name: 'choices',
-    type: 'simple-array',
+    type: 'text',
     nullable: true,
   })
-  choices?: string[]
+  _choices?: string
+
+  get choices(): string[] | undefined {
+    return this._choices?.split('|')
+  }
+
+  set choices(choices: string[] | undefined) {
+    this._choices = choices?.join('|')
+  }
 
   @Column({
     name: 'min_choices',
