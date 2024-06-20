@@ -12,6 +12,7 @@ import { Validator } from '../Core/Request/Validator.js';
 import { PollValidator } from '../Polls/PollValidator.js';
 import { ErrorConverter } from '../Core/Request/ValidatorDecorator.js';
 import { Reactions } from './Data/BlogPost.js';
+import { MediaScheme } from '../Media/MediaScheme.js';
 let BlogValidator = class BlogValidator extends Validator {
     pollValidator;
     constructor() {
@@ -37,8 +38,9 @@ let BlogValidator = class BlogValidator extends Validator {
             content: z.any(),
             tags: this.tagsScheme,
             poll: this.pollValidator.pollScheme.optional(),
+            files: z.array(MediaScheme).optional(),
         });
-        return scheme.parse(data);
+        return this.parse(data, scheme);
     }
     parseUpdateBlog(data) {
         const scheme = z.object({
@@ -46,11 +48,12 @@ let BlogValidator = class BlogValidator extends Validator {
             title: this.titleScheme.optional(),
             content: z.any().optional(),
             tags: this.tagsScheme.optional(),
+            files: z.array(MediaScheme).optional(),
         });
-        return scheme.parse(data);
+        return this.parse(data, scheme);
     }
     parseReaction(data) {
-        return this.reactionsEnumScheme.parse(data);
+        return this.parse(data, this.reactionsEnumScheme);
     }
 };
 BlogValidator = __decorate([

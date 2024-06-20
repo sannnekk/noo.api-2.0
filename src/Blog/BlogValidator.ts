@@ -3,6 +3,7 @@ import { Validator } from '@modules/Core/Request/Validator'
 import { PollValidator } from '@modules/Polls/PollValidator'
 import { ErrorConverter } from '@modules/Core/Request/ValidatorDecorator'
 import { Reaction, Reactions, type BlogPost } from './Data/BlogPost'
+import { MediaScheme } from '@modules/Media/MediaScheme'
 
 @ErrorConverter()
 export class BlogValidator extends Validator {
@@ -42,9 +43,10 @@ export class BlogValidator extends Validator {
       content: z.any(),
       tags: this.tagsScheme,
       poll: this.pollValidator.pollScheme.optional(),
+      files: z.array(MediaScheme).optional(),
     })
 
-    return scheme.parse(data) as BlogPost
+    return this.parse<BlogPost>(data, scheme)
   }
 
   public parseUpdateBlog(
@@ -55,12 +57,13 @@ export class BlogValidator extends Validator {
       title: this.titleScheme.optional(),
       content: z.any().optional(),
       tags: this.tagsScheme.optional(),
+      files: z.array(MediaScheme).optional(),
     })
 
-    return scheme.parse(data)
+    return this.parse<Partial<BlogPost> & { id: BlogPost['id'] }>(data, scheme)
   }
 
   public parseReaction(data: unknown): Reaction {
-    return this.reactionsEnumScheme.parse(data) as Reaction
+    return this.parse<Reaction>(data, this.reactionsEnumScheme)
   }
 }

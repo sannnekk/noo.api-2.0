@@ -17,9 +17,6 @@ let PollModel = class PollModel extends Model {
         super();
         if (data) {
             this.set(data);
-            if (data.description) {
-                this.description = data.description.replaceAll('\n', '<br>');
-            }
             if (data.questions) {
                 this.questions = data.questions.map((question) => new PollQuestionModel(question));
             }

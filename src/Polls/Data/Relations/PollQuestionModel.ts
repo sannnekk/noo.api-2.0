@@ -19,10 +19,6 @@ export class PollQuestionModel extends Model implements PollQuestion {
         this.answers = data.answers.map((answer) => new PollAnswerModel(answer))
       }
 
-      if (data.description) {
-        this.description = data.description.replaceAll('\n', '<br>')
-      }
-
       switch (data.type) {
         case 'choice':
           this.resetOptions()

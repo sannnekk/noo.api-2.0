@@ -4,6 +4,9 @@ import { CourseMaterialModel } from '@modules/Courses/Data/Relations/CourseMater
 import { CourseModel } from '@modules/Courses/Data/CourseModel'
 import { PollAnswerModel } from '@modules/Polls/Data/Relations/PollAnswerModel'
 import { Media } from './Media'
+import { BlogPost } from '@modules/Blog/Data/BlogPost'
+import { PollAnswer } from '@modules/Polls/Data/Relations/PollAnswer'
+import { BlogPostModel } from '@modules/Blog/Data/BlogPostModel'
 
 @Entity('media')
 export class MediaModel extends Model implements Media {
@@ -51,5 +54,10 @@ export class MediaModel extends Model implements Media {
   @ManyToOne(() => PollAnswerModel, (answer) => answer.files, {
     onDelete: 'SET NULL',
   })
-  pollAnswer?: PollAnswerModel
+  pollAnswer?: PollAnswer
+
+  @ManyToOne(() => BlogPostModel, (post) => post.files, {
+    onDelete: 'SET NULL',
+  })
+  blogPost?: BlogPost
 }

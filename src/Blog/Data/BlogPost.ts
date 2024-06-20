@@ -3,6 +3,7 @@ import { BaseModel } from '@modules/Core/Data/Model'
 import { User } from '@modules/Users/Data/User'
 import { Poll } from '@modules/Polls/Data/Poll'
 import { BlogPostReaction } from './Relations/BlogPostReaction'
+import { Media } from '@modules/Media/Data/Media'
 
 export type Reaction = 'like' | 'dislike' | 'sad' | 'happy' | 'mindblowing'
 
@@ -23,4 +24,5 @@ export interface BlogPost extends BaseModel {
   reactions: BlogPostReaction[]
   reactionCounts: Record<Reaction, number>
   poll?: Poll
+  files?: Media[]
 }

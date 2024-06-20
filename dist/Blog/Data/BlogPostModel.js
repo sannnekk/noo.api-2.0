@@ -12,6 +12,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, RelationId,
 import { UserModel } from '../../Users/Data/UserModel.js';
 import { PollModel } from '../../Polls/Data/PollModel.js';
 import { BlogPostReactionModel } from './Relations/BlogPostReactionModel.js';
+import { MediaModel } from '../../Media/Data/MediaModel.js';
 let BlogPostModel = class BlogPostModel extends Model {
     constructor(data) {
         super();
@@ -22,6 +23,9 @@ let BlogPostModel = class BlogPostModel extends Model {
             }
             if (data.poll) {
                 this.poll = new PollModel(data.poll);
+            }
+            if (data.files) {
+                this.files = data.files.map((file) => new MediaModel(file));
             }
         }
     }
@@ -34,6 +38,7 @@ let BlogPostModel = class BlogPostModel extends Model {
     reactionCounts;
     poll;
     pollId;
+    files;
     static entriesToSearch() {
         return [
             'title',
@@ -95,6 +100,13 @@ __decorate([
     RelationId((post) => post.poll),
     __metadata("design:type", String)
 ], BlogPostModel.prototype, "pollId", void 0);
+__decorate([
+    OneToMany(() => MediaModel, (media) => media.blogPost, {
+        cascade: true,
+        eager: true,
+    }),
+    __metadata("design:type", Array)
+], BlogPostModel.prototype, "files", void 0);
 BlogPostModel = __decorate([
     Entity('blog_post'),
     __metadata("design:paramtypes", [Object])

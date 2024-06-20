@@ -16,6 +16,8 @@ import { PollModel } from '@modules/Polls/Data/PollModel'
 import { BlogPostReactionModel } from './Relations/BlogPostReactionModel'
 import { BlogPostReaction } from './Relations/BlogPostReaction'
 import { BlogPost } from './BlogPost'
+import { MediaModel } from '@modules/Media/Data/MediaModel'
+import { Media } from '@modules/Media/Data/Media'
 
 @Entity('blog_post')
 export class BlogPostModel extends Model implements BlogPost {
@@ -31,6 +33,10 @@ export class BlogPostModel extends Model implements BlogPost {
 
       if (data.poll) {
         this.poll = new PollModel(data.poll)
+      }
+
+      if (data.files) {
+        this.files = data.files.map((file) => new MediaModel(file))
       }
     }
   }
@@ -76,6 +82,12 @@ export class BlogPostModel extends Model implements BlogPost {
 
   @RelationId((post: BlogPostModel) => post.poll)
   pollId?: string
+
+  @OneToMany(() => MediaModel, (media) => media.blogPost, {
+    cascade: true,
+    eager: true,
+  })
+  files?: Media[]
 
   public static entriesToSearch(): (keyof BlogPost)[] {
     return [

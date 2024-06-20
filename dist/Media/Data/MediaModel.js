@@ -12,6 +12,7 @@ import { Model } from '../../Core/Data/Model.js';
 import { CourseMaterialModel } from '../../Courses/Data/Relations/CourseMaterialModel.js';
 import { CourseModel } from '../../Courses/Data/CourseModel.js';
 import { PollAnswerModel } from '../../Polls/Data/Relations/PollAnswerModel.js';
+import { BlogPostModel } from '../../Blog/Data/BlogPostModel.js';
 let MediaModel = class MediaModel extends Model {
     constructor(data) {
         super();
@@ -25,6 +26,7 @@ let MediaModel = class MediaModel extends Model {
     courseMaterial;
     course;
     pollAnswer;
+    blogPost;
 };
 __decorate([
     Column({
@@ -64,8 +66,14 @@ __decorate([
     ManyToOne(() => PollAnswerModel, (answer) => answer.files, {
         onDelete: 'SET NULL',
     }),
-    __metadata("design:type", PollAnswerModel)
+    __metadata("design:type", Object)
 ], MediaModel.prototype, "pollAnswer", void 0);
+__decorate([
+    ManyToOne(() => BlogPostModel, (post) => post.files, {
+        onDelete: 'SET NULL',
+    }),
+    __metadata("design:type", Object)
+], MediaModel.prototype, "blogPost", void 0);
 MediaModel = __decorate([
     Entity('media'),
     __metadata("design:paramtypes", [Object])
