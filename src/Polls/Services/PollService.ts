@@ -112,7 +112,7 @@ export class PollService extends Service<Poll | PollAnswer | User> {
 
     const relations = [] as (keyof PollAnswer)[]
     const conditions = {
-      userId: null,
+      userAuthType: TypeORM.Not('api'),
       question: {
         poll: {
           id: pollId,
@@ -140,13 +140,16 @@ export class PollService extends Service<Poll | PollAnswer | User> {
           return acc
         }
 
+        // @ts-expect-error TypeORM doesn't support union types
+        const data = JSON.parse(answer.userAuthData)
+
         acc[answer.userAuthIdentifier as string] = {
           identifier: answer.userAuthIdentifier,
-          id: answer.userAuthData?.id,
-          firstName: answer.userAuthData?.first_name,
-          lastName: answer.userAuthData?.last_name,
-          avatarUrl: answer.userAuthData?.photo_url,
-          username: answer.userAuthData?.username,
+          id: data?.id,
+          firstName: data?.first_name,
+          lastName: data?.last_name,
+          avatarUrl: data?.photo_url,
+          username: data?.username,
         }
 
         return acc
@@ -173,7 +176,7 @@ export class PollService extends Service<Poll | PollAnswer | User> {
           id: pollId,
         },
       },
-      userAuthData: TypeORM.ILike(`%${idOrTelegramUsername}%`),
+      userAuthIdentifier: TypeORM.ILike(`%${idOrTelegramUsername}%`),
     }
 
     if (z.string().ulid().safeParse(idOrTelegramUsername).success) {
@@ -232,6 +235,7 @@ export class PollService extends Service<Poll | PollAnswer | User> {
       } else {
         data = {
           ...data,
+          userAuthData: JSON.stringify(answer.userAuthData) as any,
           userAuthIdentifier: answer.userAuthData!.username as string,
         }
       }
