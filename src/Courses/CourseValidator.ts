@@ -11,6 +11,7 @@ import { CourseUpdateDTO } from './DTO/CourseUpdateDTO'
 @ErrorConverter()
 export class CourseValidator extends Validator {
   public readonly materialScheme = z.object({
+    id: z.string().ulid().optional(),
     name: z
       .string()
       .min(1, { message: 'Название материала слишком короткое' })
@@ -22,11 +23,8 @@ export class CourseValidator extends Validator {
     content: DeltaScheme,
   })
 
-  public readonly materialWithIdScheme = this.materialScheme.extend({
-    id: z.string().ulid(),
-  })
-
   public readonly chapterScheme = z.object({
+    id: z.string().ulid().optional(),
     name: z
       .string()
       .min(1, { message: 'Название главы слишком короткое' })
@@ -37,12 +35,8 @@ export class CourseValidator extends Validator {
     materials: z.array(this.materialScheme),
   })
 
-  public readonly chapterUpdateScheme = this.chapterScheme.extend({
-    id: z.string().ulid(),
-    materials: z.array(this.materialWithIdScheme),
-  })
-
   public readonly courseScheme = z.object({
+    id: z.string().ulid().optional(),
     name: z
       .string()
       .min(1, { message: 'Название курса слишком короткое' })
@@ -59,11 +53,6 @@ export class CourseValidator extends Validator {
     chapters: z.array(this.chapterScheme),
   })
 
-  public readonly courseUpdateScheme = this.courseScheme.extend({
-    id: z.string().ulid(),
-    chapters: z.array(this.chapterUpdateScheme),
-  })
-
   public readonly idsScheme = z.array(this.idScheme)
 
   public readonly assignWorkOptionsScheme = z.object({
@@ -76,7 +65,7 @@ export class CourseValidator extends Validator {
   }
 
   public parseUpdate(course: unknown): CourseUpdateDTO {
-    return this.parse<CourseUpdateDTO>(course, this.courseUpdateScheme)
+    return this.parse<CourseUpdateDTO>(course, this.courseScheme)
   }
 
   public parseStudentIds(body: unknown): User['id'][] {

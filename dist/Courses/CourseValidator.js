@@ -11,6 +11,7 @@ import { DeltaScheme } from '../Core/Schemas/DeltaScheme.js';
 import { MediaScheme } from '../Media/MediaScheme.js';
 let CourseValidator = class CourseValidator extends Validator {
     materialScheme = z.object({
+        id: z.string().ulid().optional(),
         name: z
             .string()
             .min(1, { message: 'Название материала слишком короткое' })
@@ -21,10 +22,8 @@ let CourseValidator = class CourseValidator extends Validator {
         description: z.string().nullable().optional(),
         content: DeltaScheme,
     });
-    materialWithIdScheme = this.materialScheme.extend({
-        id: z.string().ulid(),
-    });
     chapterScheme = z.object({
+        id: z.string().ulid().optional(),
         name: z
             .string()
             .min(1, { message: 'Название главы слишком короткое' })
@@ -34,11 +33,8 @@ let CourseValidator = class CourseValidator extends Validator {
         order: z.number(),
         materials: z.array(this.materialScheme),
     });
-    chapterUpdateScheme = this.chapterScheme.extend({
-        id: z.string().ulid(),
-        materials: z.array(this.materialWithIdScheme),
-    });
     courseScheme = z.object({
+        id: z.string().ulid().optional(),
         name: z
             .string()
             .min(1, { message: 'Название курса слишком короткое' })
@@ -54,10 +50,6 @@ let CourseValidator = class CourseValidator extends Validator {
         images: z.array(MediaScheme),
         chapters: z.array(this.chapterScheme),
     });
-    courseUpdateScheme = this.courseScheme.extend({
-        id: z.string().ulid(),
-        chapters: z.array(this.chapterUpdateScheme),
-    });
     idsScheme = z.array(this.idScheme);
     assignWorkOptionsScheme = z.object({
         checkDeadline: z.date().optional(),
@@ -67,7 +59,7 @@ let CourseValidator = class CourseValidator extends Validator {
         return this.parse(course, this.courseScheme);
     }
     parseUpdate(course) {
-        return this.parse(course, this.courseUpdateScheme);
+        return this.parse(course, this.courseScheme);
     }
     parseStudentIds(body) {
         return this.parse(body, this.idsScheme);
