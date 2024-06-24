@@ -31,6 +31,7 @@ let PollAnswerModel = class PollAnswerModel extends Model {
     userId;
     userAuthType;
     userAuthData;
+    userAuthIdentifier;
     questionType;
     text;
     number;
@@ -38,6 +39,9 @@ let PollAnswerModel = class PollAnswerModel extends Model {
     files;
     choices;
     rating;
+    static entriesToSearch() {
+        return ['userAuthData', 'userAuthIdentifier', 'text'];
+    }
 };
 __decorate([
     ManyToOne(() => PollQuestionModel, (question) => question.answers, {
@@ -70,12 +74,21 @@ __decorate([
 __decorate([
     Column({
         name: 'user_auth_data',
-        type: 'json',
+        type: 'varchar',
         nullable: true,
         default: null,
     }),
     __metadata("design:type", Object)
 ], PollAnswerModel.prototype, "userAuthData", void 0);
+__decorate([
+    Column({
+        name: 'user_auth_identifier',
+        type: 'varchar',
+        nullable: true,
+        default: null,
+    }),
+    __metadata("design:type", String)
+], PollAnswerModel.prototype, "userAuthIdentifier", void 0);
 __decorate([
     Column({
         name: 'question_type',

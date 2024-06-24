@@ -11,6 +11,8 @@ import { AlreadyVotedError } from '../Errors/AlreadyVotedError.js';
 import { CantVoteInPollError } from '../Errors/CantVoteInPollError.js';
 import { InvalidAuthTypeError } from '../Errors/InvalidAuthTypeError.js';
 import { PollAuthService } from './PollAuthService.js';
+import { z } from 'zod';
+import * as TypeORM from 'typeorm';
 export class PollService extends Service {
     pollRepository;
     pollAnswerRepository;
@@ -60,7 +62,41 @@ export class PollService extends Service {
         const meta = await this.getRequestMeta(this.userRepository, conditions, pagination, relations);
         return { users, meta };
     }
-    async getAnswers(userRole, pollId, userId) {
+    async searchWhoVotedUnregistered(userRole, pollId, pagination) {
+        if (!(await this.canSeeResults(userRole, pollId))) {
+            throw new UnauthorizedError();
+        }
+        pagination = new Pagination().assign(pagination);
+        pagination.entriesToSearch = PollAnswerModel.entriesToSearch();
+        const relations = [];
+        const conditions = {
+            userId: null,
+            question: {
+                poll: {
+                    id: pollId,
+                },
+            },
+        };
+        const answers = await this.pollAnswerRepository.find(conditions, relations, pagination);
+        const meta = await this.getRequestMeta(this.pollAnswerRepository, conditions, pagination, relations);
+        // group by user
+        const users = answers.reduce((acc, answer) => {
+            if (!answer.userAuthData) {
+                return acc;
+            }
+            acc[answer.userAuthIdentifier] = {
+                identifier: answer.userAuthIdentifier,
+                id: answer.userAuthData?.id,
+                firstName: answer.userAuthData?.first_name,
+                lastName: answer.userAuthData?.last_name,
+                avatarUrl: answer.userAuthData?.photo_url,
+                username: answer.userAuthData?.username,
+            };
+            return acc;
+        }, {});
+        return { users: Object.values(users), meta };
+    }
+    async getAnswers(userRole, pollId, idOrTelegramUsername) {
         if (!(await this.canSeeResults(userRole, pollId))) {
             throw new UnauthorizedError();
         }
@@ -71,10 +107,16 @@ export class PollService extends Service {
                     id: pollId,
                 },
             },
-            user: {
-                id: userId,
-            },
+            userAuthData: TypeORM.ILike(`%${idOrTelegramUsername}%`),
         };
+        if (z.string().ulid().safeParse(idOrTelegramUsername).success) {
+            // @ts-expect-error TypeORM doesn't support union types
+            conditions.user = {
+                id: idOrTelegramUsername,
+            };
+            // @ts-expect-error TypeORM doesn't support union types
+            conditions.userAuthData = undefined;
+        }
         const answers = await this.pollAnswerRepository.find(conditions, relations);
         return answers;
     }
@@ -103,6 +145,12 @@ export class PollService extends Service {
             let data = { ...answer };
             if (userId) {
                 data = { ...data, user: { id: userId } };
+            }
+            else {
+                data = {
+                    ...data,
+                    userAuthIdentifier: answer.userAuthData.username,
+                };
             }
             return new PollAnswerModel(data);
         });

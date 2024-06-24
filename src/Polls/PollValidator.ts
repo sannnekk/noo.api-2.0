@@ -93,6 +93,10 @@ export class PollValidator extends Validator {
   }
 
   public parsePollAnswer(data: unknown): PollAnswer {
-    return this.parse(data, this.pollAnswerScheme)
+    return this.parse<PollAnswer>(data, this.pollAnswerScheme)
+  }
+
+  public parseIdOrTelegramUsername(data: unknown): string {
+    return this.parse<string>(data, this.idScheme.or(z.string().nonempty()))
   }
 }

@@ -9,6 +9,7 @@ export type PollUserAuthType = 'telegram' | 'api'
 export interface PollAnswer extends BaseModel {
   userAuthType: PollUserAuthType
   userAuthData: Record<string, unknown> | null
+  userAuthIdentifier?: string
   questionId: string
   questionType: PollQuestion['type']
   user?: User

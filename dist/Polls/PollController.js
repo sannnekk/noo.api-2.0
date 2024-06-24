@@ -54,12 +54,24 @@ let PollController = class PollController {
             return new ApiResponse(error);
         }
     }
+    async searchWhoVotedUnregistered(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            const pollId = this.pollValidator.parseId(context.params.pollId);
+            const pagination = this.pollValidator.parsePagination(context.query);
+            const { users, meta } = await this.pollService.searchWhoVotedUnregistered(context.credentials.role, pollId, pagination);
+            return new ApiResponse({ data: users, meta });
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
     async getAnswers(context) {
         try {
             await Asserts.isAuthenticated(context);
             const pollId = this.pollValidator.parseId(context.params.pollId);
-            const userId = this.pollValidator.parseId(context.params.userId);
-            const answers = await this.pollService.getAnswers(context.credentials.role, pollId, userId);
+            const userIdOrTelegramUsername = this.pollValidator.parseIdOrTelegramUsername(context.params.userId);
+            const answers = await this.pollService.getAnswers(context.credentials.role, pollId, userIdOrTelegramUsername);
             return new ApiResponse({ data: answers });
         }
         catch (error) {
@@ -110,6 +122,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], PollController.prototype, "searchWhoVoted", null);
+__decorate([
+    Get('/:pollId/unregistered'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], PollController.prototype, "searchWhoVotedUnregistered", null);
 __decorate([
     Get('/:pollId/user/:userId/answer'),
     __metadata("design:type", Function),

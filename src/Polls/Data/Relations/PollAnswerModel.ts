@@ -51,11 +51,19 @@ export class PollAnswerModel extends Model implements PollAnswer {
 
   @Column({
     name: 'user_auth_data',
-    type: 'json',
+    type: 'varchar',
     nullable: true,
     default: null,
   })
   userAuthData!: Record<string, unknown> | null
+
+  @Column({
+    name: 'user_auth_identifier',
+    type: 'varchar',
+    nullable: true,
+    default: null,
+  })
+  userAuthIdentifier!: string
 
   @Column({
     name: 'question_type',
@@ -104,4 +112,8 @@ export class PollAnswerModel extends Model implements PollAnswer {
     nullable: true,
   })
   rating?: number | undefined
+
+  public static entriesToSearch() {
+    return ['userAuthData', 'userAuthIdentifier', 'text']
+  }
 }

@@ -14,6 +14,8 @@ import { AlreadyVotedError } from '../Errors/AlreadyVotedError'
 import { CantVoteInPollError } from '../Errors/CantVoteInPollError'
 import { InvalidAuthTypeError } from '../Errors/InvalidAuthTypeError'
 import { PollAuthService } from './PollAuthService'
+import { z } from 'zod'
+import * as TypeORM from 'typeorm'
 
 export class PollService extends Service<Poll | PollAnswer | User> {
   private readonly pollRepository: PollRepository
@@ -96,28 +98,97 @@ export class PollService extends Service<Poll | PollAnswer | User> {
     return { users, meta }
   }
 
+  public async searchWhoVotedUnregistered(
+    userRole: User['role'],
+    pollId: Poll['id'],
+    pagination: Pagination
+  ) {
+    if (!(await this.canSeeResults(userRole, pollId))) {
+      throw new UnauthorizedError()
+    }
+
+    pagination = new Pagination().assign(pagination)
+    pagination.entriesToSearch = PollAnswerModel.entriesToSearch()
+
+    const relations = [] as (keyof PollAnswer)[]
+    const conditions = {
+      userId: null,
+      question: {
+        poll: {
+          id: pollId,
+        },
+      },
+    } as unknown as Partial<PollAnswer>
+
+    const answers = await this.pollAnswerRepository.find(
+      conditions,
+      relations,
+      pagination
+    )
+
+    const meta = await this.getRequestMeta(
+      this.pollAnswerRepository,
+      conditions,
+      pagination,
+      relations
+    )
+
+    // group by user
+    const users = answers.reduce(
+      (acc, answer) => {
+        if (!answer.userAuthData) {
+          return acc
+        }
+
+        acc[answer.userAuthIdentifier as string] = {
+          identifier: answer.userAuthIdentifier,
+          id: answer.userAuthData?.id,
+          firstName: answer.userAuthData?.first_name,
+          lastName: answer.userAuthData?.last_name,
+          avatarUrl: answer.userAuthData?.photo_url,
+          username: answer.userAuthData?.username,
+        }
+
+        return acc
+      },
+      {} as Record<string, any>
+    )
+
+    return { users: Object.values(users), meta }
+  }
+
   public async getAnswers(
     userRole: User['role'],
     pollId: Poll['id'],
-    userId: User['id']
+    idOrTelegramUsername: User['id'] | string
   ) {
     if (!(await this.canSeeResults(userRole, pollId))) {
       throw new UnauthorizedError()
     }
 
     const relations = [] as (keyof PollAnswer)[]
-    const conditions: Partial<PollAnswer> = {
+    const conditions = {
       question: {
         poll: {
           id: pollId,
         },
       },
-      user: {
-        id: userId,
-      } as User,
-    } as any
+      userAuthData: TypeORM.ILike(`%${idOrTelegramUsername}%`),
+    }
 
-    const answers = await this.pollAnswerRepository.find(conditions, relations)
+    if (z.string().ulid().safeParse(idOrTelegramUsername).success) {
+      // @ts-expect-error TypeORM doesn't support union types
+      conditions.user = {
+        id: idOrTelegramUsername,
+      }
+      // @ts-expect-error TypeORM doesn't support union types
+      conditions.userAuthData = undefined
+    }
+
+    const answers = await this.pollAnswerRepository.find(
+      conditions as any,
+      relations
+    )
 
     return answers
   }
@@ -158,6 +229,11 @@ export class PollService extends Service<Poll | PollAnswer | User> {
 
       if (userId) {
         data = { ...data, user: { id: userId } as User }
+      } else {
+        data = {
+          ...data,
+          userAuthIdentifier: answer.userAuthData!.username as string,
+        }
       }
 
       return new PollAnswerModel(data)

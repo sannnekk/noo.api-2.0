@@ -72,17 +72,39 @@ export class PollController {
     }
   }
 
+  @Get('/:pollId/unregistered')
+  public async searchWhoVotedUnregistered(
+    context: Context
+  ): Promise<ControllerResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      const pollId = this.pollValidator.parseId(context.params.pollId)
+      const pagination = this.pollValidator.parsePagination(context.query)
+
+      const { users, meta } = await this.pollService.searchWhoVotedUnregistered(
+        context.credentials!.role,
+        pollId,
+        pagination
+      )
+
+      return new ApiResponse({ data: users, meta })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
+
   @Get('/:pollId/user/:userId/answer')
   public async getAnswers(context: Context): Promise<ApiResponse> {
     try {
       await Asserts.isAuthenticated(context)
       const pollId = this.pollValidator.parseId(context.params.pollId)
-      const userId = this.pollValidator.parseId(context.params.userId)
+      const userIdOrTelegramUsername =
+        this.pollValidator.parseIdOrTelegramUsername(context.params.userId)
 
       const answers = await this.pollService.getAnswers(
         context.credentials!.role,
         pollId,
-        userId
+        userIdOrTelegramUsername
       )
 
       return new ApiResponse({ data: answers })

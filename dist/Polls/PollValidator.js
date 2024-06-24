@@ -84,6 +84,9 @@ let PollValidator = class PollValidator extends Validator {
     parsePollAnswer(data) {
         return this.parse(data, this.pollAnswerScheme);
     }
+    parseIdOrTelegramUsername(data) {
+        return this.parse(data, this.idScheme.or(z.string().nonempty()));
+    }
 };
 PollValidator = __decorate([
     ErrorConverter()
