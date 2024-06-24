@@ -12,6 +12,8 @@ import { PollAnswer } from '../Data/Relations/PollAnswer'
 import { PollAnswerModel } from '../Data/Relations/PollAnswerModel'
 import { AlreadyVotedError } from '../Errors/AlreadyVotedError'
 import { CantVoteInPollError } from '../Errors/CantVoteInPollError'
+import { InvalidAuthTypeError } from '../Errors/InvalidAuthTypeError'
+import { PollAuthService } from './PollAuthService'
 
 export class PollService extends Service<Poll | PollAnswer | User> {
   private readonly pollRepository: PollRepository
@@ -20,12 +22,15 @@ export class PollService extends Service<Poll | PollAnswer | User> {
 
   private readonly userRepository: UserRepository
 
+  private readonly pollAuthService: PollAuthService
+
   constructor() {
     super()
 
     this.pollRepository = new PollRepository()
     this.pollAnswerRepository = new PollAnswerRepository()
     this.userRepository = new UserRepository()
+    this.pollAuthService = new PollAuthService()
   }
 
   public async getPollById(id: Poll['id'], userId?: User['id']): Promise<Poll> {
@@ -123,14 +128,12 @@ export class PollService extends Service<Poll | PollAnswer | User> {
     pollId: Poll['id'],
     answers: PollAnswer[]
   ): Promise<void> {
-    if (userId && userRole) {
-      if (!(await this.canVote(userRole, pollId))) {
-        throw new CantVoteInPollError()
-      }
+    if (!(await this.canVote(userRole, pollId))) {
+      throw new CantVoteInPollError()
+    }
 
-      if (await this.userAlreadyVoted(userId, pollId)) {
-        throw new AlreadyVotedError()
-      }
+    if (userId && (await this.userAlreadyVoted(userId, pollId))) {
+      throw new AlreadyVotedError()
     }
 
     const poll = await this.pollRepository.findOne({ id: pollId }, [
@@ -141,19 +144,24 @@ export class PollService extends Service<Poll | PollAnswer | User> {
       throw new NotFoundError()
     }
 
-    if (poll.requireAuth && !userId) {
-      throw new UnauthorizedError('Необходимо авторизоваться для голосования')
-    }
-
     // TODO: add user more efficient
     if (userId) {
       poll.votedUsers!.push({ id: userId } as User)
+    } else {
+      this.answersHaveValidAuth(answers)
     }
 
-    const answerModels = answers.map(
-      (answer) =>
-        new PollAnswerModel({ ...answer, user: { id: userId } as User })
-    )
+    poll.votedCount += 1
+
+    const answerModels = answers.map((answer) => {
+      let data = { ...answer }
+
+      if (userId) {
+        data = { ...data, user: { id: userId } as User }
+      }
+
+      return new PollAnswerModel(data)
+    })
 
     this.pollRepository.update(poll)
     this.pollAnswerRepository.createMany(answerModels)
@@ -193,7 +201,7 @@ export class PollService extends Service<Poll | PollAnswer | User> {
   }
 
   private async canVote(
-    role: User['role'],
+    role: User['role'] | undefined,
     pollId: Poll['id']
   ): Promise<boolean> {
     const poll = await this.pollRepository.findOne({
@@ -204,7 +212,13 @@ export class PollService extends Service<Poll | PollAnswer | User> {
       throw new NotFoundError('Опрос не найден')
     }
 
-    return poll.canVote.includes(role) || poll.canVote.includes('everyone')
+    if (poll.requireAuth && !role) {
+      throw new UnauthorizedError('Необходимо авторизоваться для голосования')
+    } else if (!poll.requireAuth && !role) {
+      return true
+    }
+
+    return poll.canVote.includes(role!) || poll.canVote.includes('everyone')
   }
 
   private async canSeeResults(
@@ -223,5 +237,19 @@ export class PollService extends Service<Poll | PollAnswer | User> {
       poll.canSeeResults.includes(role) ||
       poll.canSeeResults.includes('everyone')
     )
+  }
+
+  private answersHaveValidAuth(answers: PollAnswer[]) {
+    for (const answer of answers) {
+      switch (answer.userAuthType) {
+        case 'telegram':
+          this.pollAuthService.checkTelegramAuth(answer.userAuthData)
+          break
+        case 'api':
+          break
+        default:
+          throw new InvalidAuthTypeError()
+      }
+    }
   }
 }

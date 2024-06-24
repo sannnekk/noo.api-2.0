@@ -72,6 +72,8 @@ export class PollValidator extends Validator {
 
   public readonly pollAnswerScheme = z.object({
     id: z.string().ulid().optional(),
+    userAuthType: z.string().nonempty().optional(),
+    userAuthData: z.record(z.any()).optional(),
     questionId: z.string().ulid(),
     questionType: this.questionTypeSceme,
     text: z.string().optional(),

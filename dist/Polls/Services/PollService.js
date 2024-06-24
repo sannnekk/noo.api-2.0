@@ -9,15 +9,19 @@ import { PollAnswerRepository } from '../Data/PollAnswerRepository.js';
 import { PollAnswerModel } from '../Data/Relations/PollAnswerModel.js';
 import { AlreadyVotedError } from '../Errors/AlreadyVotedError.js';
 import { CantVoteInPollError } from '../Errors/CantVoteInPollError.js';
+import { InvalidAuthTypeError } from '../Errors/InvalidAuthTypeError.js';
+import { PollAuthService } from './PollAuthService.js';
 export class PollService extends Service {
     pollRepository;
     pollAnswerRepository;
     userRepository;
+    pollAuthService;
     constructor() {
         super();
         this.pollRepository = new PollRepository();
         this.pollAnswerRepository = new PollAnswerRepository();
         this.userRepository = new UserRepository();
+        this.pollAuthService = new PollAuthService();
     }
     async getPollById(id, userId) {
         const poll = await this.pollRepository.findOne({ id }, ['questions'], {
@@ -75,13 +79,11 @@ export class PollService extends Service {
         return answers;
     }
     async saveAnswers(userId, userRole, pollId, answers) {
-        if (userId && userRole) {
-            if (!(await this.canVote(userRole, pollId))) {
-                throw new CantVoteInPollError();
-            }
-            if (await this.userAlreadyVoted(userId, pollId)) {
-                throw new AlreadyVotedError();
-            }
+        if (!(await this.canVote(userRole, pollId))) {
+            throw new CantVoteInPollError();
+        }
+        if (userId && (await this.userAlreadyVoted(userId, pollId))) {
+            throw new AlreadyVotedError();
         }
         const poll = await this.pollRepository.findOne({ id: pollId }, [
             'votedUsers',
@@ -89,14 +91,21 @@ export class PollService extends Service {
         if (!poll) {
             throw new NotFoundError();
         }
-        if (poll.requireAuth && !userId) {
-            throw new UnauthorizedError('Необходимо авторизоваться для голосования');
-        }
         // TODO: add user more efficient
         if (userId) {
             poll.votedUsers.push({ id: userId });
         }
-        const answerModels = answers.map((answer) => new PollAnswerModel({ ...answer, user: { id: userId } }));
+        else {
+            this.answersHaveValidAuth(answers);
+        }
+        poll.votedCount += 1;
+        const answerModels = answers.map((answer) => {
+            let data = { ...answer };
+            if (userId) {
+                data = { ...data, user: { id: userId } };
+            }
+            return new PollAnswerModel(data);
+        });
         this.pollRepository.update(poll);
         this.pollAnswerRepository.createMany(answerModels);
     }
@@ -128,6 +137,12 @@ export class PollService extends Service {
         if (!poll) {
             throw new NotFoundError('Опрос не найден');
         }
+        if (poll.requireAuth && !role) {
+            throw new UnauthorizedError('Необходимо авторизоваться для голосования');
+        }
+        else if (!poll.requireAuth && !role) {
+            return true;
+        }
         return poll.canVote.includes(role) || poll.canVote.includes('everyone');
     }
     async canSeeResults(role, pollId) {
@@ -139,5 +154,18 @@ export class PollService extends Service {
         }
         return (poll.canSeeResults.includes(role) ||
             poll.canSeeResults.includes('everyone'));
+    }
+    answersHaveValidAuth(answers) {
+        for (const answer of answers) {
+            switch (answer.userAuthType) {
+                case 'telegram':
+                    this.pollAuthService.checkTelegramAuth(answer.userAuthData);
+                    break;
+                case 'api':
+                    break;
+                default:
+                    throw new InvalidAuthTypeError();
+            }
+        }
     }
 }

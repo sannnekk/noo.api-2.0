@@ -48,6 +48,13 @@ export class PollModel extends Model implements Poll {
   votedUserIds?: User['id'][]
 
   @Column({
+    name: 'voted_count',
+    type: 'integer',
+    default: 0,
+  })
+  votedCount!: number
+
+  @Column({
     name: 'title',
     type: 'varchar',
   })

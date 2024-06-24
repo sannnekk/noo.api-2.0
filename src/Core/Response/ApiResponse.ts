@@ -39,7 +39,7 @@ export class ApiResponse extends ControllerResponse {
           error: 'Системная ошибка. Пожалуйста, сообщите об этом в поддержку',
         }
 
-        log('error', payload)
+        log('error', JSON.stringify(payload))
 
         return
       }

@@ -21,6 +21,7 @@ Here a todo list
 13. **[REFC]** Comment controllers
 14. **[IMPR]** ✅ Configure linter and prettier
 15. **[IMPR]** ✅ Logs
+16. **[REFC]** Add unique key to all custom errors
 
 ## Tags
 

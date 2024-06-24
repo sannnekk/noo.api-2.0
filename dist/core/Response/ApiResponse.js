@@ -26,7 +26,7 @@ export class ApiResponse extends ControllerResponse {
                 this.body = {
                     error: 'Системная ошибка. Пожалуйста, сообщите об этом в поддержку',
                 };
-                log('error', payload);
+                log('error', JSON.stringify(payload));
                 return;
             }
             const { status, message } = this.getErrorData(payload);

@@ -4,7 +4,11 @@ import { User } from '@modules/Users/Data/User'
 import { PollQuestion } from './PollQuestion'
 import { Poll } from '../Poll'
 
+export type PollUserAuthType = 'telegram' | 'api'
+
 export interface PollAnswer extends BaseModel {
+  userAuthType: PollUserAuthType
+  userAuthData: Record<string, unknown> | null
   questionId: string
   questionType: PollQuestion['type']
   user?: User

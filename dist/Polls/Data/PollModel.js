@@ -26,6 +26,7 @@ let PollModel = class PollModel extends Model {
     questions;
     votedUsers;
     votedUserIds;
+    votedCount;
     title;
     description;
     canVote;
@@ -53,6 +54,14 @@ __decorate([
     RelationId((poll) => poll.votedUsers),
     __metadata("design:type", Array)
 ], PollModel.prototype, "votedUserIds", void 0);
+__decorate([
+    Column({
+        name: 'voted_count',
+        type: 'integer',
+        default: 0,
+    }),
+    __metadata("design:type", Number)
+], PollModel.prototype, "votedCount", void 0);
 __decorate([
     Column({
         name: 'title',

@@ -43,6 +43,21 @@ export class PollAnswerModel extends Model implements PollAnswer {
   userId!: string
 
   @Column({
+    name: 'user_auth_type',
+    type: 'varchar',
+    default: 'api',
+  })
+  userAuthType!: PollAnswer['userAuthType']
+
+  @Column({
+    name: 'user_auth_data',
+    type: 'json',
+    nullable: true,
+    default: null,
+  })
+  userAuthData!: Record<string, unknown> | null
+
+  @Column({
     name: 'question_type',
     type: 'enum',
     enum: ['text', 'number', 'date', 'file', 'choice', 'rating'],
@@ -89,8 +104,4 @@ export class PollAnswerModel extends Model implements PollAnswer {
     nullable: true,
   })
   rating?: number | undefined
-
-  public static entriesToSearch() {
-    return ['user.username', 'user.email', 'user.name']
-  }
 }
