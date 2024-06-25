@@ -50,7 +50,9 @@ let CourseValidator = class CourseValidator extends Validator {
         images: z.array(MediaScheme),
         chapters: z.array(this.chapterScheme),
     });
-    idsScheme = z.array(this.idScheme);
+    stidentIdsScheme = z.object({
+        studentIds: z.array(z.string().ulid()),
+    });
     assignWorkOptionsScheme = z.object({
         checkDeadline: z.date().optional(),
         solveDeadline: z.date().optional(),
@@ -62,7 +64,7 @@ let CourseValidator = class CourseValidator extends Validator {
         return this.parse(course, this.courseScheme);
     }
     parseStudentIds(body) {
-        return this.parse(body, this.idsScheme);
+        return this.parse(body, this.stidentIdsScheme);
     }
     parseAssignWorkOptions(data) {
         return this.parse(data, this.assignWorkOptionsScheme);

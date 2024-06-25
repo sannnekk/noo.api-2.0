@@ -53,7 +53,9 @@ export class CourseValidator extends Validator {
     chapters: z.array(this.chapterScheme),
   })
 
-  public readonly idsScheme = z.array(this.idScheme)
+  public readonly stidentIdsScheme = z.object({
+    studentIds: z.array(z.string().ulid()),
+  })
 
   public readonly assignWorkOptionsScheme = z.object({
     checkDeadline: z.date().optional(),
@@ -69,7 +71,7 @@ export class CourseValidator extends Validator {
   }
 
   public parseStudentIds(body: unknown): User['id'][] {
-    return this.parse<User['id'][]>(body, this.idsScheme)
+    return this.parse<User['id'][]>(body, this.stidentIdsScheme)
   }
 
   public parseAssignWorkOptions(data: unknown): AssignWorkOptions {
