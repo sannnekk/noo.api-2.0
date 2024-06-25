@@ -70,8 +70,8 @@ export class CourseValidator extends Validator {
     return this.parse<CourseUpdateDTO>(course, this.courseScheme)
   }
 
-  public parseStudentIds(body: unknown): User['id'][] {
-    return this.parse<User['id'][]>(body, this.stidentIdsScheme)
+  public parseStudentIds(body: unknown): { studentIds: User['id'][] } {
+    return this.parse<{ studentIds: User['id'][] }>(body, this.stidentIdsScheme)
   }
 
   public parseAssignWorkOptions(data: unknown): AssignWorkOptions {

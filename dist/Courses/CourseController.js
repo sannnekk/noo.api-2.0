@@ -102,7 +102,7 @@ let CourseController = class CourseController {
             await Asserts.isAuthenticated(context);
             Asserts.teacher(context);
             const courseSlug = this.courseValidator.parseSlug(context.params.courseSlug);
-            const studentIds = this.courseValidator.parseStudentIds(context.body);
+            const { studentIds } = this.courseValidator.parseStudentIds(context.body);
             await this.courseService.assignStudents(courseSlug, studentIds);
             return new ApiResponse();
         }

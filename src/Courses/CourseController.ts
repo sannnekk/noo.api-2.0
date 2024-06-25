@@ -149,7 +149,7 @@ export class CourseController {
       const courseSlug = this.courseValidator.parseSlug(
         context.params.courseSlug
       )
-      const studentIds = this.courseValidator.parseStudentIds(context.body)
+      const { studentIds } = this.courseValidator.parseStudentIds(context.body)
 
       await this.courseService.assignStudents(courseSlug, studentIds)
 
