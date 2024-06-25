@@ -1,8 +1,8 @@
 import { Service } from '@modules/Core/Services/Service'
-import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
 import { CourseRequestModel } from '../Data/CourseRequestModel'
 import { CourseRequest } from '../Data/CourseRequest'
 import { CourseRequestRepository } from '../Data/CourseRequestRepository'
+import log from '@modules/Core/Logs/Logger'
 
 export class DealsService extends Service<CourseRequestModel> {
   private readonly courseRequestRepository: CourseRequestRepository
@@ -17,13 +17,19 @@ export class DealsService extends Service<CourseRequestModel> {
     email: CourseRequest['email'],
     courseId: CourseRequest['id']
   ) {
-    this.courseRequestRepository.create(
+    log('debug', 'Creating course request')
+    log('debug', { email, courseId })
+    /* this.courseRequestRepository.create(
       new CourseRequestModel({ email, courseId })
-    )
+    ) */
   }
 
   public async remove(email: string) {
-    const courseRequest = await this.courseRequestRepository.findOne({
+    log('debug', 'Creating course request')
+    log('debug', { email })
+
+    return
+    /* const courseRequest = await this.courseRequestRepository.findOne({
       email,
     })
 
@@ -31,6 +37,6 @@ export class DealsService extends Service<CourseRequestModel> {
       throw new NotFoundError('Course request not found')
     }
 
-    this.courseRequestRepository.delete(courseRequest.id)
+    this.courseRequestRepository.delete(courseRequest.id) */
   }
 }

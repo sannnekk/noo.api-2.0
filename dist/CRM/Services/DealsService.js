@@ -1,7 +1,6 @@
 import { Service } from '../../Core/Services/Service.js';
-import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
-import { CourseRequestModel } from '../Data/CourseRequestModel.js';
 import { CourseRequestRepository } from '../Data/CourseRequestRepository.js';
+import log from '../../Core/Logs/Logger.js';
 export class DealsService extends Service {
     courseRequestRepository;
     constructor() {
@@ -9,15 +8,24 @@ export class DealsService extends Service {
         this.courseRequestRepository = new CourseRequestRepository();
     }
     async create(email, courseId) {
-        this.courseRequestRepository.create(new CourseRequestModel({ email, courseId }));
+        log('debug', 'Creating course request');
+        log('debug', { email, courseId });
+        /* this.courseRequestRepository.create(
+          new CourseRequestModel({ email, courseId })
+        ) */
     }
     async remove(email) {
-        const courseRequest = await this.courseRequestRepository.findOne({
-            email,
-        });
+        log('debug', 'Creating course request');
+        log('debug', { email });
+        return;
+        /* const courseRequest = await this.courseRequestRepository.findOne({
+          email,
+        })
+    
         if (!courseRequest) {
-            throw new NotFoundError('Course request not found');
+          throw new NotFoundError('Course request not found')
         }
-        this.courseRequestRepository.delete(courseRequest.id);
+    
+        this.courseRequestRepository.delete(courseRequest.id) */
     }
 }

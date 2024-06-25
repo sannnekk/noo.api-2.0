@@ -15,6 +15,7 @@ import './Calender/CalenderController.js';
 import './Statistics/StatisticsController.js';
 import './Blog/BlogController.js';
 import './Polls/PollController.js';
+import './CRM/CRMController.js';
 await CoreDataSource.initialize();
 const app = express();
 app.use(cors());
