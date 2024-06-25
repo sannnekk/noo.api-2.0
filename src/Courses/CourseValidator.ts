@@ -21,6 +21,7 @@ export class CourseValidator extends Validator {
     order: z.number(),
     description: z.string().nullable().optional(),
     content: DeltaScheme,
+    files: z.array(MediaScheme),
   })
 
   public readonly chapterScheme = z.object({
