@@ -8,14 +8,14 @@ export class DealsService extends Service {
         this.courseRequestRepository = new CourseRequestRepository();
     }
     async create(email, courseId) {
-        log('debug', 'Creating course request');
+        log('debug', 'Creating course request in Service');
         log('debug', { email, courseId });
         /* this.courseRequestRepository.create(
           new CourseRequestModel({ email, courseId })
         ) */
     }
     async remove(email) {
-        log('debug', 'Creating course request');
+        log('debug', 'Removing course request in Service');
         log('debug', { email });
         return;
         /* const courseRequest = await this.courseRequestRepository.findOne({

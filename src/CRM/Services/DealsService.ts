@@ -17,7 +17,7 @@ export class DealsService extends Service<CourseRequestModel> {
     email: CourseRequest['email'],
     courseId: CourseRequest['id']
   ) {
-    log('debug', 'Creating course request')
+    log('debug', 'Creating course request in Service')
     log('debug', { email, courseId })
     /* this.courseRequestRepository.create(
       new CourseRequestModel({ email, courseId })
@@ -25,7 +25,7 @@ export class DealsService extends Service<CourseRequestModel> {
   }
 
   public async remove(email: string) {
-    log('debug', 'Creating course request')
+    log('debug', 'Removing course request in Service')
     log('debug', { email })
 
     return
