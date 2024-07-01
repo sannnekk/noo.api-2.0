@@ -12,16 +12,16 @@ import { CheckOptions } from './DTO/CheckOptions'
 export class AssignedWorkValidator extends Validator {
   public readonly answerScheme = z.object({
     id: z.string().optional(),
-    slug: z.string().optional(),
-    content: DeltaScheme.optional(),
-    word: z.string().optional(),
+    slug: z.string().nullable().optional(),
+    content: DeltaScheme.nullable().optional(),
+    word: z.string().nullable().optional(),
     taskId: z.string().ulid(),
   })
 
   public readonly commentScheme = z.object({
     id: z.string().optional(),
-    slug: z.string().optional(),
-    content: DeltaScheme.optional(),
+    slug: z.string().nullable().optional(),
+    content: DeltaScheme.nullable().optional(),
     score: z.number(),
     taskId: z.string().ulid(),
   })
