@@ -32,6 +32,10 @@ export class CalenderService extends Service<CalenderEvent> {
     event.type = type
     event.username = username
 
+    if (!event.url) {
+      event.url = ''
+    }
+
     return this.calenderEventRepository.create(event)
   }
 
