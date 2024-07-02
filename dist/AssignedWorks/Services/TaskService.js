@@ -97,7 +97,7 @@ export class TaskService {
         let score = maxScore - Math.abs(word.length - exact.length);
         word = word.trim().toLowerCase().padEnd(exact.length, ' ');
         for (let i = 0; i < exact.length; i++) {
-            if (word[i] !== exact[i]) {
+            if (!word.includes(exact[i])) {
                 score--;
             }
         }

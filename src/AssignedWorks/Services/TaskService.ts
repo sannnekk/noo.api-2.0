@@ -138,7 +138,7 @@ export class TaskService {
     word = word.trim().toLowerCase().padEnd(exact.length, ' ')
 
     for (let i = 0; i < exact.length; i++) {
-      if (word[i] !== exact[i]) {
+      if (!word.includes(exact[i])) {
         score--
       }
     }
