@@ -4,4 +4,7 @@ export class UserRepository extends Repository {
     constructor() {
         super(UserModel);
     }
+    async getRandomMentor() {
+        return this.queryBuilder('user').orderBy('RAND()').getOne();
+    }
 }

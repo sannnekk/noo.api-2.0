@@ -47,6 +47,10 @@ export class UserService extends Service {
         if (existingEmail) {
             throw new AlreadyExistError('Пользователь с таким email уже существует.');
         }
+        const randomMentor = await this.userRepository.getRandomMentor();
+        if (randomMentor) {
+            user.mentor = randomMentor.id;
+        }
         await this.create(user);
         await this.emailService.sendVerificationEmail(user.email, user.username, user.name, user.verificationToken);
     }
