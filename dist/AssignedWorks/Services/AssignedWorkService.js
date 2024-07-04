@@ -16,7 +16,6 @@ import { WorkAlreadyAssignedToEnoughMentorsError } from '../Errors/WorkAlreadyAs
 import { SolveDeadlineNotSetError } from '../Errors/SolveDeadlineNotSetError.js';
 import { CheckDeadlineNotSetError } from '../Errors/CheckDeadlineNotSetError.js';
 import { DeadlineAlreadyShiftedError } from '../Errors/DeadlineAlreadyShiftedError.js';
-import { WorkIsArchived } from '../Errors/WorkIsArchived.js';
 import { TaskService } from './TaskService.js';
 import { AssignedWorkCommentRepository } from '../Data/AssignedWorkCommentRepository.js';
 import { AssignedWorkAnswerRepository } from '../Data/AssignedWorkAnswerRepository.js';
@@ -132,9 +131,6 @@ export class AssignedWorkService extends Service {
         const assignedWork = await this.getAssignedWork(assignedWorkId, ['work']);
         if (!assignedWork) {
             throw new NotFoundError('Работа не найдена');
-        }
-        if (assignedWork.isArchived) {
-            throw new WorkIsArchived('Работа архивирована и не может быть пересдана');
         }
         if (!assignedWork.work) {
             throw new NotFoundError('Работа не найдена. Возможно, она была удалена');
@@ -258,9 +254,6 @@ export class AssignedWorkService extends Service {
         const foundWork = await this.getAssignedWork(assignedWorkId);
         if (!foundWork) {
             throw new NotFoundError();
-        }
-        if (foundWork.isArchived) {
-            throw new WorkIsArchived();
         }
         if (role == 'student') {
             if (foundWork.solveStatus === 'made-in-deadline' ||

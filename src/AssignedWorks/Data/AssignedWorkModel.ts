@@ -32,15 +32,21 @@ export class AssignedWorkModel extends Model implements AssignedWork {
         this.slug = this.sluggify()
       }
 
-      this.mentors = (data.mentors || []).map((mentor) => new UserModel(mentor))
+      if (data.mentors) {
+        this.mentors = data.mentors.map((mentor) => new UserModel(mentor))
+      }
 
-      this.answers = (data.answers || []).map(
-        (answer) => new AssignedWorkAnswerModel(answer)
-      )
+      if (data.answers) {
+        this.answers = data.answers.map(
+          (answer) => new AssignedWorkAnswerModel(answer)
+        )
+      }
 
-      this.comments = (data.comments || []).map(
-        (comment) => new AssignedWorkCommentModel(comment)
-      )
+      if (data.comments) {
+        this.comments = data.comments.map(
+          (comment) => new AssignedWorkCommentModel(comment)
+        )
+      }
     }
   }
 
