@@ -23,6 +23,7 @@ let MediaModel = class MediaModel extends Model {
     src;
     name;
     mimeType;
+    order;
     courseMaterial;
     course;
     pollAnswer;
@@ -52,6 +53,14 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], MediaModel.prototype, "mimeType", void 0);
+__decorate([
+    Column({
+        name: 'order',
+        type: 'int',
+        default: 0,
+    }),
+    __metadata("design:type", Number)
+], MediaModel.prototype, "order", void 0);
 __decorate([
     ManyToOne(() => CourseMaterialModel, (courseMaterial) => courseMaterial.files, { onDelete: 'CASCADE' }),
     __metadata("design:type", CourseMaterialModel)

@@ -51,6 +51,9 @@ export class CourseService extends Service {
                 order: 'ASC',
                 materials: {
                     order: 'ASC',
+                    files: {
+                        order: 'ASC',
+                    },
                 },
             },
         });

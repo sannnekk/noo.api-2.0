@@ -88,6 +88,9 @@ export class CourseService extends Service<Course> {
           order: 'ASC',
           materials: {
             order: 'ASC',
+            files: {
+              order: 'ASC',
+            },
           },
         },
       }

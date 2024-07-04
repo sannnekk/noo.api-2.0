@@ -39,6 +39,13 @@ export class MediaModel extends Model implements Media {
   })
   mimeType!: 'image/jpeg' | 'image/png' | 'application/pdf'
 
+  @Column({
+    name: 'order',
+    type: 'int',
+    default: 0,
+  })
+  order!: number
+
   @ManyToOne(
     () => CourseMaterialModel,
     (courseMaterial) => courseMaterial.files,

@@ -1,6 +1,6 @@
 import { Media } from '../Data/Media'
 
-type UnsavedMedia = Omit<Media, 'id' | 'createdAt' | 'updatedAt'>
+type UnsavedMedia = Omit<Media, 'id' | 'createdAt' | 'updatedAt' | 'order'>
 
 export class MediaService {
   async upload(files: Express.Multer.File[]): Promise<UnsavedMedia[]> {
