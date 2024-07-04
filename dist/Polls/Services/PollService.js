@@ -119,7 +119,7 @@ export class PollService extends Service {
             // @ts-expect-error TypeORM doesn't support union types
             conditions.userAuthData = undefined;
         }
-        const answers = await this.pollAnswerRepository.find(conditions, relations);
+        const answers = await this.pollAnswerRepository.find(conditions, relations, new Pagination(1, 250));
         return answers;
     }
     async saveAnswers(userId, userRole, pollId, answers) {

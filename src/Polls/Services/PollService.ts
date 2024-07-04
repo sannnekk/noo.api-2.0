@@ -108,6 +108,7 @@ export class PollService extends Service<Poll | PollAnswer | User> {
     }
 
     pagination = new Pagination().assign(pagination)
+
     pagination.entriesToSearch = PollAnswerModel.entriesToSearch()
 
     const relations = [] as (keyof PollAnswer)[]
@@ -190,7 +191,8 @@ export class PollService extends Service<Poll | PollAnswer | User> {
 
     const answers = await this.pollAnswerRepository.find(
       conditions as any,
-      relations
+      relations,
+      new Pagination(1, 250)
     )
 
     return answers
