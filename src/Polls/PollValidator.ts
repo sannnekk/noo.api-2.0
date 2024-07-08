@@ -84,6 +84,11 @@ export class PollValidator extends Validator {
     rating: z.number().optional(),
   })
 
+  public readonly pollAnswerEditScheme = this.pollAnswerScheme.omit({
+    userAuthType: true,
+    userAuthData: true,
+  })
+
   public parsePoll(data: unknown): Poll {
     return this.parse<Poll>(data, this.pollScheme)
   }
@@ -93,7 +98,7 @@ export class PollValidator extends Validator {
   }
 
   public parsePollAnswer(data: unknown): PollAnswer {
-    return this.parse<PollAnswer>(data, this.pollAnswerScheme)
+    return this.parse<PollAnswer>(data, this.pollAnswerEditScheme)
   }
 
   public parseIdOrTelegramUsername(data: unknown): string {

@@ -48,6 +48,10 @@ export class Pagination {
     return this.limit
   }
 
+  public set take(value: number) {
+    this.limit = value
+  }
+
   public get orderOptions(): Record<string, 'ASC' | 'DESC'> {
     return {
       [this.sort]: this.order,

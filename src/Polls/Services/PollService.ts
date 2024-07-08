@@ -108,7 +108,7 @@ export class PollService extends Service<Poll | PollAnswer | User> {
     }
 
     pagination = new Pagination().assign(pagination)
-
+    pagination.take = 1000
     pagination.entriesToSearch = PollAnswerModel.entriesToSearch()
 
     const relations = [] as (keyof PollAnswer)[]
@@ -186,7 +186,7 @@ export class PollService extends Service<Poll | PollAnswer | User> {
         id: idOrTelegramUsername,
       }
       // @ts-expect-error TypeORM doesn't support union types
-      conditions.userAuthData = undefined
+      delete conditions.userAuthIdentifier
     }
 
     const answers = await this.pollAnswerRepository.find(

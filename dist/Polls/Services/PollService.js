@@ -67,6 +67,7 @@ export class PollService extends Service {
             throw new UnauthorizedError();
         }
         pagination = new Pagination().assign(pagination);
+        pagination.take = 1000;
         pagination.entriesToSearch = PollAnswerModel.entriesToSearch();
         const relations = [];
         const conditions = {
@@ -117,7 +118,7 @@ export class PollService extends Service {
                 id: idOrTelegramUsername,
             };
             // @ts-expect-error TypeORM doesn't support union types
-            conditions.userAuthData = undefined;
+            delete conditions.userAuthIdentifier;
         }
         const answers = await this.pollAnswerRepository.find(conditions, relations, new Pagination(1, 250));
         return answers;

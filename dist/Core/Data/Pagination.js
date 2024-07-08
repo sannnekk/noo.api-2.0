@@ -27,6 +27,9 @@ export class Pagination {
     get take() {
         return this.limit;
     }
+    set take(value) {
+        this.limit = value;
+    }
     get orderOptions() {
         return {
             [this.sort]: this.order,

@@ -75,6 +75,10 @@ let PollValidator = class PollValidator extends Validator {
         choices: z.array(z.string()).optional(),
         rating: z.number().optional(),
     });
+    pollAnswerEditScheme = this.pollAnswerScheme.omit({
+        userAuthType: true,
+        userAuthData: true,
+    });
     parsePoll(data) {
         return this.parse(data, this.pollScheme);
     }
@@ -82,7 +86,7 @@ let PollValidator = class PollValidator extends Validator {
         return this.parse(data, z.array(this.pollAnswerScheme));
     }
     parsePollAnswer(data) {
-        return this.parse(data, this.pollAnswerScheme);
+        return this.parse(data, this.pollAnswerEditScheme);
     }
     parseIdOrTelegramUsername(data) {
         return this.parse(data, this.idScheme.or(z.string().nonempty()));
