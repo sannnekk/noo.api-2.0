@@ -14,6 +14,7 @@ import { UserModel } from '../Data/UserModel'
 import { InvalidVerificationTokenError } from '../Errors/InvalidVerificationTokenError'
 import { RegisterDTO } from '../DTO/RegisterDTO'
 import { UpdateUserDTO } from '../DTO/UpdateUserDTO'
+import { UpdateTelegramDTO } from '../DTO/UpdateTelegramDTO'
 
 export class UserService extends Service<User> {
   private readonly userRepository: UserRepository
@@ -400,6 +401,23 @@ export class UserService extends Service<User> {
     const newUser = new UserModel({ ...existingUser, ...user })
 
     await this.userRepository.update(newUser)
+  }
+
+  public async updateTelegram(
+    id: User['id'],
+    data: UpdateTelegramDTO
+  ): Promise<void> {
+    const user = await this.userRepository.findOne({ id })
+
+    if (!user) {
+      throw new NotFoundError('Пользователь не найден.')
+    }
+
+    user.telegramId = data.telegramId
+    user.telegramUsername = data.telegramUsername
+    user.telegramAvatarUrl = data.telegramAvatarUrl
+
+    await this.userRepository.update(user)
   }
 
   public async delete(id: string): Promise<void> {

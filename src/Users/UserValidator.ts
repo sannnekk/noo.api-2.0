@@ -8,6 +8,7 @@ import { ResendVerificationDTO } from './DTO/ResendVerificationDTO'
 import { VerificationDTO } from './DTO/VerificationDTO'
 import { RegisterDTO } from './DTO/RegisterDTO'
 import { UpdateUserDTO } from './DTO/UpdateUserDTO'
+import { UpdateTelegramDTO } from './DTO/UpdateTelegramDTO'
 
 @ErrorConverter()
 export class UserValidator extends Validator {
@@ -56,13 +57,17 @@ export class UserValidator extends Validator {
 
   public updateScheme = z.object({
     id: z.string().ulid(),
-    email: this.emailScheme.optional(),
     name: z.string().optional(),
-    telegramUsername: z.string().nullable().optional(),
     password: this.passwordScheme.optional(),
     role: this.userRoleScheme.optional(),
     isBlocked: z.boolean().optional(),
     forbidden: z.number().optional(),
+  })
+
+  public telegramUpdate = z.object({
+    telegramId: z.string().nullable(),
+    telegramUsername: z.string().nullable(),
+    telegramAvatarUrl: z.string().nullable(),
   })
 
   public loginScheme = z.object({
@@ -107,6 +112,10 @@ export class UserValidator extends Validator {
 
   public parseUpdate(user: unknown): UpdateUserDTO {
     return this.parse<UpdateUserDTO>(user, this.updateScheme)
+  }
+
+  public parseTelegramUpdate(data: unknown): UpdateTelegramDTO {
+    return this.parse<UpdateTelegramDTO>(data, this.telegramUpdate)
   }
 
   public validateForgotPassword(data: unknown): ForgotPasswordDTO {

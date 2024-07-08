@@ -46,13 +46,16 @@ let UserValidator = class UserValidator extends Validator {
     });
     updateScheme = z.object({
         id: z.string().ulid(),
-        email: this.emailScheme.optional(),
         name: z.string().optional(),
-        telegramUsername: z.string().nullable().optional(),
         password: this.passwordScheme.optional(),
         role: this.userRoleScheme.optional(),
         isBlocked: z.boolean().optional(),
         forbidden: z.number().optional(),
+    });
+    telegramUpdate = z.object({
+        telegramId: z.string().nullable(),
+        telegramUsername: z.string().nullable(),
+        telegramAvatarUrl: z.string().nullable(),
     });
     loginScheme = z.object({
         usernameOrEmail: this.usernameScheme.or(this.emailScheme),
@@ -85,6 +88,9 @@ let UserValidator = class UserValidator extends Validator {
     }
     parseUpdate(user) {
         return this.parse(user, this.updateScheme);
+    }
+    parseTelegramUpdate(data) {
+        return this.parse(data, this.telegramUpdate);
     }
     validateForgotPassword(data) {
         return this.parse(data, this.forgotPasswordScheme);

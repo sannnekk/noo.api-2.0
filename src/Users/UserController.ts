@@ -238,6 +238,27 @@ export class UserController {
     }
   }
 
+  @Patch('/:id/telegram')
+  async updateTelegram(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      const id = this.userValidator.parseId(context.params.id)
+      const updateTelegramDTO = this.userValidator.parseTelegramUpdate(
+        context.body
+      )
+
+      if (!['teacher', 'admin'].includes(context.credentials!.role)) {
+        Asserts.isAuthorized(context, id)
+      }
+
+      await this.userService.updateTelegram(id, updateTelegramDTO)
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
+
   @Patch('/:studentId/assign-mentor/:mentorId')
   async assignMentor(context: Context): Promise<ApiResponse> {
     try {

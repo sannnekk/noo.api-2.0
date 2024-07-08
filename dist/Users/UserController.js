@@ -179,6 +179,21 @@ let UserController = class UserController {
             return new ApiResponse(error);
         }
     }
+    async updateTelegram(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            const id = this.userValidator.parseId(context.params.id);
+            const updateTelegramDTO = this.userValidator.parseTelegramUpdate(context.body);
+            if (!['teacher', 'admin'].includes(context.credentials.role)) {
+                Asserts.isAuthorized(context, id);
+            }
+            await this.userService.updateTelegram(id, updateTelegramDTO);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
     async assignMentor(context) {
         try {
             Asserts.notStudent(context);
@@ -290,6 +305,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "update", null);
+__decorate([
+    Patch('/:id/telegram'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "updateTelegram", null);
 __decorate([
     Patch('/:studentId/assign-mentor/:mentorId'),
     __metadata("design:type", Function),

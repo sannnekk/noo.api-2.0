@@ -13,6 +13,7 @@ export interface User extends BaseModel {
   email: string
   // TODO: avatar?: Media
   students?: User[]
+  telegramAvatarUrl?: string
   telegramUsername?: string
   telegramId?: string
   password?: string

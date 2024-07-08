@@ -44,6 +44,7 @@ let UserModel = class UserModel extends Model {
     votedPolls;
     telegramId;
     telegramUsername;
+    telegramAvatarUrl;
     password;
     isBlocked;
     forbidden;
@@ -162,6 +163,15 @@ __decorate([
     }),
     __metadata("design:type", Object)
 ], UserModel.prototype, "telegramUsername", void 0);
+__decorate([
+    Column({
+        name: 'telegram_avatar_url',
+        type: 'varchar',
+        nullable: true,
+        default: null,
+    }),
+    __metadata("design:type", Object)
+], UserModel.prototype, "telegramAvatarUrl", void 0);
 __decorate([
     Column({
         name: 'password',

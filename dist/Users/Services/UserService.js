@@ -234,6 +234,16 @@ export class UserService extends Service {
         const newUser = new UserModel({ ...existingUser, ...user });
         await this.userRepository.update(newUser);
     }
+    async updateTelegram(id, data) {
+        const user = await this.userRepository.findOne({ id });
+        if (!user) {
+            throw new NotFoundError('Пользователь не найден.');
+        }
+        user.telegramId = data.telegramId;
+        user.telegramUsername = data.telegramUsername;
+        user.telegramAvatarUrl = data.telegramAvatarUrl;
+        await this.userRepository.update(user);
+    }
     async delete(id) {
         const user = await this.userRepository.findOne({ id });
         if (!user) {

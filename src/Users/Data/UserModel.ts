@@ -126,6 +126,14 @@ export class UserModel extends Model implements User {
   telegramUsername?: string | undefined
 
   @Column({
+    name: 'telegram_avatar_url',
+    type: 'varchar',
+    nullable: true,
+    default: null,
+  })
+  telegramAvatarUrl?: string | undefined
+
+  @Column({
     name: 'password',
     type: 'varchar',
     nullable: true,
