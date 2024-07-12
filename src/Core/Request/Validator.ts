@@ -10,6 +10,7 @@ type PaginationType = {
   order?: 'ASC' | 'DESC'
   search?: string
   filter?: Record<string, unknown>
+  relations?: string[]
 }
 
 @ErrorConverter()
@@ -25,6 +26,7 @@ export abstract class Validator {
     order: z.enum(['ASC', 'DESC']).optional(),
     search: z.string().optional(),
     filter: z.record(z.any()).optional(),
+    relations: z.array(z.string()).optional(),
   })
 
   public parsePagination(data: unknown): Pagination {
@@ -36,7 +38,8 @@ export abstract class Validator {
       pagination.sort,
       pagination.order,
       pagination.search,
-      pagination.filter
+      pagination.filter,
+      pagination.relations
     )
   }
 

@@ -170,6 +170,9 @@ export class UserService extends Service {
         pagination = new Pagination().assign(pagination);
         pagination.entriesToSearch = UserModel.entriesToSearch();
         const relations = ['students', 'courses'];
+        if (pagination.relationsToLoad.includes('mentor')) {
+            relations.push('mentor');
+        }
         const users = await this.userRepository.find(undefined, relations, pagination);
         const meta = await this.getRequestMeta(this.userRepository, undefined, pagination, relations);
         return { users, meta };
@@ -259,6 +262,10 @@ export class UserService extends Service {
         user.isBlocked = true;
         user.telegramId = null;
         user.telegramUsername = null;
+        user.telegramAvatarUrl = '';
+        user.mentor = null;
+        user.students = [];
+        user.courses = [];
         await this.userRepository.update(user);
     }
     /**

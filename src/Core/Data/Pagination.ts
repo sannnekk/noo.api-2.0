@@ -19,13 +19,16 @@ export class Pagination {
 
   private filters: Filters = {}
 
+  private relations: string[] = []
+
   public constructor(
     page?: number | undefined,
     limit?: number | undefined,
     sort?: string | undefined,
     order?: 'ASC' | 'DESC' | undefined,
     search?: string | undefined,
-    filters?: Filters | undefined
+    filters?: Filters | undefined,
+    relations?: string[] | undefined
   ) {
     this.page = page || 1
     this.limit = limit || 25
@@ -33,10 +36,12 @@ export class Pagination {
     this.order = order === 'ASC' ? 'ASC' : 'DESC'
     this.search = search || ''
     this.filters = filters ? this.parseFilterValues(filters) : {}
+    this.relations = relations || []
   }
 
   public assign(data: Partial<Pagination> | undefined): typeof this {
     Object.assign(this, data)
+
     return this
   }
 
@@ -64,6 +69,10 @@ export class Pagination {
 
   public get entriesToSearch(): string[] {
     return this.entries
+  }
+
+  public get relationsToLoad(): string[] {
+    return this.relations
   }
 
   public getCondition(

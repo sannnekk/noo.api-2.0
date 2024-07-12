@@ -9,13 +9,15 @@ export class Pagination {
     search;
     entries = [];
     filters = {};
-    constructor(page, limit, sort, order, search, filters) {
+    relations = [];
+    constructor(page, limit, sort, order, search, filters, relations) {
         this.page = page || 1;
         this.limit = limit || 25;
         this.sort = sort || 'id';
         this.order = order === 'ASC' ? 'ASC' : 'DESC';
         this.search = search || '';
         this.filters = filters ? this.parseFilterValues(filters) : {};
+        this.relations = relations || [];
     }
     assign(data) {
         Object.assign(this, data);
@@ -40,6 +42,9 @@ export class Pagination {
     }
     get entriesToSearch() {
         return this.entries;
+    }
+    get relationsToLoad() {
+        return this.relations;
     }
     getCondition(conditions) {
         let allConditions = [{ ...this.filters }];

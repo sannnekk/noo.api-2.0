@@ -257,7 +257,11 @@ export class UserService extends Service<User> {
     pagination = new Pagination().assign(pagination)
     pagination.entriesToSearch = UserModel.entriesToSearch()
 
-    const relations = ['students' as const, 'courses' as const]
+    const relations: (keyof User)[] = ['students', 'courses']
+
+    if (pagination.relationsToLoad.includes('mentor')) {
+      relations.push('mentor')
+    }
 
     const users = await this.userRepository.find(
       undefined,
@@ -437,6 +441,10 @@ export class UserService extends Service<User> {
     user.isBlocked = true
     user.telegramId = null as any
     user.telegramUsername = null as any
+    user.telegramAvatarUrl = ''
+    user.mentor = null as any
+    user.students = []
+    user.courses = []
 
     await this.userRepository.update(user)
   }

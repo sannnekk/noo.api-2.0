@@ -17,10 +17,11 @@ let Validator = class Validator {
         order: z.enum(['ASC', 'DESC']).optional(),
         search: z.string().optional(),
         filter: z.record(z.any()).optional(),
+        relations: z.array(z.string()).optional(),
     });
     parsePagination(data) {
         const pagination = this.parse(data, this.paginationScheme);
-        return new Pagination(pagination.page, pagination.limit, pagination.sort, pagination.order, pagination.search, pagination.filter);
+        return new Pagination(pagination.page, pagination.limit, pagination.sort, pagination.order, pagination.search, pagination.filter, pagination.relations);
     }
     parseId(id) {
         return this.parse(id, this.idScheme);
