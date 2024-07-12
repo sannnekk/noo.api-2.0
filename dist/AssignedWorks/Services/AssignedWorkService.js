@@ -20,6 +20,7 @@ import { TaskService } from './TaskService.js';
 import { AssignedWorkCommentRepository } from '../Data/AssignedWorkCommentRepository.js';
 import { AssignedWorkAnswerRepository } from '../Data/AssignedWorkAnswerRepository.js';
 import Dates from '../../Core/Utils/date.js';
+import { AssignedWorkOptions } from '../AssignedWorkOptions.js';
 export class AssignedWorkService extends Service {
     taskService;
     assignedWorkRepository;
@@ -310,8 +311,10 @@ export class AssignedWorkService extends Service {
         foundWork.mentors = [mentor, newMentor];
         await this.assignedWorkRepository.update(foundWork);
     }
-    async shiftDeadline(id, days, role, userId) {
+    async shiftDeadline(id, role, userId) {
         const work = await this.getAssignedWork(id, ['mentors']);
+        const days = AssignedWorkOptions.deadlineShift;
+        const mentorAlsoDays = AssignedWorkOptions.mentorDeadlineAlsoShift;
         if (role == 'student') {
             if (work.studentId !== userId) {
                 throw new UnauthorizedError();
@@ -322,8 +325,16 @@ export class AssignedWorkService extends Service {
             if (work.solveDeadlineShifted) {
                 throw new DeadlineAlreadyShiftedError();
             }
+            if (work.solveStatus === 'made-in-deadline' ||
+                work.solveStatus === 'made-after-deadline') {
+                throw new WorkAlreadySolvedError();
+            }
             work.solveDeadlineAt = Dates.addDays(work.solveDeadlineAt, days);
             work.solveDeadlineShifted = true;
+            // also shift mentors deadline
+            if (work.checkDeadlineAt) {
+                work.checkDeadlineAt = Dates.addDays(work.checkDeadlineAt, mentorAlsoDays);
+            }
             await this.calenderService.updateDeadlineFromWork(work, 'student-deadline');
         }
         else {
@@ -335,6 +346,11 @@ export class AssignedWorkService extends Service {
             }
             if (work.checkDeadlineShifted) {
                 throw new DeadlineAlreadyShiftedError();
+            }
+            if (work.checkStatus === 'checked-in-deadline' ||
+                work.checkStatus === 'checked-after-deadline' ||
+                work.checkStatus === 'checked-automatically') {
+                throw new WorkAlreadyCheckedError();
             }
             work.checkDeadlineAt = Dates.addDays(work.checkDeadlineAt, days);
             work.checkDeadlineShifted = true;

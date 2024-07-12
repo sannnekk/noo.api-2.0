@@ -10,7 +10,6 @@ import { Context } from '@modules/Core/Request/Context'
 import { ApiResponse } from '@modules/Core/Response/ApiResponse'
 import { AssignedWorkService } from './Services/AssignedWorkService'
 import { AssignedWorkValidator } from './AssignedWorkValidator'
-import { AssignedWorkOptions } from './AssignedWorkOptions'
 
 @Controller('/assigned-work')
 export class AssignedWorkController {
@@ -220,7 +219,6 @@ export class AssignedWorkController {
 
       await this.assignedWorkService.shiftDeadline(
         workId,
-        AssignedWorkOptions.deadlineShift,
         context.credentials.role,
         context.credentials.userId
       )

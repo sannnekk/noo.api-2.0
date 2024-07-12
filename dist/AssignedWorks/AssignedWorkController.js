@@ -13,7 +13,6 @@ import { Context } from '../Core/Request/Context.js';
 import { ApiResponse } from '../Core/Response/ApiResponse.js';
 import { AssignedWorkService } from './Services/AssignedWorkService.js';
 import { AssignedWorkValidator } from './AssignedWorkValidator.js';
-import { AssignedWorkOptions } from './AssignedWorkOptions.js';
 let AssignedWorkController = class AssignedWorkController {
     assignedWorkService;
     assignedWorkValidator;
@@ -151,7 +150,7 @@ let AssignedWorkController = class AssignedWorkController {
             await Asserts.isAuthenticated(context);
             Asserts.mentorOrStudent(context);
             const workId = this.assignedWorkValidator.parseId(context.params.id);
-            await this.assignedWorkService.shiftDeadline(workId, AssignedWorkOptions.deadlineShift, context.credentials.role, context.credentials.userId);
+            await this.assignedWorkService.shiftDeadline(workId, context.credentials.role, context.credentials.userId);
             return new ApiResponse();
         }
         catch (error) {

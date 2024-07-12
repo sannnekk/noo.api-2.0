@@ -1,3 +1,4 @@
 export const AssignedWorkOptions = {
-    deadlineShift: 1,
+    deadlineShift: 3,
+    mentorDeadlineAlsoShift: 14,
 };

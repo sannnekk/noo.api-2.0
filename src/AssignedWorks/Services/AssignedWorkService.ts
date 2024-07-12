@@ -30,6 +30,7 @@ import { SolveOptions } from '../DTO/SolveOptions'
 import { CheckOptions } from '../DTO/CheckOptions'
 import { SaveOptions } from '../DTO/SaveOptions'
 import Dates from '@modules/Core/Utils/date'
+import { AssignedWorkOptions } from '../AssignedWorkOptions'
 
 export class AssignedWorkService extends Service<AssignedWork> {
   private readonly taskService: TaskService
@@ -495,11 +496,13 @@ export class AssignedWorkService extends Service<AssignedWork> {
 
   public async shiftDeadline(
     id: AssignedWork['id'],
-    days: number,
     role: Exclude<User['role'], 'teacher' | 'admin'>,
     userId: User['id']
   ) {
     const work = await this.getAssignedWork(id, ['mentors'])
+
+    const days: number = AssignedWorkOptions.deadlineShift
+    const mentorAlsoDays: number = AssignedWorkOptions.mentorDeadlineAlsoShift
 
     if (role == 'student') {
       if (work.studentId !== userId) {
@@ -514,8 +517,23 @@ export class AssignedWorkService extends Service<AssignedWork> {
         throw new DeadlineAlreadyShiftedError()
       }
 
+      if (
+        work.solveStatus === 'made-in-deadline' ||
+        work.solveStatus === 'made-after-deadline'
+      ) {
+        throw new WorkAlreadySolvedError()
+      }
+
       work.solveDeadlineAt = Dates.addDays(work.solveDeadlineAt, days)
       work.solveDeadlineShifted = true
+
+      // also shift mentors deadline
+      if (work.checkDeadlineAt) {
+        work.checkDeadlineAt = Dates.addDays(
+          work.checkDeadlineAt,
+          mentorAlsoDays
+        )
+      }
 
       await this.calenderService.updateDeadlineFromWork(
         work,
@@ -532,6 +550,14 @@ export class AssignedWorkService extends Service<AssignedWork> {
 
       if (work.checkDeadlineShifted) {
         throw new DeadlineAlreadyShiftedError()
+      }
+
+      if (
+        work.checkStatus === 'checked-in-deadline' ||
+        work.checkStatus === 'checked-after-deadline' ||
+        work.checkStatus === 'checked-automatically'
+      ) {
+        throw new WorkAlreadyCheckedError()
       }
 
       work.checkDeadlineAt = Dates.addDays(work.checkDeadlineAt, days)
