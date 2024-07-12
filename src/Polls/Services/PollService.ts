@@ -237,7 +237,9 @@ export class PollService extends Service<Poll | PollAnswer | User> {
       } else {
         data = {
           ...data,
-          userAuthData: JSON.stringify(answer.userAuthData) as any,
+          userAuthData: this.removeEmojisAndNonUTF8(
+            JSON.stringify(answer.userAuthData)
+          ) as any,
           userAuthIdentifier: answer.userAuthData!.username as string,
         }
       }
@@ -246,7 +248,11 @@ export class PollService extends Service<Poll | PollAnswer | User> {
     })
 
     this.pollRepository.update(poll)
-    this.pollAnswerRepository.createMany(answerModels)
+    try {
+      this.pollAnswerRepository.createMany(answerModels)
+    } catch (error) {
+      throw new Error('Не удалось сохранить ответы.')
+    }
   }
 
   public async editAnswer(
@@ -333,5 +339,16 @@ export class PollService extends Service<Poll | PollAnswer | User> {
           throw new InvalidAuthTypeError()
       }
     }
+  }
+
+  private removeEmojisAndNonUTF8(str: string): string {
+    // Remove emojis and symbols, including those outside the BMP
+    // This targets symbols and pictographs, including emojis
+    return (
+      str
+        .replace(/[\p{So}\p{C}]/gu, '')
+        // Remove surrogate pairs for characters outside the BMP
+        .replace(/[\uD800-\uDFFF]/g, '')
+    )
   }
 }

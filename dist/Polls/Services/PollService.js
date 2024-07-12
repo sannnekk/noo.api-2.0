@@ -152,14 +152,19 @@ export class PollService extends Service {
             else {
                 data = {
                     ...data,
-                    userAuthData: JSON.stringify(answer.userAuthData),
+                    userAuthData: this.removeEmojisAndNonUTF8(JSON.stringify(answer.userAuthData)),
                     userAuthIdentifier: answer.userAuthData.username,
                 };
             }
             return new PollAnswerModel(data);
         });
         this.pollRepository.update(poll);
-        this.pollAnswerRepository.createMany(answerModels);
+        try {
+            this.pollAnswerRepository.createMany(answerModels);
+        }
+        catch (error) {
+            throw new Error('Не удалось сохранить ответы.');
+        }
     }
     async editAnswer(id, data) {
         const answer = await this.pollAnswerRepository.findOne({ id });
@@ -219,5 +224,13 @@ export class PollService extends Service {
                     throw new InvalidAuthTypeError();
             }
         }
+    }
+    removeEmojisAndNonUTF8(str) {
+        // Remove emojis and symbols, including those outside the BMP
+        // This targets symbols and pictographs, including emojis
+        return (str
+            .replace(/[\p{So}\p{C}]/gu, '')
+            // Remove surrogate pairs for characters outside the BMP
+            .replace(/[\uD800-\uDFFF]/g, ''));
     }
 }
