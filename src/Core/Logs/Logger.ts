@@ -34,8 +34,9 @@ if (process.env.APP_ENV === 'dev') {
   )
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function log(level: LogLevel, data: object | string) {
-  logger.log(level, data)
+  //logger.log(level, data)
 }
 
 export default log

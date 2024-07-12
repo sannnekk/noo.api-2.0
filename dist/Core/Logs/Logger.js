@@ -27,7 +27,8 @@ if (process.env.APP_ENV === 'dev') {
         format: winston.format.simple(),
     }));
 }
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function log(level, data) {
-    logger.log(level, data);
+    //logger.log(level, data)
 }
 export default log;
