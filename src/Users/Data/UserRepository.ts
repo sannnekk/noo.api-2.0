@@ -8,6 +8,9 @@ export class UserRepository extends Repository<User> {
   }
 
   public async getRandomMentor(): Promise<User | null> {
-    return this.queryBuilder('user').orderBy('RAND()').getOne()
+    return this.queryBuilder('user')
+      .where('user.role = :role', { role: 'mentor' })
+      .orderBy('RAND()')
+      .getOne()
   }
 }

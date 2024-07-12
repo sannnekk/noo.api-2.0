@@ -5,6 +5,9 @@ export class UserRepository extends Repository {
         super(UserModel);
     }
     async getRandomMentor() {
-        return this.queryBuilder('user').orderBy('RAND()').getOne();
+        return this.queryBuilder('user')
+            .where('user.role = :role', { role: 'mentor' })
+            .orderBy('RAND()')
+            .getOne();
     }
 }
