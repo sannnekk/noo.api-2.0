@@ -31,6 +31,19 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse(error);
         }
     }
+    async getFromUser(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.teacherOrAdmin(context);
+            const userId = this.assignedWorkValidator.parseId(context.params.userId);
+            const pagination = this.assignedWorkValidator.parsePagination(context.query);
+            const { assignedWorks, meta } = await this.assignedWorkService.getWorks(userId, undefined, pagination);
+            return new ApiResponse({ data: assignedWorks, meta });
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
     async getOne(context) {
         try {
             await Asserts.isAuthenticated(context);
@@ -145,6 +158,19 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse(error);
         }
     }
+    async replaceMentor(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.teacherOrAdmin(context);
+            const workId = this.assignedWorkValidator.parseId(context.params.workId);
+            const mentorId = this.assignedWorkValidator.parseId(context.params.mentorId);
+            await this.assignedWorkService.replaceMentor(workId, mentorId);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
     async shiftDeadline(context) {
         try {
             await Asserts.isAuthenticated(context);
@@ -176,6 +202,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], AssignedWorkController.prototype, "get", null);
+__decorate([
+    Get('/from-user/:userId'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], AssignedWorkController.prototype, "getFromUser", null);
 __decorate([
     Get('/:id'),
     __metadata("design:type", Function),
@@ -230,6 +262,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], AssignedWorkController.prototype, "transfer", null);
+__decorate([
+    Patch('/:workId/replace-mentor/:mentorId'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], AssignedWorkController.prototype, "replaceMentor", null);
 __decorate([
     Patch('/:id/shift-deadline'),
     __metadata("design:type", Function),

@@ -42,6 +42,13 @@ export class AssignedWorkService extends Service {
         this.calenderService = new CalenderService();
     }
     async getWorks(userId, userRole, pagination) {
+        if (!userRole) {
+            const user = await this.userRepository.findOne({ id: userId });
+            if (!user) {
+                throw new NotFoundError('Пользователь не найден');
+            }
+            userRole = user.role;
+        }
         // TODO: modify the conditions to load all assigned mentors instead of just one
         const conditions = userRole == 'student'
             ? { student: { id: userId } }
@@ -310,6 +317,23 @@ export class AssignedWorkService extends Service {
         }
         foundWork.mentors = [mentor, newMentor];
         await this.assignedWorkRepository.update(foundWork);
+    }
+    async replaceMentor(workId, newMentorentorId) {
+        const work = await this.assignedWorkRepository.findOne({
+            id: workId,
+        });
+        if (!work) {
+            throw new NotFoundError();
+        }
+        const mentor = await this.userRepository.findOne({
+            id: newMentorentorId,
+            role: 'mentor',
+        });
+        if (!mentor) {
+            throw new NotFoundError('Куратор не найден');
+        }
+        work.mentors = [mentor];
+        await this.assignedWorkRepository.update(work);
     }
     async shiftDeadline(id, role, userId) {
         const work = await this.getAssignedWork(id, ['mentors']);

@@ -42,6 +42,28 @@ export class AssignedWorkController {
     }
   }
 
+  @Get('/from-user/:userId')
+  public async getFromUser(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.teacherOrAdmin(context)
+      const userId = this.assignedWorkValidator.parseId(context.params.userId)
+      const pagination = this.assignedWorkValidator.parsePagination(
+        context.query
+      )
+
+      const { assignedWorks, meta } = await this.assignedWorkService.getWorks(
+        userId,
+        undefined,
+        pagination
+      )
+
+      return new ApiResponse({ data: assignedWorks, meta })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
+
   @Get('/:id')
   public async getOne(context: Context): Promise<ApiResponse> {
     try {
@@ -203,6 +225,24 @@ export class AssignedWorkController {
         mentorId,
         context.credentials.userId
       )
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
+
+  @Patch('/:workId/replace-mentor/:mentorId')
+  public async replaceMentor(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.teacherOrAdmin(context)
+      const workId = this.assignedWorkValidator.parseId(context.params.workId)
+      const mentorId = this.assignedWorkValidator.parseId(
+        context.params.mentorId
+      )
+
+      await this.assignedWorkService.replaceMentor(workId, mentorId)
 
       return new ApiResponse()
     } catch (error: any) {

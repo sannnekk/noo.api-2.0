@@ -64,9 +64,19 @@ export class AssignedWorkService extends Service<AssignedWork> {
 
   public async getWorks(
     userId: User['id'],
-    userRole: User['role'],
+    userRole?: User['role'],
     pagination?: Pagination
   ) {
+    if (!userRole) {
+      const user = await this.userRepository.findOne({ id: userId })
+
+      if (!user) {
+        throw new NotFoundError('Пользователь не найден')
+      }
+
+      userRole = user.role
+    }
+
     // TODO: modify the conditions to load all assigned mentors instead of just one
     const conditions: any =
       userRole == 'student'
@@ -492,6 +502,32 @@ export class AssignedWorkService extends Service<AssignedWork> {
     foundWork.mentors = [mentor, newMentor]
 
     await this.assignedWorkRepository.update(foundWork)
+  }
+
+  public async replaceMentor(
+    workId: AssignedWork['id'],
+    newMentorentorId: User['id']
+  ) {
+    const work = await this.assignedWorkRepository.findOne({
+      id: workId as any,
+    })
+
+    if (!work) {
+      throw new NotFoundError()
+    }
+
+    const mentor = await this.userRepository.findOne({
+      id: newMentorentorId,
+      role: 'mentor',
+    })
+
+    if (!mentor) {
+      throw new NotFoundError('Куратор не найден')
+    }
+
+    work.mentors = [mentor]
+
+    await this.assignedWorkRepository.update(work)
   }
 
   public async shiftDeadline(
