@@ -14,7 +14,14 @@ export class AssignedWorkValidator extends Validator {
     id: z.string().optional(),
     slug: z.string().nullable().optional(),
     content: DeltaScheme.nullable().optional(),
-    word: z.string().nullable().optional(),
+    word: z
+      .string()
+      .max(200, {
+        message:
+          'Ответ на вопрос водну строку не может содержать больше 200 символов',
+      })
+      .nullable()
+      .optional(),
     taskId: z.string().ulid(),
   })
 

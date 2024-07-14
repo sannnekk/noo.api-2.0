@@ -209,7 +209,8 @@ export class AssignedWorkService extends Service {
         if (foundWork.studentId !== studentId) {
             throw new UnauthorizedError('Вы не можете решить чужую работу');
         }
-        if (['made-in-deadline', 'made-after-deadline'].includes(foundWork.solveStatus)) {
+        if (foundWork.solveStatus === 'made-in-deadline' ||
+            foundWork.solveStatus === 'made-after-deadline') {
             throw new WorkAlreadySolvedError();
         }
         if (foundWork.solveDeadlineAt &&
@@ -238,7 +239,11 @@ export class AssignedWorkService extends Service {
         if (!foundWork) {
             throw new NotFoundError();
         }
-        if (['checked-in-deadline', 'checked-after-deadline'].includes(foundWork.checkStatus)) {
+        if ([
+            'checked-in-deadline',
+            'checked-after-deadline',
+            'checked-automatically',
+        ].includes(foundWork.checkStatus)) {
             throw new WorkAlreadyCheckedError();
         }
         if (['not-started', 'in-progress'].includes(foundWork.solveStatus)) {
@@ -272,7 +277,8 @@ export class AssignedWorkService extends Service {
         }
         else if (role == 'mentor') {
             if (foundWork.checkStatus === 'checked-in-deadline' ||
-                foundWork.checkStatus === 'checked-after-deadline') {
+                foundWork.checkStatus === 'checked-after-deadline' ||
+                foundWork.checkStatus === 'checked-automatically') {
                 throw new WorkAlreadyCheckedError();
             }
             if (foundWork.solveStatus === 'not-started' ||

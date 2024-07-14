@@ -260,7 +260,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
         workId: assignedWork.work.id,
         studentId,
         isNewAttempt: true,
-      } as AssignedWork,
+      } as CreateOptions,
       rightTaskIds
     )
   }
@@ -333,9 +333,8 @@ export class AssignedWorkService extends Service<AssignedWork> {
     }
 
     if (
-      ['made-in-deadline', 'made-after-deadline'].includes(
-        foundWork.solveStatus
-      )
+      foundWork.solveStatus === 'made-in-deadline' ||
+      foundWork.solveStatus === 'made-after-deadline'
     ) {
       throw new WorkAlreadySolvedError()
     }
@@ -381,9 +380,11 @@ export class AssignedWorkService extends Service<AssignedWork> {
     }
 
     if (
-      ['checked-in-deadline', 'checked-after-deadline'].includes(
-        foundWork.checkStatus
-      )
+      [
+        'checked-in-deadline',
+        'checked-after-deadline',
+        'checked-automatically',
+      ].includes(foundWork.checkStatus)
     ) {
       throw new WorkAlreadyCheckedError()
     }
@@ -433,7 +434,8 @@ export class AssignedWorkService extends Service<AssignedWork> {
     } else if (role == 'mentor') {
       if (
         foundWork.checkStatus === 'checked-in-deadline' ||
-        foundWork.checkStatus === 'checked-after-deadline'
+        foundWork.checkStatus === 'checked-after-deadline' ||
+        foundWork.checkStatus === 'checked-automatically'
       ) {
         throw new WorkAlreadyCheckedError()
       }
