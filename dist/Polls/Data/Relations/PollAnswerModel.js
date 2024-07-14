@@ -37,7 +37,13 @@ let PollAnswerModel = class PollAnswerModel extends Model {
     number;
     date;
     files;
-    choices;
+    _choices;
+    get choices() {
+        return this._choices?.split('|');
+    }
+    set choices(choices) {
+        this._choices = choices?.join('|');
+    }
     rating;
     static entriesToSearch() {
         return ['userAuthIdentifier', 'text'];
@@ -131,11 +137,11 @@ __decorate([
 __decorate([
     Column({
         name: 'choices',
-        type: 'simple-array',
+        type: 'text',
         nullable: true,
     }),
-    __metadata("design:type", Object)
-], PollAnswerModel.prototype, "choices", void 0);
+    __metadata("design:type", String)
+], PollAnswerModel.prototype, "_choices", void 0);
 __decorate([
     Column({
         name: 'rating',
