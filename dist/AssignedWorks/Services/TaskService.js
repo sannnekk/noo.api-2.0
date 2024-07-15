@@ -94,13 +94,20 @@ export class TaskService {
      */
     checkType3(word, exact, maxScore) {
         exact = exact.trim().toLowerCase();
-        let score = maxScore - Math.abs(word.length - exact.length);
-        word = word.trim().toLowerCase().padEnd(exact.length, ' ');
+        word = word.trim().toLowerCase();
+        let score = maxScore;
         for (let i = 0; i < exact.length; i++) {
             if (!word.includes(exact[i])) {
                 score--;
             }
         }
+        let missingLetters = 0;
+        for (let i = 0; i < word.length; i++) {
+            if (!exact.includes(word[i])) {
+                missingLetters++;
+            }
+        }
+        score = score - missingLetters;
         return score < 0 ? 0 : score;
     }
     /**

@@ -5,4 +5,6 @@ export interface CreateOptions {
   studentId: User['id']
   workId: Work['id']
   isNewAttempt?: boolean
+  solveDeadlineAt?: Date
+  checkDeadlineAt?: Date
 }

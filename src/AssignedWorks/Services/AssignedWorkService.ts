@@ -198,6 +198,11 @@ export class AssignedWorkService extends Service<AssignedWork> {
     assignedWork.mentors = [{ id: student.mentor.id } as User]
     assignedWork.excludedTaskIds = taskIdsToExclude
     assignedWork.maxScore = this.getMaxScore(work.tasks, taskIdsToExclude)
+    assignedWork.solveStatus = 'not-started'
+    assignedWork.checkStatus = 'not-checked'
+    assignedWork.isNewAttempt = options.isNewAttempt || false
+    assignedWork.solveDeadlineAt = options.solveDeadlineAt
+    assignedWork.checkDeadlineAt = options.checkDeadlineAt
 
     const createdWork = await this.assignedWorkRepository.create(assignedWork)
 
@@ -308,7 +313,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
       workId,
       checkDeadlineAt: material.workCheckDeadline,
       solveDeadlineAt: material.workSolveDeadline,
-    } as AssignedWork)
+    } as CreateOptions)
 
     return { link: `/assigned-works/${createdWork.id}/solve` }
   }

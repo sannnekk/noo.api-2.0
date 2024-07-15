@@ -122,6 +122,11 @@ export class AssignedWorkService extends Service {
         assignedWork.mentors = [{ id: student.mentor.id }];
         assignedWork.excludedTaskIds = taskIdsToExclude;
         assignedWork.maxScore = this.getMaxScore(work.tasks, taskIdsToExclude);
+        assignedWork.solveStatus = 'not-started';
+        assignedWork.checkStatus = 'not-checked';
+        assignedWork.isNewAttempt = options.isNewAttempt || false;
+        assignedWork.solveDeadlineAt = options.solveDeadlineAt;
+        assignedWork.checkDeadlineAt = options.checkDeadlineAt;
         const createdWork = await this.assignedWorkRepository.create(assignedWork);
         work.tasks = [];
         createdWork.student = student;
