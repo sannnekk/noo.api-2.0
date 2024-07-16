@@ -28,6 +28,7 @@ export const CoreDataSource = new DataSource({
   database: process.env.DB_NAME,
   synchronize: false,
   logging: false,
+  charset: 'utf8mb4',
   entities: [
     MediaModel,
     UserModel,
