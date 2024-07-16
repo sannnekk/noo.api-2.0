@@ -210,6 +210,21 @@ export class AssignedWorkController {
     }
   }
 
+  @Patch('/:id/unarchive')
+  public async unarchive(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.mentor(context)
+      const workId = this.assignedWorkValidator.parseId(context.params.id)
+
+      await this.assignedWorkService.unarchiveWork(workId)
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
+
   @Patch('/:workId/transfer/:mentorId')
   public async transfer(context: Context): Promise<ApiResponse> {
     try {

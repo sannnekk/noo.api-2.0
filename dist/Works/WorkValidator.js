@@ -25,6 +25,7 @@ let WorkValidator = class WorkValidator extends Validator {
     checkingStrategyScheme = z.enum(['type1', 'type2', 'type3', 'type4']);
     taskScheme = z.object({
         id: z.string().optional(),
+        slug: z.string().optional().nullable(),
         content: DeltaScheme,
         order: z.number(),
         highestScore: z.number().int().positive(),

@@ -12,6 +12,7 @@ import { CourseUpdateDTO } from './DTO/CourseUpdateDTO'
 export class CourseValidator extends Validator {
   public readonly materialScheme = z.object({
     id: z.string().ulid().optional(),
+    slug: z.string().optional().nullable(),
     name: z
       .string()
       .min(1, { message: 'Название материала слишком короткое' })
@@ -26,6 +27,7 @@ export class CourseValidator extends Validator {
 
   public readonly chapterScheme = z.object({
     id: z.string().ulid().optional(),
+    slug: z.string().optional().nullable(),
     name: z
       .string()
       .min(1, { message: 'Название главы слишком короткое' })
@@ -38,6 +40,7 @@ export class CourseValidator extends Validator {
 
   public readonly courseScheme = z.object({
     id: z.string().ulid().optional(),
+    slug: z.string().optional().nullable(),
     name: z
       .string()
       .min(1, { message: 'Название курса слишком короткое' })

@@ -304,6 +304,14 @@ export class AssignedWorkService extends Service {
         foundWork.isArchived = true;
         await this.assignedWorkRepository.update(foundWork);
     }
+    async unarchiveWork(id) {
+        const foundWork = await this.getAssignedWork(id);
+        if (!foundWork) {
+            throw new NotFoundError();
+        }
+        foundWork.isArchived = false;
+        await this.assignedWorkRepository.update(foundWork);
+    }
     async transferWorkToAnotherMentor(workId, mentorId, currentMentorId) {
         const foundWork = await this.getAssignedWork(workId);
         if (!foundWork) {

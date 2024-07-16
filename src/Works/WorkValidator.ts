@@ -25,6 +25,7 @@ export class WorkValidator extends Validator {
 
   public taskScheme = z.object({
     id: z.string().optional(),
+    slug: z.string().optional().nullable(),
     content: DeltaScheme,
     order: z.number(),
     highestScore: z.number().int().positive(),

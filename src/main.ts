@@ -20,6 +20,7 @@ import '@modules/Statistics/StatisticsController'
 import '@modules/Blog/BlogController'
 import '@modules/Polls/PollController'
 import '@modules/CRM/CRMController'
+//import '@modules/GoogleDocs/GoogleDocsController'
 
 await CoreDataSource.initialize()
 

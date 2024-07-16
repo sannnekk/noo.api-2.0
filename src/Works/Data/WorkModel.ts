@@ -22,9 +22,9 @@ export class WorkModel extends Model implements Work {
     if (data) {
       this.set(data)
 
-      this.tasks = (data.tasks || []).map(
-        (chapter) => new WorkTaskModel(chapter)
-      )
+      if (data.tasks) {
+        this.tasks = data.tasks.map((chapter) => new WorkTaskModel(chapter))
+      }
 
       if (!data.slug) {
         this.slug = this.sluggify(this.name)

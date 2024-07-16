@@ -12,6 +12,7 @@ import { MediaScheme } from '../Media/MediaScheme.js';
 let CourseValidator = class CourseValidator extends Validator {
     materialScheme = z.object({
         id: z.string().ulid().optional(),
+        slug: z.string().optional().nullable(),
         name: z
             .string()
             .min(1, { message: 'Название материала слишком короткое' })
@@ -25,6 +26,7 @@ let CourseValidator = class CourseValidator extends Validator {
     });
     chapterScheme = z.object({
         id: z.string().ulid().optional(),
+        slug: z.string().optional().nullable(),
         name: z
             .string()
             .min(1, { message: 'Название главы слишком короткое' })
@@ -36,6 +38,7 @@ let CourseValidator = class CourseValidator extends Validator {
     });
     courseScheme = z.object({
         id: z.string().ulid().optional(),
+        slug: z.string().optional().nullable(),
         name: z
             .string()
             .min(1, { message: 'Название курса слишком короткое' })

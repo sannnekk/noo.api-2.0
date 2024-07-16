@@ -145,6 +145,18 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse(error);
         }
     }
+    async unarchive(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.mentor(context);
+            const workId = this.assignedWorkValidator.parseId(context.params.id);
+            await this.assignedWorkService.unarchiveWork(workId);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
     async transfer(context) {
         try {
             await Asserts.isAuthenticated(context);
@@ -256,6 +268,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], AssignedWorkController.prototype, "archive", null);
+__decorate([
+    Patch('/:id/unarchive'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], AssignedWorkController.prototype, "unarchive", null);
 __decorate([
     Patch('/:workId/transfer/:mentorId'),
     __metadata("design:type", Function),

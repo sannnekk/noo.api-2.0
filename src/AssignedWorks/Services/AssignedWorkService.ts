@@ -473,6 +473,18 @@ export class AssignedWorkService extends Service<AssignedWork> {
     await this.assignedWorkRepository.update(foundWork)
   }
 
+  public async unarchiveWork(id: AssignedWork['id']) {
+    const foundWork = await this.getAssignedWork(id)
+
+    if (!foundWork) {
+      throw new NotFoundError()
+    }
+
+    foundWork.isArchived = false
+
+    await this.assignedWorkRepository.update(foundWork)
+  }
+
   public async transferWorkToAnotherMentor(
     workId: AssignedWork['id'],
     mentorId: AssignedWork['mentorIds'][0],
