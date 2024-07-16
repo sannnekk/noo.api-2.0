@@ -159,6 +159,42 @@ export class CourseController {
     }
   }
 
+  @Patch('/:courseSlug/add-students')
+  public async addStudents(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.teacher(context)
+      const courseSlug = this.courseValidator.parseSlug(
+        context.params.courseSlug
+      )
+      const { studentIds } = this.courseValidator.parseStudentIds(context.body)
+
+      await this.courseService.addStudents(courseSlug, studentIds)
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
+
+  @Patch('/:courseSlug/remove-students')
+  public async removeStudents(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.teacher(context)
+      const courseSlug = this.courseValidator.parseSlug(
+        context.params.courseSlug
+      )
+      const { studentIds } = this.courseValidator.parseStudentIds(context.body)
+
+      await this.courseService.removeStudents(courseSlug, studentIds)
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
+
   @Delete('/:id')
   public async delete(context: Context): Promise<ApiResponse> {
     try {

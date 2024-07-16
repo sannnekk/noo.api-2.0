@@ -98,6 +98,39 @@ export class CourseService extends Service {
             throw new UnknownError('Не удалось обновить список учеников');
         }
     }
+    async addStudents(courseSlug, studentIds) {
+        const queryBuilder = this.courseRepository.queryBuilder();
+        const course = await this.courseRepository.findOne({ slug: courseSlug });
+        if (!course) {
+            throw new NotFoundError('Курс не найден');
+        }
+        await queryBuilder
+            .relation(CourseModel, 'students')
+            .of(course)
+            .add(studentIds);
+    }
+    async addStudentsViaEmails(courseSlug, studentEmails) {
+        const queryBuilder = this.courseRepository.queryBuilder();
+        const course = await this.courseRepository.findOne({ slug: courseSlug });
+        if (!course) {
+            throw new NotFoundError('Курс не найден');
+        }
+        await queryBuilder
+            .relation(CourseModel, 'students')
+            .of(course)
+            .add(studentEmails.map((email) => ({ email })));
+    }
+    async removeStudents(courseSlug, studentIds) {
+        const queryBuilder = this.courseRepository.queryBuilder();
+        const course = await this.courseRepository.findOne({ slug: courseSlug });
+        if (!course) {
+            throw new NotFoundError('Курс не найден');
+        }
+        await queryBuilder
+            .relation(CourseModel, 'students')
+            .of(course)
+            .remove(studentIds);
+    }
     async assignWorkToMaterial(materialSlug, workId, solveDeadline, checkDeadline) {
         const material = await this.materialRepository.findOne({
             slug: materialSlug,

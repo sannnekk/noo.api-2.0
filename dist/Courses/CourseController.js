@@ -110,6 +110,32 @@ let CourseController = class CourseController {
             return new ApiResponse(error);
         }
     }
+    async addStudents(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.teacher(context);
+            const courseSlug = this.courseValidator.parseSlug(context.params.courseSlug);
+            const { studentIds } = this.courseValidator.parseStudentIds(context.body);
+            await this.courseService.addStudents(courseSlug, studentIds);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
+    async removeStudents(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.teacher(context);
+            const courseSlug = this.courseValidator.parseSlug(context.params.courseSlug);
+            const { studentIds } = this.courseValidator.parseStudentIds(context.body);
+            await this.courseService.removeStudents(courseSlug, studentIds);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
     async delete(context) {
         try {
             await Asserts.isAuthenticated(context);
@@ -165,6 +191,18 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "assignStudents", null);
+__decorate([
+    Patch('/:courseSlug/add-students'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "addStudents", null);
+__decorate([
+    Patch('/:courseSlug/remove-students'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "removeStudents", null);
 __decorate([
     Delete('/:id'),
     __metadata("design:type", Function),

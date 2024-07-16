@@ -23,7 +23,7 @@ export class WorkModel extends Model implements Work {
       this.set(data)
 
       if (data.tasks) {
-        this.tasks = data.tasks.map((chapter) => new WorkTaskModel(chapter))
+        this.tasks = data.tasks.map((task) => new WorkTaskModel(task))
       }
 
       if (!data.slug) {

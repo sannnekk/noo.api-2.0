@@ -160,6 +160,54 @@ export class CourseService extends Service<Course> {
     }
   }
 
+  public async addStudents(courseSlug: string, studentIds: User['id'][]) {
+    const queryBuilder = this.courseRepository.queryBuilder()
+
+    const course = await this.courseRepository.findOne({ slug: courseSlug })
+
+    if (!course) {
+      throw new NotFoundError('Курс не найден')
+    }
+
+    await queryBuilder
+      .relation(CourseModel, 'students')
+      .of(course)
+      .add(studentIds)
+  }
+
+  public async addStudentsViaEmails(
+    courseSlug: string,
+    studentEmails: User['email'][]
+  ) {
+    const queryBuilder = this.courseRepository.queryBuilder()
+
+    const course = await this.courseRepository.findOne({ slug: courseSlug })
+
+    if (!course) {
+      throw new NotFoundError('Курс не найден')
+    }
+
+    await queryBuilder
+      .relation(CourseModel, 'students')
+      .of(course)
+      .add(studentEmails.map((email) => ({ email })))
+  }
+
+  public async removeStudents(courseSlug: string, studentIds: User['id'][]) {
+    const queryBuilder = this.courseRepository.queryBuilder()
+
+    const course = await this.courseRepository.findOne({ slug: courseSlug })
+
+    if (!course) {
+      throw new NotFoundError('Курс не найден')
+    }
+
+    await queryBuilder
+      .relation(CourseModel, 'students')
+      .of(course)
+      .remove(studentIds)
+  }
+
   public async assignWorkToMaterial(
     materialSlug: string,
     workId: string,
