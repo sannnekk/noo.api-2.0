@@ -236,7 +236,7 @@ export class UserService extends Service<User> {
     }
 
     const existingEmail = await this.userRepository.findOne({
-      email: user.newEmail,
+      email: newEmail,
     })
 
     if (existingEmail) {

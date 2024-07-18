@@ -126,7 +126,7 @@ export class UserService extends Service {
             throw new NotFoundError('Пользователь не найден.');
         }
         const existingEmail = await this.userRepository.findOne({
-            email: user.newEmail,
+            email: newEmail,
         });
         if (existingEmail) {
             throw new AlreadyExistError('Аккаунт с такой почтой уже существует.');
