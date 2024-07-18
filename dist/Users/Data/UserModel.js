@@ -30,6 +30,7 @@ let UserModel = class UserModel extends Model {
     role;
     name;
     email;
+    newEmail;
     students;
     mentorId;
     mentor;
@@ -96,6 +97,14 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], UserModel.prototype, "email", void 0);
+__decorate([
+    Column({
+        name: 'new_email',
+        type: 'varchar',
+        nullable: true,
+    }),
+    __metadata("design:type", String)
+], UserModel.prototype, "newEmail", void 0);
 __decorate([
     OneToMany(() => UserModel, (user) => user.mentor),
     __metadata("design:type", Array)

@@ -13,17 +13,20 @@ import { Controller, Delete, Get, Patch, Post, } from 'express-controller-decora
 import { ApiResponse } from '../Core/Response/ApiResponse.js';
 import { UserValidator } from './UserValidator.js';
 import { UserService } from './Services/UserService.js';
+import { AuthService } from './Services/AuthService.js';
 let UserController = class UserController {
     userValidator;
     userService;
+    authService;
     constructor() {
         this.userValidator = new UserValidator();
         this.userService = new UserService();
+        this.authService = new AuthService();
     }
     async login(context) {
         try {
             const loginDTO = this.userValidator.parseLogin(context.body);
-            const payload = await this.userService.login(loginDTO);
+            const payload = await this.authService.login(loginDTO);
             return new ApiResponse({ data: payload });
         }
         catch (error) {
@@ -33,7 +36,7 @@ let UserController = class UserController {
     async register(context) {
         try {
             const registerDTO = this.userValidator.parseRegister(context.body);
-            await this.userService.register(registerDTO);
+            await this.authService.register(registerDTO);
             return new ApiResponse();
         }
         catch (error) {
@@ -43,7 +46,7 @@ let UserController = class UserController {
     async checkUsername(context) {
         try {
             const username = this.userValidator.parseSlug(context.params.username);
-            const exists = await this.userService.checkUsername(username);
+            const exists = await this.authService.checkUsername(username);
             return new ApiResponse({ data: { exists } });
         }
         catch (error) {
@@ -53,7 +56,7 @@ let UserController = class UserController {
     async resendVerification(context) {
         try {
             const resendVerificationDTO = this.userValidator.parseResendVerification(context.body);
-            await this.userService.resendVerification(resendVerificationDTO.email);
+            await this.authService.resendVerification(resendVerificationDTO.email);
             return new ApiResponse();
         }
         catch (error) {
@@ -63,7 +66,17 @@ let UserController = class UserController {
     async verify(context) {
         try {
             const verificationDTO = this.userValidator.parseVerification(context.body);
-            await this.userService.verify(verificationDTO.username, verificationDTO.token);
+            await this.authService.verify(verificationDTO.username, verificationDTO.token);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
+    async verifyEmailChange(context) {
+        try {
+            const emailChangeVerificationDTO = this.userValidator.parseEmailChangeVerification(context.body);
+            await this.userService.confirmEmailUpdate(emailChangeVerificationDTO.username, emailChangeVerificationDTO.token);
             return new ApiResponse();
         }
         catch (error) {
@@ -73,7 +86,7 @@ let UserController = class UserController {
     async forgotPassword(context) {
         try {
             const forgotPasswordDTO = this.userValidator.validateForgotPassword(context.body);
-            await this.userService.forgotPassword(forgotPasswordDTO.email);
+            await this.authService.forgotPassword(forgotPasswordDTO.email);
             return new ApiResponse();
         }
         catch (error) {
@@ -96,7 +109,7 @@ let UserController = class UserController {
             await Asserts.isAuthenticated(context);
             Asserts.teacherOrAdmin(context);
             const username = this.userValidator.parseSlug(context.params.username);
-            await this.userService.verifyManual(username);
+            await this.authService.verifyManual(username);
             return new ApiResponse();
         }
         catch (error) {
@@ -194,6 +207,21 @@ let UserController = class UserController {
             return new ApiResponse(error);
         }
     }
+    async updateEmail(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            const id = this.userValidator.parseId(context.params.id);
+            const updateEmailDTO = this.userValidator.parseEmailUpdate(context.body);
+            if (!['teacher', 'admin'].includes(context.credentials.role)) {
+                Asserts.isAuthorized(context, id);
+            }
+            await this.userService.sendEmailUpdate(id, updateEmailDTO.email);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
     async assignMentor(context) {
         try {
             Asserts.notStudent(context);
@@ -251,6 +279,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "verify", null);
+__decorate([
+    Patch('/auth/verify-email-change'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "verifyEmailChange", null);
 __decorate([
     Post('/auth/forgot-password'),
     __metadata("design:type", Function),
@@ -311,6 +345,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "updateTelegram", null);
+__decorate([
+    Patch('/:id/email'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "updateEmail", null);
 __decorate([
     Patch('/:studentId/assign-mentor/:mentorId'),
     __metadata("design:type", Function),

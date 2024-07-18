@@ -1,6 +1,7 @@
 import Mailer from 'nodemailer';
 import path, { dirname } from 'path';
 import fs from 'fs';
+import { EmailSendFailedError } from '../Errors/EmailSendFailedError.js';
 export class EmailService {
     stylesTemplate = `
     <style>
@@ -93,6 +94,27 @@ export class EmailService {
       <a href="https://no-os.ru/oferta">Пользовательское соглашение</a>
     </div>
   ${this.stylesTemplate}`;
+    emailChangeTemplate = `
+    <h1><b>НОО.</b>Платформа - подтверждение смены почты</h1>
+    <br><br>
+    <p>Здравствуйте, {{name}}!</p>
+    <p>Для подтверждения смены почты на noo-school.ru перейдите по ссылке:</p>
+    <div class="button-container">
+      <a class="button" href="https://noo-school.ru/auth?verify-email-change=1&token={{token}}&username={{username}}">
+        Подтвердить смену почты
+      </a>
+    </div>
+    <p>
+      <br><br>
+      <i>Это письмо было отправлено автоматически. Пожалуйста, не отвечайте на него</i>
+    </p>
+    <div class="footer">
+      &copy; ${new Date().getFullYear()} НОО | 
+      <a href="https://noo-school.ru">noo-school.ru</a>
+      <a href="https://no-os.ru/confidentiality">Политика конфиденциальности</a> |
+      <a href="https://no-os.ru/oferta">Пользовательское соглашение</a>
+    </div>
+  ${this.stylesTemplate}`;
     async sendForgotPasswordEmail(email, name, newPassword) {
         const subject = 'НОО.Платформа - Восстановление пароля';
         const htmlTemplate = this.forgotPasswordTemplate
@@ -107,6 +129,14 @@ export class EmailService {
             .replaceAll('{{name}}', name)
             .replaceAll('{{username}}', username);
         await this.sendEmail(email, subject, htmlTemplate);
+    }
+    async sendEmailChangeConfirmation(name, newEmail, username, token) {
+        const subject = 'НОО.Платформа - Подтверждение смены почты';
+        const htmlTemplate = this.emailChangeTemplate
+            .replaceAll('{{token}}', token)
+            .replaceAll('{{name}}', name)
+            .replaceAll('{{username}}', username);
+        await this.sendEmail(newEmail, subject, htmlTemplate);
     }
     async sendEmail(email, subject, htmlTemplate) {
         if (process.env.NODE_ENV === 'test') {
@@ -129,7 +159,12 @@ export class EmailService {
             subject,
             html: htmlTemplate,
         };
-        await transport.sendMail(mailOptions);
+        try {
+            await transport.sendMail(mailOptions);
+        }
+        catch (error) {
+            throw new EmailSendFailedError(error);
+        }
     }
     async mockSendEmail(email, subject, htmlTemplate) {
         // save email to file in test/email

@@ -1,6 +1,7 @@
 import Mailer from 'nodemailer'
 import path, { dirname } from 'path'
 import fs from 'fs'
+import { EmailSendFailedError } from '../Errors/EmailSendFailedError'
 
 export class EmailService {
   private readonly stylesTemplate = `
@@ -97,6 +98,28 @@ export class EmailService {
     </div>
   ${this.stylesTemplate}`
 
+  private readonly emailChangeTemplate = `
+    <h1><b>НОО.</b>Платформа - подтверждение смены почты</h1>
+    <br><br>
+    <p>Здравствуйте, {{name}}!</p>
+    <p>Для подтверждения смены почты на noo-school.ru перейдите по ссылке:</p>
+    <div class="button-container">
+      <a class="button" href="https://noo-school.ru/auth?verify-email-change=1&token={{token}}&username={{username}}">
+        Подтвердить смену почты
+      </a>
+    </div>
+    <p>
+      <br><br>
+      <i>Это письмо было отправлено автоматически. Пожалуйста, не отвечайте на него</i>
+    </p>
+    <div class="footer">
+      &copy; ${new Date().getFullYear()} НОО | 
+      <a href="https://noo-school.ru">noo-school.ru</a>
+      <a href="https://no-os.ru/confidentiality">Политика конфиденциальности</a> |
+      <a href="https://no-os.ru/oferta">Пользовательское соглашение</a>
+    </div>
+  ${this.stylesTemplate}`
+
   public async sendForgotPasswordEmail(
     email: string,
     name: string,
@@ -123,6 +146,21 @@ export class EmailService {
       .replaceAll('{{username}}', username)
 
     await this.sendEmail(email, subject, htmlTemplate)
+  }
+
+  public async sendEmailChangeConfirmation(
+    name: string,
+    newEmail: string,
+    username: string,
+    token: string
+  ): Promise<void> {
+    const subject = 'НОО.Платформа - Подтверждение смены почты'
+    const htmlTemplate = this.emailChangeTemplate
+      .replaceAll('{{token}}', token)
+      .replaceAll('{{name}}', name)
+      .replaceAll('{{username}}', username)
+
+    await this.sendEmail(newEmail, subject, htmlTemplate)
   }
 
   private async sendEmail(
@@ -153,7 +191,11 @@ export class EmailService {
       html: htmlTemplate,
     }
 
-    await transport.sendMail(mailOptions)
+    try {
+      await transport.sendMail(mailOptions)
+    } catch (error: any) {
+      throw new EmailSendFailedError(error)
+    }
   }
 
   private async mockSendEmail(

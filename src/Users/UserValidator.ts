@@ -9,6 +9,8 @@ import { VerificationDTO } from './DTO/VerificationDTO'
 import { RegisterDTO } from './DTO/RegisterDTO'
 import { UpdateUserDTO } from './DTO/UpdateUserDTO'
 import { UpdateTelegramDTO } from './DTO/UpdateTelegramDTO'
+import { EmailChangeVerificationDTO } from './DTO/EmailChangeVerificationDTO'
+import { UpdateEmailDTO } from './DTO/UpdateEmailDTO'
 
 @ErrorConverter()
 export class UserValidator extends Validator {
@@ -83,6 +85,16 @@ export class UserValidator extends Validator {
     username: this.usernameScheme,
   })
 
+  public emailUpdateScheme = z.object({ email: this.emailScheme })
+
+  public emailChangeVerificationScheme = z.object({
+    token: z
+      .string()
+      .min(8, { message: 'Неверный токен' })
+      .max(255, { message: 'Неверный токен' }),
+    username: this.usernameScheme,
+  })
+
   public resendVerificationScheme = z.object({
     email: this.emailScheme,
   })
@@ -103,6 +115,15 @@ export class UserValidator extends Validator {
     return this.parse<VerificationDTO>(data, this.verificationScheme)
   }
 
+  public parseEmailChangeVerification(
+    data: unknown
+  ): EmailChangeVerificationDTO {
+    return this.parse<EmailChangeVerificationDTO>(
+      data,
+      this.emailChangeVerificationScheme
+    )
+  }
+
   public parseResendVerification(data: unknown): ResendVerificationDTO {
     return this.parse<ResendVerificationDTO>(
       data,
@@ -116,6 +137,10 @@ export class UserValidator extends Validator {
 
   public parseTelegramUpdate(data: unknown): UpdateTelegramDTO {
     return this.parse<UpdateTelegramDTO>(data, this.telegramUpdate)
+  }
+
+  public parseEmailUpdate(data: unknown): UpdateEmailDTO {
+    return this.parse<UpdateEmailDTO>(data, this.emailUpdateScheme)
   }
 
   public validateForgotPassword(data: unknown): ForgotPasswordDTO {

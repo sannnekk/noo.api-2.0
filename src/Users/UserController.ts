@@ -10,6 +10,7 @@ import {
 import { ApiResponse } from '@modules/Core/Response/ApiResponse'
 import { UserValidator } from './UserValidator'
 import { UserService } from './Services/UserService'
+import { AuthService } from './Services/AuthService'
 
 @Controller('/user')
 export class UserController {
@@ -17,9 +18,12 @@ export class UserController {
 
   private readonly userService: UserService
 
+  private readonly authService: AuthService
+
   constructor() {
     this.userValidator = new UserValidator()
     this.userService = new UserService()
+    this.authService = new AuthService()
   }
 
   @Post('/auth/login')
@@ -27,7 +31,7 @@ export class UserController {
     try {
       const loginDTO = this.userValidator.parseLogin(context.body)
 
-      const payload = await this.userService.login(loginDTO)
+      const payload = await this.authService.login(loginDTO)
 
       return new ApiResponse({ data: payload })
     } catch (error: any) {
@@ -39,7 +43,7 @@ export class UserController {
   async register(context: Context): Promise<ApiResponse> {
     try {
       const registerDTO = this.userValidator.parseRegister(context.body)
-      await this.userService.register(registerDTO)
+      await this.authService.register(registerDTO)
 
       return new ApiResponse()
     } catch (error: any) {
@@ -52,7 +56,7 @@ export class UserController {
     try {
       const username = this.userValidator.parseSlug(context.params.username)
 
-      const exists = await this.userService.checkUsername(username)
+      const exists = await this.authService.checkUsername(username)
 
       return new ApiResponse({ data: { exists } })
     } catch (error: any) {
@@ -66,7 +70,7 @@ export class UserController {
       const resendVerificationDTO = this.userValidator.parseResendVerification(
         context.body
       )
-      await this.userService.resendVerification(resendVerificationDTO.email)
+      await this.authService.resendVerification(resendVerificationDTO.email)
 
       return new ApiResponse()
     } catch (error: any) {
@@ -79,9 +83,26 @@ export class UserController {
     try {
       const verificationDTO = this.userValidator.parseVerification(context.body)
 
-      await this.userService.verify(
+      await this.authService.verify(
         verificationDTO.username,
         verificationDTO.token
+      )
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
+
+  @Patch('/auth/verify-email-change')
+  async verifyEmailChange(context: Context): Promise<ApiResponse> {
+    try {
+      const emailChangeVerificationDTO =
+        this.userValidator.parseEmailChangeVerification(context.body)
+
+      await this.userService.confirmEmailUpdate(
+        emailChangeVerificationDTO.username,
+        emailChangeVerificationDTO.token
       )
 
       return new ApiResponse()
@@ -97,7 +118,7 @@ export class UserController {
         context.body
       )
 
-      await this.userService.forgotPassword(forgotPasswordDTO.email)
+      await this.authService.forgotPassword(forgotPasswordDTO.email)
 
       return new ApiResponse()
     } catch (error: any) {
@@ -127,7 +148,7 @@ export class UserController {
 
       const username = this.userValidator.parseSlug(context.params.username)
 
-      await this.userService.verifyManual(username)
+      await this.authService.verifyManual(username)
 
       return new ApiResponse()
     } catch (error: any) {
@@ -252,6 +273,25 @@ export class UserController {
       }
 
       await this.userService.updateTelegram(id, updateTelegramDTO)
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
+
+  @Patch('/:id/email')
+  async updateEmail(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      const id = this.userValidator.parseId(context.params.id)
+      const updateEmailDTO = this.userValidator.parseEmailUpdate(context.body)
+
+      if (!['teacher', 'admin'].includes(context.credentials!.role)) {
+        Asserts.isAuthorized(context, id)
+      }
+
+      await this.userService.sendEmailUpdate(id, updateEmailDTO.email)
 
       return new ApiResponse()
     } catch (error: any) {

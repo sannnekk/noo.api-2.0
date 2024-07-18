@@ -68,6 +68,14 @@ let UserValidator = class UserValidator extends Validator {
             .max(255, { message: 'Неверный токен' }),
         username: this.usernameScheme,
     });
+    emailUpdateScheme = z.object({ email: this.emailScheme });
+    emailChangeVerificationScheme = z.object({
+        token: z
+            .string()
+            .min(8, { message: 'Неверный токен' })
+            .max(255, { message: 'Неверный токен' }),
+        username: this.usernameScheme,
+    });
     resendVerificationScheme = z.object({
         email: this.emailScheme,
     });
@@ -83,6 +91,9 @@ let UserValidator = class UserValidator extends Validator {
     parseVerification(data) {
         return this.parse(data, this.verificationScheme);
     }
+    parseEmailChangeVerification(data) {
+        return this.parse(data, this.emailChangeVerificationScheme);
+    }
     parseResendVerification(data) {
         return this.parse(data, this.resendVerificationScheme);
     }
@@ -91,6 +102,9 @@ let UserValidator = class UserValidator extends Validator {
     }
     parseTelegramUpdate(data) {
         return this.parse(data, this.telegramUpdate);
+    }
+    parseEmailUpdate(data) {
+        return this.parse(data, this.emailUpdateScheme);
     }
     validateForgotPassword(data) {
         return this.parse(data, this.forgotPasswordScheme);

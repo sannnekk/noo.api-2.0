@@ -72,6 +72,13 @@ export class UserModel extends Model implements User {
   })
   email!: string
 
+  @Column({
+    name: 'new_email',
+    type: 'varchar',
+    nullable: true,
+  })
+  newEmail?: string
+
   @OneToMany(() => UserModel, (user) => user.mentor)
   students?: User[]
 
