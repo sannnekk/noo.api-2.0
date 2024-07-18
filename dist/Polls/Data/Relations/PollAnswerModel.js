@@ -46,7 +46,7 @@ let PollAnswerModel = class PollAnswerModel extends Model {
     }
     rating;
     static entriesToSearch() {
-        return ['userAuthIdentifier', 'text'];
+        return ['userAuthIdentifier', 'userAuthData', 'text'];
     }
 };
 __decorate([

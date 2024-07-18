@@ -141,8 +141,11 @@ export class PollService extends Service<Poll | PollAnswer | User> {
           return acc
         }
 
-        // @ts-expect-error TypeORM doesn't support union types
-        const data = JSON.parse(answer.userAuthData)
+        let data = null
+
+        try {
+          data = JSON.parse(answer.userAuthData as any as string)
+        } catch (error) {}
 
         acc[answer.userAuthIdentifier as string] = {
           identifier: answer.userAuthIdentifier,
@@ -240,7 +243,8 @@ export class PollService extends Service<Poll | PollAnswer | User> {
           userAuthData: this.removeEmojisAndNonUTF8(
             JSON.stringify(answer.userAuthData)
           ) as any,
-          userAuthIdentifier: answer.userAuthData!.username as string,
+          userAuthIdentifier: (answer.userAuthData!.username ||
+            '_telegram_id_' + answer.userAuthData!.id) as string,
         }
       }
 

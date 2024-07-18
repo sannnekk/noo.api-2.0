@@ -145,9 +145,15 @@ export class TaskService {
 
     let missingLetters = 0
 
-    for (let i = 0; i < word.length; i++) {
-      if (!exact.includes(word[i])) {
-        missingLetters++
+    if (exact.length < word.length) {
+      for (let i = 0; i < word.length; i++) {
+        if (!exact.includes(word[i])) {
+          missingLetters++
+        }
+      }
+
+      if (word.length - exact.length !== missingLetters) {
+        return 0
       }
     }
 

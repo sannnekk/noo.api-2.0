@@ -122,6 +122,6 @@ export class PollAnswerModel extends Model implements PollAnswer {
   rating?: number | undefined
 
   public static entriesToSearch() {
-    return ['userAuthIdentifier', 'text']
+    return ['userAuthIdentifier', 'userAuthData', 'text']
   }
 }
