@@ -18,6 +18,7 @@ export interface CourseMaterial {
   workSolveDeadline?: Date
   workCheckDeadline?: Date
   files: Media[]
+  isActive: boolean
   createdAt: Date
   updatedAt: Date
 }

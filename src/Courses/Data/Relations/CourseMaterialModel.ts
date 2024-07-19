@@ -21,7 +21,9 @@ export class CourseMaterialModel extends Model implements CourseMaterial {
         this.slug = this.sluggify(this.name)
       }
 
-      this.files = (data.files || []).map((file) => new MediaModel(file))
+      if (data.files) {
+        this.files = data.files.map((file) => new MediaModel(file))
+      }
     }
   }
 
@@ -69,6 +71,13 @@ export class CourseMaterialModel extends Model implements CourseMaterial {
     default: 0,
   })
   order: number = 0
+
+  @Column({
+    name: 'is_active',
+    type: 'boolean',
+    default: false,
+  })
+  isActive!: boolean
 
   @ManyToOne(
     () => CourseChapterModel,

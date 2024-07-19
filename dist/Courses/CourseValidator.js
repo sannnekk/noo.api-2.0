@@ -20,6 +20,7 @@ let CourseValidator = class CourseValidator extends Validator {
             message: 'Название материала не может быть длиннее 255 символов',
         }),
         order: z.number(),
+        isActive: z.boolean().optional(),
         description: z.string().nullable().optional(),
         content: DeltaScheme,
         files: z.array(MediaScheme),
@@ -34,6 +35,7 @@ let CourseValidator = class CourseValidator extends Validator {
             message: 'Название главы не может быть длиннее 255 символов',
         }),
         order: z.number(),
+        isActive: z.boolean().optional(),
         materials: z.array(this.materialScheme),
     });
     courseScheme = z.object({
@@ -63,6 +65,9 @@ let CourseValidator = class CourseValidator extends Validator {
     });
     parseCreation(course) {
         return this.parse(course, this.courseScheme);
+    }
+    parseChapterCreation(chapter) {
+        return this.parse(chapter, this.chapterScheme);
     }
     parseUpdate(course) {
         return this.parse(course, this.courseScheme);

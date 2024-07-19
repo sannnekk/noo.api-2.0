@@ -10,6 +10,7 @@ import { AssignedWorkRepository } from '../../AssignedWorks/Data/AssignedWorkRep
 import { CourseMaterialRepository } from '../Data/CourseMaterialRepository.js';
 import { CourseModel } from '../Data/CourseModel.js';
 import { CourseRepository } from '../Data/CourseRepository.js';
+import { CourseChapterModel } from '../Data/Relations/CourseChapterModel.js';
 export class CourseService extends Service {
     courseRepository;
     materialRepository;
@@ -45,8 +46,19 @@ export class CourseService extends Service {
         }
         return { courses, meta };
     }
-    async getBySlug(slug) {
-        const course = await this.courseRepository.findOne({ slug }, ['chapters.materials.work', 'author'], {
+    async getBySlug(slug, role) {
+        const condition = {
+            slug,
+            chapters: role === 'student'
+                ? {
+                    isActive: true,
+                    materials: {
+                        isActive: true,
+                    },
+                }
+                : undefined,
+        };
+        const course = await this.courseRepository.findOne(condition, ['chapters.materials.work', 'author'], {
             chapters: {
                 order: 'ASC',
                 materials: {
@@ -159,6 +171,16 @@ export class CourseService extends Service {
             }
             throw new UnknownError();
         }
+    }
+    async createChapter(courseSlug, chapter) {
+        const course = await this.courseRepository.findOne({ slug: courseSlug }, [
+            'chapters',
+        ]);
+        if (!course) {
+            throw new NotFoundError();
+        }
+        course.chapters.push(new CourseChapterModel(chapter));
+        await this.courseRepository.update(course);
     }
     async delete(id) {
         const course = await this.courseRepository.findOne({

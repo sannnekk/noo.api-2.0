@@ -35,7 +35,7 @@ let CourseController = class CourseController {
         try {
             await Asserts.isAuthenticated(context);
             const courseSlug = this.courseValidator.parseSlug(context.params.slug);
-            const course = await this.courseService.getBySlug(courseSlug);
+            const course = await this.courseService.getBySlug(courseSlug, context.credentials.role);
             if (context.credentials.role === 'student' ||
                 context.credentials.role == 'mentor') {
                 course.studentIds = [];
@@ -64,6 +64,19 @@ let CourseController = class CourseController {
             Asserts.teacher(context);
             const courseCreationOptions = this.courseValidator.parseCreation(context.body);
             await this.courseService.create(courseCreationOptions, context.credentials.userId);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
+    async createChapter(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.teacher(context);
+            const courseSlug = this.courseValidator.parseSlug(context.params.courseSlug);
+            const chapter = this.courseValidator.parseChapterCreation(context.body);
+            await this.courseService.createChapter(courseSlug, chapter);
             return new ApiResponse();
         }
         catch (error) {
@@ -173,6 +186,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "create", null);
+__decorate([
+    Post('/:courseSlug/chapter'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "createChapter", null);
 __decorate([
     Patch('/:id'),
     __metadata("design:type", Function),

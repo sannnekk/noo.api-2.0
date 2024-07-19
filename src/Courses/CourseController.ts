@@ -46,7 +46,10 @@ export class CourseController {
       await Asserts.isAuthenticated(context)
       const courseSlug = this.courseValidator.parseSlug(context.params.slug)
 
-      const course = await this.courseService.getBySlug(courseSlug)
+      const course = await this.courseService.getBySlug(
+        courseSlug,
+        context.credentials!.role
+      )
 
       if (
         context.credentials!.role === 'student' ||
@@ -92,6 +95,24 @@ export class CourseController {
         courseCreationOptions,
         context.credentials.userId
       )
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
+
+  @Post('/:courseSlug/chapter')
+  public async createChapter(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.teacher(context)
+      const courseSlug = this.courseValidator.parseSlug(
+        context.params.courseSlug
+      )
+      const chapter = this.courseValidator.parseChapterCreation(context.body)
+
+      await this.courseService.createChapter(courseSlug, chapter)
 
       return new ApiResponse()
     } catch (error: any) {

@@ -18,7 +18,9 @@ let CourseChapterModel = class CourseChapterModel extends Model {
         super();
         if (data) {
             this.set(data);
-            this.materials = (data.materials || []).map((chapter) => new CourseMaterialModel(chapter));
+            if (data.materials) {
+                this.materials = data.materials.map((material) => new CourseMaterialModel(material));
+            }
             if (!data.slug) {
                 this.slug = this.sluggify(this.name);
             }
@@ -27,6 +29,7 @@ let CourseChapterModel = class CourseChapterModel extends Model {
     name;
     slug;
     order;
+    isActive;
     course;
     courseId;
     materials;
@@ -56,6 +59,14 @@ __decorate([
     }),
     __metadata("design:type", Number)
 ], CourseChapterModel.prototype, "order", void 0);
+__decorate([
+    Column({
+        name: 'is_active',
+        type: 'boolean',
+        default: false,
+    }),
+    __metadata("design:type", Boolean)
+], CourseChapterModel.prototype, "isActive", void 0);
 __decorate([
     ManyToOne(() => CourseModel, (course) => course.chapters, {
         onDelete: 'CASCADE',

@@ -22,7 +22,9 @@ let CourseMaterialModel = class CourseMaterialModel extends Model {
             if (!data.slug) {
                 this.slug = this.sluggify(this.name);
             }
-            this.files = (data.files || []).map((file) => new MediaModel(file));
+            if (data.files) {
+                this.files = data.files.map((file) => new MediaModel(file));
+            }
         }
     }
     slug;
@@ -32,6 +34,7 @@ let CourseMaterialModel = class CourseMaterialModel extends Model {
     workSolveDeadline;
     workCheckDeadline;
     order = 0;
+    isActive;
     chapter;
     chapterId;
     work;
@@ -93,6 +96,14 @@ __decorate([
     }),
     __metadata("design:type", Number)
 ], CourseMaterialModel.prototype, "order", void 0);
+__decorate([
+    Column({
+        name: 'is_active',
+        type: 'boolean',
+        default: false,
+    }),
+    __metadata("design:type", Boolean)
+], CourseMaterialModel.prototype, "isActive", void 0);
 __decorate([
     ManyToOne(() => CourseChapterModel, (chapter) => chapter.materials, {
         onDelete: 'CASCADE',

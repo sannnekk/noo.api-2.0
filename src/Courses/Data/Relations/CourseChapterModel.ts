@@ -20,9 +20,11 @@ export class CourseChapterModel extends Model implements CourseChapter {
     if (data) {
       this.set(data)
 
-      this.materials = (data.materials || []).map(
-        (chapter) => new CourseMaterialModel(chapter)
-      )
+      if (data.materials) {
+        this.materials = data.materials.map(
+          (material) => new CourseMaterialModel(material)
+        )
+      }
 
       if (!data.slug) {
         this.slug = this.sluggify(this.name)
@@ -47,6 +49,13 @@ export class CourseChapterModel extends Model implements CourseChapter {
     type: 'int',
   })
   order!: number
+
+  @Column({
+    name: 'is_active',
+    type: 'boolean',
+    default: false,
+  })
+  isActive!: boolean
 
   @ManyToOne(() => CourseModel, (course: Course) => course.chapters, {
     onDelete: 'CASCADE',

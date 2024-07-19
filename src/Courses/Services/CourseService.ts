@@ -15,6 +15,8 @@ import { CourseModel } from '../Data/CourseModel'
 import { Course } from '../Data/Course'
 import { CourseRepository } from '../Data/CourseRepository'
 import { CourseUpdateDTO } from '../DTO/CourseUpdateDTO'
+import { CourseChapter } from '../Data/Relations/CourseChapter'
+import { CourseChapterModel } from '../Data/Relations/CourseChapterModel'
 
 export class CourseService extends Service<Course> {
   private readonly courseRepository: CourseRepository
@@ -51,8 +53,8 @@ export class CourseService extends Service<Course> {
       conditions = {
         students: {
           id: userId,
-        } as any,
-      }
+        },
+      } as any
     }
 
     const relations: (keyof Course)[] = ['author']
@@ -79,9 +81,22 @@ export class CourseService extends Service<Course> {
     return { courses, meta }
   }
 
-  public async getBySlug(slug: string): Promise<Course> {
+  public async getBySlug(slug: string, role: User['role']): Promise<Course> {
+    const condition = {
+      slug,
+      chapters:
+        role === 'student'
+          ? {
+              isActive: true,
+              materials: {
+                isActive: true,
+              },
+            }
+          : undefined,
+    }
+
     const course = await this.courseRepository.findOne(
-      { slug },
+      condition,
       ['chapters.materials.work' as any, 'author'],
       {
         chapters: {
@@ -254,6 +269,23 @@ export class CourseService extends Service<Course> {
 
       throw new UnknownError()
     }
+  }
+
+  public async createChapter(
+    courseSlug: Course['slug'],
+    chapter: CourseChapter
+  ) {
+    const course = await this.courseRepository.findOne({ slug: courseSlug }, [
+      'chapters',
+    ])
+
+    if (!course) {
+      throw new NotFoundError()
+    }
+
+    course.chapters!.push(new CourseChapterModel(chapter))
+
+    await this.courseRepository.update(course)
   }
 
   public async delete(id: Course['id']): Promise<void> {

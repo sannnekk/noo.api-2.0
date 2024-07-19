@@ -19,8 +19,12 @@ let CourseModel = class CourseModel extends Model {
         super();
         if (data) {
             this.set(data);
-            this.chapters = (data.chapters || []).map((chapter) => new CourseChapterModel(chapter));
-            this.images = (data.images || []).map((image) => new MediaModel(image));
+            if (data.chapters) {
+                this.chapters = data.chapters.map((chapter) => new CourseChapterModel(chapter));
+            }
+            if (data.images) {
+                this.images = data.images.map((image) => new MediaModel(image));
+            }
             if (!data.slug) {
                 this.slug = this.sluggify(this.name);
             }

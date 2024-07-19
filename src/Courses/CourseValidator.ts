@@ -7,6 +7,7 @@ import { MediaScheme } from '@modules/Media/MediaScheme'
 import { AssignWorkOptions } from './DTO/AssignWorkOptions'
 import { CourseCreationDTO } from './DTO/CourseCreationDTO'
 import { CourseUpdateDTO } from './DTO/CourseUpdateDTO'
+import { CourseChapter } from './Data/Relations/CourseChapter'
 
 @ErrorConverter()
 export class CourseValidator extends Validator {
@@ -20,6 +21,7 @@ export class CourseValidator extends Validator {
         message: 'Название материала не может быть длиннее 255 символов',
       }),
     order: z.number(),
+    isActive: z.boolean().optional(),
     description: z.string().nullable().optional(),
     content: DeltaScheme,
     files: z.array(MediaScheme),
@@ -35,6 +37,7 @@ export class CourseValidator extends Validator {
         message: 'Название главы не может быть длиннее 255 символов',
       }),
     order: z.number(),
+    isActive: z.boolean().optional(),
     materials: z.array(this.materialScheme),
   })
 
@@ -68,6 +71,10 @@ export class CourseValidator extends Validator {
 
   public parseCreation(course: unknown): CourseCreationDTO {
     return this.parse<CourseCreationDTO>(course, this.courseScheme)
+  }
+
+  public parseChapterCreation(chapter: unknown): CourseChapter {
+    return this.parse<CourseChapter>(chapter, this.chapterScheme)
   }
 
   public parseUpdate(course: unknown): CourseUpdateDTO {
