@@ -15,6 +15,7 @@ import { BlogPostModel } from '../../Blog/Data/BlogPostModel.js';
 import { BlogPostReactionModel } from '../../Blog/Data/Relations/BlogPostReactionModel.js';
 import { PollAnswerModel } from '../../Polls/Data/Relations/PollAnswerModel.js';
 import { PollModel } from '../../Polls/Data/PollModel.js';
+import { SessionModel } from '../../Sessions/Data/SessionModel.js';
 let UserModel = class UserModel extends Model {
     constructor(data) {
         super();
@@ -43,6 +44,7 @@ let UserModel = class UserModel extends Model {
     blogPostReactions;
     pollAnswers;
     votedPolls;
+    sessions;
     telegramId;
     telegramUsername;
     telegramAvatarUrl;
@@ -154,6 +156,10 @@ __decorate([
     ManyToMany(() => PollModel, (poll) => poll.votedUsers),
     __metadata("design:type", Array)
 ], UserModel.prototype, "votedPolls", void 0);
+__decorate([
+    OneToMany(() => SessionModel, (session) => session.user),
+    __metadata("design:type", Array)
+], UserModel.prototype, "sessions", void 0);
 __decorate([
     Column({
         name: 'telegram_id',

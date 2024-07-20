@@ -4,6 +4,7 @@ import * as ULID from '@modules/Core/Data/Ulid'
 import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
 import { Course } from '@modules/Courses/Data/Course'
 import { Poll } from '@modules/Polls/Data/Poll'
+import { Session } from '@modules/Sessions/Data/Session'
 
 export interface User extends BaseModel {
   slug: string
@@ -29,4 +30,5 @@ export interface User extends BaseModel {
   assignedWorksAsStudent?: AssignedWork[] | undefined
   assignedWorksAsMentor?: AssignedWork[] | undefined
   votedPolls?: Poll[]
+  sessions?: Session[]
 }

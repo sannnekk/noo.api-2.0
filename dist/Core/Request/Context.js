@@ -2,19 +2,25 @@ import { UserRepository } from '../../Users/Data/UserRepository.js';
 import { parseHeader } from '../Security/jwt.js';
 import { RoleChangedButNotReloggedInError } from '../Errors/RoleChangedButNotReloggedInError.js';
 import { MediaHandler } from './MediaHandler.js';
+import { parseUserAgent } from '../Utils/userAgent.js';
+import { SessionService } from '../../Sessions/Services/SessionService.js';
 export class Context {
     params;
     body;
     credentials;
     query;
     _req;
+    info;
     userRepository;
+    sessionService;
     constructor(req) {
         this._req = req;
         this.userRepository = new UserRepository();
+        this.sessionService = new SessionService();
         this.body = req.body;
         this.params = req.params;
         this.query = req.query;
+        this.info = this.getRequestInfo(req);
         const authHeader = req.headers.authorization;
         if (!authHeader) {
             return;
@@ -43,6 +49,11 @@ export class Context {
         if (claimedRole !== user.role) {
             throw new RoleChangedButNotReloggedInError();
         }
+        const session = await this.sessionService.getCurrentSession(this);
+        if (!session) {
+            return false;
+        }
+        await this.sessionService.updateSession(session, this);
         return true;
     }
     async getFiles() {
@@ -57,5 +68,21 @@ export class Context {
                 }
             });
         });
+    }
+    getRequestInfo(req) {
+        const userAgent = req.header('User-Agent') || '';
+        const isMobile = /Mobi/.test(userAgent);
+        const ipAddress = req.ip || '';
+        const browser = parseUserAgent(req.header('User-Agent') || '').browser || '';
+        const os = parseUserAgent(req.header('User-Agent') || '').os || '';
+        const device = parseUserAgent(req.header('User-Agent') || '').device || '';
+        return {
+            userAgent,
+            isMobile,
+            ipAddress,
+            browser,
+            os,
+            device,
+        };
     }
 }

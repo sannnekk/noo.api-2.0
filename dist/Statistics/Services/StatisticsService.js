@@ -2,7 +2,6 @@ import { UserRepository } from '../../Users/Data/UserRepository.js';
 import { WrongRoleError } from '../../Core/Errors/WrongRoleError.js';
 import { Brackets } from 'typeorm';
 import { AssignedWorkModel } from '../../AssignedWorks/Data/AssignedWorkModel.js';
-import { UserModel } from '../../Users/Data/UserModel.js';
 import { PlotService } from './PlotService.js';
 import { AssignedWorkRepository } from '../../AssignedWorks/Data/AssignedWorkRepository.js';
 import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
@@ -86,17 +85,20 @@ export class StatisticsService {
             .getCount();
         const newUsersPerDay = (await userRepositoryQueryBuilder
             .clone()
-            .select('DATE_FORMAT(user.created_at, "%Y-%m-%d")', 'date')
-            .addSelect((subQuery) => {
-            return subQuery
-                .select('COUNT(*)')
-                .from(UserModel, 'user2')
-                .where('DATE(user2.created_at) <= DATE(user.created_at)');
-        }, 'count')
+            .select(['COUNT(user.id) as count', 'DATE(user.created_at) as date'])
             .groupBy('date')
-            .orderBy('date', 'ASC')
             .getRawMany()).map((item) => ({ date: new Date(item.date), count: item.count }));
         const newUsersPerDayPlot = this.plotService.generatePlot('Новые пользователи в день', newUsersPerDay, 'secondary', (e) => e.date.toISOString().split('T')[0], (e) => parseInt(e.count));
+        const worksSolvedPerDay = (await assignedWorkRepositoryQueryBuilder
+            .clone()
+            .select([
+            'COUNT(assigned_work.id) as count',
+            'DATE(assigned_work.checked_at) as date',
+        ])
+            .andWhere('assigned_work.checked_at IS NOT NULL')
+            .groupBy('date')
+            .getRawMany()).map((item) => ({ date: new Date(item.date), count: item.count }));
+        const worksSolvedPerDayPlot = this.plotService.generatePlot('Сдано работ в день', worksSolvedPerDay, 'secondary', (e) => e.date.toISOString().split('T')[0], (e) => parseInt(e.count));
         return {
             entries: [
                 {
@@ -148,7 +150,7 @@ export class StatisticsService {
                     value: checkedWorksInDateRange,
                 },
             ],
-            plots: [newUsersPerDayPlot],
+            plots: [newUsersPerDayPlot, worksSolvedPerDayPlot],
         };
     }
     async getMentorStatistics(mentorId, from, to, type) {

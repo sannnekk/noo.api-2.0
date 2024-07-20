@@ -143,7 +143,7 @@ export class AuthService extends Service<User> {
 
   public async login(
     credentials: LoginDTO
-  ): Promise<{ token: JWT.JWT; user: Partial<User> }> {
+  ): Promise<{ token: JWT.JWT; payload: JWT.JWTPayload; user: Partial<User> }> {
     const user = await this.userRepository.findOne(
       [
         {
@@ -182,6 +182,13 @@ export class AuthService extends Service<User> {
         permissions: user.forbidden || 0,
         isBlocked: user.isBlocked,
       }),
+      payload: {
+        userId: user.id,
+        username: user.username,
+        role: user.role,
+        permissions: user.forbidden || 0,
+        isBlocked: user.isBlocked,
+      },
       user,
     }
   }

@@ -16,9 +16,11 @@ import './Statistics/StatisticsController.js';
 import './Blog/BlogController.js';
 import './Polls/PollController.js';
 import './CRM/CRMController.js';
+import './Sessions/SessionsController.js';
 //import './GoogleDocs/GoogleDocsController.js'
 await CoreDataSource.initialize();
 const app = express();
+app.set('trust proxy', true);
 app.use(cors());
 app.use(express.json(config.expressJson));
 app.use(express.urlencoded(config.expressUrlencoded));

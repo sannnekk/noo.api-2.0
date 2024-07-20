@@ -61,7 +61,7 @@ export class UserService extends Service<User> {
     pagination = new Pagination().assign(pagination)
     pagination.entriesToSearch = UserModel.entriesToSearch()
 
-    const relations: (keyof User)[] = ['students', 'courses']
+    const relations: (keyof User)[] = ['students', 'courses', 'sessions']
 
     if (pagination.relationsToLoad.includes('mentor')) {
       relations.push('mentor')
@@ -80,7 +80,10 @@ export class UserService extends Service<User> {
       relations
     )
 
-    return { users, meta }
+    return {
+      users,
+      meta,
+    }
   }
 
   public async getStudentsOf(mentorId: User['id'], pagination?: Pagination) {

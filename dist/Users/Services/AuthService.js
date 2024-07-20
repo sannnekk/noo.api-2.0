@@ -122,6 +122,13 @@ export class AuthService extends Service {
                 permissions: user.forbidden || 0,
                 isBlocked: user.isBlocked,
             }),
+            payload: {
+                userId: user.id,
+                username: user.username,
+                role: user.role,
+                permissions: user.forbidden || 0,
+                isBlocked: user.isBlocked,
+            },
             user,
         };
     }

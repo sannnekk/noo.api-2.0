@@ -18,6 +18,7 @@ import { BlogPostReactionModel } from '@modules/Blog/Data/Relations/BlogPostReac
 import { PollModel } from '@modules/Polls/Data/PollModel'
 import { PollQuestionModel } from '@modules/Polls/Data/Relations/PollQuestionModel'
 import { PollAnswerModel } from '@modules/Polls/Data/Relations/PollAnswerModel'
+import { SessionModel } from '@modules/Sessions/Data/SessionModel'
 
 export const CoreDataSource = new DataSource({
   type: 'mysql',
@@ -47,6 +48,7 @@ export const CoreDataSource = new DataSource({
     PollAnswerModel,
     BlogPostReactionModel,
     BlogPostModel,
+    SessionModel,
   ],
   subscribers: [],
   migrations: [],

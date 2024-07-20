@@ -20,11 +20,14 @@ import '@modules/Statistics/StatisticsController'
 import '@modules/Blog/BlogController'
 import '@modules/Polls/PollController'
 import '@modules/CRM/CRMController'
+import '@modules/Sessions/SessionsController'
 //import '@modules/GoogleDocs/GoogleDocsController'
 
 await CoreDataSource.initialize()
 
 const app = express()
+
+app.set('trust proxy', true)
 
 app.use(cors())
 app.use(express.json(config.expressJson))

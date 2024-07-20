@@ -4,7 +4,6 @@ import { Brackets } from 'typeorm'
 import { AssignedWorkModel } from '@modules/AssignedWorks/Data/AssignedWorkModel'
 import { Work } from '@modules/Works/Data/Work'
 import { User } from '@modules/Users/Data/User'
-import { UserModel } from '@modules/Users/Data/UserModel'
 import { PlotService } from './PlotService'
 import { Statistics } from '../DTO/Statistics'
 import { AssignedWorkRepository } from '../../AssignedWorks/Data/AssignedWorkRepository'
@@ -119,15 +118,8 @@ export class StatisticsService {
     const newUsersPerDay = (
       await userRepositoryQueryBuilder
         .clone()
-        .select('DATE_FORMAT(user.created_at, "%Y-%m-%d")', 'date')
-        .addSelect((subQuery) => {
-          return subQuery
-            .select('COUNT(*)')
-            .from(UserModel, 'user2')
-            .where('DATE(user2.created_at) <= DATE(user.created_at)')
-        }, 'count')
+        .select(['COUNT(user.id) as count', 'DATE(user.created_at) as date'])
         .groupBy('date')
-        .orderBy('date', 'ASC')
         .getRawMany()
     ).map((item) => ({ date: new Date(item.date), count: item.count }))
 
@@ -136,6 +128,28 @@ export class StatisticsService {
     >(
       'Новые пользователи в день',
       newUsersPerDay,
+      'secondary',
+      (e) => e.date.toISOString().split('T')[0],
+      (e) => parseInt(e.count)
+    )
+
+    const worksSolvedPerDay = (
+      await assignedWorkRepositoryQueryBuilder
+        .clone()
+        .select([
+          'COUNT(assigned_work.id) as count',
+          'DATE(assigned_work.checked_at) as date',
+        ])
+        .andWhere('assigned_work.checked_at IS NOT NULL')
+        .groupBy('date')
+        .getRawMany()
+    ).map((item) => ({ date: new Date(item.date), count: item.count }))
+
+    const worksSolvedPerDayPlot = this.plotService.generatePlot<
+      (typeof worksSolvedPerDay)[0]
+    >(
+      'Сдано работ в день',
+      worksSolvedPerDay,
       'secondary',
       (e) => e.date.toISOString().split('T')[0],
       (e) => parseInt(e.count)
@@ -192,7 +206,7 @@ export class StatisticsService {
           value: checkedWorksInDateRange,
         },
       ],
-      plots: [newUsersPerDayPlot],
+      plots: [newUsersPerDayPlot, worksSolvedPerDayPlot],
     }
   }
 

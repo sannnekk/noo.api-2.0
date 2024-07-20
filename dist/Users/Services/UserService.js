@@ -42,13 +42,16 @@ export class UserService extends Service {
     async getUsers(pagination) {
         pagination = new Pagination().assign(pagination);
         pagination.entriesToSearch = UserModel.entriesToSearch();
-        const relations = ['students', 'courses'];
+        const relations = ['students', 'courses', 'sessions'];
         if (pagination.relationsToLoad.includes('mentor')) {
             relations.push('mentor');
         }
         const users = await this.userRepository.find(undefined, relations, pagination);
         const meta = await this.getRequestMeta(this.userRepository, undefined, pagination, relations);
-        return { users, meta };
+        return {
+            users,
+            meta,
+        };
     }
     async getStudentsOf(mentorId, pagination) {
         pagination = new Pagination().assign(pagination);

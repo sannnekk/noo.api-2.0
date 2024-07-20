@@ -22,6 +22,8 @@ import { PollAnswer } from '@modules/Polls/Data/Relations/PollAnswer'
 import { PollModel } from '@modules/Polls/Data/PollModel'
 import { Poll } from '@modules/Polls/Data/Poll'
 import type { User } from './User'
+import { SessionModel } from '@modules/Sessions/Data/SessionModel'
+import { Session } from '@modules/Sessions/Data/Session'
 
 @Entity('user')
 export class UserModel extends Model implements User {
@@ -115,6 +117,9 @@ export class UserModel extends Model implements User {
 
   @ManyToMany(() => PollModel, (poll) => poll.votedUsers)
   votedPolls!: Poll[]
+
+  @OneToMany(() => SessionModel, (session) => session.user)
+  sessions?: Session[]
 
   @Column({
     name: 'telegram_id',
