@@ -74,7 +74,7 @@ export class UserValidator extends Validator {
 
   public loginScheme = z.object({
     usernameOrEmail: this.usernameScheme.or(this.emailScheme),
-    password: this.passwordScheme,
+    password: z.string().min(5).max(128),
   })
 
   public verificationScheme = z.object({

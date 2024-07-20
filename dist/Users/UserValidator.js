@@ -59,7 +59,7 @@ let UserValidator = class UserValidator extends Validator {
     });
     loginScheme = z.object({
         usernameOrEmail: this.usernameScheme.or(this.emailScheme),
-        password: this.passwordScheme,
+        password: z.string().min(5).max(128),
     });
     verificationScheme = z.object({
         token: z
