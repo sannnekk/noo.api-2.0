@@ -93,7 +93,7 @@ export class CalenderService extends Service {
                 description: `Работа: ${work.work.name}`,
                 date: work.checkDeadlineAt,
                 url: `/assigned-works/${work.id}/check`,
-                visibility: 'all',
+                visibility: 'private',
                 type: 'mentor-deadline',
                 username: mentor.username,
                 assignedWork: work,
@@ -102,7 +102,7 @@ export class CalenderService extends Service {
     }
     async createWorkMadeEvent(work) {
         await this.calenderEventRepository.create(new CalenderEventModel({
-            title: 'Работа сдана',
+            title: `${work.student.name}: Работа сдана`,
             description: `Работа: ${work.work.name}`,
             date: work.solvedAt,
             url: `/assigned-works/${work.id}/read`,
@@ -113,15 +113,15 @@ export class CalenderService extends Service {
         }));
     }
     async createWorkCheckedEvent(work) {
-        await Promise.all((work.mentors || []).map((mentor) => {
+        await Promise.all([...(work.mentors || []), work.student].map((user) => {
             return this.calenderEventRepository.create(new CalenderEventModel({
-                title: 'Работа проверена',
+                title: `${work.student.name}: Работа проверена`,
                 description: `Работа: ${work.work.name}`,
                 date: work.checkedAt,
                 url: `/assigned-works/${work.id}/read`,
-                visibility: 'all',
+                visibility: 'private',
                 type: 'work-checked',
-                username: mentor.username,
+                username: user.username,
                 assignedWork: work,
             }));
         }));
