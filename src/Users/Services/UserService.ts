@@ -10,17 +10,24 @@ import { UserModel } from '../Data/UserModel'
 import { UpdateUserDTO } from '../DTO/UpdateUserDTO'
 import { UpdateTelegramDTO } from '../DTO/UpdateTelegramDTO'
 import { AlreadyExistError } from '@modules/Core/Errors/AlreadyExistError'
+import {
+  OnlineStatus,
+  SessionService,
+} from '@modules/Sessions/Services/SessionService'
 
 export class UserService extends Service<User> {
   private readonly userRepository: UserRepository
 
   private readonly emailService: EmailService
 
+  private readonly sessionService: SessionService
+
   constructor() {
     super()
 
     this.userRepository = new UserRepository()
     this.emailService = new EmailService()
+    this.sessionService = new SessionService()
   }
 
   public async assignMentor(studentId: User['id'], mentorId: User['id']) {
@@ -42,7 +49,7 @@ export class UserService extends Service<User> {
     await this.userRepository.update(student)
   }
 
-  public async getByUsername(username: string): Promise<User> {
+  public async getByUsername(username: string): Promise<User & OnlineStatus> {
     const user = await this.userRepository.findOne({ username }, [
       'students',
       'courses',
@@ -54,14 +61,16 @@ export class UserService extends Service<User> {
       throw new NotFoundError()
     }
 
-    return user
+    const onlineStatus = await this.sessionService.getOnlineStatus(user.id)
+
+    return { ...user, ...onlineStatus }
   }
 
   public async getUsers(pagination: Pagination | undefined) {
     pagination = new Pagination().assign(pagination)
     pagination.entriesToSearch = UserModel.entriesToSearch()
 
-    const relations: (keyof User)[] = ['students', 'courses']
+    const relations: (keyof User)[] = ['sessions']
 
     if (pagination.relationsToLoad.includes('mentor')) {
       relations.push('mentor')
@@ -81,7 +90,7 @@ export class UserService extends Service<User> {
     )
 
     return {
-      users,
+      users: this.withOnlineStatus(users),
       meta,
     }
   }
@@ -317,5 +326,11 @@ export class UserService extends Service<User> {
     }
 
     return Hash.hash(`${user.id}${user.email}${user.newEmail}`)
+  }
+
+  private withOnlineStatus(users: User[]): (User & OnlineStatus)[] {
+    return users.map((user) => {
+      return this.sessionService.getOnlineStatusForUser(user)
+    })
   }
 }

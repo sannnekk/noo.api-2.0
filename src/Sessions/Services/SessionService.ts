@@ -5,6 +5,14 @@ import { SessionModel } from '../Data/SessionModel'
 import { InternalError } from '@modules/Core/Errors/InternalError'
 import { User } from '@modules/Users/Data/User'
 import { UnauthorizedError } from '@modules/Core/Errors/UnauthorizedError'
+import date from '@modules/Core/Utils/date'
+import { SessionOptions } from '../SessionsOptions'
+
+export type OnlineStatus = {
+  isOnline: boolean
+  lastRequestAt: Date | null
+  isLastRequestMobile: boolean
+}
 
 export class SessionService {
   private readonly sessionRepository: SessionRepository
@@ -63,6 +71,55 @@ export class SessionService {
 
   public async getOnlineUsersCount(): Promise<number> {
     return this.sessionRepository.countOnlineUsers()
+  }
+
+  public async getOnlineStatus(userId: User['id']): Promise<OnlineStatus> {
+    // find last session for user
+    const session = await this.sessionRepository.findLast(userId)
+
+    if (!session) {
+      return {
+        isOnline: false,
+        lastRequestAt: null,
+        isLastRequestMobile: false,
+      }
+    }
+
+    return {
+      isOnline: date.isInLast(
+        session.lastRequestAt,
+        SessionOptions.onlineThreshold
+      ),
+      lastRequestAt: session.lastRequestAt,
+      isLastRequestMobile: session.isMobile,
+    }
+  }
+
+  public getOnlineStatusForUser(user: User): User & OnlineStatus {
+    const session = user.sessions
+      ?.sort((a, b) => {
+        return date.compare(a.lastRequestAt, b.lastRequestAt)
+      })
+      .at(0)
+
+    if (!session) {
+      return {
+        ...user,
+        isOnline: false,
+        lastRequestAt: null,
+        isLastRequestMobile: false,
+      }
+    }
+
+    return {
+      ...user,
+      isOnline: date.isInLast(
+        session.lastRequestAt,
+        SessionOptions.onlineThreshold
+      ),
+      lastRequestAt: session.lastRequestAt,
+      isLastRequestMobile: session.isMobile,
+    }
   }
 
   public async updateSession(

@@ -38,6 +38,9 @@ function isInFuture(date) {
 function isInPast(date) {
     return compare(date, new Date()) < 0;
 }
+function isInLast(date, ms) {
+    return compare(new Date(), date, 'millisecond') < ms;
+}
 function now() {
     return new Date();
 }
@@ -54,4 +57,5 @@ export default {
     isInPast,
     now,
     addDays,
+    isInLast,
 };

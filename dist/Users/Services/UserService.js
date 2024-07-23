@@ -7,13 +7,16 @@ import { EmailService } from '../../Core/Email/EmailService.js';
 import { UserRepository } from '../Data/UserRepository.js';
 import { UserModel } from '../Data/UserModel.js';
 import { AlreadyExistError } from '../../Core/Errors/AlreadyExistError.js';
+import { SessionService, } from '../../Sessions/Services/SessionService.js';
 export class UserService extends Service {
     userRepository;
     emailService;
+    sessionService;
     constructor() {
         super();
         this.userRepository = new UserRepository();
         this.emailService = new EmailService();
+        this.sessionService = new SessionService();
     }
     async assignMentor(studentId, mentorId) {
         const student = await this.userRepository.findOne({ id: studentId });
@@ -37,19 +40,20 @@ export class UserService extends Service {
         if (!user) {
             throw new NotFoundError();
         }
-        return user;
+        const onlineStatus = await this.sessionService.getOnlineStatus(user.id);
+        return { ...user, ...onlineStatus };
     }
     async getUsers(pagination) {
         pagination = new Pagination().assign(pagination);
         pagination.entriesToSearch = UserModel.entriesToSearch();
-        const relations = ['students', 'courses'];
+        const relations = ['sessions'];
         if (pagination.relationsToLoad.includes('mentor')) {
             relations.push('mentor');
         }
         const users = await this.userRepository.find(undefined, relations, pagination);
         const meta = await this.getRequestMeta(this.userRepository, undefined, pagination, relations);
         return {
-            users,
+            users: this.withOnlineStatus(users),
             meta,
         };
     }
@@ -184,5 +188,10 @@ export class UserService extends Service {
             return '-';
         }
         return Hash.hash(`${user.id}${user.email}${user.newEmail}`);
+    }
+    withOnlineStatus(users) {
+        return users.map((user) => {
+            return this.sessionService.getOnlineStatusForUser(user);
+        });
     }
 }

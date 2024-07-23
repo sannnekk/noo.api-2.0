@@ -15,18 +15,10 @@ export function parseUserAgent(userAgent: string) {
   const normalizedBrowser =
     browser.toLowerCase() === 'trident' ? 'Internet Explorer' : browser
   const normalizedOS = os.toLowerCase() === 'macintosh' ? 'macOS' : os
-  const normalizedDevice =
-    device.toLowerCase() === 'ipad' || device.toLowerCase() === 'tablet'
-      ? 'Tablet'
-      : device.toLowerCase() === 'mobile' ||
-          device.toLowerCase() === 'iphone' ||
-          device.toLowerCase() === 'android'
-        ? 'Mobile'
-        : 'Desktop'
 
   return {
     browser: normalizedBrowser,
     os: normalizedOS,
-    device: normalizedDevice,
+    device,
   }
 }

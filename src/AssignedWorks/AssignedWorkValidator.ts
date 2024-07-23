@@ -18,7 +18,7 @@ export class AssignedWorkValidator extends Validator {
       .string()
       .max(200, {
         message:
-          'Ответ на вопрос водну строку не может содержать больше 200 символов',
+          'Ответ на вопрос в одну строку не может содержать больше 200 символов',
       })
       .nullable()
       .optional(),

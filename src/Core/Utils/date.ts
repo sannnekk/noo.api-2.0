@@ -3,7 +3,7 @@
  *
  */
 
-type DatePrecision = 'day' | 'hour' | 'minute' | 'second'
+type DatePrecision = 'day' | 'hour' | 'minute' | 'second' | 'millisecond'
 
 function toISOString(date: Date): string {
   return date.toISOString()
@@ -46,6 +46,10 @@ function isInPast(date: Date): boolean {
   return compare(date, new Date()) < 0
 }
 
+function isInLast(date: Date, ms: number): boolean {
+  return compare(new Date(), date, 'millisecond') < ms
+}
+
 function now(): Date {
   return new Date()
 }
@@ -64,4 +68,5 @@ export default {
   isInPast,
   now,
   addDays,
+  isInLast,
 }

@@ -16,7 +16,7 @@ let AssignedWorkValidator = class AssignedWorkValidator extends Validator {
         word: z
             .string()
             .max(200, {
-            message: 'Ответ на вопрос водну строку не может содержать больше 200 символов',
+            message: 'Ответ на вопрос в одну строку не может содержать больше 200 символов',
         })
             .nullable()
             .optional(),

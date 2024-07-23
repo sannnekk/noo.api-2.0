@@ -2,6 +2,7 @@ import { Repository } from '@modules/Core/Data/Repository'
 import { Session } from './Session'
 import { SessionModel } from './SessionModel'
 import { SessionOptions } from '../SessionsOptions'
+import { User } from '@modules/Users/Data/User'
 
 export class SessionRepository extends Repository<Session> {
   constructor() {
@@ -17,5 +18,12 @@ export class SessionRepository extends Repository<Session> {
         ).toISOString(),
       })
       .getCount()
+  }
+
+  public async findLast(userId: User['id']): Promise<Session | null> {
+    return this.queryBuilder()
+      .where('userId = :userId', { userId })
+      .orderBy('last_request_at', 'DESC')
+      .getOne()
   }
 }

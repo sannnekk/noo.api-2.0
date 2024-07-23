@@ -13,4 +13,10 @@ export class SessionRepository extends Repository {
         })
             .getCount();
     }
+    async findLast(userId) {
+        return this.queryBuilder()
+            .where('userId = :userId', { userId })
+            .orderBy('last_request_at', 'DESC')
+            .getOne();
+    }
 }

@@ -1,10 +1,11 @@
 import { MediaOptions } from '../../Media/MediaOptions.js';
 import multer from 'multer';
 import { v4 as uuid } from 'uuid';
+import { AppError } from '../Errors/AppError.js';
 export const MediaHandler = multer({
     storage: multer.diskStorage({
         destination(req, file, cb) {
-            cb(null, MediaOptions.fileDestinationFolder);
+            cb(null, MediaOptions.fileDestinationFolder + '/' + MediaOptions.getFileSubdir());
         },
         filename(req, file, cb) {
             let name = `${uuid()}-${uuid()}`;
@@ -24,7 +25,7 @@ export const MediaHandler = multer({
     }),
     fileFilter(req, file, callback) {
         if (!MediaOptions.allowedFileTypes.includes(file.mimetype)) {
-            return callback(new Error('Только изображения формата JPG/JPEG, PNG и PDF-файлы разрешены.'));
+            return callback(new AppError('Только изображения формата JPG/JPEG, PNG и PDF-файлы разрешены.'));
         }
         callback(null, true);
     },
