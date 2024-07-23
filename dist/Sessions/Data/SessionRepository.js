@@ -9,7 +9,7 @@ export class SessionRepository extends Repository {
         return this.queryBuilder()
             .distinctOn(['userId'])
             .where('last_request_at >= :datetime', {
-            datetime: SessionOptions.countAsOfflineAfter,
+            datetime: new Date(Date.now() - SessionOptions.onlineThreshold).toISOString(),
         })
             .getCount();
     }
