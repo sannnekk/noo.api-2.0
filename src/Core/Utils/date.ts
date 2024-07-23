@@ -18,18 +18,21 @@ function isISOString(dateStr: string): boolean {
 }
 
 function compare(a: Date, b: Date, precision: DatePrecision = 'day'): number {
+  const aCopy = new Date(a)
+  const bCopy = new Date(b)
+
   if (precision === 'day') {
-    a.setHours(0, 0, 0, 0)
-    b.setHours(0, 0, 0, 0)
+    aCopy.setHours(0, 0, 0, 0)
+    bCopy.setHours(0, 0, 0, 0)
   } else if (precision === 'hour') {
-    a.setMinutes(0, 0, 0)
-    b.setMinutes(0, 0, 0)
+    aCopy.setMinutes(0, 0, 0)
+    bCopy.setMinutes(0, 0, 0)
   } else if (precision === 'minute') {
-    a.setSeconds(0, 0)
-    b.setSeconds(0, 0)
+    aCopy.setSeconds(0, 0)
+    bCopy.setSeconds(0, 0)
   } else if (precision === 'second') {
-    a.setMilliseconds(0)
-    b.setMilliseconds(0)
+    aCopy.setMilliseconds(0)
+    bCopy.setMilliseconds(0)
   }
 
   return a.getTime() - b.getTime()

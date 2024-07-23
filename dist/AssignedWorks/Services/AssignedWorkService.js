@@ -240,6 +240,7 @@ export class AssignedWorkService extends Service {
         const foundWork = await this.getAssignedWork(assignedWorkId, [
             'work',
             'mentors',
+            'student',
         ]);
         if (!foundWork) {
             throw new NotFoundError();

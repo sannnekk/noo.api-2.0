@@ -378,6 +378,7 @@ export class AssignedWorkService extends Service<AssignedWork> {
     const foundWork = await this.getAssignedWork(assignedWorkId, [
       'work',
       'mentors',
+      'student',
     ])
 
     if (!foundWork) {

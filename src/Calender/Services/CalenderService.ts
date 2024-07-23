@@ -186,7 +186,7 @@ export class CalenderService extends Service<CalenderEvent> {
 
   public async createWorkCheckedEvent(work: AssignedWork): Promise<void> {
     await Promise.all(
-      [...(work.mentors || []), work.student!].map((user) => {
+      [...(work.mentors || []), work.student!].filter(Boolean).map((user) => {
         return this.calenderEventRepository.create(
           new CalenderEventModel({
             title: `${work.student!.name}: Работа проверена`,
