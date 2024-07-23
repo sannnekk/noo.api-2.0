@@ -44,6 +44,9 @@ export class SessionService {
         session.lastRequestAt = new Date();
         return this.sessionRepository.create(session);
     }
+    async getOnlineUsersCount() {
+        return this.sessionRepository.countOnlineUsers();
+    }
     async updateSession(session, context) {
         session.userAgent = context.info.userAgent;
         session.isMobile = context.info.isMobile;

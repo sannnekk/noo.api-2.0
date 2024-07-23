@@ -9,17 +9,21 @@ import { Statistics } from '../DTO/Statistics'
 import { AssignedWorkRepository } from '../../AssignedWorks/Data/AssignedWorkRepository'
 import { StatisticsOptions } from '../DTO/StatisticsOptions'
 import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
+import { SessionService } from '@modules/Sessions/Services/SessionService'
 
 export class StatisticsService {
   private readonly assignedWorkRepository: AssignedWorkRepository
 
   private readonly userRepository: UserRepository
 
+  private readonly sessionService: SessionService
+
   private readonly plotService: PlotService
 
   public constructor() {
     this.assignedWorkRepository = new AssignedWorkRepository()
     this.userRepository = new UserRepository()
+    this.sessionService = new SessionService()
     this.plotService = new PlotService()
   }
 
@@ -55,6 +59,8 @@ export class StatisticsService {
       this.assignedWorkRepository.queryBuilder('assigned_work')
 
     const usersCount = await userRepositoryQueryBuilder.clone().getCount()
+
+    const usersOnlineCount = await this.sessionService.getOnlineUsersCount()
 
     const studentsCount = await userRepositoryQueryBuilder
       .clone()
@@ -160,6 +166,10 @@ export class StatisticsService {
         {
           name: 'Всего пользователей',
           value: usersCount,
+        },
+        {
+          name: 'Пользователей онлайн',
+          value: usersOnlineCount,
         },
         {
           name: 'Всего учеников',

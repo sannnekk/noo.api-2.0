@@ -61,6 +61,10 @@ export class SessionService {
     return this.sessionRepository.create(session)
   }
 
+  public async getOnlineUsersCount(): Promise<number> {
+    return this.sessionRepository.countOnlineUsers()
+  }
+
   public async updateSession(
     session: Session,
     context: Context

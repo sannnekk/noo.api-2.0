@@ -5,13 +5,16 @@ import { AssignedWorkModel } from '../../AssignedWorks/Data/AssignedWorkModel.js
 import { PlotService } from './PlotService.js';
 import { AssignedWorkRepository } from '../../AssignedWorks/Data/AssignedWorkRepository.js';
 import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
+import { SessionService } from '../../Sessions/Services/SessionService.js';
 export class StatisticsService {
     assignedWorkRepository;
     userRepository;
+    sessionService;
     plotService;
     constructor() {
         this.assignedWorkRepository = new AssignedWorkRepository();
         this.userRepository = new UserRepository();
+        this.sessionService = new SessionService();
         this.plotService = new PlotService();
     }
     async getStatistics(username, options) {
@@ -36,6 +39,7 @@ export class StatisticsService {
         const userRepositoryQueryBuilder = this.userRepository.queryBuilder('user');
         const assignedWorkRepositoryQueryBuilder = this.assignedWorkRepository.queryBuilder('assigned_work');
         const usersCount = await userRepositoryQueryBuilder.clone().getCount();
+        const usersOnlineCount = await this.sessionService.getOnlineUsersCount();
         const studentsCount = await userRepositoryQueryBuilder
             .clone()
             .where('user.role = :role', { role: 'student' })
@@ -104,6 +108,10 @@ export class StatisticsService {
                 {
                     name: 'Всего пользователей',
                     value: usersCount,
+                },
+                {
+                    name: 'Пользователей онлайн',
+                    value: usersOnlineCount,
                 },
                 {
                     name: 'Всего учеников',
