@@ -2,7 +2,6 @@ import { SessionRepository } from '../Data/SessionRepository'
 import { Context } from '@modules/Core/Request/Context'
 import { Session } from '../Data/Session'
 import { SessionModel } from '../Data/SessionModel'
-import { InternalError } from '@modules/Core/Errors/InternalError'
 import { User } from '@modules/Users/Data/User'
 import { UnauthorizedError } from '@modules/Core/Errors/UnauthorizedError'
 import date from '@modules/Core/Utils/date'
@@ -42,21 +41,18 @@ export class SessionService {
 
   public async getCurrentSession(context: Context): Promise<Session | null> {
     return this.sessionRepository.findOne({
-      user: {
-        id: context.credentials?.userId,
-      },
+      id: context.credentials!.sessionId,
       userAgent: context.info.userAgent,
     })
   }
 
-  public async createSession(context: Context): Promise<Session> {
+  public async createSession(
+    context: Context,
+    userId: User['id']
+  ): Promise<Session> {
     const session = new SessionModel()
 
-    if (!context.credentials?.userId) {
-      throw new InternalError('User id is missing in the context.')
-    }
-
-    session.user = { id: context.credentials.userId } as User
+    session.user = { id: userId } as User
 
     session.userAgent = context.info.userAgent
     session.isMobile = context.info.isMobile

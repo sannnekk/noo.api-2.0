@@ -5,6 +5,7 @@ import { type UserRoleType } from './roles'
 export interface JWTPayload extends jwtlib.JwtPayload {
   username: string
   userId: ULID
+  sessionId: ULID
   role: UserRoleType
   permissions: number
   isBlocked: boolean

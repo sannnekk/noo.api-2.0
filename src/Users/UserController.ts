@@ -35,11 +35,7 @@ export class UserController {
     try {
       const loginDTO = this.userValidator.parseLogin(context.body)
 
-      const payload = await this.authService.login(loginDTO)
-
-      context.credentials = payload.payload
-
-      await this.sessionService.createSession(context)
+      const payload = await this.authService.login(loginDTO, context)
 
       return new ApiResponse({ data: payload })
     } catch (error: any) {

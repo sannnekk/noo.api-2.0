@@ -1,6 +1,5 @@
 import { SessionRepository } from '../Data/SessionRepository.js';
 import { SessionModel } from '../Data/SessionModel.js';
-import { InternalError } from '../../Core/Errors/InternalError.js';
 import { UnauthorizedError } from '../../Core/Errors/UnauthorizedError.js';
 import date from '../../Core/Utils/date.js';
 import { SessionOptions } from '../SessionsOptions.js';
@@ -25,18 +24,13 @@ export class SessionService {
     }
     async getCurrentSession(context) {
         return this.sessionRepository.findOne({
-            user: {
-                id: context.credentials?.userId,
-            },
+            id: context.credentials.sessionId,
             userAgent: context.info.userAgent,
         });
     }
-    async createSession(context) {
+    async createSession(context, userId) {
         const session = new SessionModel();
-        if (!context.credentials?.userId) {
-            throw new InternalError('User id is missing in the context.');
-        }
-        session.user = { id: context.credentials.userId };
+        session.user = { id: userId };
         session.userAgent = context.info.userAgent;
         session.isMobile = context.info.isMobile;
         session.device = context.info.device || null;

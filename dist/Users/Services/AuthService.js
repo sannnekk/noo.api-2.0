@@ -9,13 +9,16 @@ import { EmailService } from '../../Core/Email/EmailService.js';
 import { UserRepository } from '../Data/UserRepository.js';
 import { UserModel } from '../Data/UserModel.js';
 import { InvalidVerificationTokenError } from '../Errors/InvalidVerificationTokenError.js';
+import { SessionService } from '../../Sessions/Services/SessionService.js';
 export class AuthService extends Service {
     userRepository;
     emailService;
+    sessionService;
     constructor() {
         super();
         this.userRepository = new UserRepository();
         this.emailService = new EmailService();
+        this.sessionService = new SessionService();
     }
     async create(user) {
         user.password = await Hash.hash(user.password);
@@ -93,7 +96,7 @@ export class AuthService extends Service {
         }
         await this.emailService.sendVerificationEmail(user.email, user.username, user.name, user.verificationToken);
     }
-    async login(credentials) {
+    async login(credentials, context) {
         const user = await this.userRepository.findOne([
             {
                 username: credentials.usernameOrEmail,
@@ -114,21 +117,18 @@ export class AuthService extends Service {
         if (user.verificationToken) {
             throw new UnauthenticatedError('Этот аккаунт не подтвержден. Перейдите по ссылке в письме, отправленном на вашу почту, чтобы подтвердить регистрацию.');
         }
+        const session = await this.sessionService.createSession(context, user.id);
+        const payload = {
+            userId: user.id,
+            username: user.username,
+            role: user.role,
+            permissions: user.forbidden || 0,
+            isBlocked: user.isBlocked,
+            sessionId: session.id,
+        };
         return {
-            token: JWT.create({
-                userId: user.id,
-                username: user.username,
-                role: user.role,
-                permissions: user.forbidden || 0,
-                isBlocked: user.isBlocked,
-            }),
-            payload: {
-                userId: user.id,
-                username: user.username,
-                role: user.role,
-                permissions: user.forbidden || 0,
-                isBlocked: user.isBlocked,
-            },
+            token: JWT.create(payload),
+            payload,
             user,
         };
     }

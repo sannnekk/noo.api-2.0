@@ -12,17 +12,22 @@ import { LoginDTO } from '../DTO/LoginDTO'
 import { UserModel } from '../Data/UserModel'
 import { InvalidVerificationTokenError } from '../Errors/InvalidVerificationTokenError'
 import { RegisterDTO } from '../DTO/RegisterDTO'
+import { Context } from '@modules/Core/Request/Context'
+import { SessionService } from '@modules/Sessions/Services/SessionService'
 
 export class AuthService extends Service<User> {
   private readonly userRepository: UserRepository
 
   private readonly emailService: EmailService
 
+  private readonly sessionService: SessionService
+
   constructor() {
     super()
 
     this.userRepository = new UserRepository()
     this.emailService = new EmailService()
+    this.sessionService = new SessionService()
   }
 
   public async create(user: User): Promise<void> {
@@ -142,7 +147,8 @@ export class AuthService extends Service<User> {
   }
 
   public async login(
-    credentials: LoginDTO
+    credentials: LoginDTO,
+    context: Context
   ): Promise<{ token: JWT.JWT; payload: JWT.JWTPayload; user: Partial<User> }> {
     const user = await this.userRepository.findOne(
       [
@@ -174,21 +180,20 @@ export class AuthService extends Service<User> {
       )
     }
 
+    const session = await this.sessionService.createSession(context, user.id)
+
+    const payload: JWT.JWTPayload = {
+      userId: user.id,
+      username: user.username,
+      role: user.role,
+      permissions: user.forbidden || 0,
+      isBlocked: user.isBlocked,
+      sessionId: session.id,
+    }
+
     return {
-      token: JWT.create({
-        userId: user.id,
-        username: user.username,
-        role: user.role,
-        permissions: user.forbidden || 0,
-        isBlocked: user.isBlocked,
-      }),
-      payload: {
-        userId: user.id,
-        username: user.username,
-        role: user.role,
-        permissions: user.forbidden || 0,
-        isBlocked: user.isBlocked,
-      },
+      token: JWT.create(payload),
+      payload,
       user,
     }
   }

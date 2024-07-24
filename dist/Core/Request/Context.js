@@ -36,7 +36,8 @@ export class Context {
     async isAuthenticated() {
         const username = this.credentials?.username;
         const claimedRole = this.credentials?.role;
-        if (!username) {
+        const sessionId = this.credentials?.sessionId;
+        if (!username || !sessionId) {
             return false;
         }
         const user = await this.userRepository.findOne({ username });

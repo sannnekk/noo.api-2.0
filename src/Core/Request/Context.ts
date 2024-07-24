@@ -54,8 +54,9 @@ export class Context {
   public async isAuthenticated(): Promise<boolean> {
     const username = this.credentials?.username
     const claimedRole = this.credentials?.role
+    const sessionId = this.credentials?.sessionId
 
-    if (!username) {
+    if (!username || !sessionId) {
       return false
     }
 
