@@ -35,15 +35,15 @@ function compare(a: Date, b: Date, precision: DatePrecision = 'day'): number {
     bCopy.setMilliseconds(0)
   }
 
-  return a.getTime() - b.getTime()
+  return aCopy.getTime() - bCopy.getTime()
 }
 
-function isInFuture(date: Date): boolean {
-  return compare(date, new Date()) > 0
+function isInFuture(date: Date, precision: DatePrecision = 'day'): boolean {
+  return compare(date, new Date(), precision) > 0
 }
 
-function isInPast(date: Date): boolean {
-  return compare(date, new Date()) < 0
+function isInPast(date: Date, precision: DatePrecision = 'day'): boolean {
+  return compare(date, new Date(), precision) < 0
 }
 
 function isInLast(date: Date, ms: number): boolean {

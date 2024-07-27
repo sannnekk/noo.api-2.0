@@ -126,7 +126,7 @@ export class AssignedWorkModel extends Model implements AssignedWork {
     type: 'boolean',
     default: false,
   })
-  solveDeadlineShifted: boolean = false
+  solveDeadlineShifted!: boolean
 
   @Column({
     name: 'check_deadline_at',
@@ -140,7 +140,7 @@ export class AssignedWorkModel extends Model implements AssignedWork {
     type: 'boolean',
     default: false,
   })
-  checkDeadlineShifted: boolean = false
+  checkDeadlineShifted!: boolean
 
   @Column({
     name: 'solved_at',

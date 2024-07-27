@@ -6,7 +6,7 @@ import { AppError } from '../Errors/AppError'
 import log from '../Logs/Logger'
 
 export interface Response {
-  data: object | object[] | null
+  data: any
   meta?: RequestMeta | null
   error?: string
 }

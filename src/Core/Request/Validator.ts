@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { Pagination } from '../Data/Pagination'
 import { Ulid } from '../Data/Ulid'
 import { ErrorConverter } from './ValidatorDecorator'
+import { Version } from '../Version/Version'
 
 type PaginationType = {
   page?: number
@@ -29,6 +30,13 @@ export abstract class Validator {
     relations: z.array(z.string()).optional(),
   })
 
+  public versionScheme = z
+    .string()
+    .regex(
+      /^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)(?:-(?<prerelease>[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+(?<buildmetadata>[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/,
+      'version'
+    )
+
   public parsePagination(data: unknown): Pagination {
     const pagination = this.parse<PaginationType>(data, this.paginationScheme)
 
@@ -49,6 +57,10 @@ export abstract class Validator {
 
   public parseSlug(slug: unknown): string {
     return this.parse<string>(slug, this.slugScheme)
+  }
+
+  public parseVersion(version: unknown): Version {
+    return new Version(this.parse(version, this.versionScheme))
   }
 
   protected parse<T>(o: unknown, schema: z.ZodType): T {

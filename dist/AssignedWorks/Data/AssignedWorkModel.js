@@ -44,9 +44,9 @@ let AssignedWorkModel = class AssignedWorkModel extends Model {
     solveStatus;
     checkStatus;
     solveDeadlineAt;
-    solveDeadlineShifted = false;
+    solveDeadlineShifted;
     checkDeadlineAt;
-    checkDeadlineShifted = false;
+    checkDeadlineShifted;
     solvedAt;
     checkedAt;
     answers;

@@ -70,7 +70,7 @@ export class UserService extends Service<User> {
     pagination = new Pagination().assign(pagination)
     pagination.entriesToSearch = UserModel.entriesToSearch()
 
-    const relations: (keyof User)[] = ['sessions']
+    const relations: (keyof User)[] = []
 
     if (pagination.relationsToLoad.includes('mentor')) {
       relations.push('mentor')

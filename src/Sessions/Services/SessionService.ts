@@ -39,7 +39,17 @@ export class SessionService {
     })
   }
 
-  public async getCurrentSession(context: Context): Promise<Session | null> {
+  public async getCurrentSession(
+    context: Context,
+    userId?: User['id']
+  ): Promise<Session | null> {
+    if (userId) {
+      return this.sessionRepository.findOne({
+        user: { id: userId } as User,
+        userAgent: context.info.userAgent,
+      })
+    }
+
     return this.sessionRepository.findOne({
       id: context.credentials!.sessionId,
       userAgent: context.info.userAgent,

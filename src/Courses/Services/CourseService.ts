@@ -4,7 +4,7 @@ import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
 import { UnknownError } from '@modules/Core/Errors/UnknownError'
 import { Pagination } from '@modules/Core/Data/Pagination'
 import { Service } from '@modules/Core/Services/Service'
-import { QueryFailedError } from 'typeorm'
+import { Not, QueryFailedError } from 'typeorm'
 import { User } from '@modules/Users/Data/User'
 import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
 import { AssignedWorkService } from '@modules/AssignedWorks/Services/AssignedWorkService'
@@ -232,6 +232,10 @@ export class CourseService extends Service<Course> {
     const material = await this.materialRepository.findOne(
       {
         slug: materialSlug,
+        chapterId: Not(null),
+        chapter: {
+          courseId: Not(null),
+        },
       },
       ['chapter.course' as any]
     )

@@ -117,7 +117,10 @@ export class AuthService extends Service {
         if (user.verificationToken) {
             throw new UnauthenticatedError('Этот аккаунт не подтвержден. Перейдите по ссылке в письме, отправленном на вашу почту, чтобы подтвердить регистрацию.');
         }
-        const session = await this.sessionService.createSession(context, user.id);
+        let session = await this.sessionService.getCurrentSession(context, user.id);
+        if (!session) {
+            session = await this.sessionService.createSession(context, user.id);
+        }
         const payload = {
             userId: user.id,
             username: user.username,

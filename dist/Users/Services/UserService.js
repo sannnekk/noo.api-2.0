@@ -46,7 +46,7 @@ export class UserService extends Service {
     async getUsers(pagination) {
         pagination = new Pagination().assign(pagination);
         pagination.entriesToSearch = UserModel.entriesToSearch();
-        const relations = ['sessions'];
+        const relations = [];
         if (pagination.relationsToLoad.includes('mentor')) {
             relations.push('mentor');
         }

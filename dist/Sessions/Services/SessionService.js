@@ -22,7 +22,13 @@ export class SessionService {
             };
         });
     }
-    async getCurrentSession(context) {
+    async getCurrentSession(context, userId) {
+        if (userId) {
+            return this.sessionRepository.findOne({
+                user: { id: userId },
+                userAgent: context.info.userAgent,
+            });
+        }
         return this.sessionRepository.findOne({
             id: context.credentials.sessionId,
             userAgent: context.info.userAgent,

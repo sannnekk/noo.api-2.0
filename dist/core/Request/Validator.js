@@ -7,6 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { z } from 'zod';
 import { Pagination } from '../Data/Pagination.js';
 import { ErrorConverter } from './ValidatorDecorator.js';
+import { Version } from '../Version/Version.js';
 let Validator = class Validator {
     idScheme = z.string().ulid();
     slugScheme = z.string().min(1).max(256);
@@ -19,6 +20,9 @@ let Validator = class Validator {
         filter: z.record(z.any()).optional(),
         relations: z.array(z.string()).optional(),
     });
+    versionScheme = z
+        .string()
+        .regex(/^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)(?:-(?<prerelease>[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+(?<buildmetadata>[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/, 'version');
     parsePagination(data) {
         const pagination = this.parse(data, this.paginationScheme);
         return new Pagination(pagination.page, pagination.limit, pagination.sort, pagination.order, pagination.search, pagination.filter, pagination.relations);
@@ -28,6 +32,9 @@ let Validator = class Validator {
     }
     parseSlug(slug) {
         return this.parse(slug, this.slugScheme);
+    }
+    parseVersion(version) {
+        return new Version(this.parse(version, this.versionScheme));
     }
     parse(o, schema) {
         return schema.parse(o);

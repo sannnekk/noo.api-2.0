@@ -4,7 +4,7 @@ import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
 import { UnknownError } from '../../Core/Errors/UnknownError.js';
 import { Pagination } from '../../Core/Data/Pagination.js';
 import { Service } from '../../Core/Services/Service.js';
-import { QueryFailedError } from 'typeorm';
+import { Not, QueryFailedError } from 'typeorm';
 import { AssignedWorkService } from '../../AssignedWorks/Services/AssignedWorkService.js';
 import { AssignedWorkRepository } from '../../AssignedWorks/Data/AssignedWorkRepository.js';
 import { CourseMaterialRepository } from '../Data/CourseMaterialRepository.js';
@@ -146,6 +146,10 @@ export class CourseService extends Service {
     async assignWorkToMaterial(materialSlug, workId, solveDeadline, checkDeadline) {
         const material = await this.materialRepository.findOne({
             slug: materialSlug,
+            chapterId: Not(null),
+            chapter: {
+                courseId: Not(null),
+            },
         }, ['chapter.course']);
         if (!material) {
             throw new NotFoundError();

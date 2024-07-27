@@ -30,13 +30,13 @@ function compare(a, b, precision = 'day') {
         aCopy.setMilliseconds(0);
         bCopy.setMilliseconds(0);
     }
-    return a.getTime() - b.getTime();
+    return aCopy.getTime() - bCopy.getTime();
 }
-function isInFuture(date) {
-    return compare(date, new Date()) > 0;
+function isInFuture(date, precision = 'day') {
+    return compare(date, new Date(), precision) > 0;
 }
-function isInPast(date) {
-    return compare(date, new Date()) < 0;
+function isInPast(date, precision = 'day') {
+    return compare(date, new Date(), precision) < 0;
 }
 function isInLast(date, ms) {
     return compare(new Date(), date, 'millisecond') < ms;

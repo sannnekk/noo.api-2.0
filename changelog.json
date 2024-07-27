@@ -1,0 +1,19 @@
+[
+	{
+		"version": "2.1.0",
+		"date": "2024-20-07",
+		"authors": [
+			"sannnekk"
+		],
+		"changes": [
+			{
+				"type": "impr",
+				"description": "Introduced platform route with metadata of the whole platform"
+			},
+			{
+				"type": "impr",
+				"description": "Started versioning"
+			}
+		]
+	}
+]
