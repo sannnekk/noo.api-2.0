@@ -202,10 +202,21 @@ export class CourseService extends Service<Course> {
       throw new NotFoundError('Курс не найден')
     }
 
-    await queryBuilder
-      .relation(CourseModel, 'students')
-      .of(course)
-      .add(studentEmails.map((email) => ({ email })))
+    const userIds = await this.userRepository.getIdsFromEmails(studentEmails, {
+      role: 'student',
+    })
+
+    // Add students if they are not already in the course
+    const studentsToAdd = userIds.filter(
+      (id) => !course.studentIds!.some((studentId) => studentId === id)
+    )
+
+    if (studentsToAdd.length > 0) {
+      await queryBuilder
+        .relation(CourseModel, 'students')
+        .of(course)
+        .add(studentsToAdd)
+    }
   }
 
   public async removeStudents(courseSlug: string, studentIds: User['id'][]) {

@@ -10,4 +10,16 @@ export class UserRepository extends Repository {
             .orderBy('RAND()')
             .getOne();
     }
+    async getIdsFromEmails(emails, condition) {
+        const query = await this.queryBuilder('user')
+            .select('user.id')
+            .where('user.email IN (:...emails)', { emails });
+        if (condition) {
+            for (const [key, value] of Object.entries(condition)) {
+                query.andWhere(`user.${key} = :${key}`, { [key]: value });
+            }
+        }
+        const users = await query.getMany();
+        return users.map((user) => user.id);
+    }
 }

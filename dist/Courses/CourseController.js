@@ -149,6 +149,19 @@ let CourseController = class CourseController {
             return new ApiResponse(error);
         }
     }
+    async addStudentsViaEmails(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.teacher(context);
+            const courseSlug = this.courseValidator.parseSlug(context.params.courseSlug);
+            const { emails } = this.courseValidator.parseEmails(context.body);
+            await this.courseService.addStudentsViaEmails(courseSlug, emails);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
     async delete(context) {
         try {
             await Asserts.isAuthenticated(context);
@@ -222,6 +235,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "removeStudents", null);
+__decorate([
+    Patch('/:courseSlug/add-students-via-emails'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "addStudentsViaEmails", null);
 __decorate([
     Delete('/:id'),
     __metadata("design:type", Function),

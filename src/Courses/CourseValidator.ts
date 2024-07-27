@@ -64,6 +64,10 @@ export class CourseValidator extends Validator {
     studentIds: z.array(z.string().ulid()),
   })
 
+  public readonly stidentEmailsScheme = z.object({
+    emails: z.array(z.string().email()),
+  })
+
   public readonly assignWorkOptionsScheme = z.object({
     checkDeadline: z.date().optional(),
     solveDeadline: z.date().optional(),
@@ -83,6 +87,10 @@ export class CourseValidator extends Validator {
 
   public parseStudentIds(body: unknown): { studentIds: User['id'][] } {
     return this.parse<{ studentIds: User['id'][] }>(body, this.stidentIdsScheme)
+  }
+
+  public parseEmails(body: unknown): { emails: string[] } {
+    return this.parse<{ emails: string[] }>(body, this.stidentEmailsScheme)
   }
 
   public parseAssignWorkOptions(data: unknown): AssignWorkOptions {

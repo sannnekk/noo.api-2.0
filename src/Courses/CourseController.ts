@@ -216,6 +216,24 @@ export class CourseController {
     }
   }
 
+  @Patch('/:courseSlug/add-students-via-emails')
+  public async addStudentsViaEmails(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.teacher(context)
+      const courseSlug = this.courseValidator.parseSlug(
+        context.params.courseSlug
+      )
+      const { emails } = this.courseValidator.parseEmails(context.body)
+
+      await this.courseService.addStudentsViaEmails(courseSlug, emails)
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
+
   @Delete('/:id')
   public async delete(context: Context): Promise<ApiResponse> {
     try {

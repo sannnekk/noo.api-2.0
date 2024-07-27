@@ -59,6 +59,9 @@ let CourseValidator = class CourseValidator extends Validator {
     stidentIdsScheme = z.object({
         studentIds: z.array(z.string().ulid()),
     });
+    stidentEmailsScheme = z.object({
+        emails: z.array(z.string().email()),
+    });
     assignWorkOptionsScheme = z.object({
         checkDeadline: z.date().optional(),
         solveDeadline: z.date().optional(),
@@ -74,6 +77,9 @@ let CourseValidator = class CourseValidator extends Validator {
     }
     parseStudentIds(body) {
         return this.parse(body, this.stidentIdsScheme);
+    }
+    parseEmails(body) {
+        return this.parse(body, this.stidentEmailsScheme);
     }
     parseAssignWorkOptions(data) {
         return this.parse(data, this.assignWorkOptionsScheme);
