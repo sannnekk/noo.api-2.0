@@ -1,10 +1,9 @@
 import { UserRepository } from '@modules/Users/Data/UserRepository'
-import { AlreadyExistError } from '@modules/Core/Errors/AlreadyExistError'
 import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
 import { UnknownError } from '@modules/Core/Errors/UnknownError'
 import { Pagination } from '@modules/Core/Data/Pagination'
 import { Service } from '@modules/Core/Services/Service'
-import { Not, QueryFailedError } from 'typeorm'
+import TypeORM from 'typeorm'
 import { User } from '@modules/Users/Data/User'
 import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
 import { AssignedWorkService } from '@modules/AssignedWorks/Services/AssignedWorkService'
@@ -240,16 +239,13 @@ export class CourseService extends Service<Course> {
     solveDeadline?: Date,
     checkDeadline?: Date
   ) {
-    const material = await this.materialRepository.findOne(
-      {
-        slug: materialSlug,
-        chapterId: Not(null),
-        chapter: {
-          courseId: Not(null),
-        },
+    const material = await this.materialRepository.findOne({
+      slug: materialSlug,
+      chapter: {
+        id: TypeORM.Not(TypeORM.IsNull()),
+        course: { id: TypeORM.Not(TypeORM.IsNull()) },
       },
-      ['chapter.course' as any]
-    )
+    })
 
     if (!material) {
       throw new NotFoundError()
@@ -278,10 +274,6 @@ export class CourseService extends Service<Course> {
     try {
       await this.courseRepository.create(course)
     } catch (error) {
-      if (error instanceof QueryFailedError) {
-        throw new AlreadyExistError()
-      }
-
       throw new UnknownError()
     }
   }
