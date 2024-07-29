@@ -22,6 +22,39 @@ export class PollController {
     this.pollValidator = new PollValidator()
   }
 
+  @Get('/')
+  public async getPolls(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.teacherOrAdmin(context)
+
+      const pagination = this.pollValidator.parsePagination(context.query)
+
+      const { polls, meta } = await this.pollService.getPolls(pagination)
+
+      return new ApiResponse({ data: polls, meta })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
+
+  @Get('/question')
+  public async getQuestions(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.teacherOrAdmin(context)
+
+      const pagination = this.pollValidator.parsePagination(context.query)
+
+      const { questions, meta } =
+        await this.pollService.searchQuestions(pagination)
+
+      return new ApiResponse({ data: questions, meta })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
+
   @Get('/:id')
   public async getPoll(context: Context): Promise<ApiResponse> {
     try {

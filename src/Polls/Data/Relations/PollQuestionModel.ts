@@ -226,6 +226,10 @@ export class PollQuestionModel extends Model implements PollQuestion {
   })
   onlyPastDate?: boolean
 
+  public static entriesToSearch(): string[] {
+    return ['text', 'description']
+  }
+
   private resetOptions(): void {
     this.minChoices = undefined
     this.maxChoices = undefined

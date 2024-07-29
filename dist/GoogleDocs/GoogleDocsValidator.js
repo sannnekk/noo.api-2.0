@@ -6,7 +6,25 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 import { Validator } from '../Core/Request/Validator.js';
 import { ErrorConverter } from '../Core/Request/ValidatorDecorator.js';
+import { z } from 'zod';
 let GoogleDocsValidator = class GoogleDocsValidator extends Validator {
+    googleDocsBindindScheme = z.object({
+        name: z.string(),
+        entityName: z.string(),
+        entitySelector: z.object({
+            prop: z.string(),
+            value: z.string(),
+        }),
+        filePath: z.string(),
+        googleCredentials: z.any(),
+        googleOAuthToken: z.string(),
+        status: z.enum(['active', 'inactive', 'error']),
+        format: z.enum(['csv']),
+        frequency: z.enum(['hourly', 'daily', 'weekly', 'monthly']),
+    });
+    parseGoogleDocsBinding(data) {
+        return this.parse(data, this.googleDocsBindindScheme);
+    }
 };
 GoogleDocsValidator = __decorate([
     ErrorConverter()

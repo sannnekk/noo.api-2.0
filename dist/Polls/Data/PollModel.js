@@ -34,6 +34,9 @@ let PollModel = class PollModel extends Model {
     requireAuth;
     stopAt;
     isStopped;
+    static entriesToSearch() {
+        return ['title', 'description'];
+    }
 };
 __decorate([
     OneToOne(() => BlogPostModel, (post) => post.poll, { onDelete: 'CASCADE' }),

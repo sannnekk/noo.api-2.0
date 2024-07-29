@@ -329,8 +329,9 @@ export class UserService extends Service<User> {
   }
 
   private withOnlineStatus(users: User[]): (User & OnlineStatus)[] {
-    return users.map((user) => {
+    // @ts-expect-error TODO: add online status in future
+    return users /* .map((user) => {
       return this.sessionService.getOnlineStatusForUser(user)
-    })
+    }) */
   }
 }

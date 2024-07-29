@@ -13,17 +13,49 @@ import { InvalidAuthTypeError } from '../Errors/InvalidAuthTypeError.js';
 import { PollAuthService } from './PollAuthService.js';
 import { z } from 'zod';
 import * as TypeORM from 'typeorm';
+import { PollModel } from '../Data/PollModel.js';
+import { PollQuestionModel } from '../Data/Relations/PollQuestionModel.js';
+import { PollQuestionRepository } from '../Data/PollQuestionRepository.js';
 export class PollService extends Service {
     pollRepository;
     pollAnswerRepository;
+    pollQuestionRepository;
     userRepository;
     pollAuthService;
     constructor() {
         super();
         this.pollRepository = new PollRepository();
         this.pollAnswerRepository = new PollAnswerRepository();
+        this.pollQuestionRepository = new PollQuestionRepository();
         this.userRepository = new UserRepository();
         this.pollAuthService = new PollAuthService();
+    }
+    async getPolls(pagination) {
+        pagination = new Pagination().assign(pagination);
+        pagination.entriesToSearch = PollModel.entriesToSearch();
+        const relations = [];
+        const conditions = {};
+        const polls = await this.pollRepository.find(conditions, relations, pagination);
+        const meta = await this.getRequestMeta(this.pollRepository, conditions, pagination, relations);
+        return { polls, meta };
+    }
+    async searchQuestions(pagination, pollId) {
+        pagination = new Pagination().assign(pagination);
+        pagination.entriesToSearch = PollQuestionModel.entriesToSearch();
+        const relations = ['poll'];
+        const conditions = {
+            poll: {
+                post: {
+                    id: TypeORM.Not(TypeORM.IsNull()),
+                },
+            },
+        };
+        if (pollId) {
+            conditions.poll.id = pollId;
+        }
+        const questions = await this.pollQuestionRepository.find(conditions, relations, pagination);
+        const meta = await this.getRequestMeta(this.pollQuestionRepository, conditions, pagination, relations);
+        return { questions, meta };
     }
     async getPollById(id, userId) {
         const poll = await this.pollRepository.findOne({ id }, ['questions'], {

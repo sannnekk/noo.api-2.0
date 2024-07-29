@@ -21,7 +21,7 @@ import '@modules/Blog/BlogController'
 import '@modules/Polls/PollController'
 import '@modules/CRM/CRMController'
 import '@modules/Sessions/SessionsController'
-//import '@modules/GoogleDocs/GoogleDocsController'
+import '@modules/GoogleDocs/GoogleDocsController'
 
 await CoreDataSource.initialize()
 

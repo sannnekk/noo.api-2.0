@@ -190,8 +190,9 @@ export class UserService extends Service {
         return Hash.hash(`${user.id}${user.email}${user.newEmail}`);
     }
     withOnlineStatus(users) {
-        return users.map((user) => {
-            return this.sessionService.getOnlineStatusForUser(user);
-        });
+        // @ts-expect-error TODO: add online status in future
+        return users; /* .map((user) => {
+          return this.sessionService.getOnlineStatusForUser(user)
+        }) */
     }
 }

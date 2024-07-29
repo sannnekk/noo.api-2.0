@@ -1,6 +1,7 @@
 import { BaseModel } from '@modules/Core/Data/Model'
 import { User } from '@modules/Users/Data/User'
 import type { PollQuestion } from './Relations/PollQuestion'
+import { BlogPost } from '@modules/Blog/Data/BlogPost'
 
 export type PollVisibility = User['role'] | 'everyone'
 
@@ -17,4 +18,5 @@ export interface Poll extends BaseModel {
   questions: PollQuestion[]
   votedUsers?: User[]
   votedCount: number
+  post?: BlogPost
 }

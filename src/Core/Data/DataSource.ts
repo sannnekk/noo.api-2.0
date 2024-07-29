@@ -19,6 +19,7 @@ import { PollModel } from '@modules/Polls/Data/PollModel'
 import { PollQuestionModel } from '@modules/Polls/Data/Relations/PollQuestionModel'
 import { PollAnswerModel } from '@modules/Polls/Data/Relations/PollAnswerModel'
 import { SessionModel } from '@modules/Sessions/Data/SessionModel'
+import { GoogleDocsBindingModel } from '@modules/GoogleDocs/Data/GoogleDocsBindingModel'
 
 export const CoreDataSource = new DataSource({
   type: 'mysql',
@@ -49,6 +50,7 @@ export const CoreDataSource = new DataSource({
     BlogPostReactionModel,
     BlogPostModel,
     SessionModel,
+    GoogleDocsBindingModel,
   ],
   subscribers: [],
   migrations: [],

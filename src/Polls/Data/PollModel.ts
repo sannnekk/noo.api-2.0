@@ -99,4 +99,8 @@ export class PollModel extends Model implements Poll {
     default: false,
   })
   isStopped!: boolean
+
+  public static entriesToSearch() {
+    return ['title', 'description']
+  }
 }

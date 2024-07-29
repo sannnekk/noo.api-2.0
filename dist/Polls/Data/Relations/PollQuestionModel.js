@@ -90,6 +90,9 @@ let PollQuestionModel = class PollQuestionModel extends Model {
     onlyIntegerValue;
     onlyFutureDate;
     onlyPastDate;
+    static entriesToSearch() {
+        return ['text', 'description'];
+    }
     resetOptions() {
         this.minChoices = undefined;
         this.maxChoices = undefined;

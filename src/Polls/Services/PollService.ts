@@ -16,11 +16,19 @@ import { InvalidAuthTypeError } from '../Errors/InvalidAuthTypeError'
 import { PollAuthService } from './PollAuthService'
 import { z } from 'zod'
 import * as TypeORM from 'typeorm'
+import { PollModel } from '../Data/PollModel'
+import { PollQuestionModel } from '../Data/Relations/PollQuestionModel'
+import { PollQuestion } from '../Data/Relations/PollQuestion'
+import { PollQuestionRepository } from '../Data/PollQuestionRepository'
 
-export class PollService extends Service<Poll | PollAnswer | User> {
+export class PollService extends Service<
+  Poll | PollAnswer | PollQuestion | User
+> {
   private readonly pollRepository: PollRepository
 
   private readonly pollAnswerRepository: PollAnswerRepository
+
+  private readonly pollQuestionRepository: PollQuestionRepository
 
   private readonly userRepository: UserRepository
 
@@ -31,8 +39,66 @@ export class PollService extends Service<Poll | PollAnswer | User> {
 
     this.pollRepository = new PollRepository()
     this.pollAnswerRepository = new PollAnswerRepository()
+    this.pollQuestionRepository = new PollQuestionRepository()
     this.userRepository = new UserRepository()
     this.pollAuthService = new PollAuthService()
+  }
+
+  public async getPolls(pagination: Pagination) {
+    pagination = new Pagination().assign(pagination)
+    pagination.entriesToSearch = PollModel.entriesToSearch()
+
+    const relations = [] as (keyof Poll)[]
+    const conditions = {} as Partial<Poll>
+
+    const polls = await this.pollRepository.find(
+      conditions,
+      relations,
+      pagination
+    )
+
+    const meta = await this.getRequestMeta(
+      this.pollRepository,
+      conditions,
+      pagination,
+      relations
+    )
+
+    return { polls, meta }
+  }
+
+  public async searchQuestions(pagination: Pagination, pollId?: Poll['id']) {
+    pagination = new Pagination().assign(pagination)
+    pagination.entriesToSearch = PollQuestionModel.entriesToSearch()
+
+    const relations = ['poll'] as any as (keyof PollQuestion)[]
+
+    const conditions: Partial<PollQuestion> = {
+      poll: {
+        post: {
+          id: TypeORM.Not(TypeORM.IsNull()) as any,
+        } as any,
+      } as any,
+    }
+
+    if (pollId) {
+      conditions.poll!.id = pollId
+    }
+
+    const questions = await this.pollQuestionRepository.find(
+      conditions,
+      relations,
+      pagination
+    )
+
+    const meta = await this.getRequestMeta(
+      this.pollQuestionRepository,
+      conditions,
+      pagination,
+      relations
+    )
+
+    return { questions, meta }
   }
 
   public async getPollById(id: Poll['id'], userId?: User['id']): Promise<Poll> {

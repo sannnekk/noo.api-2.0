@@ -1,6 +1,7 @@
 import { BaseModel } from '@modules/Core/Data/Model'
 import { Media } from '@modules/Media/Data/Media'
 import { PollAnswer } from './PollAnswer'
+import { Poll } from '../Poll'
 
 export type PollQuestionType =
   | 'text'
@@ -17,6 +18,7 @@ export interface PollQuestion extends BaseModel {
   type: PollQuestionType
   required: boolean
   answers?: PollAnswer[]
+  poll?: Poll
 
   // choice
   choices?: string[]

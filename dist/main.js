@@ -17,7 +17,7 @@ import './Blog/BlogController.js';
 import './Polls/PollController.js';
 import './CRM/CRMController.js';
 import './Sessions/SessionsController.js';
-//import './GoogleDocs/GoogleDocsController.js'
+import './GoogleDocs/GoogleDocsController.js';
 await CoreDataSource.initialize();
 const app = express();
 app.set('trust proxy', true);

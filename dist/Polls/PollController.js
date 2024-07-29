@@ -20,6 +20,30 @@ let PollController = class PollController {
         this.pollService = new PollService();
         this.pollValidator = new PollValidator();
     }
+    async getPolls(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.teacherOrAdmin(context);
+            const pagination = this.pollValidator.parsePagination(context.query);
+            const { polls, meta } = await this.pollService.getPolls(pagination);
+            return new ApiResponse({ data: polls, meta });
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
+    async getQuestions(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.teacherOrAdmin(context);
+            const pagination = this.pollValidator.parsePagination(context.query);
+            const { questions, meta } = await this.pollService.searchQuestions(pagination);
+            return new ApiResponse({ data: questions, meta });
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
     async getPoll(context) {
         try {
             //await Asserts.isAuthenticated(context)
@@ -104,6 +128,18 @@ let PollController = class PollController {
         }
     }
 };
+__decorate([
+    Get('/'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], PollController.prototype, "getPolls", null);
+__decorate([
+    Get('/question'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], PollController.prototype, "getQuestions", null);
 __decorate([
     Get('/:id'),
     __metadata("design:type", Function),
