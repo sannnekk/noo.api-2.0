@@ -8,6 +8,7 @@ import { Validator } from '../Core/Request/Validator.js';
 import { ErrorConverter } from '../Core/Request/ValidatorDecorator.js';
 import { z } from 'zod';
 let GoogleDocsValidator = class GoogleDocsValidator extends Validator {
+    frequencyScheme = z.enum(['hourly', 'daily', 'weekly', 'monthly']);
     googleDocsBindindScheme = z.object({
         name: z.string(),
         entityName: z.string(),
@@ -15,15 +16,17 @@ let GoogleDocsValidator = class GoogleDocsValidator extends Validator {
             prop: z.string(),
             value: z.string(),
         }),
-        filePath: z.string(),
-        googleCredentials: z.any(),
+        //filePath: z.string(),
         googleOAuthToken: z.string(),
+        googleCredentials: z.any(),
         status: z.enum(['active', 'inactive', 'error']),
-        format: z.enum(['csv']),
-        frequency: z.enum(['hourly', 'daily', 'weekly', 'monthly']),
+        frequency: this.frequencyScheme,
     });
     parseGoogleDocsBinding(data) {
         return this.parse(data, this.googleDocsBindindScheme);
+    }
+    parseFrequency(data) {
+        return this.parse(data, this.frequencyScheme);
     }
 };
 GoogleDocsValidator = __decorate([

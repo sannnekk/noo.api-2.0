@@ -11,6 +11,7 @@ export interface PollAnswer extends BaseModel {
   userAuthData: Record<string, unknown> | null
   userAuthIdentifier?: string
   questionId: string
+  question?: PollQuestion
   questionType: PollQuestion['type']
   user?: User
   userId: string

@@ -1,5 +1,5 @@
 import { type BaseModel } from '@modules/Core/Data/Model'
-import { GoogleCredentials } from './GoogleCredentials'
+import { type TokenPayload } from 'google-auth-library'
 
 export interface GoogleDocsBinding extends BaseModel {
   name: string
@@ -8,10 +8,12 @@ export interface GoogleDocsBinding extends BaseModel {
     prop: string
     value: string
   }
-  filePath: string
-  googleOAuthToken: string
-  googleCredentials: GoogleCredentials
+  filePath: string[]
+  googleOAuthToken: string | null
+  googleRefreshToken: string | null
+  googleCredentials: TokenPayload | null
+  lastRunAt: Date | null
   status: 'active' | 'inactive' | 'error'
-  format: 'csv'
+  lastErrorText: string | null
   frequency: 'hourly' | 'daily' | 'weekly' | 'monthly'
 }

@@ -140,12 +140,14 @@ export abstract class Repository<T extends BaseModel> {
   async findOne(
     conditions: Record<string, unknown> | Record<string, unknown>[],
     relations?: Readonly<RelationsType<T>>,
-    sort?: any | undefined
+    sort?: any | undefined,
+    relationLoadStrategy: 'join' | 'query' = 'join'
   ): Promise<T | null> {
     return this.repository.findOne({
       relations: (relations as string[]) || undefined,
       where: conditions,
       order: sort,
+      relationLoadStrategy,
     }) as Promise<T | null>
   }
 

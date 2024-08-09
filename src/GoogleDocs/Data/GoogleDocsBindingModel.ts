@@ -1,7 +1,7 @@
 import { Model } from '@modules/Core/Data/Model'
 import { GoogleDocsBinding } from './GoogleDocsBinding'
 import { Column, Entity } from 'typeorm'
-import { GoogleCredentials } from './GoogleCredentials'
+import { type TokenPayload } from 'google-auth-library'
 
 @Entity('google_docs_binding')
 export class GoogleDocsBindingModel extends Model implements GoogleDocsBinding {
@@ -35,22 +35,37 @@ export class GoogleDocsBindingModel extends Model implements GoogleDocsBinding {
 
   @Column({
     name: 'file_path',
-    type: 'varchar',
-    length: 255,
+    type: 'simple-array',
   })
-  filePath!: string
+  filePath!: string[]
 
   @Column({
     name: 'google_oauth_token',
     type: 'text',
+    nullable: true,
   })
   googleOAuthToken!: string
 
   @Column({
+    name: 'google_refresh_token',
+    type: 'text',
+    nullable: true,
+  })
+  googleRefreshToken!: string | null
+
+  @Column({
     name: 'google_credentials',
     type: 'json',
+    nullable: true,
   })
-  googleCredentials!: GoogleCredentials
+  googleCredentials!: TokenPayload | null
+
+  @Column({
+    name: 'last_run_at',
+    type: 'timestamp',
+    nullable: true,
+  })
+  lastRunAt!: Date | null
 
   @Column({
     name: 'status',
@@ -61,12 +76,11 @@ export class GoogleDocsBindingModel extends Model implements GoogleDocsBinding {
   status!: 'active' | 'inactive' | 'error'
 
   @Column({
-    name: 'format',
-    type: 'enum',
-    enum: ['csv'],
-    default: 'csv',
+    name: 'last_error_text',
+    type: 'text',
+    nullable: true,
   })
-  format!: 'csv'
+  lastErrorText!: string | null
 
   @Column({
     name: 'frequency',

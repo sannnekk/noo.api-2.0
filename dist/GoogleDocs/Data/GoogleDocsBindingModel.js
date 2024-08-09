@@ -21,9 +21,11 @@ let GoogleDocsBindingModel = class GoogleDocsBindingModel extends Model {
     entitySelector;
     filePath;
     googleOAuthToken;
+    googleRefreshToken;
     googleCredentials;
+    lastRunAt;
     status;
-    format;
+    lastErrorText;
     frequency;
     static entriesToSearch() {
         return ['name', 'entityName', 'filePath'];
@@ -55,25 +57,42 @@ __decorate([
 __decorate([
     Column({
         name: 'file_path',
-        type: 'varchar',
-        length: 255,
+        type: 'simple-array',
     }),
-    __metadata("design:type", String)
+    __metadata("design:type", Array)
 ], GoogleDocsBindingModel.prototype, "filePath", void 0);
 __decorate([
     Column({
         name: 'google_oauth_token',
         type: 'text',
+        nullable: true,
     }),
     __metadata("design:type", String)
 ], GoogleDocsBindingModel.prototype, "googleOAuthToken", void 0);
 __decorate([
     Column({
+        name: 'google_refresh_token',
+        type: 'text',
+        nullable: true,
+    }),
+    __metadata("design:type", Object)
+], GoogleDocsBindingModel.prototype, "googleRefreshToken", void 0);
+__decorate([
+    Column({
         name: 'google_credentials',
         type: 'json',
+        nullable: true,
     }),
     __metadata("design:type", Object)
 ], GoogleDocsBindingModel.prototype, "googleCredentials", void 0);
+__decorate([
+    Column({
+        name: 'last_run_at',
+        type: 'timestamp',
+        nullable: true,
+    }),
+    __metadata("design:type", Object)
+], GoogleDocsBindingModel.prototype, "lastRunAt", void 0);
 __decorate([
     Column({
         name: 'status',
@@ -85,13 +104,12 @@ __decorate([
 ], GoogleDocsBindingModel.prototype, "status", void 0);
 __decorate([
     Column({
-        name: 'format',
-        type: 'enum',
-        enum: ['csv'],
-        default: 'csv',
+        name: 'last_error_text',
+        type: 'text',
+        nullable: true,
     }),
-    __metadata("design:type", String)
-], GoogleDocsBindingModel.prototype, "format", void 0);
+    __metadata("design:type", Object)
+], GoogleDocsBindingModel.prototype, "lastErrorText", void 0);
 __decorate([
     Column({
         name: 'frequency',

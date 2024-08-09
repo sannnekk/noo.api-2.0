@@ -5,6 +5,8 @@ import { GoogleDocsBindingDTO } from './DTO/GoogleDocsBindingDTO'
 
 @ErrorConverter()
 export class GoogleDocsValidator extends Validator {
+  public frequencyScheme = z.enum(['hourly', 'daily', 'weekly', 'monthly'])
+
   public googleDocsBindindScheme = z.object({
     name: z.string(),
     entityName: z.string(),
@@ -12,15 +14,18 @@ export class GoogleDocsValidator extends Validator {
       prop: z.string(),
       value: z.string(),
     }),
-    filePath: z.string(),
-    googleCredentials: z.any(),
+    //filePath: z.string(),
     googleOAuthToken: z.string(),
+    googleCredentials: z.any(),
     status: z.enum(['active', 'inactive', 'error']),
-    format: z.enum(['csv']),
-    frequency: z.enum(['hourly', 'daily', 'weekly', 'monthly']),
+    frequency: this.frequencyScheme,
   })
 
   public parseGoogleDocsBinding(data: unknown): GoogleDocsBindingDTO {
     return this.parse<GoogleDocsBindingDTO>(data, this.googleDocsBindindScheme)
+  }
+
+  public parseFrequency(data: unknown): string {
+    return this.parse<string>(data, this.frequencyScheme)
   }
 }

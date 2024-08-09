@@ -100,11 +100,12 @@ export class Repository {
             order: sort,
         }));
     }
-    async findOne(conditions, relations, sort) {
+    async findOne(conditions, relations, sort, relationLoadStrategy = 'join') {
         return this.repository.findOne({
             relations: relations || undefined,
             where: conditions,
             order: sort,
+            relationLoadStrategy,
         });
     }
     async count(conditions, pagination) {

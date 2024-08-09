@@ -1,4 +1,10 @@
-import { Controller, Delete, Get, Post } from 'express-controller-decorator'
+import {
+  Controller,
+  Delete,
+  Get,
+  Patch,
+  Post,
+} from 'express-controller-decorator'
 import { Context } from '@modules/Core/Request/Context'
 import { ApiResponse } from '@modules/Core/Response/ApiResponse'
 import { GoogleDocsValidator } from './GoogleDocsValidator'
@@ -42,6 +48,38 @@ export class GoogleDocsController {
       const data = this.googleDocsValidator.parseGoogleDocsBinding(context.body)
 
       await this.googleDocsIntegrationService.createBinding(data)
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
+
+  @Patch('/binding/:id/trigger')
+  public async triggerBinding(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.teacherOrAdmin(context)
+
+      const id = this.googleDocsValidator.parseId(context.params.id)
+
+      await this.googleDocsIntegrationService.triggerBinding(id)
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
+
+  @Patch('/binding/:id/switch-on-off')
+  public async switchOnOffBinding(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.teacherOrAdmin(context)
+
+      const id = this.googleDocsValidator.parseId(context.params.id)
+
+      await this.googleDocsIntegrationService.switchOnOffBinding(id)
 
       return new ApiResponse()
     } catch (error: any) {
