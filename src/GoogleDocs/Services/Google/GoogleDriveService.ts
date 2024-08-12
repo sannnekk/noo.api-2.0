@@ -1,6 +1,6 @@
 import { OAuth2Client } from 'google-auth-library'
-import { DataToSync } from '../BindingSyncService'
 import { GoogleSpreadsheet } from 'google-spreadsheet'
+import { DataToSync } from '../BindingSyncService'
 
 export class GoogleDriveService {
   /**

@@ -67,9 +67,9 @@ export class UserValidator extends Validator {
   })
 
   public telegramUpdate = z.object({
-    telegramId: z.string().nullable(),
-    telegramUsername: z.string().nullable(),
-    telegramAvatarUrl: z.string().nullable(),
+    telegramId: z.string().nullable().optional(),
+    telegramUsername: z.string().nullable().optional(),
+    telegramAvatarUrl: z.string().nullable().optional(),
   })
 
   public loginScheme = z.object({

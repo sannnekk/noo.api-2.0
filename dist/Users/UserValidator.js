@@ -53,9 +53,9 @@ let UserValidator = class UserValidator extends Validator {
         forbidden: z.number().optional(),
     });
     telegramUpdate = z.object({
-        telegramId: z.string().nullable(),
-        telegramUsername: z.string().nullable(),
-        telegramAvatarUrl: z.string().nullable(),
+        telegramId: z.string().nullable().optional(),
+        telegramUsername: z.string().nullable().optional(),
+        telegramAvatarUrl: z.string().nullable().optional(),
     });
     loginScheme = z.object({
         usernameOrEmail: this.usernameScheme.or(this.emailScheme),
