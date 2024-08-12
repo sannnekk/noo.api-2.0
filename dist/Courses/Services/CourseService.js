@@ -4,24 +4,22 @@ import { UnknownError } from '../../Core/Errors/UnknownError.js';
 import { Pagination } from '../../Core/Data/Pagination.js';
 import { Service } from '../../Core/Services/Service.js';
 import TypeORM from 'typeorm';
-import { AssignedWorkService } from '../../AssignedWorks/Services/AssignedWorkService.js';
 import { AssignedWorkRepository } from '../../AssignedWorks/Data/AssignedWorkRepository.js';
 import { CourseMaterialRepository } from '../Data/CourseMaterialRepository.js';
 import { CourseModel } from '../Data/CourseModel.js';
 import { CourseRepository } from '../Data/CourseRepository.js';
 import { CourseChapterModel } from '../Data/Relations/CourseChapterModel.js';
+import { CourseIsEmptyError } from '../Errors/CourseIsEmptyError.js';
 export class CourseService extends Service {
     courseRepository;
     materialRepository;
     userRepository;
-    assignedWorkService;
     assignedWorkRepository;
     constructor() {
         super();
         this.courseRepository = new CourseRepository();
         this.userRepository = new UserRepository();
         this.materialRepository = new CourseMaterialRepository();
-        this.assignedWorkService = new AssignedWorkService();
         this.assignedWorkRepository = new AssignedWorkRepository();
     }
     async get(pagination, userId, userRole) {
@@ -69,7 +67,13 @@ export class CourseService extends Service {
             },
         });
         if (!course) {
-            throw new NotFoundError();
+            const courseExists = await this.courseRepository.findOne({ slug });
+            if (!courseExists) {
+                throw new NotFoundError('Курс не найден');
+            }
+            else {
+                throw new CourseIsEmptyError();
+            }
         }
         return course;
     }

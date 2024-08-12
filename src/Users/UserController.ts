@@ -11,7 +11,6 @@ import { ApiResponse } from '@modules/Core/Response/ApiResponse'
 import { UserValidator } from './UserValidator'
 import { UserService } from './Services/UserService'
 import { AuthService } from './Services/AuthService'
-import { SessionService } from '@modules/Sessions/Services/SessionService'
 
 @Controller('/user')
 export class UserController {
@@ -21,13 +20,10 @@ export class UserController {
 
   private readonly authService: AuthService
 
-  private readonly sessionService: SessionService
-
   constructor() {
     this.userValidator = new UserValidator()
     this.userService = new UserService()
     this.authService = new AuthService()
-    this.sessionService = new SessionService()
   }
 
   @Post('/auth/login')

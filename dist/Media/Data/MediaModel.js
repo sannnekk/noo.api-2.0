@@ -7,12 +7,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToOne } from 'typeorm';
 import { Model } from '../../Core/Data/Model.js';
 import { CourseMaterialModel } from '../../Courses/Data/Relations/CourseMaterialModel.js';
 import { CourseModel } from '../../Courses/Data/CourseModel.js';
 import { PollAnswerModel } from '../../Polls/Data/Relations/PollAnswerModel.js';
 import { BlogPostModel } from '../../Blog/Data/BlogPostModel.js';
+import { UserModel } from '../../Users/Data/UserModel.js';
 let MediaModel = class MediaModel extends Model {
     constructor(data) {
         super();
@@ -28,6 +29,7 @@ let MediaModel = class MediaModel extends Model {
     course;
     pollAnswer;
     blogPost;
+    user;
 };
 __decorate([
     Column({
@@ -83,6 +85,10 @@ __decorate([
     }),
     __metadata("design:type", Object)
 ], MediaModel.prototype, "blogPost", void 0);
+__decorate([
+    OneToOne(() => UserModel, (user) => user.avatar),
+    __metadata("design:type", UserModel)
+], MediaModel.prototype, "user", void 0);
 MediaModel = __decorate([
     Entity('media'),
     __metadata("design:paramtypes", [Object])

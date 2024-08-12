@@ -1,10 +1,12 @@
 import {
   Column,
   Entity,
+  JoinColumn,
   JoinTable,
   ManyToMany,
   ManyToOne,
   OneToMany,
+  OneToOne,
   RelationId,
 } from 'typeorm'
 import { Model } from '@modules/Core/Data/Model'
@@ -24,6 +26,8 @@ import { Poll } from '@modules/Polls/Data/Poll'
 import type { User } from './User'
 import { SessionModel } from '@modules/Sessions/Data/SessionModel'
 import { Session } from '@modules/Sessions/Data/Session'
+import { MediaModel } from '@modules/Media/Data/MediaModel'
+import { Media } from '@modules/Media/Data/Media'
 
 @Entity('user')
 export class UserModel extends Model implements User {
@@ -35,6 +39,10 @@ export class UserModel extends Model implements User {
 
       if (!data.slug && data.username) {
         this.slug = this.sluggify(this.username)
+      }
+
+      if (data.avatar) {
+        this.avatar = new MediaModel(data.avatar)
       }
     }
   }
@@ -120,6 +128,22 @@ export class UserModel extends Model implements User {
 
   @OneToMany(() => SessionModel, (session) => session.user)
   sessions?: Session[]
+
+  @OneToOne(() => MediaModel, (media) => media.user, {
+    onDelete: 'CASCADE',
+    cascade: true,
+    eager: true,
+  })
+  @JoinColumn()
+  avatar?: Media
+
+  @Column({
+    name: 'avatar_type',
+    type: 'varchar',
+    nullable: true,
+    default: null,
+  })
+  avatarType?: User['avatarType']
 
   @Column({
     name: 'telegram_id',

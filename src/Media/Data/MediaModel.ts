@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne } from 'typeorm'
+import { Column, Entity, ManyToOne, OneToOne } from 'typeorm'
 import { Model } from '@modules/Core/Data/Model'
 import { CourseMaterialModel } from '@modules/Courses/Data/Relations/CourseMaterialModel'
 import { CourseModel } from '@modules/Courses/Data/CourseModel'
@@ -7,6 +7,7 @@ import { Media } from './Media'
 import { BlogPost } from '@modules/Blog/Data/BlogPost'
 import { PollAnswer } from '@modules/Polls/Data/Relations/PollAnswer'
 import { BlogPostModel } from '@modules/Blog/Data/BlogPostModel'
+import { UserModel } from '@modules/Users/Data/UserModel'
 
 @Entity('media')
 export class MediaModel extends Model implements Media {
@@ -67,4 +68,7 @@ export class MediaModel extends Model implements Media {
     onDelete: 'SET NULL',
   })
   blogPost?: BlogPost
+
+  @OneToOne(() => UserModel, (user) => user.avatar)
+  user?: UserModel
 }

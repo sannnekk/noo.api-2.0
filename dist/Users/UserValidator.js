@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { ErrorConverter } from '../Core/Request/ValidatorDecorator.js';
 import { Validator } from '../Core/Request/Validator.js';
 import { UserRoles } from '../Core/Security/roles.js';
+import { MediaScheme } from '../Media/MediaScheme.js';
 let UserValidator = class UserValidator extends Validator {
     userRoleScheme = z.enum(Object.keys(UserRoles));
     passwordScheme = z
@@ -48,6 +49,8 @@ let UserValidator = class UserValidator extends Validator {
         id: z.string().ulid(),
         name: z.string().optional(),
         password: this.passwordScheme.optional(),
+        avatar: MediaScheme.optional().nullable(),
+        avatarType: z.string().optional().nullable(),
         role: this.userRoleScheme.optional(),
         isBlocked: z.boolean().optional(),
         forbidden: z.number().optional(),

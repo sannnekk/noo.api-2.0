@@ -14,17 +14,14 @@ import { ApiResponse } from '../Core/Response/ApiResponse.js';
 import { UserValidator } from './UserValidator.js';
 import { UserService } from './Services/UserService.js';
 import { AuthService } from './Services/AuthService.js';
-import { SessionService } from '../Sessions/Services/SessionService.js';
 let UserController = class UserController {
     userValidator;
     userService;
     authService;
-    sessionService;
     constructor() {
         this.userValidator = new UserValidator();
         this.userService = new UserService();
         this.authService = new AuthService();
-        this.sessionService = new SessionService();
     }
     async login(context) {
         try {

@@ -11,6 +11,7 @@ import { UpdateUserDTO } from './DTO/UpdateUserDTO'
 import { UpdateTelegramDTO } from './DTO/UpdateTelegramDTO'
 import { EmailChangeVerificationDTO } from './DTO/EmailChangeVerificationDTO'
 import { UpdateEmailDTO } from './DTO/UpdateEmailDTO'
+import { MediaScheme } from '@modules/Media/MediaScheme'
 
 @ErrorConverter()
 export class UserValidator extends Validator {
@@ -61,6 +62,8 @@ export class UserValidator extends Validator {
     id: z.string().ulid(),
     name: z.string().optional(),
     password: this.passwordScheme.optional(),
+    avatar: MediaScheme.optional().nullable(),
+    avatarType: z.string().optional().nullable(),
     role: this.userRoleScheme.optional(),
     isBlocked: z.boolean().optional(),
     forbidden: z.number().optional(),

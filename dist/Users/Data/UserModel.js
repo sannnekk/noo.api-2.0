@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, RelationId, } from 'typeorm';
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, RelationId, } from 'typeorm';
 import { Model } from '../../Core/Data/Model.js';
 import { CourseModel } from '../../Courses/Data/CourseModel.js';
 import { AssignedWorkModel } from '../../AssignedWorks/Data/AssignedWorkModel.js';
@@ -16,6 +16,7 @@ import { BlogPostReactionModel } from '../../Blog/Data/Relations/BlogPostReactio
 import { PollAnswerModel } from '../../Polls/Data/Relations/PollAnswerModel.js';
 import { PollModel } from '../../Polls/Data/PollModel.js';
 import { SessionModel } from '../../Sessions/Data/SessionModel.js';
+import { MediaModel } from '../../Media/Data/MediaModel.js';
 let UserModel = class UserModel extends Model {
     constructor(data) {
         super();
@@ -23,6 +24,9 @@ let UserModel = class UserModel extends Model {
             this.set(data);
             if (!data.slug && data.username) {
                 this.slug = this.sluggify(this.username);
+            }
+            if (data.avatar) {
+                this.avatar = new MediaModel(data.avatar);
             }
         }
     }
@@ -45,6 +49,8 @@ let UserModel = class UserModel extends Model {
     pollAnswers;
     votedPolls;
     sessions;
+    avatar;
+    avatarType;
     telegramId;
     telegramUsername;
     telegramAvatarUrl;
@@ -160,6 +166,24 @@ __decorate([
     OneToMany(() => SessionModel, (session) => session.user),
     __metadata("design:type", Array)
 ], UserModel.prototype, "sessions", void 0);
+__decorate([
+    OneToOne(() => MediaModel, (media) => media.user, {
+        onDelete: 'CASCADE',
+        cascade: true,
+        eager: true,
+    }),
+    JoinColumn(),
+    __metadata("design:type", Object)
+], UserModel.prototype, "avatar", void 0);
+__decorate([
+    Column({
+        name: 'avatar_type',
+        type: 'varchar',
+        nullable: true,
+        default: null,
+    }),
+    __metadata("design:type", Object)
+], UserModel.prototype, "avatarType", void 0);
 __decorate([
     Column({
         name: 'telegram_id',

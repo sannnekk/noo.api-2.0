@@ -6,7 +6,6 @@ import { Service } from '@modules/Core/Services/Service'
 import TypeORM from 'typeorm'
 import { User } from '@modules/Users/Data/User'
 import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
-import { AssignedWorkService } from '@modules/AssignedWorks/Services/AssignedWorkService'
 import { AssignedWorkRepository } from '@modules/AssignedWorks/Data/AssignedWorkRepository'
 import { CourseCreationDTO } from '../DTO/CourseCreationDTO'
 import { CourseMaterialRepository } from '../Data/CourseMaterialRepository'
@@ -16,6 +15,7 @@ import { CourseRepository } from '../Data/CourseRepository'
 import { CourseUpdateDTO } from '../DTO/CourseUpdateDTO'
 import { CourseChapter } from '../Data/Relations/CourseChapter'
 import { CourseChapterModel } from '../Data/Relations/CourseChapterModel'
+import { CourseIsEmptyError } from '../Errors/CourseIsEmptyError'
 
 export class CourseService extends Service<Course> {
   private readonly courseRepository: CourseRepository
@@ -23,8 +23,6 @@ export class CourseService extends Service<Course> {
   private readonly materialRepository: CourseMaterialRepository
 
   private readonly userRepository: UserRepository
-
-  private readonly assignedWorkService: AssignedWorkService
 
   private readonly assignedWorkRepository: AssignedWorkRepository
 
@@ -34,7 +32,6 @@ export class CourseService extends Service<Course> {
     this.courseRepository = new CourseRepository()
     this.userRepository = new UserRepository()
     this.materialRepository = new CourseMaterialRepository()
-    this.assignedWorkService = new AssignedWorkService()
     this.assignedWorkRepository = new AssignedWorkRepository()
   }
 
@@ -111,7 +108,13 @@ export class CourseService extends Service<Course> {
     )
 
     if (!course) {
-      throw new NotFoundError()
+      const courseExists = await this.courseRepository.findOne({ slug })
+
+      if (!courseExists) {
+        throw new NotFoundError('Курс не найден')
+      } else {
+        throw new CourseIsEmptyError()
+      }
     }
 
     return course

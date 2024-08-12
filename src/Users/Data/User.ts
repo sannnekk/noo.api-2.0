@@ -5,6 +5,7 @@ import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
 import { Course } from '@modules/Courses/Data/Course'
 import { Poll } from '@modules/Polls/Data/Poll'
 import { Session } from '@modules/Sessions/Data/Session'
+import { Media } from '@modules/Media/Data/Media'
 
 export interface User extends BaseModel {
   slug: string
@@ -13,7 +14,8 @@ export interface User extends BaseModel {
   username: string
   email: string
   newEmail?: string
-  // TODO: avatar?: Media
+  avatar?: Media
+  avatarType?: 'telegram' | 'custom'
   students?: User[]
   telegramAvatarUrl?: string
   telegramUsername?: string
