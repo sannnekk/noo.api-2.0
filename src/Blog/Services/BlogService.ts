@@ -1,4 +1,3 @@
-import { Service } from '@modules/Core/Services/Service'
 import { Pagination } from '@modules/Core/Data/Pagination'
 import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
 import { QueryFailedError } from 'typeorm'
@@ -12,14 +11,12 @@ import { BlogPostRepository } from '../Data/BlogPostRepository'
 import { Reaction, type BlogPost } from '../Data/BlogPost'
 import { BlogPostDTO } from '../DTO/BlogPostDTO'
 
-export class BlogService extends Service<BlogPost> {
+export class BlogService {
   private readonly repository: BlogPostRepository
 
   private readonly reactionRepository: BlogPostReactionRepository
 
   constructor() {
-    super()
-
     this.repository = new BlogPostRepository()
     this.reactionRepository = new BlogPostReactionRepository()
   }
@@ -28,22 +25,14 @@ export class BlogService extends Service<BlogPost> {
     const relations: (keyof BlogPost)[] = ['author', 'poll']
 
     pagination = new Pagination().assign(pagination)
-    pagination.entriesToSearch = BlogPostModel.entriesToSearch()
 
-    const posts: BlogPostDTO[] = await this.repository.find(
-      undefined,
-      relations,
-      pagination
-    )
-
-    const meta = await this.getRequestMeta(
-      this.repository,
+    const { entities: posts, meta } = await this.repository.search(
       undefined,
       pagination,
       relations
     )
 
-    const reactions = await this.reactionRepository.find(
+    const { entities: reactions } = await this.reactionRepository.find(
       posts.map((post) => ({
         post: { id: post.id },
         user: { id: userId },
@@ -56,11 +45,11 @@ export class BlogService extends Service<BlogPost> {
       reactionsMap.set(reaction.postId, reaction.reaction)
     })
 
-    posts.forEach((post) => {
+    for (const post of posts as BlogPostDTO[]) {
       post.myReaction = reactionsMap.get(post.id)
-    })
+    }
 
-    return { posts, meta }
+    return { entities: posts, meta }
   }
 
   public async getById(

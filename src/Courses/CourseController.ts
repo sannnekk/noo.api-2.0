@@ -28,13 +28,13 @@ export class CourseController {
       await Asserts.isAuthenticated(context)
       const pagination = this.courseValidator.parsePagination(context.query)
 
-      const { courses, meta } = await this.courseService.get(
+      const { entities, meta } = await this.courseService.get(
         pagination,
         context.credentials!.userId,
         context.credentials!.role
       )
 
-      return new ApiResponse({ data: courses, meta })
+      return new ApiResponse({ data: entities, meta })
     } catch (error: any) {
       return new ApiResponse(error)
     }
@@ -155,24 +155,6 @@ export class CourseController {
         assignWorkOptions.solveDeadline,
         assignWorkOptions.checkDeadline
       )
-
-      return new ApiResponse()
-    } catch (error: any) {
-      return new ApiResponse(error)
-    }
-  }
-
-  @Patch('/:courseSlug/assign-students')
-  public async assignStudents(context: Context): Promise<ApiResponse> {
-    try {
-      await Asserts.isAuthenticated(context)
-      Asserts.teacher(context)
-      const courseSlug = this.courseValidator.parseSlug(
-        context.params.courseSlug
-      )
-      const { studentIds } = this.courseValidator.parseStudentIds(context.body)
-
-      await this.courseService.assignStudents(courseSlug, studentIds)
 
       return new ApiResponse()
     } catch (error: any) {

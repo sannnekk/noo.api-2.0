@@ -2,7 +2,6 @@ import * as Hash from '@modules/Core/Security/hash'
 import { UnauthenticatedError } from '@modules/Core/Errors/UnauthenticatedError'
 import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
 import { Pagination } from '@modules/Core/Data/Pagination'
-import { Service } from '@modules/Core/Services/Service'
 import { EmailService } from '@modules/Core/Email/EmailService'
 import { User } from '../Data/User'
 import { UserRepository } from '../Data/UserRepository'
@@ -14,51 +13,98 @@ import {
   OnlineStatus,
   SessionService,
 } from '@modules/Sessions/Services/SessionService'
+import { UserAvatarModel } from '../Data/Relations/UserAvatarModel'
+import { Subject } from '@modules/Subjects/Data/Subject'
+import { MentorAssignmentRepository } from '../Data/MentorAssignmentRepository'
+import { FindOptionsWhere } from 'typeorm'
+import TypeORM from 'typeorm'
+import { MentorAssignmentModel } from '../Data/Relations/MentorAssignmentModel'
+import { SubjectRepository } from '@modules/Subjects/Data/SubjectRepository'
 
-export class UserService extends Service<User> {
+export class UserService {
   private readonly userRepository: UserRepository
 
   private readonly emailService: EmailService
 
   private readonly sessionService: SessionService
 
-  constructor() {
-    super()
+  private readonly mentorAssignmentRepository: MentorAssignmentRepository
 
+  private readonly subjectRepository: SubjectRepository
+
+  constructor() {
     this.userRepository = new UserRepository()
     this.emailService = new EmailService()
     this.sessionService = new SessionService()
+    this.mentorAssignmentRepository = new MentorAssignmentRepository()
+    this.subjectRepository = new SubjectRepository()
   }
 
-  public async assignMentor(studentId: User['id'], mentorId: User['id']) {
+  public async assignMentor(
+    studentId: User['id'],
+    mentorId: User['id'],
+    subjectId: Subject['id']
+  ) {
     const student = await this.userRepository.findOne({ id: studentId })
     const mentor = await this.userRepository.findOne({ id: mentorId })
+    const subject = await this.subjectRepository.findOne({ id: subjectId })
 
     if (!student || !mentor) {
-      throw new NotFoundError()
+      throw new NotFoundError('Ученик или куратор не найден.')
+    }
+
+    if (!subject) {
+      throw new NotFoundError('Предмет не найден.')
     }
 
     if (student.isBlocked || mentor.isBlocked) {
       throw new UnauthenticatedError(
-        'Аккаунт куратора или студента заблокирован.'
+        'Аккаунт куратора или ученика заблокирован.'
       )
     }
 
-    student.mentor = mentorId as any
+    let mentorAssignment = await this.mentorAssignmentRepository.findOne({
+      student: { id: studentId },
+      subject: { id: subjectId },
+    })
 
-    await this.userRepository.update(student)
+    if (!mentorAssignment) {
+      mentorAssignment = new MentorAssignmentModel({
+        student,
+        mentor,
+        subject,
+      })
+
+      await this.mentorAssignmentRepository.create(mentorAssignment)
+    } else {
+      mentorAssignment.mentor = mentor
+
+      await this.mentorAssignmentRepository.update(mentorAssignment)
+    }
   }
 
   public async getByUsername(username: string): Promise<User & OnlineStatus> {
-    const user = await this.userRepository.findOne({ username }, [
-      'students',
-      'courses',
-      'courses.students' as any,
-      'mentor',
-    ])
+    const user = await this.userRepository.findOne(
+      { username },
+      [
+        'courses',
+        'avatar',
+        'mentorAssignmentsAsMentor',
+        'mentorAssignmentsAsMentor.student',
+        'mentorAssignmentsAsMentor.mentor',
+        'mentorAssignmentsAsMentor.subject',
+        'mentorAssignmentsAsStudent.student',
+        'mentorAssignmentsAsStudent.mentor',
+        'mentorAssignmentsAsStudent.subject',
+      ],
+      undefined,
+      {
+        relationLoadStrategy: 'query',
+      }
+    )
 
     if (!user) {
-      throw new NotFoundError()
+      throw new NotFoundError('Пользователь не найден.')
     }
 
     const onlineStatus = await this.sessionService.getOnlineStatus(user.id)
@@ -67,127 +113,62 @@ export class UserService extends Service<User> {
   }
 
   public async getUsers(pagination: Pagination | undefined) {
-    pagination = new Pagination().assign(pagination)
-    pagination.entriesToSearch = UserModel.entriesToSearch()
-
-    const relations: (keyof User)[] = []
-
-    if (pagination.relationsToLoad.includes('mentor')) {
-      relations.push('mentor')
-    }
-
-    const users = await this.userRepository.find(
-      undefined,
-      relations,
-      pagination
-    )
-
-    const meta = await this.getRequestMeta(
-      this.userRepository,
-      undefined,
-      pagination,
-      relations
-    )
-
-    return {
-      users: this.withOnlineStatus(users),
-      meta,
-    }
+    return this.userRepository.search(undefined, pagination)
   }
 
   public async getStudentsOf(mentorId: User['id'], pagination?: Pagination) {
-    pagination = new Pagination().assign(pagination)
-    pagination.entriesToSearch = UserModel.entriesToSearch()
+    const { entities: mentorAssignations, meta } =
+      await this.mentorAssignmentRepository.search(
+        {
+          mentor: { id: mentorId },
+          student: { id: TypeORM.Not(TypeORM.IsNull()) },
+        },
+        pagination,
+        ['student', 'subject']
+      )
 
-    const relations = ['students' as const]
-    const conditions: any = {
-      mentor: { id: mentorId } as any,
-      role: 'student',
-    }
+    const students = mentorAssignations.map((mentorAssignment) => ({
+      ...mentorAssignment.student,
+      subject: mentorAssignment.subject,
+    }))
 
-    const students = await this.userRepository.find(
-      conditions,
-      relations,
-      pagination
-    )
-
-    const meta = await this.getRequestMeta(
-      this.userRepository,
-      conditions,
-      pagination,
-      relations
-    )
-
-    return { students, meta }
+    return { entities: students, meta }
   }
 
   public async getMentors(pagination: Pagination | undefined) {
-    pagination = new Pagination().assign(pagination)
-    pagination.entriesToSearch = UserModel.entriesToSearch()
-
-    const relations = ['students' as const]
-    const conditions = { role: 'mentor' as const }
-
-    const mentors = await this.userRepository.find(
-      conditions,
-      relations,
-      pagination
-    )
-
-    const meta = await this.getRequestMeta(
-      this.userRepository,
-      conditions,
-      pagination,
-      relations
-    )
-
-    return { mentors, meta }
+    return this.userRepository.search({ role: 'mentor' }, pagination)
   }
 
   public async getTeachers(pagination: Pagination | undefined) {
-    pagination = new Pagination().assign(pagination)
-    pagination.entriesToSearch = UserModel.entriesToSearch()
-
-    const relations = [] as (keyof User)[]
-    const conditions = { role: 'teacher' as const }
-
-    const teachers = await this.userRepository.find(
-      conditions,
-      relations,
-      pagination
-    )
-
-    const meta = await this.getRequestMeta(
-      this.userRepository,
-      conditions,
-      pagination,
-      relations
-    )
-
-    return { teachers, meta }
+    return this.userRepository.search({ role: 'teacher' }, pagination)
   }
 
   public async getStudents(pagination: Pagination | undefined) {
-    pagination = new Pagination().assign(pagination)
-    pagination.entriesToSearch = UserModel.entriesToSearch()
+    return this.userRepository.search({ role: 'student' as const }, pagination)
+  }
 
-    const relations = ['mentor' as const]
-    const conditions = { role: 'student' as const }
+  public async getMentor(
+    student: User,
+    subjectId: Subject['id']
+  ): Promise<User | null> {
+    if (student.role !== 'student') {
+      return null
+    }
 
-    const students = await this.userRepository.find(
-      conditions,
-      relations,
-      pagination
-    )
+    const mentorAssignmentsAsStudent =
+      await this.mentorAssignmentRepository.findOne(
+        {
+          student: { id: student.id },
+          subject: { id: subjectId },
+        },
+        ['mentor']
+      )
 
-    const meta = await this.getRequestMeta(
-      this.userRepository,
-      conditions,
-      pagination,
-      relations
-    )
+    if (!mentorAssignmentsAsStudent) {
+      return null
+    }
 
-    return { students, meta }
+    return mentorAssignmentsAsStudent.mentor
   }
 
   public async update(
@@ -201,7 +182,9 @@ export class UserService extends Service<User> {
       throw new NotFoundError()
     }
 
-    if (data.password) data.password = await Hash.hash(data.password)
+    if (data.password) {
+      data.password = await Hash.hash(data.password)
+    }
 
     const user = new UserModel({
       ...existingUser,
@@ -218,9 +201,7 @@ export class UserService extends Service<User> {
       user.role = data.role
     }
 
-    const newUser = new UserModel({ ...existingUser, ...user })
-
-    await this.userRepository.update(newUser)
+    await this.userRepository.update(user)
   }
 
   public async updateTelegram(
@@ -235,7 +216,15 @@ export class UserService extends Service<User> {
 
     user.telegramId = data.telegramId
     user.telegramUsername = data.telegramUsername
-    user.telegramAvatarUrl = data.telegramAvatarUrl
+
+    if (!user.avatar && data.telegramAvatarUrl) {
+      user.avatar = new UserAvatarModel({
+        avatarType: 'telegram',
+        telegramAvatarUrl: data.telegramAvatarUrl,
+      })
+    } else if (user.avatar && data.telegramAvatarUrl) {
+      user.avatar.telegramAvatarUrl = data.telegramAvatarUrl
+    }
 
     await this.userRepository.update(user)
   }
@@ -312,12 +301,17 @@ export class UserService extends Service<User> {
     user.isBlocked = true
     user.telegramId = null as any
     user.telegramUsername = null as any
-    user.telegramAvatarUrl = ''
-    user.mentor = null as any
-    user.students = []
+    user.avatar = null as any
     user.courses = []
+    user.coursesAsStudent = []
+    user.votedPolls = []
+    user.newEmail = null as any
+    user.verificationToken = null as any
+    user.sessions = []
 
     await this.userRepository.update(user)
+
+    await this.removeAssociatedMentorAssignments(user)
   }
 
   private async getChangeEmailToken(user: User) {
@@ -328,10 +322,17 @@ export class UserService extends Service<User> {
     return Hash.hash(`${user.id}${user.email}${user.newEmail}`)
   }
 
-  private withOnlineStatus(users: User[]): (User & OnlineStatus)[] {
-    // @ts-expect-error TODO: add online status in future
-    return users /* .map((user) => {
-      return this.sessionService.getOnlineStatusForUser(user)
-    }) */
+  private async removeAssociatedMentorAssignments(user: User) {
+    const conditions: FindOptionsWhere<MentorAssignmentModel>[] = [
+      { student: { id: user.id } },
+      { mentor: { id: user.id } },
+    ]
+
+    const { entities: assignments } =
+      await this.mentorAssignmentRepository.find(conditions)
+
+    for (const assignment of assignments) {
+      await this.mentorAssignmentRepository.delete(assignment.id)
+    }
   }
 }

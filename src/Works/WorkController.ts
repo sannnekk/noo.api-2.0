@@ -30,9 +30,9 @@ export class WorkController {
 
       const pagination = this.workValidator.parsePagination(context.query)
 
-      const { works, meta } = await this.workService.getWorks(pagination)
+      const { entities, meta } = await this.workService.getWorks(pagination)
 
-      return new ApiResponse({ data: works, meta })
+      return new ApiResponse({ data: entities, meta })
     } catch (error: any) {
       return new ApiResponse(error)
     }

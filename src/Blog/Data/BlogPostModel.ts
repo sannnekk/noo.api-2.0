@@ -1,7 +1,7 @@
-import { Model } from '@modules/Core/Data/Model'
 import { DeltaContentType } from '@modules/Core/Data/DeltaContentType'
 import { User } from '@modules/Users/Data/User'
 import {
+  Brackets,
   Column,
   Entity,
   JoinColumn,
@@ -9,6 +9,7 @@ import {
   OneToMany,
   OneToOne,
   RelationId,
+  SelectQueryBuilder,
 } from 'typeorm'
 import { UserModel } from '@modules/Users/Data/UserModel'
 import { Poll } from '@modules/Polls/Data/Poll'
@@ -18,9 +19,11 @@ import { BlogPostReaction } from './Relations/BlogPostReaction'
 import { BlogPost } from './BlogPost'
 import { MediaModel } from '@modules/Media/Data/MediaModel'
 import { Media } from '@modules/Media/Data/Media'
+import { SearchableModel } from '@modules/Core/Data/SearchableModel'
+import { BaseModel } from '@modules/Core/Data/Model'
 
 @Entity('blog_post')
-export class BlogPostModel extends Model implements BlogPost {
+export class BlogPostModel extends SearchableModel implements BlogPost {
   constructor(data?: Partial<BlogPost>) {
     super()
 
@@ -89,13 +92,18 @@ export class BlogPostModel extends Model implements BlogPost {
   })
   files?: Media[]
 
-  public static entriesToSearch(): (keyof BlogPost)[] {
-    return [
-      'title',
-      'content',
-      'tags',
-      'author.name' as any,
-      'author.username' as any,
-    ]
+  public addSearchToQuery(
+    query: SelectQueryBuilder<BaseModel>,
+    needle: string
+  ): string[] {
+    query.andWhere(
+      new Brackets((qb) => {
+        qb.orWhere('blog_post.title LIKE :needle', { needle: `%${needle}%` })
+        qb.orWhere('blog_post.content LIKE :needle', { needle: `%${needle}%` })
+        qb.orWhere('blog_post.tags LIKE :needle', { needle: `%${needle}%` })
+      })
+    )
+
+    return []
   }
 }

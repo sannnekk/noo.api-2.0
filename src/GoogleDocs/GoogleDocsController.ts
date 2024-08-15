@@ -30,10 +30,10 @@ export class GoogleDocsController {
 
       const pagination = this.googleDocsValidator.parsePagination(context.query)
 
-      const { bindings, meta } =
+      const { entities, meta } =
         await this.googleDocsIntegrationService.getBindings(pagination)
 
-      return new ApiResponse({ data: bindings, meta })
+      return new ApiResponse({ data: entities, meta })
     } catch (error: any) {
       return new ApiResponse(error)
     }

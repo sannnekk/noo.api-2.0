@@ -1,10 +1,8 @@
-import { Service } from '@modules/Core/Services/Service'
 import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
 import { Pagination } from '@modules/Core/Data/Pagination'
 import { User } from '@modules/Users/Data/User'
 import { UnauthorizedError } from '@modules/Core/Errors/UnauthorizedError'
 import { UserRepository } from '@modules/Users/Data/UserRepository'
-import { UserModel } from '@modules/Users/Data/UserModel'
 import { Poll } from '../Data/Poll'
 import { PollRepository } from '../Data/PollRepository'
 import { PollAnswerRepository } from '../Data/PollAnswerRepository'
@@ -16,14 +14,10 @@ import { InvalidAuthTypeError } from '../Errors/InvalidAuthTypeError'
 import { PollAuthService } from './PollAuthService'
 import { z } from 'zod'
 import * as TypeORM from 'typeorm'
-import { PollModel } from '../Data/PollModel'
-import { PollQuestionModel } from '../Data/Relations/PollQuestionModel'
 import { PollQuestion } from '../Data/Relations/PollQuestion'
 import { PollQuestionRepository } from '../Data/PollQuestionRepository'
 
-export class PollService extends Service<
-  Poll | PollAnswer | PollQuestion | User
-> {
+export class PollService {
   private readonly pollRepository: PollRepository
 
   private readonly pollAnswerRepository: PollAnswerRepository
@@ -35,8 +29,6 @@ export class PollService extends Service<
   private readonly pollAuthService: PollAuthService
 
   constructor() {
-    super()
-
     this.pollRepository = new PollRepository()
     this.pollAnswerRepository = new PollAnswerRepository()
     this.pollQuestionRepository = new PollQuestionRepository()
@@ -46,30 +38,15 @@ export class PollService extends Service<
 
   public async getPolls(pagination: Pagination) {
     pagination = new Pagination().assign(pagination)
-    pagination.entriesToSearch = PollModel.entriesToSearch()
 
     const relations = [] as (keyof Poll)[]
     const conditions = {} as Partial<Poll>
 
-    const polls = await this.pollRepository.find(
-      conditions,
-      relations,
-      pagination
-    )
-
-    const meta = await this.getRequestMeta(
-      this.pollRepository,
-      conditions,
-      pagination,
-      relations
-    )
-
-    return { polls, meta }
+    return this.pollRepository.search(conditions as any, pagination, relations)
   }
 
   public async searchQuestions(pagination: Pagination, pollId?: Poll['id']) {
     pagination = new Pagination().assign(pagination)
-    pagination.entriesToSearch = PollQuestionModel.entriesToSearch()
 
     const relations = ['poll'] as any as (keyof PollQuestion)[]
 
@@ -85,20 +62,11 @@ export class PollService extends Service<
       conditions.poll!.id = pollId
     }
 
-    const questions = await this.pollQuestionRepository.find(
-      conditions,
-      relations,
-      pagination
-    )
-
-    const meta = await this.getRequestMeta(
-      this.pollQuestionRepository,
-      conditions,
+    return this.pollQuestionRepository.search(
+      conditions as any,
       pagination,
       relations
     )
-
-    return { questions, meta }
   }
 
   public async getPollById(id: Poll['id'], userId?: User['id']): Promise<Poll> {
@@ -139,7 +107,6 @@ export class PollService extends Service<
     }
 
     pagination = new Pagination().assign(pagination)
-    pagination.entriesToSearch = UserModel.entriesToSearch()
 
     const relations = [] as (keyof User)[]
     const conditions = {
@@ -148,22 +115,18 @@ export class PollService extends Service<
       } as unknown as Poll[],
     }
 
-    const users = await this.userRepository.find(
-      conditions,
-      relations,
-      pagination
-    )
+    /* return {
+      entities: [],
+      meta: {
+        total: 0,
+        relations: [],
+      },
+    } */
 
-    const meta = await this.getRequestMeta(
-      this.userRepository,
-      conditions,
-      pagination,
-      relations
-    )
-
-    return { users, meta }
+    return this.userRepository.search(conditions as any, pagination, relations)
   }
 
+  // !!! TEST THIS
   public async searchWhoVotedUnregistered(
     userRole: User['role'],
     pollId: Poll['id'],
@@ -174,10 +137,9 @@ export class PollService extends Service<
     }
 
     pagination = new Pagination().assign(pagination)
-    pagination.take = 1000
-    pagination.entriesToSearch = PollAnswerModel.entriesToSearch()
 
-    const relations = [] as (keyof PollAnswer)[]
+    const relations: (keyof PollAnswer)[] = []
+    const groupBy: keyof PollAnswer = 'userAuthData'
     const conditions = {
       userAuthType: TypeORM.Not('api'),
       question: {
@@ -187,47 +149,37 @@ export class PollService extends Service<
       },
     } as unknown as Partial<PollAnswer>
 
-    const answers = await this.pollAnswerRepository.find(
-      conditions,
-      relations,
-      pagination
-    )
-
-    const meta = await this.getRequestMeta(
-      this.pollAnswerRepository,
-      conditions,
+    const { entities, meta } = await this.pollAnswerRepository.search(
+      conditions as any,
       pagination,
-      relations
+      relations,
+      groupBy,
+      {
+        useEagerRelations: false,
+        select: [
+          ['user_auth_identifier', ' identifier'],
+          ['JSON_EXTRACT(user_auth_data, "$.id")', 'id'],
+          [
+            'JSON_UNQUOTE(JSON_EXTRACT(user_auth_data, "$.photo_url"))',
+            'avatarUrl',
+          ],
+          [
+            'JSON_UNQUOTE(JSON_EXTRACT(user_auth_data, "$.username"))',
+            'username',
+          ],
+          [
+            'JSON_UNQUOTE(JSON_EXTRACT(user_auth_data, "$.first_name"))',
+            'firstName',
+          ],
+          [
+            'JSON_UNQUOTE(JSON_EXTRACT(user_auth_data, "$.last_name"))',
+            'lastName',
+          ],
+        ],
+      }
     )
 
-    // group by user
-    const users = answers.reduce(
-      (acc, answer) => {
-        if (!answer.userAuthData) {
-          return acc
-        }
-
-        let data = null
-
-        try {
-          data = JSON.parse(answer.userAuthData as any as string)
-        } catch (error) {}
-
-        acc[answer.userAuthIdentifier as string] = {
-          identifier: answer.userAuthIdentifier,
-          id: data?.id,
-          firstName: data?.first_name,
-          lastName: data?.last_name,
-          avatarUrl: data?.photo_url,
-          username: data?.username,
-        }
-
-        return acc
-      },
-      {} as Record<string, any>
-    )
-
-    return { users: Object.values(users), meta }
+    return { entities, meta }
   }
 
   public async getAnswers(
@@ -258,10 +210,10 @@ export class PollService extends Service<
       delete conditions.userAuthIdentifier
     }
 
-    const answers = await this.pollAnswerRepository.find(
+    const { entities: answers } = await this.pollAnswerRepository.search(
       conditions as any,
-      relations,
-      new Pagination(1, 250)
+      new Pagination(1, 250),
+      relations
     )
 
     return answers

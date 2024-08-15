@@ -30,9 +30,9 @@ export class PollController {
 
       const pagination = this.pollValidator.parsePagination(context.query)
 
-      const { polls, meta } = await this.pollService.getPolls(pagination)
+      const { entities, meta } = await this.pollService.getPolls(pagination)
 
-      return new ApiResponse({ data: polls, meta })
+      return new ApiResponse({ data: entities, meta })
     } catch (error: any) {
       return new ApiResponse(error)
     }
@@ -46,10 +46,10 @@ export class PollController {
 
       const pagination = this.pollValidator.parsePagination(context.query)
 
-      const { questions, meta } =
+      const { entities, meta } =
         await this.pollService.searchQuestions(pagination)
 
-      return new ApiResponse({ data: questions, meta })
+      return new ApiResponse({ data: entities, meta })
     } catch (error: any) {
       return new ApiResponse(error)
     }
@@ -93,13 +93,13 @@ export class PollController {
       const pollId = this.pollValidator.parseId(context.params.pollId)
       const pagination = this.pollValidator.parsePagination(context.query)
 
-      const { users, meta } = await this.pollService.searchWhoVoted(
+      const { entities, meta } = await this.pollService.searchWhoVoted(
         context.credentials!.role,
         pollId,
         pagination
       )
 
-      return new ApiResponse({ data: users, meta })
+      return new ApiResponse({ data: entities, meta })
     } catch (error: any) {
       return new ApiResponse(error)
     }
@@ -114,13 +114,14 @@ export class PollController {
       const pollId = this.pollValidator.parseId(context.params.pollId)
       const pagination = this.pollValidator.parsePagination(context.query)
 
-      const { users, meta } = await this.pollService.searchWhoVotedUnregistered(
-        context.credentials!.role,
-        pollId,
-        pagination
-      )
+      const { entities, meta } =
+        await this.pollService.searchWhoVotedUnregistered(
+          context.credentials!.role,
+          pollId,
+          pagination
+        )
 
-      return new ApiResponse({ data: users, meta })
+      return new ApiResponse({ data: entities, meta })
     } catch (error: any) {
       return new ApiResponse(error)
     }

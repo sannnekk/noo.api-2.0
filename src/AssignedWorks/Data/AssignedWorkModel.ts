@@ -1,8 +1,8 @@
-import { Model } from '@modules/Core/Data/Model'
 import * as ULID from '@modules/Core/Data/Ulid'
 import { User } from '@modules/Users/Data/User'
 import { Work } from '@modules/Works/Data/Work'
 import {
+  Brackets,
   Column,
   Entity,
   JoinTable,
@@ -10,6 +10,7 @@ import {
   ManyToOne,
   OneToMany,
   RelationId,
+  SelectQueryBuilder,
 } from 'typeorm'
 import { UserModel } from '@modules/Users/Data/UserModel'
 import { WorkModel } from '@modules/Works/Data/WorkModel'
@@ -19,9 +20,11 @@ import { AssignedWorkComment } from './Relations/AssignedWorkComment'
 import { AssignedWorkAnswerModel } from './Relations/AssignedWorkAnswerModel'
 import { AssignedWorkCommentModel } from './Relations/AssignedWorkCommentModel'
 import { AssignedWork } from './AssignedWork'
+import { SearchableModel } from '@modules/Core/Data/SearchableModel'
+import { BaseModel } from '@modules/Core/Data/Model'
 
 @Entity('assigned_work')
-export class AssignedWorkModel extends Model implements AssignedWork {
+export class AssignedWorkModel extends SearchableModel implements AssignedWork {
   constructor(data?: Partial<AssignedWork>) {
     super()
 
@@ -226,8 +229,25 @@ export class AssignedWorkModel extends Model implements AssignedWork {
     this._excludedTaskIds = JSON.stringify(value)
   }
 
-  static entriesToSearch() {
-    return ['work.name', 'student.name', 'mentors.name']
+  public addSearchToQuery(
+    query: SelectQueryBuilder<BaseModel>,
+    needle: string
+  ): string[] {
+    query.andWhere(
+      new Brackets((qb) => {
+        qb.where('assigned_work__student.name LIKE :needle', {
+          needle: `%${needle}%`,
+        })
+        qb.orWhere('assigned_work__work.name LIKE :needle', {
+          needle: `%${needle}%`,
+        })
+        qb.orWhere('assigned_work__mentors.name LIKE :needle', {
+          needle: `%${needle}%`,
+        })
+      })
+    )
+
+    return ['student', 'work', 'mentors']
   }
 
   static readableSolveStatus(status: AssignedWork['solveStatus']): string {

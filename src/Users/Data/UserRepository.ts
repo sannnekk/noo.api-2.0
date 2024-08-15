@@ -7,13 +7,6 @@ export class UserRepository extends Repository<User> {
     super(UserModel)
   }
 
-  public async getRandomMentor(): Promise<User | null> {
-    return this.queryBuilder('user')
-      .where('user.role = :role', { role: 'mentor' })
-      .orderBy('RAND()')
-      .getOne()
-  }
-
   public async getIdsFromEmails(
     emails: string[],
     condition?: Partial<User>

@@ -2,6 +2,7 @@ import { WorkTask } from '@modules/Works/Data/Relations/WorkTask'
 import { AssignedWorkAnswer } from '../Data/Relations/AssignedWorkAnswer'
 import { AssignedWorkComment } from '../Data/Relations/AssignedWorkComment'
 import Dates from '@modules/Core/Utils/date'
+import { AssignedWorkCommentModel } from '../Data/Relations/AssignedWorkCommentModel'
 
 export class TaskService {
   public automatedCheck(
@@ -26,13 +27,12 @@ export class TaskService {
           ],
         },
         score: this.checkAnswer(answer, relatedTask),
-        task: answer.taskId as any,
         taskId: answer.taskId,
         createdAt: Dates.now(),
         updatedAt: Dates.now(),
       }
 
-      comments.push(<AssignedWorkComment>comment)
+      comments.push(new AssignedWorkCommentModel(comment))
     }
 
     return comments

@@ -1,6 +1,5 @@
 import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
 import { Pagination } from '@modules/Core/Data/Pagination'
-import { Service } from '@modules/Core/Services/Service'
 import { UnauthorizedError } from '@modules/Core/Errors/UnauthorizedError'
 import { User } from '@modules/Users/Data/User'
 import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
@@ -10,14 +9,12 @@ import { CalenderEventModel } from '../Data/CalenderEventModel'
 import { UserRelationService } from './UserRelationService'
 import { EventCreationOptions } from '../DTO/EventCreationOptions'
 
-export class CalenderService extends Service<CalenderEvent> {
+export class CalenderService {
   private readonly calenderEventRepository: CalenderEventRepository
 
   private readonly userRelationService: UserRelationService
 
   constructor() {
-    super()
-
     this.calenderEventRepository = new CalenderEventRepository()
     this.userRelationService = new UserRelationService()
   }
@@ -73,20 +70,7 @@ export class CalenderService extends Service<CalenderEvent> {
       pagination?.getFilter('username')
     )
 
-    const events = await this.calenderEventRepository.find(
-      condition,
-      undefined,
-      pagination
-    )
-
-    const meta = await this.getRequestMeta(
-      this.calenderEventRepository,
-      condition,
-      pagination || new Pagination(),
-      []
-    )
-
-    return { events, meta }
+    return this.calenderEventRepository.search(condition, pagination)
   }
 
   public async getOne(

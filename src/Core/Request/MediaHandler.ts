@@ -3,14 +3,23 @@ import { MediaOptions } from '@modules/Media/MediaOptions'
 import multer from 'multer'
 import { v4 as uuid } from 'uuid'
 import { AppError } from '../Errors/AppError'
+import fs from 'fs'
+import path from 'path'
 
 export const MediaHandler = multer({
   storage: multer.diskStorage({
     destination(req, file, cb) {
-      cb(
-        null,
-        MediaOptions.fileDestinationFolder + '/' + MediaOptions.getFileSubdir()
+      const dir = path.join(
+        MediaOptions.fileDestinationFolder,
+        MediaOptions.getFileSubdir()
       )
+
+      // Check if directory exists, if not, create it
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true })
+      }
+
+      cb(null, dir)
     },
     filename(req, file, cb) {
       let name = `${uuid()}-${uuid()}`

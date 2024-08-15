@@ -163,9 +163,9 @@ export class UserController {
       Asserts.notStudent(context)
       const pagination = this.userValidator.parsePagination(context.query)
 
-      const { mentors, meta } = await this.userService.getMentors(pagination)
+      const { entities, meta } = await this.userService.getMentors(pagination)
 
-      return new ApiResponse({ data: mentors, meta })
+      return new ApiResponse({ data: entities, meta })
     } catch (error: any) {
       return new ApiResponse(error)
     }
@@ -178,9 +178,9 @@ export class UserController {
       Asserts.notStudent(context)
       const pagination = this.userValidator.parsePagination(context.query)
 
-      const { teachers, meta } = await this.userService.getTeachers(pagination)
+      const { entities, meta } = await this.userService.getTeachers(pagination)
 
-      return new ApiResponse({ data: teachers, meta })
+      return new ApiResponse({ data: entities, meta })
     } catch (error: any) {
       return new ApiResponse(error)
     }
@@ -193,9 +193,9 @@ export class UserController {
       Asserts.notStudent(context)
       const pagination = this.userValidator.parsePagination(context.query)
 
-      const { students, meta } = await this.userService.getStudents(pagination)
+      const { entities, meta } = await this.userService.getStudents(pagination)
 
-      return new ApiResponse({ data: students, meta })
+      return new ApiResponse({ data: entities, meta })
     } catch (error: any) {
       return new ApiResponse(error)
     }
@@ -209,12 +209,12 @@ export class UserController {
 
       const pagination = this.userValidator.parsePagination(context.query)
 
-      const { students, meta } = await this.userService.getStudentsOf(
+      const { entities, meta } = await this.userService.getStudentsOf(
         context.credentials.userId,
         pagination
       )
 
-      return new ApiResponse({ data: students, meta })
+      return new ApiResponse({ data: entities, meta })
     } catch (error: any) {
       return new ApiResponse(error)
     }
@@ -227,9 +227,9 @@ export class UserController {
       Asserts.notStudent(context)
       const pagination = this.userValidator.parsePagination(context.query)
 
-      const { users, meta } = await this.userService.getUsers(pagination)
+      const { entities, meta } = await this.userService.getUsers(pagination)
 
-      return new ApiResponse({ data: users, meta })
+      return new ApiResponse({ data: entities, meta })
     } catch (error: any) {
       return new ApiResponse(error)
     }
@@ -299,14 +299,15 @@ export class UserController {
     }
   }
 
-  @Patch('/:studentId/assign-mentor/:mentorId')
+  @Patch('/:studentId/:subjectId/mentor/:mentorId')
   async assignMentor(context: Context): Promise<ApiResponse> {
     try {
       Asserts.notStudent(context)
       const studentId = this.userValidator.parseId(context.params.studentId)
       const mentorId = this.userValidator.parseId(context.params.mentorId)
+      const subjectId = this.userValidator.parseId(context.params.subjectId)
 
-      await this.userService.assignMentor(studentId, mentorId)
+      await this.userService.assignMentor(studentId, mentorId, subjectId)
 
       return new ApiResponse()
     } catch (error: any) {

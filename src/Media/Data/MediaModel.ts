@@ -7,7 +7,7 @@ import { Media } from './Media'
 import { BlogPost } from '@modules/Blog/Data/BlogPost'
 import { PollAnswer } from '@modules/Polls/Data/Relations/PollAnswer'
 import { BlogPostModel } from '@modules/Blog/Data/BlogPostModel'
-import { UserModel } from '@modules/Users/Data/UserModel'
+import { UserAvatarModel } from '@modules/Users/Data/Relations/UserAvatarModel'
 
 @Entity('media')
 export class MediaModel extends Model implements Media {
@@ -69,6 +69,8 @@ export class MediaModel extends Model implements Media {
   })
   blogPost?: BlogPost
 
-  @OneToOne(() => UserModel, (user) => user.avatar)
-  user?: UserModel
+  @OneToOne(() => UserAvatarModel, (avatar) => avatar.media, {
+    onDelete: 'SET NULL',
+  })
+  avatar?: UserAvatarModel
 }

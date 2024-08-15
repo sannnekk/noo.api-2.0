@@ -1,15 +1,16 @@
-import { Model } from '@modules/Core/Data/Model'
 import * as Transliteration from '@modules/Core/Utils/transliteration'
 import * as ULID from '@modules/Core/Data/Ulid'
 import { UserModel } from '@modules/Users/Data/UserModel'
 import { User } from '@modules/Users/Data/User'
 import {
+  Brackets,
   Column,
   Entity,
   ManyToMany,
   ManyToOne,
   OneToMany,
   RelationId,
+  SelectQueryBuilder,
 } from 'typeorm'
 import { MediaModel } from '@modules/Media/Data/MediaModel'
 import { Media } from '@modules/Media/Data/Media'
@@ -17,6 +18,9 @@ import { CourseChapterModel } from './Relations/CourseChapterModel'
 import { CourseChapter } from './Relations/CourseChapter'
 import { Course } from './Course'
 import { CourseMaterial } from './Relations/CourseMaterial'
+import { SearchableModel } from '@modules/Core/Data/SearchableModel'
+import { BaseModel } from '@modules/Core/Data/Model'
+import { SubjectModel } from '@modules/Subjects/Data/SubjectModel'
 
 type PartialCourse = Partial<Omit<Course, 'chapters'>> & {
   chapters?: (Partial<Omit<CourseChapter, 'materials'>> & {
@@ -25,7 +29,7 @@ type PartialCourse = Partial<Omit<Course, 'chapters'>> & {
 }
 
 @Entity('course')
-export class CourseModel extends Model implements Course {
+export class CourseModel extends SearchableModel implements Course {
   constructor(data?: PartialCourse) {
     super()
 
@@ -40,6 +44,10 @@ export class CourseModel extends Model implements Course {
 
       if (data.images) {
         this.images = data.images.map((image) => new MediaModel(image))
+      }
+
+      if (data.subject) {
+        this.subject = new SubjectModel(data.subject)
       }
 
       if (!data.slug) {
@@ -81,7 +89,6 @@ export class CourseModel extends Model implements Course {
   description!: string
 
   @OneToMany(() => CourseChapterModel, (chapter) => chapter.course, {
-    eager: true,
     cascade: true,
   })
   chapters!: CourseChapter[]
@@ -92,8 +99,26 @@ export class CourseModel extends Model implements Course {
   })
   images!: Media[]
 
-  static entriesToSearch() {
-    return ['name', 'description']
+  @ManyToOne(() => SubjectModel, (subject) => subject.courses, {
+    eager: true,
+  })
+  subject!: SubjectModel
+
+  @RelationId((course: CourseModel) => course.subject)
+  subjectId!: string
+
+  public addSearchToQuery(
+    query: SelectQueryBuilder<BaseModel>,
+    needle: string
+  ): string[] {
+    query.andWhere(
+      new Brackets((qb) => {
+        qb.where(`course.name LIKE :needle`, { needle: `%${needle}%` })
+        qb.orWhere(`course.description LIKE :needle`, { needle: `%${needle}%` })
+      })
+    )
+
+    return []
   }
 
   private sluggify(text: string): string {

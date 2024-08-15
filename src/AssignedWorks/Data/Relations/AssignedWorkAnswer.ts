@@ -1,6 +1,7 @@
 import { DeltaContentType } from '@modules/Core/Data/DeltaContentType'
 import { BaseModel } from '@modules/Core/Data/Model'
 import { WorkTask } from '@modules/Works/Data/Relations/WorkTask'
+import { AssignedWork } from '../AssignedWork'
 
 export interface AssignedWorkAnswer extends BaseModel {
   slug: string
@@ -8,5 +9,5 @@ export interface AssignedWorkAnswer extends BaseModel {
   word?: string
   task?: WorkTask
   taskId: WorkTask['id']
-  assignedWorkId?: string
+  assignedWork?: AssignedWork
 }

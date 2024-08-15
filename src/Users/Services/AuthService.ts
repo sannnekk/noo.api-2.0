@@ -4,7 +4,6 @@ import { UnauthenticatedError } from '@modules/Core/Errors/UnauthenticatedError'
 import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
 import { AlreadyExistError } from '@modules/Core/Errors/AlreadyExistError'
 import { UnknownError } from '@modules/Core/Errors/UnknownError'
-import { Service } from '@modules/Core/Services/Service'
 import { EmailService } from '@modules/Core/Email/EmailService'
 import { User } from '../Data/User'
 import { UserRepository } from '../Data/UserRepository'
@@ -15,7 +14,7 @@ import { RegisterDTO } from '../DTO/RegisterDTO'
 import { Context } from '@modules/Core/Request/Context'
 import { SessionService } from '@modules/Sessions/Services/SessionService'
 
-export class AuthService extends Service<User> {
+export class AuthService {
   private readonly userRepository: UserRepository
 
   private readonly emailService: EmailService
@@ -23,8 +22,6 @@ export class AuthService extends Service<User> {
   private readonly sessionService: SessionService
 
   constructor() {
-    super()
-
     this.userRepository = new UserRepository()
     this.emailService = new EmailService()
     this.sessionService = new SessionService()
@@ -67,11 +64,7 @@ export class AuthService extends Service<User> {
       throw new AlreadyExistError('Пользователь с таким email уже существует.')
     }
 
-    const randomMentor = await this.userRepository.getRandomMentor()
-
-    if (randomMentor) {
-      user.mentor = randomMentor.id as unknown as User
-    }
+    //await this.userRepository.setRandomMentor(user)
 
     await this.create(user)
 
@@ -159,7 +152,7 @@ export class AuthService extends Service<User> {
           email: credentials.usernameOrEmail,
         },
       ],
-      ['mentor']
+      ['mentorAssignmentsAsMentor', 'mentorAssignmentsAsStudent']
     )
 
     if (!user) {

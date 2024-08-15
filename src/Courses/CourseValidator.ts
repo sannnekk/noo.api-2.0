@@ -58,13 +58,19 @@ export class CourseValidator extends Validator {
       .optional(),
     images: z.array(MediaScheme),
     chapters: z.array(this.chapterScheme),
+    subject: z.object(
+      {
+        id: z.string().ulid(),
+      },
+      { message: 'Предмет не указан' }
+    ),
   })
 
-  public readonly stidentIdsScheme = z.object({
+  public readonly studentIdsScheme = z.object({
     studentIds: z.array(z.string().ulid()),
   })
 
-  public readonly stidentEmailsScheme = z.object({
+  public readonly studentEmailsScheme = z.object({
     emails: z.array(z.string().email()),
   })
 
@@ -86,11 +92,11 @@ export class CourseValidator extends Validator {
   }
 
   public parseStudentIds(body: unknown): { studentIds: User['id'][] } {
-    return this.parse<{ studentIds: User['id'][] }>(body, this.stidentIdsScheme)
+    return this.parse<{ studentIds: User['id'][] }>(body, this.studentIdsScheme)
   }
 
   public parseEmails(body: unknown): { emails: string[] } {
-    return this.parse<{ emails: string[] }>(body, this.stidentEmailsScheme)
+    return this.parse<{ emails: string[] }>(body, this.studentEmailsScheme)
   }
 
   public parseAssignWorkOptions(data: unknown): AssignWorkOptions {

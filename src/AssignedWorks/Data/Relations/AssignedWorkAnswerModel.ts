@@ -2,7 +2,7 @@ import { DeltaContentType } from '@modules/Core/Data/DeltaContentType'
 import { Model } from '@modules/Core/Data/Model'
 import * as ULID from '@modules/Core/Data/Ulid'
 import { WorkTask } from '@modules/Works/Data/Relations/WorkTask'
-import { Column, Entity, JoinColumn, ManyToOne, RelationId } from 'typeorm'
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm'
 import { WorkTaskModel } from '@modules/Works/Data/Relations/WorkTaskModel'
 import { AssignedWorkAnswer } from './AssignedWorkAnswer'
 import { AssignedWork } from '../AssignedWork'
@@ -56,18 +56,7 @@ export class AssignedWorkAnswerModel
   taskId!: WorkTask['id']
 
   @ManyToOne(() => AssignedWorkModel, (assignedWork) => assignedWork.answers)
-  @JoinColumn({
-    name: 'assignedWorkId',
-    referencedColumnName: 'id',
-  })
   assignedWork?: AssignedWork | undefined
-
-  @Column({
-    name: 'assignedWorkId',
-    type: 'varchar',
-    nullable: true,
-  })
-  assignedWorkId?: AssignedWorkModel['id']
 
   public sluggify(): string {
     return ULID.generate()

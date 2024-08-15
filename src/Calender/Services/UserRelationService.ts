@@ -50,23 +50,17 @@ export class UserRelationService {
     requester: string,
     target: string
   ): Promise<Record<string, any>[]> {
-    const requesterUser = await this.userRepository.findOne(
-      {
-        username: requester,
-      },
-      ['mentor', 'students']
-    )
+    const requesterUser = await this.userRepository.findOne({
+      username: requester,
+    })
 
     if (!requesterUser) {
       throw new NotFoundError('Пользователь не найден.')
     }
 
-    const targetUser = await this.userRepository.findOne(
-      {
-        username: target,
-      },
-      ['mentor', 'students']
-    )
+    const targetUser = await this.userRepository.findOne({
+      username: target,
+    })
 
     if (!targetUser) {
       throw new NotFoundError('Пользователь не найден')

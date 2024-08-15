@@ -8,7 +8,7 @@ import { GoogleAuthService } from './Google/GoogleAuthService'
 import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
 import { BindingSyncService } from './BindingSyncService'
 
-export class GoogleDocsIntegrationService extends Service<GoogleDocsBinding> {
+export class GoogleDocsIntegrationService {
   private readonly googleDocsBindingRepository: GoogleDocsBindingRepository
 
   private readonly googleAuthService: GoogleAuthService
@@ -16,8 +16,6 @@ export class GoogleDocsIntegrationService extends Service<GoogleDocsBinding> {
   private readonly bindingSyncService: BindingSyncService
 
   public constructor() {
-    super()
-
     this.googleDocsBindingRepository = new GoogleDocsBindingRepository()
     this.googleAuthService = new GoogleAuthService()
     this.bindingSyncService = new BindingSyncService()
@@ -33,23 +31,7 @@ export class GoogleDocsIntegrationService extends Service<GoogleDocsBinding> {
     pagination = new Pagination().assign(pagination)
     pagination.entriesToSearch = GoogleDocsBindingModel.entriesToSearch()
 
-    const bindings = await this.googleDocsBindingRepository.find(
-      undefined,
-      [],
-      pagination
-    )
-
-    const meta = await this.getRequestMeta(
-      this.googleDocsBindingRepository,
-      undefined,
-      pagination,
-      []
-    )
-
-    return {
-      bindings,
-      meta,
-    }
+    return this.googleDocsBindingRepository.search(undefined, pagination, [])
   }
 
   /**

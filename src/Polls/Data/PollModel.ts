@@ -1,4 +1,3 @@
-import { Model } from '@modules/Core/Data/Model'
 import {
   Column,
   Entity,
@@ -7,6 +6,7 @@ import {
   OneToMany,
   OneToOne,
   RelationId,
+  SelectQueryBuilder,
 } from 'typeorm'
 import { BlogPostModel } from '@modules/Blog/Data/BlogPostModel'
 import { BlogPost } from '@modules/Blog/Data/BlogPost'
@@ -15,9 +15,11 @@ import { UserModel } from '@modules/Users/Data/UserModel'
 import { PollQuestionModel } from './Relations/PollQuestionModel'
 import { PollQuestion } from './Relations/PollQuestion'
 import { Poll, PollVisibility } from './Poll'
+import { SearchableModel } from '@modules/Core/Data/SearchableModel'
+import { BaseModel } from '@modules/Core/Data/Model'
 
 @Entity('poll')
-export class PollModel extends Model implements Poll {
+export class PollModel extends SearchableModel implements Poll {
   public constructor(data?: Partial<Poll>) {
     super()
 
@@ -100,7 +102,12 @@ export class PollModel extends Model implements Poll {
   })
   isStopped!: boolean
 
-  public static entriesToSearch() {
-    return ['title', 'description']
+  public addSearchToQuery(
+    query: SelectQueryBuilder<BaseModel>,
+    needle: string
+  ): string[] {
+    query.andWhere('poll.title LIKE :needle', { needle: `%${needle}%` })
+
+    return []
   }
 }

@@ -40,7 +40,6 @@ export class ApiResponse extends ControllerResponse {
         }
 
         log('error', JSON.stringify(payload))
-
         return
       }
 

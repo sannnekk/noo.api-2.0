@@ -1,14 +1,22 @@
-import { Model } from '@modules/Core/Data/Model'
-import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm'
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  RelationId,
+  SelectQueryBuilder,
+} from 'typeorm'
 import { Media } from '@modules/Media/Data/Media'
 import { PollQuestion, PollQuestionType } from './PollQuestion'
 import { Poll } from '../Poll'
 import { PollModel } from '../PollModel'
 import { PollAnswer } from './PollAnswer'
 import { PollAnswerModel } from './PollAnswerModel'
+import { SearchableModel } from '@modules/Core/Data/SearchableModel'
+import { BaseModel } from '@modules/Core/Data/Model'
 
 @Entity('poll_question')
-export class PollQuestionModel extends Model implements PollQuestion {
+export class PollQuestionModel extends SearchableModel implements PollQuestion {
   public constructor(data?: Partial<PollQuestion>) {
     super()
 
@@ -226,8 +234,13 @@ export class PollQuestionModel extends Model implements PollQuestion {
   })
   onlyPastDate?: boolean
 
-  public static entriesToSearch(): string[] {
-    return ['text', 'description']
+  public addSearchToQuery(
+    query: SelectQueryBuilder<BaseModel>,
+    needle: string
+  ): string[] {
+    query.andWhere('question.text LIKE :needle', { needle: `%${needle}%` })
+
+    return []
   }
 
   private resetOptions(): void {

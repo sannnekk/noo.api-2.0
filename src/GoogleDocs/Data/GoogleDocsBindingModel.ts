@@ -1,10 +1,14 @@
-import { Model } from '@modules/Core/Data/Model'
 import { GoogleDocsBinding } from './GoogleDocsBinding'
-import { Column, Entity } from 'typeorm'
+import { Column, Entity, SelectQueryBuilder } from 'typeorm'
 import { type TokenPayload } from 'google-auth-library'
+import { SearchableModel } from '@modules/Core/Data/SearchableModel'
+import { BaseModel } from '@modules/Core/Data/Model'
 
 @Entity('google_docs_binding')
-export class GoogleDocsBindingModel extends Model implements GoogleDocsBinding {
+export class GoogleDocsBindingModel
+  extends SearchableModel
+  implements GoogleDocsBinding
+{
   public constructor(data?: Partial<GoogleDocsBinding>) {
     super()
 
@@ -90,7 +94,28 @@ export class GoogleDocsBindingModel extends Model implements GoogleDocsBinding {
   })
   frequency!: 'hourly' | 'daily' | 'weekly' | 'monthly'
 
-  public static entriesToSearch(): string[] {
-    return ['name', 'entityName', 'filePath']
+  @Column({
+    name: 'last_run',
+    type: 'datetime',
+    nullable: true,
+  })
+  lastRun!: Date | null
+
+  @Column({
+    name: 'next_run',
+    type: 'datetime',
+    nullable: true,
+  })
+  nextRun!: Date | null
+
+  public addSearchToQuery(
+    query: SelectQueryBuilder<BaseModel>,
+    needle: string
+  ): string[] {
+    query.andWhere('google_docs_binding.name LIKE :needle', {
+      needle: `%${needle}%`,
+    })
+
+    return []
   }
 }

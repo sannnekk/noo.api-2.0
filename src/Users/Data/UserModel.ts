@@ -1,15 +1,15 @@
 import {
+  Brackets,
   Column,
   Entity,
   JoinColumn,
   JoinTable,
   ManyToMany,
-  ManyToOne,
   OneToMany,
   OneToOne,
   RelationId,
+  SelectQueryBuilder,
 } from 'typeorm'
-import { Model } from '@modules/Core/Data/Model'
 import type { UserRolesType } from '@modules/Core/Security/roles'
 import { CourseModel } from '@modules/Courses/Data/CourseModel'
 import type { Course } from '@modules/Courses/Data/Course'
@@ -26,11 +26,14 @@ import { Poll } from '@modules/Polls/Data/Poll'
 import type { User } from './User'
 import { SessionModel } from '@modules/Sessions/Data/SessionModel'
 import { Session } from '@modules/Sessions/Data/Session'
-import { MediaModel } from '@modules/Media/Data/MediaModel'
-import { Media } from '@modules/Media/Data/Media'
+import { UserAvatar } from './Relations/UserAvatar'
+import { UserAvatarModel } from './Relations/UserAvatarModel'
+import { SearchableModel } from '@modules/Core/Data/SearchableModel'
+import { BaseModel } from '@modules/Core/Data/Model'
+import { MentorAssignmentModel } from './Relations/MentorAssignmentModel'
 
 @Entity('user')
-export class UserModel extends Model implements User {
+export class UserModel extends SearchableModel implements User {
   constructor(data?: Partial<User>) {
     super()
 
@@ -42,7 +45,7 @@ export class UserModel extends Model implements User {
       }
 
       if (data.avatar) {
-        this.avatar = new MediaModel(data.avatar)
+        this.avatar = new UserAvatarModel(data.avatar)
       }
     }
   }
@@ -89,6 +92,13 @@ export class UserModel extends Model implements User {
   })
   newEmail?: string
 
+  @OneToMany(() => MentorAssignmentModel, (assignment) => assignment.mentor)
+  mentorAssignmentsAsMentor?: MentorAssignmentModel[]
+
+  @OneToMany(() => MentorAssignmentModel, (assignment) => assignment.student)
+  mentorAssignmentsAsStudent?: MentorAssignmentModel[]
+
+  /*
   @OneToMany(() => UserModel, (user) => user.mentor)
   students?: User[]
 
@@ -96,7 +106,8 @@ export class UserModel extends Model implements User {
   mentorId?: string
 
   @ManyToOne(() => UserModel, (user) => user.students)
-  mentor?: User
+  mentor?: User 
+  */
 
   @OneToMany(() => CourseModel, (course) => course.author)
   courses?: Course[]
@@ -126,24 +137,18 @@ export class UserModel extends Model implements User {
   @ManyToMany(() => PollModel, (poll) => poll.votedUsers)
   votedPolls!: Poll[]
 
-  @OneToMany(() => SessionModel, (session) => session.user)
+  @OneToMany(() => SessionModel, (session) => session.user, {
+    onDelete: 'CASCADE',
+  })
   sessions?: Session[]
 
-  @OneToOne(() => MediaModel, (media) => media.user, {
+  @OneToOne(() => UserAvatarModel, (avatar) => avatar.user, {
     onDelete: 'CASCADE',
     cascade: true,
     eager: true,
   })
   @JoinColumn()
-  avatar?: Media
-
-  @Column({
-    name: 'avatar_type',
-    type: 'varchar',
-    nullable: true,
-    default: null,
-  })
-  avatarType?: User['avatarType']
+  avatar!: UserAvatar | null
 
   @Column({
     name: 'telegram_id',
@@ -160,14 +165,6 @@ export class UserModel extends Model implements User {
     default: null,
   })
   telegramUsername?: string | undefined
-
-  @Column({
-    name: 'telegram_avatar_url',
-    type: 'varchar',
-    nullable: true,
-    default: null,
-  })
-  telegramAvatarUrl?: string | undefined
 
   @Column({
     name: 'password',
@@ -197,8 +194,22 @@ export class UserModel extends Model implements User {
   })
   verificationToken?: string
 
-  static entriesToSearch(): string[] {
-    return ['username', 'name', 'email', 'telegramUsername']
+  public addSearchToQuery(
+    query: SelectQueryBuilder<BaseModel>,
+    needle: string
+  ): string[] {
+    query.andWhere(
+      new Brackets((qb) => {
+        qb.where('user.username LIKE :needle', { needle: `%${needle}%` })
+        qb.orWhere('user.name LIKE :needle', { needle: `%${needle}%` })
+        qb.orWhere('user.email LIKE :needle', { needle: `%${needle}%` })
+        qb.orWhere('user.telegramUsername LIKE :needle', {
+          needle: `%${needle}%`,
+        })
+      })
+    )
+
+    return []
   }
 
   private sluggify(username: string): string {

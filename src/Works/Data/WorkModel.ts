@@ -1,21 +1,31 @@
 import * as ULID from '@modules/Core/Data/Ulid'
 import * as Transliteration from '@modules/Core/Utils/transliteration'
-import { Model } from '@modules/Core/Data/Model'
 import { CourseMaterial } from '@modules/Courses/Data/Relations/CourseMaterial'
-import { Column, Entity, OneToMany, RelationId } from 'typeorm'
+import {
+  Brackets,
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  RelationId,
+  SelectQueryBuilder,
+} from 'typeorm'
 import { CourseMaterialModel } from '@modules/Courses/Data/Relations/CourseMaterialModel'
 import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
 import { AssignedWorkModel } from '@modules/AssignedWorks/Data/AssignedWorkModel'
 import { WorkTaskModel } from './Relations/WorkTaskModel'
 import { WorkTask } from './Relations/WorkTask'
 import { Work } from './Work'
+import { SearchableModel } from '@modules/Core/Data/SearchableModel'
+import { BaseModel } from '@modules/Core/Data/Model'
+import { SubjectModel } from '@modules/Subjects/Data/SubjectModel'
 
 type PartialWork = Omit<Partial<Work>, 'tasks'> & {
   tasks?: Partial<WorkTask>[]
 }
 
 @Entity('work')
-export class WorkModel extends Model implements Work {
+export class WorkModel extends SearchableModel implements Work {
   constructor(data?: PartialWork) {
     super()
 
@@ -72,8 +82,26 @@ export class WorkModel extends Model implements Work {
   @OneToMany(() => AssignedWorkModel, (assignedWork) => assignedWork.work)
   assignedWorks!: AssignedWork[]
 
-  static entriesToSearch() {
-    return ['name', 'description']
+  @ManyToOne(() => SubjectModel, (subject) => subject.works, {
+    eager: true,
+  })
+  subject!: SubjectModel
+
+  @RelationId((work: WorkModel) => work.subject)
+  subjectId!: string
+
+  public addSearchToQuery(
+    query: SelectQueryBuilder<BaseModel>,
+    needle: string
+  ): string[] {
+    query.andWhere(
+      new Brackets((qb) => {
+        qb.where('work.name LIKE :needle', { needle: `%${needle}%` })
+        qb.orWhere('work.description LIKE :needle', { needle: `%${needle}%` })
+      })
+    )
+
+    return []
   }
 
   private sluggify(text: string): string {

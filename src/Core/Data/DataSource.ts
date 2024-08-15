@@ -20,6 +20,10 @@ import { PollQuestionModel } from '@modules/Polls/Data/Relations/PollQuestionMod
 import { PollAnswerModel } from '@modules/Polls/Data/Relations/PollAnswerModel'
 import { SessionModel } from '@modules/Sessions/Data/SessionModel'
 import { GoogleDocsBindingModel } from '@modules/GoogleDocs/Data/GoogleDocsBindingModel'
+import { FAQArticleModel } from '@modules/FAQ/Data/FAQArticleModel'
+import { UserAvatarModel } from '@modules/Users/Data/Relations/UserAvatarModel'
+import { MentorAssignmentModel } from '@modules/Users/Data/Relations/MentorAssignmentModel'
+import { SubjectModel } from '@modules/Subjects/Data/SubjectModel'
 
 export const CoreDataSource = new DataSource({
   type: 'mysql',
@@ -32,8 +36,12 @@ export const CoreDataSource = new DataSource({
   logging: false,
   charset: 'utf8mb4',
   entities: [
+    SubjectModel,
+    FAQArticleModel,
     MediaModel,
     UserModel,
+    UserAvatarModel,
+    MentorAssignmentModel,
     CourseModel,
     CourseChapterModel,
     CourseMaterialModel,

@@ -2,7 +2,6 @@ import { UserRepository } from '@modules/Users/Data/UserRepository'
 import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
 import { UnknownError } from '@modules/Core/Errors/UnknownError'
 import { Pagination } from '@modules/Core/Data/Pagination'
-import { Service } from '@modules/Core/Services/Service'
 import TypeORM from 'typeorm'
 import { User } from '@modules/Users/Data/User'
 import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
@@ -16,8 +15,10 @@ import { CourseUpdateDTO } from '../DTO/CourseUpdateDTO'
 import { CourseChapter } from '../Data/Relations/CourseChapter'
 import { CourseChapterModel } from '../Data/Relations/CourseChapterModel'
 import { CourseIsEmptyError } from '../Errors/CourseIsEmptyError'
+import { WorkRepository } from '@modules/Works/Data/WorkRepository'
+import { WorkIsFromAnotherSubjectError } from '../Errors/WorkIsFromAnotherSubjectError'
 
-export class CourseService extends Service<Course> {
+export class CourseService {
   private readonly courseRepository: CourseRepository
 
   private readonly materialRepository: CourseMaterialRepository
@@ -26,13 +27,14 @@ export class CourseService extends Service<Course> {
 
   private readonly assignedWorkRepository: AssignedWorkRepository
 
-  constructor() {
-    super()
+  private readonly workRepository: WorkRepository
 
+  constructor() {
     this.courseRepository = new CourseRepository()
     this.userRepository = new UserRepository()
     this.materialRepository = new CourseMaterialRepository()
     this.assignedWorkRepository = new AssignedWorkRepository()
+    this.workRepository = new WorkRepository()
   }
 
   public async get(
@@ -41,7 +43,6 @@ export class CourseService extends Service<Course> {
     userRole: User['role']
   ) {
     pagination = new Pagination().assign(pagination)
-    pagination.entriesToSearch = CourseModel.entriesToSearch()
 
     let conditions
 
@@ -55,26 +56,7 @@ export class CourseService extends Service<Course> {
 
     const relations: (keyof Course)[] = ['author']
 
-    const courses = await this.courseRepository.find(
-      conditions,
-      relations,
-      pagination
-    )
-
-    const meta = await this.getRequestMeta(
-      this.courseRepository,
-      conditions,
-      pagination,
-      relations
-    )
-
-    // Clear chapters, students and materials as they are not needed in the list
-    for (const course of courses) {
-      course.chapters = []
-      course.studentIds = []
-    }
-
-    return { courses, meta }
+    return this.courseRepository.search(conditions, pagination, relations)
   }
 
   public async getBySlug(slug: string, role: User['role']): Promise<Course> {
@@ -153,30 +135,6 @@ export class CourseService extends Service<Course> {
     await this.courseRepository.update(newCourse)
   }
 
-  public async assignStudents(
-    courseSlug: Course['slug'],
-    studentIds: User['id'][]
-  ) {
-    const course = await this.courseRepository.findOne(
-      {
-        slug: courseSlug,
-      },
-      ['chapters.materials' as any]
-    )
-
-    if (!course) {
-      throw new NotFoundError()
-    }
-
-    course.students = studentIds.map((id) => ({ id }) as User)
-
-    try {
-      await this.courseRepository.updateRaw(course)
-    } catch (e) {
-      throw new UnknownError('Не удалось обновить список учеников')
-    }
-  }
-
   public async addStudents(courseSlug: string, studentIds: User['id'][]) {
     const queryBuilder = this.courseRepository.queryBuilder()
 
@@ -242,16 +200,31 @@ export class CourseService extends Service<Course> {
     solveDeadline?: Date,
     checkDeadline?: Date
   ) {
-    const material = await this.materialRepository.findOne({
-      slug: materialSlug,
-      chapter: {
-        id: TypeORM.Not(TypeORM.IsNull()),
-        course: { id: TypeORM.Not(TypeORM.IsNull()) },
+    const material = await this.materialRepository.findOne(
+      {
+        slug: materialSlug,
+        chapter: {
+          id: TypeORM.Not(TypeORM.IsNull()),
+          course: { id: TypeORM.Not(TypeORM.IsNull()) },
+        },
       },
+      ['chapter.course']
+    )
+
+    const work = await this.workRepository.findOne({
+      id: workId,
     })
 
+    if (!work) {
+      throw new NotFoundError('Работа не найдена')
+    }
+
     if (!material) {
-      throw new NotFoundError()
+      throw new NotFoundError('Материал не найден')
+    }
+
+    if (material.chapter?.course?.subjectId !== work.subjectId) {
+      throw new WorkIsFromAnotherSubjectError()
     }
 
     material.work = { id: workId } as any

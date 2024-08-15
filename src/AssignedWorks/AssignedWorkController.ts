@@ -30,13 +30,13 @@ export class AssignedWorkController {
         context.query
       )
 
-      const { assignedWorks, meta } = await this.assignedWorkService.getWorks(
+      const { entities, meta } = await this.assignedWorkService.getWorks(
         context.credentials!.userId,
         context.credentials!.role,
         pagination
       )
 
-      return new ApiResponse({ data: assignedWorks, meta })
+      return new ApiResponse({ data: entities, meta })
     } catch (error: any) {
       return new ApiResponse(error)
     }
@@ -52,13 +52,13 @@ export class AssignedWorkController {
         context.query
       )
 
-      const { assignedWorks, meta } = await this.assignedWorkService.getWorks(
+      const { entities, meta } = await this.assignedWorkService.getWorks(
         userId,
         undefined,
         pagination
       )
 
-      return new ApiResponse({ data: assignedWorks, meta })
+      return new ApiResponse({ data: entities, meta })
     } catch (error: any) {
       return new ApiResponse(error)
     }
@@ -167,7 +167,11 @@ export class AssignedWorkController {
       const workId = this.assignedWorkValidator.parseId(context.params.id)
       const checkOptions = this.assignedWorkValidator.parseCheck(context.body)
 
-      await this.assignedWorkService.checkWork(workId, checkOptions)
+      await this.assignedWorkService.checkWork(
+        workId,
+        checkOptions,
+        context.credentials.userId
+      )
 
       return new ApiResponse()
     } catch (error: any) {

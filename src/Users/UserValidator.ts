@@ -44,6 +44,13 @@ export class UserValidator extends Validator {
 
   public emailScheme = z.string().email({ message: 'Неверный формат почты' })
 
+  public userAvatarScheme = z.object({
+    id: z.string().ulid().optional().nullable(),
+    media: MediaScheme.nullable().optional(),
+    avatarType: z.enum(['telegram', 'custom']),
+    telegramAvatarUrl: z.string().optional().nullable(),
+  })
+
   public registerScheme = z.object({
     name: z
       .string()
@@ -62,8 +69,7 @@ export class UserValidator extends Validator {
     id: z.string().ulid(),
     name: z.string().optional(),
     password: this.passwordScheme.optional(),
-    avatar: MediaScheme.optional().nullable(),
-    avatarType: z.string().optional().nullable(),
+    avatar: this.userAvatarScheme.optional().nullable(),
     role: this.userRoleScheme.optional(),
     isBlocked: z.boolean().optional(),
     forbidden: z.number().optional(),

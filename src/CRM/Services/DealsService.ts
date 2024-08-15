@@ -1,15 +1,11 @@
-import { Service } from '@modules/Core/Services/Service'
-import { CourseRequestModel } from '../Data/CourseRequestModel'
 import { CourseRequest } from '../Data/CourseRequest'
 import { CourseRequestRepository } from '../Data/CourseRequestRepository'
 import log from '@modules/Core/Logs/Logger'
 
-export class DealsService extends Service<CourseRequestModel> {
+export class DealsService {
   private readonly courseRequestRepository: CourseRequestRepository
 
   public constructor() {
-    super()
-
     this.courseRequestRepository = new CourseRequestRepository()
   }
 

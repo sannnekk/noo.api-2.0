@@ -1,8 +1,14 @@
-import { merge } from 'ts-deepmerge'
-import TypeORM from 'typeorm'
+import TypeORM, { FindOptionsOrder, SelectQueryBuilder } from 'typeorm'
 import Dates from '../Utils/date'
+import { BaseModel } from './Model'
 
-export type Filters = Record<string, any>
+export type Filters = Record<
+  string,
+  (
+    query: TypeORM.SelectQueryBuilder<BaseModel>,
+    metadata: TypeORM.EntityMetadata
+  ) => void
+>
 
 export class Pagination {
   private page: number
@@ -14,8 +20,6 @@ export class Pagination {
   private order: 'ASC' | 'DESC'
 
   private search: string
-
-  private entries: string[] = []
 
   private filters: Filters = {}
 
@@ -57,68 +61,24 @@ export class Pagination {
     this.limit = value
   }
 
-  public get orderOptions(): Record<string, 'ASC' | 'DESC'> {
+  public getOrderOptions<Entity extends BaseModel>(
+    entityName: string
+  ): FindOptionsOrder<Entity> {
     return {
-      [this.sort]: this.order,
-    }
-  }
-
-  public set entriesToSearch(entries: string[]) {
-    this.entries = entries
-  }
-
-  public get entriesToSearch(): string[] {
-    return this.entries
+      [`${entityName}.${this.sort}`]: this.order,
+    } as FindOptionsOrder<Entity>
   }
 
   public get relationsToLoad(): string[] {
     return this.relations
   }
 
-  public getCondition(
-    conditions?: Record<string, any>
-  ):
-    | undefined
-    | Record<string, string | number>
-    | Record<string, string | number>[] {
-    let allConditions = [{ ...this.filters }]
+  public get searchQuery(): string {
+    return this.search
+  }
 
-    if (Array.isArray(conditions)) {
-      allConditions = conditions.map((condition) =>
-        merge(this.filters, condition)
-      )
-    } else {
-      allConditions = [merge(conditions || {}, this.filters)]
-    }
-
-    if (!this.search.length || !this.entries.length) {
-      if (allConditions.length === 1) {
-        return allConditions[0]
-      }
-
-      return allConditions
-    }
-
-    const result = this.entries.flatMap((entry) => {
-      const merges = []
-
-      for (const condition of allConditions) {
-        merges.push(
-          merge(
-            this.getSearchCondition(entry, this.search),
-            condition
-          ) as Record<string, any>
-        )
-      }
-
-      return merges
-    })
-
-    if (result.length === 1 && Object.keys(result[0]).length === 0) {
-      return undefined
-    }
-
-    return result
+  public set searchQuery(value) {
+    this.search = value
   }
 
   public getFilter(name: string): any {
@@ -133,80 +93,34 @@ export class Pagination {
     this.filters[name] = value
   }
 
-  private getSearchCondition(
-    entry: string,
-    search: string
-  ): Record<string, any> {
-    if (entry.includes('.')) {
-      const [relation] = entry.split('.')
-      const rest = entry.slice(relation.length + 1)
-      return {
-        [relation]: {
-          ...this.getSearchCondition(rest, search),
-        },
-      }
-    }
-
-    return { [entry]: TypeORM.ILike(`%${this.search}%`) }
-  }
-
   private parseFilterValues(filters: Filters): Filters {
-    const parsedFilters = {} as any
+    const parsedFilters = {} as Filters
     let value: any
 
     for (const key in filters) {
       value = filters[key]
 
       if (value === 'null') {
-        parsedFilters[key] = null
+        parsedFilters[key] = () => `${key} IS NULL`
         continue
       }
 
       if (/^range\([0-9.|:\-\_a-zA-Z]+\)$/.test(value)) {
-        const [min, max] = value
-          .slice(6, -1)
-          .split('|')
-          .map((v: any) => this.typeConvert(v))
-
-        parsedFilters[key] = TypeORM.Between(min, max)
+        this.addRangeFilter(key, value, parsedFilters)
         continue
       }
 
       if (/^arr\([0-9.|:\-\_a-zA-Z]+\)$/.test(value)) {
-        parsedFilters[key] = TypeORM.In(
-          value
-            .slice(4, -1)
-            .split('|')
-            .map((v: any) => this.typeConvert(v))
-        )
-
-        if (parsedFilters[key].length === 0) {
-          parsedFilters[key] = undefined
-        }
-
+        this.addArrayFilter(key, value, parsedFilters)
         continue
       }
 
       if (/^tags\([0-9.|:\-\_a-zA-Z]+\)$/.test(value)) {
-        parsedFilters[key] = value
-          .slice(5, -1)
-          .split('|')
-          .map((v: string) =>
-            TypeORM.ILike(`%${this.typeConvert(v) as string},%`)
-          )
-
-        if (parsedFilters[key].length === 0) {
-          parsedFilters[key] = undefined
-        }
-
-        if (parsedFilters[key].length === 1) {
-          parsedFilters[key] = parsedFilters[key][0]
-        }
-
+        this.addTagFilter(key, value, parsedFilters)
         continue
       }
 
-      parsedFilters[key] = this.typeConvert(value)
+      this.addSimpleFilter(key, value, parsedFilters)
     }
 
     return parsedFilters
@@ -238,5 +152,111 @@ export class Pagination {
     }
 
     return value
+  }
+
+  private addRangeFilter(
+    key: string,
+    value: string,
+    parsedFilters: Filters
+  ): void {
+    const [min, max] = value.slice(6, -1).split('|').map(this.typeConvert)
+
+    parsedFilters[key] = (
+      query: TypeORM.SelectQueryBuilder<BaseModel>,
+      metadata: TypeORM.EntityMetadata
+    ) => {
+      key = this.getDbNameAndAddJoins(query, key, metadata)
+
+      if (min !== null) {
+        query.andWhere(`${key} >= :min`, { min })
+      }
+
+      if (max !== null) {
+        query.andWhere(`${key} <= :max`, { max })
+      }
+    }
+  }
+
+  private addArrayFilter(
+    key: string,
+    value: string,
+    parsedFilters: Filters
+  ): void {
+    const values = value.slice(4, -1).split('|').map(this.typeConvert)
+
+    if (values.length !== 0) {
+      parsedFilters[key] = (
+        query: TypeORM.SelectQueryBuilder<BaseModel>,
+        metadata: TypeORM.EntityMetadata
+      ) => {
+        key = this.getDbNameAndAddJoins(query, key, metadata)
+
+        query.andWhere(`${key} IN (:...values)`, { values })
+      }
+    }
+  }
+
+  private addTagFilter(
+    key: string,
+    value: string,
+    parsedFilters: Filters
+  ): void {
+    const tags = value.slice(5, -1).split('|').map(this.typeConvert)
+
+    if (parsedFilters[key].length === 0) {
+      parsedFilters[key] = () => void 0
+    } else {
+      parsedFilters[key] = (
+        query: TypeORM.SelectQueryBuilder<BaseModel>,
+        metadata: TypeORM.EntityMetadata
+      ) => {
+        key = this.getDbNameAndAddJoins(query, key, metadata)
+
+        for (const tag of tags) {
+          query.andWhere(`${key} LIKE :tag`, {
+            tag: `%${tag}%`,
+          })
+        }
+      }
+    }
+  }
+
+  private addSimpleFilter(key: string, value: string, parsedFilters: Filters) {
+    const convertedValue = this.typeConvert(value)
+    parsedFilters[key] = (
+      query: TypeORM.SelectQueryBuilder<BaseModel>,
+      metadata: TypeORM.EntityMetadata
+    ) => {
+      key = this.getDbNameAndAddJoins(query, key, metadata)
+
+      query.andWhere(`${key} = :${key}`, { [key]: convertedValue })
+    }
+  }
+
+  private getDbNameAndAddJoins(
+    query: SelectQueryBuilder<BaseModel>,
+    key: string,
+    metadata: TypeORM.EntityMetadata
+  ): string {
+    const entityName = metadata.tableName
+    const [relationProp, column] = key.split('.')
+
+    if (!column) {
+      return `${entityName}.${key}`
+    }
+
+    const relation = metadata.relations.find(
+      (r) => r.propertyName === relationProp
+    )
+
+    if (!relation) {
+      return `${entityName}.${key}`
+    }
+
+    const fullAlias = `${relationProp}__${relation.propertyName}`
+
+    query.leftJoinAndSelect(`${entityName}.${relationProp}`, fullAlias)
+
+    return `${fullAlias}.${column}`
   }
 }

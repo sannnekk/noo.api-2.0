@@ -1,4 +1,3 @@
-import { Service } from '@modules/Core/Services/Service'
 import { Pagination } from '@modules/Core/Data/Pagination'
 import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
 import { WorkRepository } from '../Data/WorkRepository'
@@ -6,33 +5,17 @@ import { Work } from '../Data/Work'
 import { WorkModel } from '../Data/WorkModel'
 import { WorkDTO } from '../DTO/WorkDTO'
 
-export class WorkService extends Service<Work> {
+export class WorkService {
   private readonly workRepository: WorkRepository
 
   constructor() {
-    super()
-
     this.workRepository = new WorkRepository()
   }
 
   public async getWorks(pagination?: Pagination) {
     pagination = new Pagination().assign(pagination)
-    pagination.entriesToSearch = WorkModel.entriesToSearch()
 
-    const works = await this.workRepository.find(
-      undefined,
-      undefined,
-      pagination
-    )
-
-    const meta = await this.getRequestMeta(
-      this.workRepository,
-      undefined,
-      pagination,
-      []
-    )
-
-    return { works, meta }
+    return this.workRepository.search(undefined, pagination)
   }
 
   public async getWorkBySlug(slug: Work['slug']) {

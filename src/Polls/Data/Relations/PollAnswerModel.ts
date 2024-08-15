@@ -1,5 +1,12 @@
-import { Model } from '@modules/Core/Data/Model'
-import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm'
+import {
+  Brackets,
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  RelationId,
+  SelectQueryBuilder,
+} from 'typeorm'
 import { Media } from '@modules/Media/Data/Media'
 import { MediaModel } from '@modules/Media/Data/MediaModel'
 import { UserModel } from '@modules/Users/Data/UserModel'
@@ -7,9 +14,11 @@ import { User } from '@modules/Users/Data/User'
 import { PollQuestion } from './PollQuestion'
 import { PollQuestionModel } from './PollQuestionModel'
 import { PollAnswer } from './PollAnswer'
+import { SearchableModel } from '@modules/Core/Data/SearchableModel'
+import { BaseModel } from '@modules/Core/Data/Model'
 
 @Entity('poll_answer')
-export class PollAnswerModel extends Model implements PollAnswer {
+export class PollAnswerModel extends SearchableModel implements PollAnswer {
   public constructor(data?: Partial<PollAnswer>) {
     super()
 
@@ -121,7 +130,19 @@ export class PollAnswerModel extends Model implements PollAnswer {
   })
   rating?: number | undefined
 
-  public static entriesToSearch() {
-    return ['userAuthIdentifier', 'userAuthData', 'text']
+  public addSearchToQuery(
+    query: SelectQueryBuilder<BaseModel>,
+    needle: string
+  ): string[] {
+    query.andWhere(
+      new Brackets((qb) => {
+        qb.where('poll_answer.user_auth_data LIKE :needle', {
+          needle: `%${needle}%`,
+        })
+        qb.orWhere('poll_answer.text LIKE :needle', { needle: `%${needle}%` })
+      })
+    )
+
+    return []
   }
 }
