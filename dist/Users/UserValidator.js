@@ -4,113 +4,28 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-import { z } from 'zod';
 import { ErrorConverter } from '../Core/Request/ValidatorDecorator.js';
 import { Validator } from '../Core/Request/Validator.js';
-import { UserRoles } from '../Core/Security/roles.js';
-import { MediaScheme } from '../Media/MediaScheme.js';
+import { UserRoleScheme } from '../Core/Schemes/UserRoleScheme.js';
+import { UpdatePasswordScheme } from './Schemes/UpdatePasswordScheme.js';
+import { TelegramUpdateScheme } from './Schemes/TelegramUpdateScheme.js';
+import { EmailUpdateScheme } from './Schemes/EmailUpdateScheme.js';
+import { UserUpdateScheme } from './Schemes/UserUpdateScheme.js';
 let UserValidator = class UserValidator extends Validator {
-    userRoleScheme = z.enum(Object.keys(UserRoles));
-    passwordScheme = z
-        .string()
-        .min(8, {
-        message: 'Пароль должен быть 8 символов или длиннее',
-    })
-        .max(64, {
-        message: 'Пароль должен быть короче 64 символов',
-    })
-        .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/, {
-        message: 'Пароль должен содержать хотя бы одну цифру, одну заглавную и одну строчную букву',
-    });
-    usernameScheme = z
-        .string()
-        .min(3, {
-        message: 'Никнейм должен быть длиннее двух символов',
-    })
-        .max(32, {
-        message: 'Никнейм должен быть короче 32 символов',
-    })
-        .regex(/^[A-Za-z0-9_-]+$/i);
-    emailScheme = z.string().email({ message: 'Неверный формат почты' });
-    registerScheme = z.object({
-        name: z
-            .string()
-            .min(3, {
-            message: 'ФИО должен быть длиннее двух символов',
-        })
-            .max(255, {
-            message: 'ФИО должен быть короче 32 символов',
-        }),
-        username: this.usernameScheme,
-        email: this.emailScheme,
-        password: this.passwordScheme,
-    });
-    updateScheme = z.object({
-        id: z.string().ulid(),
-        name: z.string().optional(),
-        password: this.passwordScheme.optional(),
-        avatar: MediaScheme.optional().nullable(),
-        avatarType: z.string().optional().nullable(),
-        role: this.userRoleScheme.optional(),
-        isBlocked: z.boolean().optional(),
-        forbidden: z.number().optional(),
-    });
-    telegramUpdate = z.object({
-        telegramId: z.string().nullable().optional(),
-        telegramUsername: z.string().nullable().optional(),
-        telegramAvatarUrl: z.string().nullable().optional(),
-    });
-    loginScheme = z.object({
-        usernameOrEmail: this.usernameScheme.or(this.emailScheme),
-        password: z.string().min(5).max(128),
-    });
-    verificationScheme = z.object({
-        token: z
-            .string()
-            .min(8, { message: 'Неверный токен' })
-            .max(255, { message: 'Неверный токен' }),
-        username: this.usernameScheme,
-    });
-    emailUpdateScheme = z.object({ email: this.emailScheme });
-    emailChangeVerificationScheme = z.object({
-        token: z
-            .string()
-            .min(8, { message: 'Неверный токен' })
-            .max(255, { message: 'Неверный токен' }),
-        username: this.usernameScheme,
-    });
-    resendVerificationScheme = z.object({
-        email: this.emailScheme,
-    });
-    forgotPasswordScheme = z.object({
-        email: this.emailScheme,
-    });
-    parseRegister(data) {
-        return this.parse(data, this.registerScheme);
-    }
-    parseLogin(user) {
-        return this.parse(user, this.loginScheme);
-    }
-    parseVerification(data) {
-        return this.parse(data, this.verificationScheme);
-    }
-    parseEmailChangeVerification(data) {
-        return this.parse(data, this.emailChangeVerificationScheme);
-    }
-    parseResendVerification(data) {
-        return this.parse(data, this.resendVerificationScheme);
+    parseRole(role) {
+        return this.parse(role, UserRoleScheme);
     }
     parseUpdate(user) {
-        return this.parse(user, this.updateScheme);
+        return this.parse(user, UserUpdateScheme);
+    }
+    parseUpdatePassword(data) {
+        return this.parse(data, UpdatePasswordScheme);
     }
     parseTelegramUpdate(data) {
-        return this.parse(data, this.telegramUpdate);
+        return this.parse(data, TelegramUpdateScheme);
     }
     parseEmailUpdate(data) {
-        return this.parse(data, this.emailUpdateScheme);
-    }
-    validateForgotPassword(data) {
-        return this.parse(data, this.forgotPasswordScheme);
+        return this.parse(data, EmailUpdateScheme);
     }
 };
 UserValidator = __decorate([

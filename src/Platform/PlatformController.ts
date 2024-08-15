@@ -33,6 +33,7 @@ export class PlatformController {
   public async changelog(context: Context): Promise<ApiResponse> {
     try {
       await Asserts.isAuthenticated(context)
+      Asserts.teacherOrAdmin(context)
 
       const changelog = await this.platformService.changelog()
 
@@ -46,6 +47,7 @@ export class PlatformController {
   public async changelogOfVersion(context: Context): Promise<ApiResponse> {
     try {
       await Asserts.isAuthenticated(context)
+      Asserts.teacherOrAdmin(context)
 
       const version = this.platformValidator.parseVersion(
         context.params.version

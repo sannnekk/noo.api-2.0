@@ -2,93 +2,35 @@ import { ErrorConverter } from '@modules/Core/Request/ValidatorDecorator'
 import { Validator } from '@modules/Core/Request/Validator'
 import { z } from 'zod'
 import { User } from '@modules/Users/Data/User'
-import { DeltaScheme } from '@modules/Core/Schemas/DeltaScheme'
-import { MediaScheme } from '@modules/Media/MediaScheme'
 import { AssignWorkOptions } from './DTO/AssignWorkOptions'
 import { CourseCreationDTO } from './DTO/CourseCreationDTO'
 import { CourseUpdateDTO } from './DTO/CourseUpdateDTO'
 import { CourseChapter } from './Data/Relations/CourseChapter'
+import { CourseScheme } from './Schemes/CourseScheme'
+import { ChapterScheme } from './Schemes/ChapterScheme'
+import { AssignWorkOptionsScheme } from './Schemes/AssignWorkOptionsScheme'
+import { EmailScheme } from '@modules/Core/Schemes/EmailScheme'
 
 @ErrorConverter()
 export class CourseValidator extends Validator {
-  public readonly materialScheme = z.object({
-    id: z.string().ulid().optional(),
-    slug: z.string().optional().nullable(),
-    name: z
-      .string()
-      .min(1, { message: 'Название материала слишком короткое' })
-      .max(255, {
-        message: 'Название материала не может быть длиннее 255 символов',
-      }),
-    order: z.number(),
-    isActive: z.boolean().optional(),
-    description: z.string().nullable().optional(),
-    content: DeltaScheme,
-    files: z.array(MediaScheme),
-  })
-
-  public readonly chapterScheme = z.object({
-    id: z.string().ulid().optional(),
-    slug: z.string().optional().nullable(),
-    name: z
-      .string()
-      .min(1, { message: 'Название главы слишком короткое' })
-      .max(255, {
-        message: 'Название главы не может быть длиннее 255 символов',
-      }),
-    order: z.number(),
-    isActive: z.boolean().optional(),
-    materials: z.array(this.materialScheme),
-  })
-
-  public readonly courseScheme = z.object({
-    id: z.string().ulid().optional(),
-    slug: z.string().optional().nullable(),
-    name: z
-      .string()
-      .min(1, { message: 'Название курса слишком короткое' })
-      .max(255, {
-        message: 'Название курса не может быть длиннее 255 символов',
-      }),
-    description: z
-      .string()
-      .max(255, {
-        message: 'Описание курса не может быть длиннее 255 символов',
-      })
-      .optional(),
-    images: z.array(MediaScheme),
-    chapters: z.array(this.chapterScheme),
-    subject: z.object(
-      {
-        id: z.string().ulid(),
-      },
-      { message: 'Предмет не указан' }
-    ),
-  })
-
   public readonly studentIdsScheme = z.object({
     studentIds: z.array(z.string().ulid()),
   })
 
   public readonly studentEmailsScheme = z.object({
-    emails: z.array(z.string().email()),
-  })
-
-  public readonly assignWorkOptionsScheme = z.object({
-    checkDeadline: z.date().optional(),
-    solveDeadline: z.date().optional(),
+    emails: z.array(EmailScheme),
   })
 
   public parseCreation(course: unknown): CourseCreationDTO {
-    return this.parse<CourseCreationDTO>(course, this.courseScheme)
+    return this.parse<CourseCreationDTO>(course, CourseScheme)
   }
 
   public parseChapterCreation(chapter: unknown): CourseChapter {
-    return this.parse<CourseChapter>(chapter, this.chapterScheme)
+    return this.parse<CourseChapter>(chapter, ChapterScheme)
   }
 
   public parseUpdate(course: unknown): CourseUpdateDTO {
-    return this.parse<CourseUpdateDTO>(course, this.courseScheme)
+    return this.parse<CourseUpdateDTO>(course, CourseScheme)
   }
 
   public parseStudentIds(body: unknown): { studentIds: User['id'][] } {
@@ -100,6 +42,6 @@ export class CourseValidator extends Validator {
   }
 
   public parseAssignWorkOptions(data: unknown): AssignWorkOptions {
-    return this.parse<AssignWorkOptions>(data, this.assignWorkOptionsScheme)
+    return this.parse<AssignWorkOptions>(data, AssignWorkOptionsScheme)
   }
 }

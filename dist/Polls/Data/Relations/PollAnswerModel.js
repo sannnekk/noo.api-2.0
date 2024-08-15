@@ -7,12 +7,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model } from '../../../Core/Data/Model.js';
-import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm';
+import { Brackets, Column, Entity, ManyToOne, OneToMany, RelationId, } from 'typeorm';
 import { MediaModel } from '../../../Media/Data/MediaModel.js';
 import { UserModel } from '../../../Users/Data/UserModel.js';
 import { PollQuestionModel } from './PollQuestionModel.js';
-let PollAnswerModel = class PollAnswerModel extends Model {
+import { SearchableModel } from '../../../Core/Data/SearchableModel.js';
+import { config } from '../../../config.js';
+let PollAnswerModel = class PollAnswerModel extends SearchableModel {
     constructor(data) {
         super();
         if (data) {
@@ -45,8 +46,14 @@ let PollAnswerModel = class PollAnswerModel extends Model {
         this._choices = choices?.join('|');
     }
     rating;
-    static entriesToSearch() {
-        return ['userAuthIdentifier', 'userAuthData', 'text'];
+    addSearchToQuery(query, needle) {
+        query.andWhere(new Brackets((qb) => {
+            qb.where('poll_answer.user_auth_data LIKE :needle', {
+                needle: `%${needle}%`,
+            });
+            qb.orWhere('poll_answer.text LIKE :needle', { needle: `%${needle}%` });
+        }));
+        return [];
     }
 };
 __decorate([
@@ -74,6 +81,8 @@ __decorate([
         name: 'user_auth_type',
         type: 'varchar',
         default: 'api',
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", Object)
 ], PollAnswerModel.prototype, "userAuthType", void 0);
@@ -83,6 +92,8 @@ __decorate([
         type: 'varchar',
         nullable: true,
         default: null,
+        charset: config.database.charsets.withEmoji,
+        collation: config.database.collations.withEmoji,
     }),
     __metadata("design:type", Object)
 ], PollAnswerModel.prototype, "userAuthData", void 0);
@@ -92,6 +103,8 @@ __decorate([
         type: 'varchar',
         nullable: true,
         default: null,
+        charset: config.database.charsets.withEmoji,
+        collation: config.database.collations.withEmoji,
     }),
     __metadata("design:type", String)
 ], PollAnswerModel.prototype, "userAuthIdentifier", void 0);
@@ -108,6 +121,8 @@ __decorate([
         name: 'text',
         type: 'text',
         nullable: true,
+        charset: config.database.charsets.withEmoji,
+        collation: config.database.collations.withEmoji,
     }),
     __metadata("design:type", Object)
 ], PollAnswerModel.prototype, "text", void 0);
@@ -139,6 +154,8 @@ __decorate([
         name: 'choices',
         type: 'text',
         nullable: true,
+        charset: config.database.charsets.withEmoji,
+        collation: config.database.collations.withEmoji,
     }),
     __metadata("design:type", String)
 ], PollAnswerModel.prototype, "_choices", void 0);

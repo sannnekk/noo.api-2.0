@@ -14,8 +14,13 @@ import { PollAnswer } from './PollAnswer'
 import { PollAnswerModel } from './PollAnswerModel'
 import { SearchableModel } from '@modules/Core/Data/SearchableModel'
 import { BaseModel } from '@modules/Core/Data/Model'
+import { config } from '@modules/config'
 
-@Entity('poll_question')
+@Entity('poll_question', {
+  orderBy: {
+    order: 'ASC',
+  },
+})
 export class PollQuestionModel extends SearchableModel implements PollQuestion {
   public constructor(data?: Partial<PollQuestion>) {
     super()
@@ -83,6 +88,8 @@ export class PollQuestionModel extends SearchableModel implements PollQuestion {
   @Column({
     name: 'text',
     type: 'text',
+    charset: config.database.charsets.withEmoji,
+    collation: config.database.collations.withEmoji,
   })
   text!: string
 
@@ -97,6 +104,8 @@ export class PollQuestionModel extends SearchableModel implements PollQuestion {
     name: 'description',
     type: 'text',
     nullable: true,
+    charset: config.database.charsets.withEmoji,
+    collation: config.database.collations.withEmoji,
   })
   description?: string
 
@@ -118,6 +127,8 @@ export class PollQuestionModel extends SearchableModel implements PollQuestion {
     name: 'choices',
     type: 'text',
     nullable: true,
+    charset: config.database.charsets.withEmoji,
+    collation: config.database.collations.withEmoji,
   })
   _choices?: string
 
@@ -182,6 +193,8 @@ export class PollQuestionModel extends SearchableModel implements PollQuestion {
     name: 'allowed_file_types',
     type: 'simple-array',
     nullable: true,
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
   allowedFileTypes?: Media['mimeType'][]
 

@@ -1,121 +1,156 @@
 import * as Hash from '../../Core/Security/hash.js';
 import { UnauthenticatedError } from '../../Core/Errors/UnauthenticatedError.js';
 import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
-import { Pagination } from '../../Core/Data/Pagination.js';
-import { Service } from '../../Core/Services/Service.js';
 import { EmailService } from '../../Core/Email/EmailService.js';
 import { UserRepository } from '../Data/UserRepository.js';
 import { UserModel } from '../Data/UserModel.js';
 import { AlreadyExistError } from '../../Core/Errors/AlreadyExistError.js';
 import { SessionService, } from '../../Sessions/Services/SessionService.js';
-export class UserService extends Service {
+import { UserAvatarModel } from '../Data/Relations/UserAvatarModel.js';
+import { MentorAssignmentRepository } from '../Data/MentorAssignmentRepository.js';
+import TypeORM from 'typeorm';
+import { MentorAssignmentModel } from '../Data/Relations/MentorAssignmentModel.js';
+import { SubjectRepository } from '../../Subjects/Data/SubjectRepository.js';
+import { CantChangeRoleError } from '../Errors/CantChangeRoleError.js';
+import { UnauthorizedError } from '../../Core/Errors/UnauthorizedError.js';
+export class UserService {
     userRepository;
     emailService;
     sessionService;
+    mentorAssignmentRepository;
+    subjectRepository;
     constructor() {
-        super();
         this.userRepository = new UserRepository();
         this.emailService = new EmailService();
         this.sessionService = new SessionService();
+        this.mentorAssignmentRepository = new MentorAssignmentRepository();
+        this.subjectRepository = new SubjectRepository();
     }
-    async assignMentor(studentId, mentorId) {
-        const student = await this.userRepository.findOne({ id: studentId });
-        const mentor = await this.userRepository.findOne({ id: mentorId });
+    async assignMentor(studentId, mentorId, subjectId) {
+        const student = await this.userRepository.findOne({
+            id: studentId,
+            role: 'student',
+        });
+        const mentor = await this.userRepository.findOne({
+            id: mentorId,
+            role: 'mentor',
+        });
+        const subject = await this.subjectRepository.findOne({ id: subjectId });
         if (!student || !mentor) {
-            throw new NotFoundError();
+            throw new NotFoundError('Ученик или куратор не найден.');
+        }
+        if (!subject) {
+            throw new NotFoundError('Предмет не найден.');
         }
         if (student.isBlocked || mentor.isBlocked) {
-            throw new UnauthenticatedError('Аккаунт куратора или студента заблокирован.');
+            throw new UnauthenticatedError('Аккаунт куратора или ученика заблокирован.');
         }
-        student.mentor = mentorId;
-        await this.userRepository.update(student);
+        let mentorAssignment = await this.mentorAssignmentRepository.findOne({
+            student: { id: studentId },
+            subject: { id: subjectId },
+        }, ['student', 'mentor', 'subject']);
+        if (!mentorAssignment) {
+            mentorAssignment = new MentorAssignmentModel({
+                student,
+                mentor,
+                subject,
+            });
+            await this.mentorAssignmentRepository.create(mentorAssignment);
+        }
+        else {
+            mentorAssignment.mentor = mentor;
+            await this.mentorAssignmentRepository.updateRaw(mentorAssignment);
+        }
     }
     async getByUsername(username) {
         const user = await this.userRepository.findOne({ username }, [
-            'students',
             'courses',
-            'courses.students',
-            'mentor',
-        ]);
+            'avatar',
+            'mentorAssignmentsAsMentor',
+            'mentorAssignmentsAsMentor.student',
+            'mentorAssignmentsAsMentor.mentor',
+            'mentorAssignmentsAsMentor.subject',
+            'mentorAssignmentsAsStudent.student',
+            'mentorAssignmentsAsStudent.mentor',
+            'mentorAssignmentsAsStudent.subject',
+        ], undefined, {
+            relationLoadStrategy: 'query',
+        });
         if (!user) {
-            throw new NotFoundError();
+            throw new NotFoundError('Пользователь не найден.');
         }
         const onlineStatus = await this.sessionService.getOnlineStatus(user.id);
         return { ...user, ...onlineStatus };
     }
     async getUsers(pagination) {
-        pagination = new Pagination().assign(pagination);
-        pagination.entriesToSearch = UserModel.entriesToSearch();
-        const relations = [];
-        if (pagination.relationsToLoad.includes('mentor')) {
-            relations.push('mentor');
-        }
-        const users = await this.userRepository.find(undefined, relations, pagination);
-        const meta = await this.getRequestMeta(this.userRepository, undefined, pagination, relations);
-        return {
-            users: this.withOnlineStatus(users),
-            meta,
-        };
+        return this.userRepository.search(undefined, pagination);
     }
     async getStudentsOf(mentorId, pagination) {
-        pagination = new Pagination().assign(pagination);
-        pagination.entriesToSearch = UserModel.entriesToSearch();
-        const relations = ['students'];
-        const conditions = {
+        const { entities: mentorAssignations, meta } = await this.mentorAssignmentRepository.search({
             mentor: { id: mentorId },
-            role: 'student',
-        };
-        const students = await this.userRepository.find(conditions, relations, pagination);
-        const meta = await this.getRequestMeta(this.userRepository, conditions, pagination, relations);
-        return { students, meta };
+            student: { id: TypeORM.Not(TypeORM.IsNull()) },
+        }, pagination, ['student', 'subject']);
+        const students = mentorAssignations.map((mentorAssignment) => ({
+            ...mentorAssignment.student,
+            subject: mentorAssignment.subject,
+        }));
+        return { entities: students, meta };
     }
     async getMentors(pagination) {
-        pagination = new Pagination().assign(pagination);
-        pagination.entriesToSearch = UserModel.entriesToSearch();
-        const relations = ['students'];
-        const conditions = { role: 'mentor' };
-        const mentors = await this.userRepository.find(conditions, relations, pagination);
-        const meta = await this.getRequestMeta(this.userRepository, conditions, pagination, relations);
-        return { mentors, meta };
+        return this.userRepository.search({ role: 'mentor' }, pagination);
     }
     async getTeachers(pagination) {
-        pagination = new Pagination().assign(pagination);
-        pagination.entriesToSearch = UserModel.entriesToSearch();
-        const relations = [];
-        const conditions = { role: 'teacher' };
-        const teachers = await this.userRepository.find(conditions, relations, pagination);
-        const meta = await this.getRequestMeta(this.userRepository, conditions, pagination, relations);
-        return { teachers, meta };
+        return this.userRepository.search({ role: 'teacher' }, pagination);
     }
     async getStudents(pagination) {
-        pagination = new Pagination().assign(pagination);
-        pagination.entriesToSearch = UserModel.entriesToSearch();
-        const relations = ['mentor'];
-        const conditions = { role: 'student' };
-        const students = await this.userRepository.find(conditions, relations, pagination);
-        const meta = await this.getRequestMeta(this.userRepository, conditions, pagination, relations);
-        return { students, meta };
+        return this.userRepository.search({ role: 'student' }, pagination);
     }
-    async update(id, data, updaterRole) {
+    async getMentor(student, subjectId) {
+        if (student.role !== 'student') {
+            return null;
+        }
+        const mentorAssignmentsAsStudent = await this.mentorAssignmentRepository.findOne({
+            student: { id: student.id },
+            subject: { id: subjectId },
+        }, ['mentor']);
+        if (!mentorAssignmentsAsStudent) {
+            return null;
+        }
+        return mentorAssignmentsAsStudent.mentor;
+    }
+    async update(id, data) {
         const existingUser = await this.userRepository.findOne({ id });
         if (!existingUser) {
             throw new NotFoundError();
         }
-        if (data.password)
-            data.password = await Hash.hash(data.password);
         const user = new UserModel({
             ...existingUser,
             ...data,
-            role: existingUser.role,
         });
-        if (data.role &&
-            data.role !== existingUser.role &&
-            existingUser.role === 'student' &&
-            ['teacher', 'admin'].includes(updaterRole)) {
-            user.role = data.role;
+        await this.userRepository.update(user);
+    }
+    async changePassword(id, passwordDTO) {
+        const user = await this.userRepository.findOne({ id });
+        if (!user) {
+            throw new NotFoundError('Пользователь не найден.');
         }
-        const newUser = new UserModel({ ...existingUser, ...user });
-        await this.userRepository.update(newUser);
+        if (!(await Hash.compare(passwordDTO.oldPassword, user.password))) {
+            throw new UnauthorizedError('Неверный пароль.');
+        }
+        user.password = await Hash.hash(passwordDTO.newPassword);
+        await this.userRepository.update(user);
+    }
+    async changeRole(id, role) {
+        const user = await this.userRepository.findOne({ id });
+        if (!user) {
+            throw new NotFoundError('Пользователь не найден.');
+        }
+        if (user.role !== 'student') {
+            throw new CantChangeRoleError();
+        }
+        user.role = role;
+        await this.userRepository.update(user);
+        await this.sessionService.deleteSessionsForUser(user.id);
     }
     async updateTelegram(id, data) {
         const user = await this.userRepository.findOne({ id });
@@ -124,7 +159,15 @@ export class UserService extends Service {
         }
         user.telegramId = data.telegramId;
         user.telegramUsername = data.telegramUsername;
-        user.telegramAvatarUrl = data.telegramAvatarUrl;
+        if (!user.avatar && data.telegramAvatarUrl) {
+            user.avatar = new UserAvatarModel({
+                avatarType: 'telegram',
+                telegramAvatarUrl: data.telegramAvatarUrl,
+            });
+        }
+        else if (user.avatar && data.telegramAvatarUrl) {
+            user.avatar.telegramAvatarUrl = data.telegramAvatarUrl;
+        }
         await this.userRepository.update(user);
     }
     async sendEmailUpdate(id, newEmail) {
@@ -146,6 +189,14 @@ export class UserService extends Service {
         await this.emailService.sendEmailChangeConfirmation(user.name, newEmail, user.username, emailChangeToken);
         await this.userRepository.update(user);
     }
+    async verifyManual(id) {
+        const user = await this.userRepository.findOne({ id });
+        if (!user) {
+            throw new NotFoundError();
+        }
+        user.verificationToken = null;
+        await this.userRepository.update(user);
+    }
     async confirmEmailUpdate(username, token) {
         const user = await this.userRepository.findOne({ username });
         if (!user) {
@@ -162,11 +213,15 @@ export class UserService extends Service {
         user.newEmail = null;
         await this.userRepository.update(user);
     }
-    async delete(id) {
+    async delete(id, password) {
         const user = await this.userRepository.findOne({ id });
         if (!user) {
             throw new NotFoundError();
         }
+        if (!(await Hash.compare(password, user.password))) {
+            throw new UnauthorizedError('Неверный пароль.');
+        }
+        // remove everything except works
         user.name = 'Deleted User';
         user.username = user.slug = `deleted-${Math.random()
             .toString(36)
@@ -177,11 +232,15 @@ export class UserService extends Service {
         user.isBlocked = true;
         user.telegramId = null;
         user.telegramUsername = null;
-        user.telegramAvatarUrl = '';
-        user.mentor = null;
-        user.students = [];
+        user.avatar = null;
         user.courses = [];
+        user.coursesAsStudent = [];
+        user.votedPolls = [];
+        user.newEmail = null;
+        user.verificationToken = null;
+        user.sessions = [];
         await this.userRepository.update(user);
+        await this.removeAssociatedMentorAssignments(user);
     }
     async getChangeEmailToken(user) {
         if (!user.newEmail) {
@@ -189,10 +248,14 @@ export class UserService extends Service {
         }
         return Hash.hash(`${user.id}${user.email}${user.newEmail}`);
     }
-    withOnlineStatus(users) {
-        // @ts-expect-error TODO: add online status in future
-        return users; /* .map((user) => {
-          return this.sessionService.getOnlineStatusForUser(user)
-        }) */
+    async removeAssociatedMentorAssignments(user) {
+        const conditions = [
+            { student: { id: user.id } },
+            { mentor: { id: user.id } },
+        ];
+        const { entities: assignments } = await this.mentorAssignmentRepository.find(conditions);
+        for (const assignment of assignments) {
+            await this.mentorAssignmentRepository.delete(assignment.id);
+        }
     }
 }

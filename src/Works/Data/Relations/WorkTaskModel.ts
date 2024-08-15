@@ -9,8 +9,13 @@ import { AssignedWorkCommentModel } from '@modules/AssignedWorks/Data/Relations/
 import { WorkModel } from '../WorkModel'
 import { Work } from '../Work'
 import { WorkTask } from './WorkTask'
+import { config } from '@modules/config'
 
-@Entity('work_task')
+@Entity('work_task', {
+  orderBy: {
+    order: 'ASC',
+  },
+})
 export class WorkTaskModel extends Model implements WorkTask {
   constructor(data?: Partial<WorkTask>) {
     super()
@@ -27,6 +32,8 @@ export class WorkTaskModel extends Model implements WorkTask {
   @Column({
     name: 'slug',
     type: 'varchar',
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
   slug!: string
 
@@ -68,6 +75,8 @@ export class WorkTaskModel extends Model implements WorkTask {
     name: 'right_answer',
     type: 'varchar',
     nullable: true,
+    charset: config.database.charsets.withEmoji,
+    collation: config.database.collations.withEmoji,
   })
   rightAnswer?: string | undefined
 

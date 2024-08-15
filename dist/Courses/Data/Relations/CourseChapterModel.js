@@ -13,6 +13,7 @@ import * as ULID from '../../../Core/Data/Ulid.js';
 import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm';
 import { CourseModel } from '../CourseModel.js';
 import { CourseMaterialModel } from './CourseMaterialModel.js';
+import { config } from '../../../config.js';
 let CourseChapterModel = class CourseChapterModel extends Model {
     constructor(data) {
         super();
@@ -42,6 +43,8 @@ __decorate([
     Column({
         name: 'name',
         type: 'varchar',
+        charset: config.database.charsets.withEmoji,
+        collation: config.database.collations.withEmoji,
     }),
     __metadata("design:type", String)
 ], CourseChapterModel.prototype, "name", void 0);
@@ -49,6 +52,8 @@ __decorate([
     Column({
         name: 'slug',
         type: 'varchar',
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", String)
 ], CourseChapterModel.prototype, "slug", void 0);
@@ -86,7 +91,11 @@ __decorate([
     __metadata("design:type", Array)
 ], CourseChapterModel.prototype, "materialIds", void 0);
 CourseChapterModel = __decorate([
-    Entity('course_chapter'),
+    Entity('course_chapter', {
+        orderBy: {
+            order: 'ASC',
+        },
+    }),
     __metadata("design:paramtypes", [Object])
 ], CourseChapterModel);
 export { CourseChapterModel };

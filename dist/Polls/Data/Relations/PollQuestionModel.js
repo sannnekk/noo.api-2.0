@@ -7,11 +7,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model } from '../../../Core/Data/Model.js';
-import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, RelationId, } from 'typeorm';
 import { PollModel } from '../PollModel.js';
 import { PollAnswerModel } from './PollAnswerModel.js';
-let PollQuestionModel = class PollQuestionModel extends Model {
+import { SearchableModel } from '../../../Core/Data/SearchableModel.js';
+import { config } from '../../../config.js';
+let PollQuestionModel = class PollQuestionModel extends SearchableModel {
     constructor(data) {
         super();
         if (data) {
@@ -90,8 +91,9 @@ let PollQuestionModel = class PollQuestionModel extends Model {
     onlyIntegerValue;
     onlyFutureDate;
     onlyPastDate;
-    static entriesToSearch() {
-        return ['text', 'description'];
+    addSearchToQuery(query, needle) {
+        query.andWhere('question.text LIKE :needle', { needle: `%${needle}%` });
+        return [];
     }
     resetOptions() {
         this.minChoices = undefined;
@@ -130,6 +132,8 @@ __decorate([
     Column({
         name: 'text',
         type: 'text',
+        charset: config.database.charsets.withEmoji,
+        collation: config.database.collations.withEmoji,
     }),
     __metadata("design:type", String)
 ], PollQuestionModel.prototype, "text", void 0);
@@ -146,6 +150,8 @@ __decorate([
         name: 'description',
         type: 'text',
         nullable: true,
+        charset: config.database.charsets.withEmoji,
+        collation: config.database.collations.withEmoji,
     }),
     __metadata("design:type", String)
 ], PollQuestionModel.prototype, "description", void 0);
@@ -170,6 +176,8 @@ __decorate([
         name: 'choices',
         type: 'text',
         nullable: true,
+        charset: config.database.charsets.withEmoji,
+        collation: config.database.collations.withEmoji,
     }),
     __metadata("design:type", String)
 ], PollQuestionModel.prototype, "_choices", void 0);
@@ -234,6 +242,8 @@ __decorate([
         name: 'allowed_file_types',
         type: 'simple-array',
         nullable: true,
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", Array)
 ], PollQuestionModel.prototype, "allowedFileTypes", void 0);
@@ -294,7 +304,11 @@ __decorate([
     __metadata("design:type", Boolean)
 ], PollQuestionModel.prototype, "onlyPastDate", void 0);
 PollQuestionModel = __decorate([
-    Entity('poll_question'),
+    Entity('poll_question', {
+        orderBy: {
+            order: 'ASC',
+        },
+    }),
     __metadata("design:paramtypes", [Object])
 ], PollQuestionModel);
 export { PollQuestionModel };

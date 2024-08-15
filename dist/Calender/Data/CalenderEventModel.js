@@ -10,6 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 import { Model } from '../../Core/Data/Model.js';
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 import { AssignedWorkModel } from '../../AssignedWorks/Data/AssignedWorkModel.js';
+import { config } from '../../config.js';
 let CalenderEventModel = class CalenderEventModel extends Model {
     constructor(data) {
         super();
@@ -31,6 +32,8 @@ __decorate([
     Column({
         name: 'title',
         type: 'varchar',
+        charset: config.database.charsets.withEmoji,
+        collation: config.database.collations.withEmoji,
     }),
     __metadata("design:type", String)
 ], CalenderEventModel.prototype, "title", void 0);
@@ -38,6 +41,8 @@ __decorate([
     Column({
         name: 'description',
         type: 'text',
+        charset: config.database.charsets.withEmoji,
+        collation: config.database.collations.withEmoji,
     }),
     __metadata("design:type", String)
 ], CalenderEventModel.prototype, "description", void 0);
@@ -53,6 +58,8 @@ __decorate([
     Column({
         name: 'url',
         type: 'varchar',
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", String)
 ], CalenderEventModel.prototype, "url", void 0);
@@ -86,6 +93,8 @@ __decorate([
         name: 'username',
         type: 'varchar',
         nullable: false,
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", String)
 ], CalenderEventModel.prototype, "username", void 0);

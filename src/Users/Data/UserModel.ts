@@ -31,6 +31,9 @@ import { UserAvatarModel } from './Relations/UserAvatarModel'
 import { SearchableModel } from '@modules/Core/Data/SearchableModel'
 import { BaseModel } from '@modules/Core/Data/Model'
 import { MentorAssignmentModel } from './Relations/MentorAssignmentModel'
+import { SnippetModel } from '@modules/Snippets/Data/SnippetModel'
+import { Snippet } from '@modules/Snippets/Data/Snippet'
+import { config } from '@modules/config'
 
 @Entity('user')
 export class UserModel extends SearchableModel implements User {
@@ -55,12 +58,16 @@ export class UserModel extends SearchableModel implements User {
     type: 'varchar',
     nullable: false,
     unique: true,
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
   username!: string
 
   @Column({
     name: 'slug',
     type: 'varchar',
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
   slug!: string
 
@@ -69,12 +76,16 @@ export class UserModel extends SearchableModel implements User {
     type: 'enum',
     enum: ['student', 'mentor', 'teacher', 'admin'] as UserRolesType,
     default: 'student',
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
   role!: User['role']
 
   @Column({
     name: 'name',
     type: 'varchar',
+    charset: config.database.charsets.withEmoji,
+    collation: config.database.collations.withEmoji,
   })
   name!: string
 
@@ -82,6 +93,8 @@ export class UserModel extends SearchableModel implements User {
     name: 'email',
     type: 'varchar',
     unique: true,
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
   email!: string
 
@@ -89,6 +102,8 @@ export class UserModel extends SearchableModel implements User {
     name: 'new_email',
     type: 'varchar',
     nullable: true,
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
   newEmail?: string
 
@@ -142,6 +157,9 @@ export class UserModel extends SearchableModel implements User {
   })
   sessions?: Session[]
 
+  @OneToMany(() => SnippetModel, (snippet) => snippet.user)
+  snippets!: Snippet[]
+
   @OneToOne(() => UserAvatarModel, (avatar) => avatar.user, {
     onDelete: 'CASCADE',
     cascade: true,
@@ -155,6 +173,8 @@ export class UserModel extends SearchableModel implements User {
     type: 'varchar',
     nullable: true,
     default: null,
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
   telegramId?: string | undefined
 
@@ -163,6 +183,8 @@ export class UserModel extends SearchableModel implements User {
     type: 'varchar',
     nullable: true,
     default: null,
+    charset: config.database.charsets.withEmoji,
+    collation: config.database.collations.withEmoji,
   })
   telegramUsername?: string | undefined
 
@@ -170,6 +192,8 @@ export class UserModel extends SearchableModel implements User {
     name: 'password',
     type: 'varchar',
     nullable: true,
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
   password!: string
 
@@ -191,8 +215,10 @@ export class UserModel extends SearchableModel implements User {
     name: 'verification_token',
     type: 'varchar',
     nullable: true,
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
-  verificationToken?: string
+  verificationToken!: string | null
 
   public addSearchToQuery(
     query: SelectQueryBuilder<BaseModel>,

@@ -1,0 +1,15 @@
+import { DeltaScheme } from '../../Core/Schemas/DeltaScheme.js';
+import { z } from 'zod';
+export const AssignedWorkAnswerScheme = z.object({
+    id: z.string().optional(),
+    slug: z.string().nullable().optional(),
+    content: DeltaScheme.nullable().optional(),
+    word: z
+        .string()
+        .max(200, {
+        message: 'Ответ на вопрос в одну строку не может содержать больше 200 символов',
+    })
+        .nullable()
+        .optional(),
+    taskId: z.string().ulid(),
+});

@@ -5,14 +5,16 @@ export class UserRelationService {
     visibilities = {
         all: () => true,
         private: (requester, target) => requester.username === target.username,
-        'own-mentor': (requester, target) => {
-            return requester.role === 'mentor' && requester.id === target.mentorId;
+        'own-mentor': ( /* requester, target */) => {
+            // TODO: implement
+            return false;
         },
         'all-mentors': (requester) => {
             return requester.role === 'mentor';
         },
-        'own-students': (requester, target) => {
-            return !!(requester.role === 'student' && requester.mentorId === target.id);
+        'own-students': ( /* requester, target */) => {
+            // TODO: implement
+            return false;
         },
     };
     constructor() {
@@ -28,13 +30,13 @@ export class UserRelationService {
     async getCondition(requester, target) {
         const requesterUser = await this.userRepository.findOne({
             username: requester,
-        }, ['mentor', 'students']);
+        });
         if (!requesterUser) {
             throw new NotFoundError('Пользователь не найден.');
         }
         const targetUser = await this.userRepository.findOne({
             username: target,
-        }, ['mentor', 'students']);
+        });
         if (!targetUser) {
             throw new NotFoundError('Пользователь не найден');
         }
@@ -50,28 +52,29 @@ export class UserRelationService {
         const conditions = [];
         switch (target.role) {
             case 'student':
-                if (!target.mentor) {
-                    return conditions;
+                /* if (!target.mentor) {
+                  return conditions
                 }
                 conditions.push({
-                    username: target.mentor.username,
-                    visibility: 'own-students',
-                });
+                  username: target.mentor.username,
+                  visibility: 'own-students',
+                })
                 conditions.push({
-                    username: target.mentor.username,
-                    visibility: 'all',
-                });
+                  username: target.mentor.username,
+                  visibility: 'all',
+                }) */
                 break;
             case 'mentor':
-                if (!target.students) {
-                    return conditions;
+                /* if (!target.students) {
+                  return conditions
                 }
+        
                 for (const student of target.students) {
-                    conditions.push({
-                        username: student.username,
-                        visibility: 'own-mentor',
-                    });
-                }
+                  conditions.push({
+                    username: student.username,
+                    visibility: 'own-mentor',
+                  })
+                } */
                 break;
         }
         return conditions;

@@ -1,18 +1,50 @@
 [
 	{
-		"version": "2.1.0",
-		"date": "2024-20-07",
+		"version": "3.0.0",
+		"date": "2024-15-08",
 		"authors": [
 			"sannnekk"
 		],
 		"changes": [
 			{
-				"type": "impr",
+				"type": "feat",
+				"description": "Added settings page"
+			},
+			{
+				"type": "feat",
+				"description": "Avatars not only from telegram but also self-uploaded now supported"
+			},
+			{
+				"type": "feat",
+				"description": "Introduced a mentor for each subject for a student"
+			},
+			{
+				"type": "feat",
+				"description": "Introduced Subjects with relation to Works, Courses and MentorAssignments"
+			},
+			{
+				"type": "feat",
+				"description": "Added support for Google Spreadsheet integrations"
+			},
+			{
+				"type": "feat",
+				"description": "Added snippets for mentors"
+			},
+			{
+				"type": "feat",
 				"description": "Introduced platform route with metadata of the whole platform"
 			},
 			{
 				"type": "impr",
+				"description": "Separate route to change password"
+			},
+			{
+				"type": "feat",
 				"description": "Started versioning"
+			},
+			{
+				"type": "impr",
+				"description": "A lot of improvements and bug fixes"
 			}
 		]
 	}

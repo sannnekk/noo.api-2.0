@@ -26,7 +26,6 @@ export class SubjectController {
   public async getSubjects(context: Context): Promise<ApiResponse> {
     try {
       await Asserts.isAuthenticated(context)
-      await Asserts.teacherOrAdmin(context)
 
       const pagination = this.subjectValidator.parsePagination(context.query)
 

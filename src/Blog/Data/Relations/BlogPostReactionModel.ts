@@ -5,6 +5,7 @@ import { UserModel } from '@modules/Users/Data/UserModel'
 import { BlogPostReaction } from './BlogPostReaction'
 import { BlogPost, Reaction } from '../BlogPost'
 import { BlogPostModel } from '../BlogPostModel'
+import { config } from '@modules/config'
 
 @Entity('blog_post_reaction')
 export class BlogPostReactionModel extends Model implements BlogPostReaction {
@@ -33,6 +34,8 @@ export class BlogPostReactionModel extends Model implements BlogPostReaction {
   @Column({
     name: 'reaction',
     type: 'varchar',
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
   reaction!: Reaction
 }

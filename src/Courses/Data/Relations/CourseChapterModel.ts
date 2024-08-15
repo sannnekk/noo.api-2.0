@@ -7,12 +7,17 @@ import { Course } from '../Course'
 import { CourseMaterial } from './CourseMaterial'
 import { CourseModel } from '../CourseModel'
 import { CourseMaterialModel } from './CourseMaterialModel'
+import { config } from '@modules/config'
 
 type PartialCourseChapter = Partial<Omit<CourseChapter, 'materials'>> & {
   materials?: Partial<CourseMaterial>[]
 }
 
-@Entity('course_chapter')
+@Entity('course_chapter', {
+  orderBy: {
+    order: 'ASC',
+  },
+})
 export class CourseChapterModel extends Model implements CourseChapter {
   constructor(data?: PartialCourseChapter) {
     super()
@@ -35,12 +40,16 @@ export class CourseChapterModel extends Model implements CourseChapter {
   @Column({
     name: 'name',
     type: 'varchar',
+    charset: config.database.charsets.withEmoji,
+    collation: config.database.collations.withEmoji,
   })
   name!: string
 
   @Column({
     name: 'slug',
     type: 'varchar',
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
   slug!: string
 

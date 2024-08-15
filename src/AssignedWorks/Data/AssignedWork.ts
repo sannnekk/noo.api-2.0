@@ -31,7 +31,8 @@ export interface AssignedWork extends BaseModel {
   checkedAt?: Date
   score?: number
   maxScore: number
-  isArchived: boolean
+  isArchivedByMentors: boolean
+  isArchivedByStudent: boolean
   isNewAttempt: boolean
   excludedTaskIds: string[]
   answers: AssignedWorkAnswer[]

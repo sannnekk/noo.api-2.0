@@ -7,6 +7,7 @@ import { Poll } from '@modules/Polls/Data/Poll'
 import { Session } from '@modules/Sessions/Data/Session'
 import { UserAvatar } from './Relations/UserAvatar'
 import { MentorAssignment } from './Relations/MentorAssignment'
+import { Snippet } from '@modules/Snippets/Data/Snippet'
 
 export interface User extends BaseModel {
   slug: string
@@ -16,9 +17,6 @@ export interface User extends BaseModel {
   email: string
   newEmail?: string
   avatar: UserAvatar | null
-  //students?: User[]
-  //mentorId?: ULID.Ulid
-  //mentor?: User
   mentorAssignmentsAsMentor?: MentorAssignment[]
   mentorAssignmentsAsStudent?: MentorAssignment[]
   telegramUsername?: string
@@ -28,10 +26,11 @@ export interface User extends BaseModel {
   forbidden?: number
   courses?: Course[]
   courseIds: ULID.Ulid[]
-  verificationToken?: string
+  verificationToken: string | null
   coursesAsStudent?: Course[]
   assignedWorksAsStudent?: AssignedWork[] | undefined
   assignedWorksAsMentor?: AssignedWork[] | undefined
   votedPolls?: Poll[]
   sessions?: Session[]
+  snippets?: Snippet[]
 }

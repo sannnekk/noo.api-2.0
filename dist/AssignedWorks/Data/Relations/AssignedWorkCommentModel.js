@@ -9,9 +9,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 import { Model } from '../../../Core/Data/Model.js';
 import * as ULID from '../../../Core/Data/Ulid.js';
-import { Column, Entity, JoinColumn, ManyToOne, RelationId } from 'typeorm';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 import { WorkTaskModel } from '../../../Works/Data/Relations/WorkTaskModel.js';
 import { AssignedWorkModel } from '../AssignedWorkModel.js';
+import { config } from '../../../config.js';
 let AssignedWorkCommentModel = class AssignedWorkCommentModel extends Model {
     constructor(data) {
         super();
@@ -31,7 +32,6 @@ let AssignedWorkCommentModel = class AssignedWorkCommentModel extends Model {
     task;
     taskId;
     assignedWork;
-    assignedWorkId;
     sluggify() {
         return ULID.generate();
     }
@@ -40,6 +40,8 @@ __decorate([
     Column({
         name: 'slug',
         type: 'varchar',
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", String)
 ], AssignedWorkCommentModel.prototype, "slug", void 0);
@@ -67,20 +69,8 @@ __decorate([
 ], AssignedWorkCommentModel.prototype, "taskId", void 0);
 __decorate([
     ManyToOne(() => AssignedWorkModel, (assignedWork) => assignedWork.comments),
-    JoinColumn({
-        name: 'assignedWorkId',
-        referencedColumnName: 'id',
-    }),
     __metadata("design:type", Object)
 ], AssignedWorkCommentModel.prototype, "assignedWork", void 0);
-__decorate([
-    Column({
-        name: 'assignedWorkId',
-        type: 'varchar',
-        nullable: true,
-    }),
-    __metadata("design:type", Object)
-], AssignedWorkCommentModel.prototype, "assignedWorkId", void 0);
 AssignedWorkCommentModel = __decorate([
     Entity('assigned_work_comment'),
     __metadata("design:paramtypes", [Object])

@@ -35,8 +35,8 @@ let CalenderController = class CalenderController {
         try {
             await Asserts.isAuthenticated(context);
             const pagination = this.calenderValidator.parsePagination(context.query);
-            const { events, meta } = await this.calenderService.get(context.credentials.username, pagination);
-            return new ApiResponse({ data: events, meta });
+            const { entities, meta } = await this.calenderService.get(context.credentials.username, pagination);
+            return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
             return new ApiResponse(error);

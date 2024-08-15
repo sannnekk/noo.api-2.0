@@ -1,5 +1,6 @@
 import { PrimaryColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm'
 import { Ulid, generate } from './Ulid'
+import { config } from '@modules/config'
 
 export interface BaseModel {
   id: Ulid
@@ -15,6 +16,8 @@ export abstract class Model implements BaseModel {
   @PrimaryColumn({
     name: 'id',
     type: 'varchar',
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
   id: Ulid = generate()
 

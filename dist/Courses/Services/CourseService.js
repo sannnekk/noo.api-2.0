@@ -2,7 +2,6 @@ import { UserRepository } from '../../Users/Data/UserRepository.js';
 import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
 import { UnknownError } from '../../Core/Errors/UnknownError.js';
 import { Pagination } from '../../Core/Data/Pagination.js';
-import { Service } from '../../Core/Services/Service.js';
 import TypeORM from 'typeorm';
 import { AssignedWorkRepository } from '../../AssignedWorks/Data/AssignedWorkRepository.js';
 import { CourseMaterialRepository } from '../Data/CourseMaterialRepository.js';
@@ -10,21 +9,23 @@ import { CourseModel } from '../Data/CourseModel.js';
 import { CourseRepository } from '../Data/CourseRepository.js';
 import { CourseChapterModel } from '../Data/Relations/CourseChapterModel.js';
 import { CourseIsEmptyError } from '../Errors/CourseIsEmptyError.js';
-export class CourseService extends Service {
+import { WorkRepository } from '../../Works/Data/WorkRepository.js';
+import { WorkIsFromAnotherSubjectError } from '../Errors/WorkIsFromAnotherSubjectError.js';
+export class CourseService {
     courseRepository;
     materialRepository;
     userRepository;
     assignedWorkRepository;
+    workRepository;
     constructor() {
-        super();
         this.courseRepository = new CourseRepository();
         this.userRepository = new UserRepository();
         this.materialRepository = new CourseMaterialRepository();
         this.assignedWorkRepository = new AssignedWorkRepository();
+        this.workRepository = new WorkRepository();
     }
     async get(pagination, userId, userRole) {
         pagination = new Pagination().assign(pagination);
-        pagination.entriesToSearch = CourseModel.entriesToSearch();
         let conditions;
         if (userRole === 'student') {
             conditions = {
@@ -34,14 +35,7 @@ export class CourseService extends Service {
             };
         }
         const relations = ['author'];
-        const courses = await this.courseRepository.find(conditions, relations, pagination);
-        const meta = await this.getRequestMeta(this.courseRepository, conditions, pagination, relations);
-        // Clear chapters, students and materials as they are not needed in the list
-        for (const course of courses) {
-            course.chapters = [];
-            course.studentIds = [];
-        }
-        return { courses, meta };
+        return this.courseRepository.search(conditions, pagination, relations);
     }
     async getBySlug(slug, role) {
         const condition = {
@@ -98,21 +92,6 @@ export class CourseService extends Service {
         const newCourse = new CourseModel({ ...foundCourse, ...course });
         await this.courseRepository.update(newCourse);
     }
-    async assignStudents(courseSlug, studentIds) {
-        const course = await this.courseRepository.findOne({
-            slug: courseSlug,
-        }, ['chapters.materials']);
-        if (!course) {
-            throw new NotFoundError();
-        }
-        course.students = studentIds.map((id) => ({ id }));
-        try {
-            await this.courseRepository.updateRaw(course);
-        }
-        catch (e) {
-            throw new UnknownError('Не удалось обновить список учеников');
-        }
-    }
     async addStudents(courseSlug, studentIds) {
         const queryBuilder = this.courseRepository.queryBuilder();
         const course = await this.courseRepository.findOne({ slug: courseSlug });
@@ -160,9 +139,18 @@ export class CourseService extends Service {
                 id: TypeORM.Not(TypeORM.IsNull()),
                 course: { id: TypeORM.Not(TypeORM.IsNull()) },
             },
+        }, ['chapter.course']);
+        const work = await this.workRepository.findOne({
+            id: workId,
         });
+        if (!work) {
+            throw new NotFoundError('Работа не найдена');
+        }
         if (!material) {
-            throw new NotFoundError();
+            throw new NotFoundError('Материал не найден');
+        }
+        if (material.chapter?.course?.subjectId !== work.subjectId) {
+            throw new WorkIsFromAnotherSubjectError();
         }
         material.work = { id: workId };
         material.workId = workId;

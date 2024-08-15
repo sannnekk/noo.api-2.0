@@ -25,7 +25,9 @@ let Validator = class Validator {
         .regex(/^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)(?:-(?<prerelease>[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+(?<buildmetadata>[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/, 'version');
     parsePagination(data) {
         const pagination = this.parse(data, this.paginationScheme);
-        return new Pagination(pagination.page, pagination.limit, pagination.sort, pagination.order, pagination.search, pagination.filter, pagination.relations);
+        return new Pagination(pagination.page, pagination.limit, pagination.sort, pagination.order, pagination.search, 
+        // TODO: Fix any
+        pagination.filter, pagination.relations);
     }
     parseId(id) {
         return this.parse(id, this.idScheme);
@@ -35,6 +37,12 @@ let Validator = class Validator {
     }
     parseVersion(version) {
         return new Version(this.parse(version, this.versionScheme));
+    }
+    parseString(value) {
+        return this.parse(value, z.string());
+    }
+    parseNonemptyString(value) {
+        return this.parse(value, z.string().min(1));
     }
     parse(o, schema) {
         return schema.parse(o);

@@ -7,82 +7,34 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { ErrorConverter } from '../Core/Request/ValidatorDecorator.js';
 import { Validator } from '../Core/Request/Validator.js';
 import { z } from 'zod';
-import { DeltaScheme } from '../Core/Schemas/DeltaScheme.js';
-import { MediaScheme } from '../Media/MediaScheme.js';
+import { CourseScheme } from './Schemes/CourseScheme.js';
+import { ChapterScheme } from './Schemes/ChapterScheme.js';
+import { AssignWorkOptionsScheme } from './Schemes/AssignWorkOptionsScheme.js';
+import { EmailScheme } from '../Core/Schemes/EmailScheme.js';
 let CourseValidator = class CourseValidator extends Validator {
-    materialScheme = z.object({
-        id: z.string().ulid().optional(),
-        slug: z.string().optional().nullable(),
-        name: z
-            .string()
-            .min(1, { message: 'Название материала слишком короткое' })
-            .max(255, {
-            message: 'Название материала не может быть длиннее 255 символов',
-        }),
-        order: z.number(),
-        isActive: z.boolean().optional(),
-        description: z.string().nullable().optional(),
-        content: DeltaScheme,
-        files: z.array(MediaScheme),
-    });
-    chapterScheme = z.object({
-        id: z.string().ulid().optional(),
-        slug: z.string().optional().nullable(),
-        name: z
-            .string()
-            .min(1, { message: 'Название главы слишком короткое' })
-            .max(255, {
-            message: 'Название главы не может быть длиннее 255 символов',
-        }),
-        order: z.number(),
-        isActive: z.boolean().optional(),
-        materials: z.array(this.materialScheme),
-    });
-    courseScheme = z.object({
-        id: z.string().ulid().optional(),
-        slug: z.string().optional().nullable(),
-        name: z
-            .string()
-            .min(1, { message: 'Название курса слишком короткое' })
-            .max(255, {
-            message: 'Название курса не может быть длиннее 255 символов',
-        }),
-        description: z
-            .string()
-            .max(255, {
-            message: 'Описание курса не может быть длиннее 255 символов',
-        })
-            .optional(),
-        images: z.array(MediaScheme),
-        chapters: z.array(this.chapterScheme),
-    });
-    stidentIdsScheme = z.object({
+    studentIdsScheme = z.object({
         studentIds: z.array(z.string().ulid()),
     });
-    stidentEmailsScheme = z.object({
-        emails: z.array(z.string().email()),
-    });
-    assignWorkOptionsScheme = z.object({
-        checkDeadline: z.date().optional(),
-        solveDeadline: z.date().optional(),
+    studentEmailsScheme = z.object({
+        emails: z.array(EmailScheme),
     });
     parseCreation(course) {
-        return this.parse(course, this.courseScheme);
+        return this.parse(course, CourseScheme);
     }
     parseChapterCreation(chapter) {
-        return this.parse(chapter, this.chapterScheme);
+        return this.parse(chapter, ChapterScheme);
     }
     parseUpdate(course) {
-        return this.parse(course, this.courseScheme);
+        return this.parse(course, CourseScheme);
     }
     parseStudentIds(body) {
-        return this.parse(body, this.stidentIdsScheme);
+        return this.parse(body, this.studentIdsScheme);
     }
     parseEmails(body) {
-        return this.parse(body, this.stidentEmailsScheme);
+        return this.parse(body, this.studentEmailsScheme);
     }
     parseAssignWorkOptions(data) {
-        return this.parse(data, this.assignWorkOptionsScheme);
+        return this.parse(data, AssignWorkOptionsScheme);
     }
 };
 CourseValidator = __decorate([

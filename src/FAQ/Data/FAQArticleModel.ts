@@ -4,6 +4,7 @@ import { Column, Entity, SelectQueryBuilder } from 'typeorm'
 import { FAQArticle } from './FAQArticle'
 import { SearchableModel } from '@modules/Core/Data/SearchableModel'
 import { BaseModel } from '@modules/Core/Data/Model'
+import { config } from '@modules/config'
 
 @Entity('faq_article')
 export class FAQArticleModel extends SearchableModel implements FAQArticle {
@@ -18,6 +19,8 @@ export class FAQArticleModel extends SearchableModel implements FAQArticle {
   @Column({
     type: 'simple-array',
     nullable: false,
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
   for!: User['role'][] | 'all'
 
@@ -25,6 +28,8 @@ export class FAQArticleModel extends SearchableModel implements FAQArticle {
     name: 'title',
     type: 'varchar',
     nullable: false,
+    charset: config.database.charsets.withEmoji,
+    collation: config.database.collations.withEmoji,
   })
   title!: string
 
@@ -39,6 +44,8 @@ export class FAQArticleModel extends SearchableModel implements FAQArticle {
     name: 'category',
     type: 'varchar',
     nullable: false,
+    charset: config.database.charsets.withEmoji,
+    collation: config.database.collations.withEmoji,
   })
   category!: string
 

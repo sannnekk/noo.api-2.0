@@ -22,6 +22,7 @@ import { AssignedWorkCommentModel } from './Relations/AssignedWorkCommentModel'
 import { AssignedWork } from './AssignedWork'
 import { SearchableModel } from '@modules/Core/Data/SearchableModel'
 import { BaseModel } from '@modules/Core/Data/Model'
+import { config } from '@modules/config'
 
 @Entity('assigned_work')
 export class AssignedWorkModel extends SearchableModel implements AssignedWork {
@@ -56,6 +57,8 @@ export class AssignedWorkModel extends SearchableModel implements AssignedWork {
   @Column({
     name: 'slug',
     type: 'varchar',
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
   slug!: string
 
@@ -197,11 +200,18 @@ export class AssignedWorkModel extends SearchableModel implements AssignedWork {
   maxScore!: number
 
   @Column({
-    name: 'is_archived',
+    name: 'is_archived_by_mentors',
     type: 'boolean',
     default: false,
   })
-  isArchived: boolean = false
+  isArchivedByMentors!: boolean
+
+  @Column({
+    name: 'is_archived_by_student',
+    type: 'boolean',
+    default: false,
+  })
+  isArchivedByStudent!: boolean
 
   @Column({
     name: 'is_new_attempt',

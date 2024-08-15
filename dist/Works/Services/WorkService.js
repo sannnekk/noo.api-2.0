@@ -1,20 +1,15 @@
-import { Service } from '../../Core/Services/Service.js';
 import { Pagination } from '../../Core/Data/Pagination.js';
 import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
 import { WorkRepository } from '../Data/WorkRepository.js';
 import { WorkModel } from '../Data/WorkModel.js';
-export class WorkService extends Service {
+export class WorkService {
     workRepository;
     constructor() {
-        super();
         this.workRepository = new WorkRepository();
     }
     async getWorks(pagination) {
         pagination = new Pagination().assign(pagination);
-        pagination.entriesToSearch = WorkModel.entriesToSearch();
-        const works = await this.workRepository.find(undefined, undefined, pagination);
-        const meta = await this.getRequestMeta(this.workRepository, undefined, pagination, []);
-        return { works, meta };
+        return this.workRepository.search(undefined, pagination);
     }
     async getWorkBySlug(slug) {
         const work = await this.workRepository.findOne({ slug }, ['tasks'], {

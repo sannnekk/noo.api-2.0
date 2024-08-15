@@ -19,6 +19,7 @@ import { Work } from './Work'
 import { SearchableModel } from '@modules/Core/Data/SearchableModel'
 import { BaseModel } from '@modules/Core/Data/Model'
 import { SubjectModel } from '@modules/Subjects/Data/SubjectModel'
+import { config } from '@modules/config'
 
 type PartialWork = Omit<Partial<Work>, 'tasks'> & {
   tasks?: Partial<WorkTask>[]
@@ -36,6 +37,10 @@ export class WorkModel extends SearchableModel implements Work {
         this.tasks = data.tasks.map((task) => new WorkTaskModel(task))
       }
 
+      if (data.subject) {
+        this.subject = new SubjectModel(data.subject)
+      }
+
       if (!data.slug) {
         this.slug = this.sluggify(this.name)
       }
@@ -45,12 +50,16 @@ export class WorkModel extends SearchableModel implements Work {
   @Column({
     name: 'slug',
     type: 'varchar',
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
   slug!: string
 
   @Column({
     name: 'name',
     type: 'varchar',
+    charset: config.database.charsets.withEmoji,
+    collation: config.database.collations.withEmoji,
   })
   name!: string
 
@@ -65,6 +74,8 @@ export class WorkModel extends SearchableModel implements Work {
   @Column({
     name: 'description',
     type: 'text',
+    charset: config.database.charsets.withEmoji,
+    collation: config.database.collations.withEmoji,
   })
   description!: string
 

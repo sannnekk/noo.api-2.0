@@ -1,6 +1,6 @@
 import winston from 'winston'
 
-type LogLevel = 'info' | 'error' | 'warn' | 'debug'
+type LogLevel = 'error' | 'debug'
 
 const logger = winston.createLogger({
   level: 'info',
@@ -15,11 +15,6 @@ const logger = winston.createLogger({
     new winston.transports.File({
       filename: process.env.LOG_DEBUG_FILE,
       level: 'debug',
-      dirname: process.env.LOG_DIR,
-      maxsize: 5 * 1024 * 1024, // 5MB
-    }),
-    new winston.transports.File({
-      filename: process.env.LOG_COMBINED_FILE,
       dirname: process.env.LOG_DIR,
       maxsize: 5 * 1024 * 1024, // 5MB
     }),

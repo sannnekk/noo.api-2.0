@@ -6,61 +6,26 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 import { ErrorConverter } from '../Core/Request/ValidatorDecorator.js';
 import { Validator } from '../Core/Request/Validator.js';
-import { z } from 'zod';
-import { DeltaScheme } from '../Core/Schemas/DeltaScheme.js';
+import { AssignedWorkRemakeOptionsScheme } from './Schemes/AssignedWorkRemakeOptionsScheme.js';
+import { AssignedWorkCreateOptionsScheme } from './Schemes/AssignedWorkCreateOptionsScheme.js';
+import { AssignedWorkSolveOptionsScheme } from './Schemes/AssignedWorkSolveOptionsScheme.js';
+import { AssignedWorkCheckOptionsScheme } from './Schemes/AssignedWorkCheckOptionsScheme.js';
+import { AssignedWorkSaveOptionsScheme } from './Schemes/AssignedWorkSaveOptionsScheme.js';
 let AssignedWorkValidator = class AssignedWorkValidator extends Validator {
-    answerScheme = z.object({
-        id: z.string().optional(),
-        slug: z.string().nullable().optional(),
-        content: DeltaScheme.nullable().optional(),
-        word: z
-            .string()
-            .max(200, {
-            message: 'Ответ на вопрос в одну строку не может содержать больше 200 символов',
-        })
-            .nullable()
-            .optional(),
-        taskId: z.string().ulid(),
-    });
-    commentScheme = z.object({
-        id: z.string().optional(),
-        slug: z.string().nullable().optional(),
-        content: DeltaScheme.nullable().optional(),
-        score: z.number(),
-        taskId: z.string().ulid(),
-    });
-    remakeOptionsScheme = z.object({
-        onlyFalse: z.boolean().optional(),
-    });
-    createOptionsScheme = z.object({
-        studentId: z.string().ulid(),
-        workId: z.string().ulid(),
-    });
-    solveOptionsScheme = z.object({
-        answers: z.array(this.answerScheme),
-    });
-    checkOptionsScheme = z.object({
-        answers: z.array(this.answerScheme),
-        comments: z.array(this.commentScheme),
-    });
-    saveOptionsScheme = z.object({
-        answers: z.array(this.answerScheme),
-        comments: z.array(this.commentScheme).optional(),
-    });
     parseRemake(body) {
-        return this.parse(body, this.remakeOptionsScheme);
+        return this.parse(body, AssignedWorkRemakeOptionsScheme);
     }
     parseCreation(data) {
-        return this.parse(data, this.createOptionsScheme);
+        return this.parse(data, AssignedWorkCreateOptionsScheme);
     }
     parseSolve(data) {
-        return this.parse(data, this.solveOptionsScheme);
+        return this.parse(data, AssignedWorkSolveOptionsScheme);
     }
     parseCheck(data) {
-        return this.parse(data, this.checkOptionsScheme);
+        return this.parse(data, AssignedWorkCheckOptionsScheme);
     }
     parseSave(data) {
-        return this.parse(data, this.saveOptionsScheme);
+        return this.parse(data, AssignedWorkSaveOptionsScheme);
     }
 };
 AssignedWorkValidator = __decorate([

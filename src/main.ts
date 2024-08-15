@@ -10,6 +10,7 @@ import { Context } from '@modules/Core/Request/Context'
 import { config } from './config'
 
 // import modules
+import '@modules/Auth/AuthController'
 import '@modules/Users/UserController'
 import '@modules/Courses/CourseController'
 import '@modules/Works/WorkController'
@@ -21,7 +22,12 @@ import '@modules/Blog/BlogController'
 import '@modules/Polls/PollController'
 import '@modules/CRM/CRMController'
 import '@modules/Sessions/SessionsController'
-import '@modules/GoogleDocs/GoogleDocsController'
+import '@modules/GoogleSheets/GoogleSheetsController'
+import '@modules/Platform/PlatformController'
+import '@modules/Subjects/SubjectController'
+import '@modules/Snippets/SnippetsController'
+import '@modules/FAQ/FAQController'
+//import '@modules/Notifications/NotificationController'
 
 await CoreDataSource.initialize()
 

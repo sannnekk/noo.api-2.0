@@ -22,6 +22,12 @@ export class SessionService {
             };
         });
     }
+    async deleteSessionsForUser(userId) {
+        const { entities: sessions } = await this.sessionRepository.find({
+            user: { id: userId },
+        });
+        await Promise.all(sessions.map((session) => this.sessionRepository.delete(session.id)));
+    }
     async getCurrentSession(context, userId) {
         if (userId) {
             return this.sessionRepository.findOne({

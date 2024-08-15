@@ -7,8 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, RelationId, } from 'typeorm';
-import { Model } from '../../Core/Data/Model.js';
+import { Brackets, Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, OneToOne, RelationId, } from 'typeorm';
 import { CourseModel } from '../../Courses/Data/CourseModel.js';
 import { AssignedWorkModel } from '../../AssignedWorks/Data/AssignedWorkModel.js';
 import { BlogPostModel } from '../../Blog/Data/BlogPostModel.js';
@@ -16,8 +15,12 @@ import { BlogPostReactionModel } from '../../Blog/Data/Relations/BlogPostReactio
 import { PollAnswerModel } from '../../Polls/Data/Relations/PollAnswerModel.js';
 import { PollModel } from '../../Polls/Data/PollModel.js';
 import { SessionModel } from '../../Sessions/Data/SessionModel.js';
-import { MediaModel } from '../../Media/Data/MediaModel.js';
-let UserModel = class UserModel extends Model {
+import { UserAvatarModel } from './Relations/UserAvatarModel.js';
+import { SearchableModel } from '../../Core/Data/SearchableModel.js';
+import { MentorAssignmentModel } from './Relations/MentorAssignmentModel.js';
+import { SnippetModel } from '../../Snippets/Data/SnippetModel.js';
+import { config } from '../../config.js';
+let UserModel = class UserModel extends SearchableModel {
     constructor(data) {
         super();
         if (data) {
@@ -26,7 +29,7 @@ let UserModel = class UserModel extends Model {
                 this.slug = this.sluggify(this.username);
             }
             if (data.avatar) {
-                this.avatar = new MediaModel(data.avatar);
+                this.avatar = new UserAvatarModel(data.avatar);
             }
         }
     }
@@ -36,9 +39,18 @@ let UserModel = class UserModel extends Model {
     name;
     email;
     newEmail;
-    students;
-    mentorId;
-    mentor;
+    mentorAssignmentsAsMentor;
+    mentorAssignmentsAsStudent;
+    /*
+    @OneToMany(() => UserModel, (user) => user.mentor)
+    students?: User[]
+  
+    @RelationId((user: UserModel) => user.mentor)
+    mentorId?: string
+  
+    @ManyToOne(() => UserModel, (user) => user.students)
+    mentor?: User
+    */
     courses;
     courseIds;
     coursesAsStudent;
@@ -49,17 +61,24 @@ let UserModel = class UserModel extends Model {
     pollAnswers;
     votedPolls;
     sessions;
+    snippets;
     avatar;
-    avatarType;
     telegramId;
     telegramUsername;
-    telegramAvatarUrl;
     password;
     isBlocked;
     forbidden;
     verificationToken;
-    static entriesToSearch() {
-        return ['username', 'name', 'email', 'telegramUsername'];
+    addSearchToQuery(query, needle) {
+        query.andWhere(new Brackets((qb) => {
+            qb.where('user.username LIKE :needle', { needle: `%${needle}%` });
+            qb.orWhere('user.name LIKE :needle', { needle: `%${needle}%` });
+            qb.orWhere('user.email LIKE :needle', { needle: `%${needle}%` });
+            qb.orWhere('user.telegramUsername LIKE :needle', {
+                needle: `%${needle}%`,
+            });
+        }));
+        return [];
     }
     sluggify(username) {
         return username.toLowerCase().replace(/\s/g, '-');
@@ -71,6 +90,8 @@ __decorate([
         type: 'varchar',
         nullable: false,
         unique: true,
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", String)
 ], UserModel.prototype, "username", void 0);
@@ -78,6 +99,8 @@ __decorate([
     Column({
         name: 'slug',
         type: 'varchar',
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", String)
 ], UserModel.prototype, "slug", void 0);
@@ -87,6 +110,8 @@ __decorate([
         type: 'enum',
         enum: ['student', 'mentor', 'teacher', 'admin'],
         default: 'student',
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", Object)
 ], UserModel.prototype, "role", void 0);
@@ -94,6 +119,8 @@ __decorate([
     Column({
         name: 'name',
         type: 'varchar',
+        charset: config.database.charsets.withEmoji,
+        collation: config.database.collations.withEmoji,
     }),
     __metadata("design:type", String)
 ], UserModel.prototype, "name", void 0);
@@ -102,6 +129,8 @@ __decorate([
         name: 'email',
         type: 'varchar',
         unique: true,
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", String)
 ], UserModel.prototype, "email", void 0);
@@ -110,21 +139,19 @@ __decorate([
         name: 'new_email',
         type: 'varchar',
         nullable: true,
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", String)
 ], UserModel.prototype, "newEmail", void 0);
 __decorate([
-    OneToMany(() => UserModel, (user) => user.mentor),
+    OneToMany(() => MentorAssignmentModel, (assignment) => assignment.mentor),
     __metadata("design:type", Array)
-], UserModel.prototype, "students", void 0);
+], UserModel.prototype, "mentorAssignmentsAsMentor", void 0);
 __decorate([
-    RelationId((user) => user.mentor),
-    __metadata("design:type", String)
-], UserModel.prototype, "mentorId", void 0);
-__decorate([
-    ManyToOne(() => UserModel, (user) => user.students),
-    __metadata("design:type", Object)
-], UserModel.prototype, "mentor", void 0);
+    OneToMany(() => MentorAssignmentModel, (assignment) => assignment.student),
+    __metadata("design:type", Array)
+], UserModel.prototype, "mentorAssignmentsAsStudent", void 0);
 __decorate([
     OneToMany(() => CourseModel, (course) => course.author),
     __metadata("design:type", Array)
@@ -163,11 +190,17 @@ __decorate([
     __metadata("design:type", Array)
 ], UserModel.prototype, "votedPolls", void 0);
 __decorate([
-    OneToMany(() => SessionModel, (session) => session.user),
+    OneToMany(() => SessionModel, (session) => session.user, {
+        onDelete: 'CASCADE',
+    }),
     __metadata("design:type", Array)
 ], UserModel.prototype, "sessions", void 0);
 __decorate([
-    OneToOne(() => MediaModel, (media) => media.user, {
+    OneToMany(() => SnippetModel, (snippet) => snippet.user),
+    __metadata("design:type", Array)
+], UserModel.prototype, "snippets", void 0);
+__decorate([
+    OneToOne(() => UserAvatarModel, (avatar) => avatar.user, {
         onDelete: 'CASCADE',
         cascade: true,
         eager: true,
@@ -177,19 +210,12 @@ __decorate([
 ], UserModel.prototype, "avatar", void 0);
 __decorate([
     Column({
-        name: 'avatar_type',
-        type: 'varchar',
-        nullable: true,
-        default: null,
-    }),
-    __metadata("design:type", Object)
-], UserModel.prototype, "avatarType", void 0);
-__decorate([
-    Column({
         name: 'telegram_id',
         type: 'varchar',
         nullable: true,
         default: null,
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", Object)
 ], UserModel.prototype, "telegramId", void 0);
@@ -199,23 +225,18 @@ __decorate([
         type: 'varchar',
         nullable: true,
         default: null,
+        charset: config.database.charsets.withEmoji,
+        collation: config.database.collations.withEmoji,
     }),
     __metadata("design:type", Object)
 ], UserModel.prototype, "telegramUsername", void 0);
 __decorate([
     Column({
-        name: 'telegram_avatar_url',
-        type: 'varchar',
-        nullable: true,
-        default: null,
-    }),
-    __metadata("design:type", Object)
-], UserModel.prototype, "telegramAvatarUrl", void 0);
-__decorate([
-    Column({
         name: 'password',
         type: 'varchar',
         nullable: true,
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", String)
 ], UserModel.prototype, "password", void 0);
@@ -240,8 +261,10 @@ __decorate([
         name: 'verification_token',
         type: 'varchar',
         nullable: true,
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
-    __metadata("design:type", String)
+    __metadata("design:type", Object)
 ], UserModel.prototype, "verificationToken", void 0);
 UserModel = __decorate([
     Entity('user'),

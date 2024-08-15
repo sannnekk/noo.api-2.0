@@ -17,6 +17,7 @@ import { PollQuestion } from './Relations/PollQuestion'
 import { Poll, PollVisibility } from './Poll'
 import { SearchableModel } from '@modules/Core/Data/SearchableModel'
 import { BaseModel } from '@modules/Core/Data/Model'
+import { config } from '@modules/config'
 
 @Entity('poll')
 export class PollModel extends SearchableModel implements Poll {
@@ -59,6 +60,8 @@ export class PollModel extends SearchableModel implements Poll {
   @Column({
     name: 'title',
     type: 'varchar',
+    charset: config.database.charsets.withEmoji,
+    collation: config.database.collations.withEmoji,
   })
   title!: string
 
@@ -66,18 +69,24 @@ export class PollModel extends SearchableModel implements Poll {
     name: 'description',
     type: 'text',
     nullable: true,
+    charset: config.database.charsets.withEmoji,
+    collation: config.database.collations.withEmoji,
   })
   description!: string
 
   @Column({
     name: 'can_vote',
     type: 'simple-array',
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
   canVote!: PollVisibility[]
 
   @Column({
     name: 'can_see_results',
     type: 'simple-array',
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
   canSeeResults!: PollVisibility[]
 

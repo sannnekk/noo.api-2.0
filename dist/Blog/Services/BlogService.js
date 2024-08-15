@@ -1,4 +1,3 @@
-import { Service } from '../../Core/Services/Service.js';
 import { Pagination } from '../../Core/Data/Pagination.js';
 import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
 import { QueryFailedError } from 'typeorm';
@@ -8,21 +7,18 @@ import { BlogPostReactionRepository } from '../Data/Relations/BlogPostReactionRe
 import { BlogPostReactionModel } from '../Data/Relations/BlogPostReactionModel.js';
 import { BlogPostModel } from '../Data/BlogPostModel.js';
 import { BlogPostRepository } from '../Data/BlogPostRepository.js';
-export class BlogService extends Service {
+export class BlogService {
     repository;
     reactionRepository;
     constructor() {
-        super();
         this.repository = new BlogPostRepository();
         this.reactionRepository = new BlogPostReactionRepository();
     }
     async getAll(pagination, userId) {
         const relations = ['author', 'poll'];
         pagination = new Pagination().assign(pagination);
-        pagination.entriesToSearch = BlogPostModel.entriesToSearch();
-        const posts = await this.repository.find(undefined, relations, pagination);
-        const meta = await this.getRequestMeta(this.repository, undefined, pagination, relations);
-        const reactions = await this.reactionRepository.find(posts.map((post) => ({
+        const { entities: posts, meta } = await this.repository.search(undefined, pagination, relations);
+        const { entities: reactions } = await this.reactionRepository.find(posts.map((post) => ({
             post: { id: post.id },
             user: { id: userId },
         })));
@@ -30,10 +26,10 @@ export class BlogService extends Service {
         reactions.forEach((reaction) => {
             reactionsMap.set(reaction.postId, reaction.reaction);
         });
-        posts.forEach((post) => {
+        for (const post of posts) {
             post.myReaction = reactionsMap.get(post.id);
-        });
-        return { posts, meta };
+        }
+        return { entities: posts, meta };
     }
     async getById(id, userId) {
         const relations = ['author'];

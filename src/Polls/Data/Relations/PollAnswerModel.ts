@@ -16,6 +16,7 @@ import { PollQuestionModel } from './PollQuestionModel'
 import { PollAnswer } from './PollAnswer'
 import { SearchableModel } from '@modules/Core/Data/SearchableModel'
 import { BaseModel } from '@modules/Core/Data/Model'
+import { config } from '@modules/config'
 
 @Entity('poll_answer')
 export class PollAnswerModel extends SearchableModel implements PollAnswer {
@@ -55,6 +56,8 @@ export class PollAnswerModel extends SearchableModel implements PollAnswer {
     name: 'user_auth_type',
     type: 'varchar',
     default: 'api',
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
   userAuthType!: PollAnswer['userAuthType']
 
@@ -63,6 +66,8 @@ export class PollAnswerModel extends SearchableModel implements PollAnswer {
     type: 'varchar',
     nullable: true,
     default: null,
+    charset: config.database.charsets.withEmoji,
+    collation: config.database.collations.withEmoji,
   })
   userAuthData!: Record<string, unknown> | null
 
@@ -71,6 +76,8 @@ export class PollAnswerModel extends SearchableModel implements PollAnswer {
     type: 'varchar',
     nullable: true,
     default: null,
+    charset: config.database.charsets.withEmoji,
+    collation: config.database.collations.withEmoji,
   })
   userAuthIdentifier!: string
 
@@ -85,6 +92,8 @@ export class PollAnswerModel extends SearchableModel implements PollAnswer {
     name: 'text',
     type: 'text',
     nullable: true,
+    charset: config.database.charsets.withEmoji,
+    collation: config.database.collations.withEmoji,
   })
   text?: string | undefined
 
@@ -112,6 +121,8 @@ export class PollAnswerModel extends SearchableModel implements PollAnswer {
     name: 'choices',
     type: 'text',
     nullable: true,
+    charset: config.database.charsets.withEmoji,
+    collation: config.database.collations.withEmoji,
   })
   _choices?: string
 

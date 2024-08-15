@@ -9,18 +9,23 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 import * as ULID from '../../Core/Data/Ulid.js';
 import * as Transliteration from '../../Core/Utils/transliteration.js';
-import { Model } from '../../Core/Data/Model.js';
-import { Column, Entity, OneToMany, RelationId } from 'typeorm';
+import { Brackets, Column, Entity, ManyToOne, OneToMany, RelationId, } from 'typeorm';
 import { CourseMaterialModel } from '../../Courses/Data/Relations/CourseMaterialModel.js';
 import { AssignedWorkModel } from '../../AssignedWorks/Data/AssignedWorkModel.js';
 import { WorkTaskModel } from './Relations/WorkTaskModel.js';
-let WorkModel = class WorkModel extends Model {
+import { SearchableModel } from '../../Core/Data/SearchableModel.js';
+import { SubjectModel } from '../../Subjects/Data/SubjectModel.js';
+import { config } from '../../config.js';
+let WorkModel = class WorkModel extends SearchableModel {
     constructor(data) {
         super();
         if (data) {
             this.set(data);
             if (data.tasks) {
                 this.tasks = data.tasks.map((task) => new WorkTaskModel(task));
+            }
+            if (data.subject) {
+                this.subject = new SubjectModel(data.subject);
             }
             if (!data.slug) {
                 this.slug = this.sluggify(this.name);
@@ -35,8 +40,14 @@ let WorkModel = class WorkModel extends Model {
     tasks;
     taskIds;
     assignedWorks;
-    static entriesToSearch() {
-        return ['name', 'description'];
+    subject;
+    subjectId;
+    addSearchToQuery(query, needle) {
+        query.andWhere(new Brackets((qb) => {
+            qb.where('work.name LIKE :needle', { needle: `%${needle}%` });
+            qb.orWhere('work.description LIKE :needle', { needle: `%${needle}%` });
+        }));
+        return [];
     }
     sluggify(text) {
         return `${ULID.generate()}-${Transliteration.sluggify(text)}`;
@@ -46,6 +57,8 @@ __decorate([
     Column({
         name: 'slug',
         type: 'varchar',
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", String)
 ], WorkModel.prototype, "slug", void 0);
@@ -53,6 +66,8 @@ __decorate([
     Column({
         name: 'name',
         type: 'varchar',
+        charset: config.database.charsets.withEmoji,
+        collation: config.database.collations.withEmoji,
     }),
     __metadata("design:type", String)
 ], WorkModel.prototype, "name", void 0);
@@ -69,6 +84,8 @@ __decorate([
     Column({
         name: 'description',
         type: 'text',
+        charset: config.database.charsets.withEmoji,
+        collation: config.database.collations.withEmoji,
     }),
     __metadata("design:type", String)
 ], WorkModel.prototype, "description", void 0);
@@ -90,6 +107,16 @@ __decorate([
     OneToMany(() => AssignedWorkModel, (assignedWork) => assignedWork.work),
     __metadata("design:type", Array)
 ], WorkModel.prototype, "assignedWorks", void 0);
+__decorate([
+    ManyToOne(() => SubjectModel, (subject) => subject.works, {
+        eager: true,
+    }),
+    __metadata("design:type", SubjectModel)
+], WorkModel.prototype, "subject", void 0);
+__decorate([
+    RelationId((work) => work.subject),
+    __metadata("design:type", String)
+], WorkModel.prototype, "subjectId", void 0);
 WorkModel = __decorate([
     Entity('work'),
     __metadata("design:paramtypes", [Object])

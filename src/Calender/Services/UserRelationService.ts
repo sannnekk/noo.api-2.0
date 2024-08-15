@@ -12,16 +12,16 @@ export class UserRelationService {
   > = {
     all: () => true,
     private: (requester, target) => requester.username === target.username,
-    'own-mentor': (requester, target) => {
-      return requester.role === 'mentor' && requester.id === target.mentorId
+    'own-mentor': (/* requester, target */) => {
+      // TODO: implement
+      return false
     },
     'all-mentors': (requester) => {
       return requester.role === 'mentor'
     },
-    'own-students': (requester, target) => {
-      return !!(
-        requester.role === 'student' && requester.mentorId === target.id
-      )
+    'own-students': (/* requester, target */) => {
+      // TODO: implement
+      return false
     },
   }
 
@@ -88,7 +88,7 @@ export class UserRelationService {
 
     switch (target.role) {
       case 'student':
-        if (!target.mentor) {
+        /* if (!target.mentor) {
           return conditions
         }
         conditions.push({
@@ -98,10 +98,10 @@ export class UserRelationService {
         conditions.push({
           username: target.mentor.username,
           visibility: 'all',
-        })
+        }) */
         break
       case 'mentor':
-        if (!target.students) {
+        /* if (!target.students) {
           return conditions
         }
 
@@ -110,7 +110,7 @@ export class UserRelationService {
             username: student.username,
             visibility: 'own-mentor',
           })
-        }
+        } */
         break
     }
 

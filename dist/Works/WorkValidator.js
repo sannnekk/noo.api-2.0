@@ -6,51 +6,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 import { ErrorConverter } from '../Core/Request/ValidatorDecorator.js';
 import { Validator } from '../Core/Request/Validator.js';
-import { z } from 'zod';
-import { DeltaScheme } from '../Core/Schemas/DeltaScheme.js';
+import { WorkScheme } from './Schemes/WorkScheme.js';
 let WorkValidator = class WorkValidator extends Validator {
-    workTypeScheme = z.enum([
-        'trial-work',
-        'phrase',
-        'mini-test',
-        'test',
-        'second-part',
-    ]);
-    taskTypeScheme = z.enum([
-        'text',
-        'one_choice',
-        'multiple_choice',
-        'word',
-    ]);
-    checkingStrategyScheme = z.enum(['type1', 'type2', 'type3', 'type4']);
-    taskScheme = z.object({
-        id: z.string().optional(),
-        slug: z.string().optional().nullable(),
-        content: DeltaScheme,
-        order: z.number(),
-        highestScore: z.number().int().positive(),
-        type: this.taskTypeScheme,
-        rightAnswer: z.string().nullable().optional(),
-        solveHint: DeltaScheme.nullable().optional(),
-        checkHint: DeltaScheme.nullable().optional(),
-        checkingStrategy: this.checkingStrategyScheme.nullable().optional(),
-    });
-    workScheme = z.object({
-        id: z.string().optional(),
-        slug: z.string().optional(),
-        name: z
-            .string()
-            .min(1, 'Нет названия работы')
-            .max(100, 'Название работы слишком длинное, максимум 100 символов разрешено'),
-        type: this.workTypeScheme,
-        description: z.string().optional(),
-        tasks: z.array(this.taskScheme),
-    });
     parseCreation(data) {
-        return this.parse(data, this.workScheme.omit({ id: true }));
+        return this.parse(data, WorkScheme.omit({ id: true }));
     }
     parseUpdate(data) {
-        return this.parse(data, this.workScheme);
+        return this.parse(data, WorkScheme);
     }
 };
 WorkValidator = __decorate([

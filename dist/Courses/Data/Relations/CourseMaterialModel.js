@@ -14,6 +14,7 @@ import * as Transliteration from '../../../Core/Utils/transliteration.js';
 import { WorkModel } from '../../../Works/Data/WorkModel.js';
 import { MediaModel } from '../../../Media/Data/MediaModel.js';
 import { CourseChapterModel } from './CourseChapterModel.js';
+import { config } from '../../../config.js';
 let CourseMaterialModel = class CourseMaterialModel extends Model {
     constructor(data) {
         super();
@@ -33,7 +34,7 @@ let CourseMaterialModel = class CourseMaterialModel extends Model {
     content;
     workSolveDeadline;
     workCheckDeadline;
-    order = 0;
+    order;
     isActive;
     chapter;
     chapterId;
@@ -48,6 +49,8 @@ __decorate([
     Column({
         name: 'slug',
         type: 'varchar',
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", String)
 ], CourseMaterialModel.prototype, "slug", void 0);
@@ -55,6 +58,8 @@ __decorate([
     Column({
         name: 'name',
         type: 'varchar',
+        charset: config.database.charsets.withEmoji,
+        collation: config.database.collations.withEmoji,
     }),
     __metadata("design:type", String)
 ], CourseMaterialModel.prototype, "name", void 0);
@@ -62,6 +67,8 @@ __decorate([
     Column({
         name: 'description',
         type: 'text',
+        charset: config.database.charsets.withEmoji,
+        collation: config.database.collations.withEmoji,
     }),
     __metadata("design:type", String)
 ], CourseMaterialModel.prototype, "description", void 0);
@@ -130,7 +137,11 @@ __decorate([
     __metadata("design:type", Array)
 ], CourseMaterialModel.prototype, "files", void 0);
 CourseMaterialModel = __decorate([
-    Entity('course_material'),
+    Entity('course_material', {
+        orderBy: {
+            order: 'ASC',
+        },
+    }),
     __metadata("design:paramtypes", [Object])
 ], CourseMaterialModel);
 export { CourseMaterialModel };

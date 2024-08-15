@@ -7,14 +7,16 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model } from '../../Core/Data/Model.js';
 import * as Transliteration from '../../Core/Utils/transliteration.js';
 import * as ULID from '../../Core/Data/Ulid.js';
 import { UserModel } from '../../Users/Data/UserModel.js';
-import { Column, Entity, ManyToMany, ManyToOne, OneToMany, RelationId, } from 'typeorm';
+import { Brackets, Column, Entity, ManyToMany, ManyToOne, OneToMany, RelationId, } from 'typeorm';
 import { MediaModel } from '../../Media/Data/MediaModel.js';
 import { CourseChapterModel } from './Relations/CourseChapterModel.js';
-let CourseModel = class CourseModel extends Model {
+import { SearchableModel } from '../../Core/Data/SearchableModel.js';
+import { SubjectModel } from '../../Subjects/Data/SubjectModel.js';
+import { config } from '../../config.js';
+let CourseModel = class CourseModel extends SearchableModel {
     constructor(data) {
         super();
         if (data) {
@@ -24,6 +26,9 @@ let CourseModel = class CourseModel extends Model {
             }
             if (data.images) {
                 this.images = data.images.map((image) => new MediaModel(image));
+            }
+            if (data.subject) {
+                this.subject = new SubjectModel(data.subject);
             }
             if (!data.slug) {
                 this.slug = this.sluggify(this.name);
@@ -39,8 +44,14 @@ let CourseModel = class CourseModel extends Model {
     description;
     chapters;
     images;
-    static entriesToSearch() {
-        return ['name', 'description'];
+    subject;
+    subjectId;
+    addSearchToQuery(query, needle) {
+        query.andWhere(new Brackets((qb) => {
+            qb.where(`course.name LIKE :needle`, { needle: `%${needle}%` });
+            qb.orWhere(`course.description LIKE :needle`, { needle: `%${needle}%` });
+        }));
+        return [];
     }
     sluggify(text) {
         return `${ULID.generate()}-${Transliteration.sluggify(text)}`;
@@ -50,6 +61,8 @@ __decorate([
     Column({
         name: 'slug',
         type: 'varchar',
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", String)
 ], CourseModel.prototype, "slug", void 0);
@@ -57,6 +70,8 @@ __decorate([
     Column({
         name: 'name',
         type: 'varchar',
+        charset: config.database.charsets.withEmoji,
+        collation: config.database.collations.withEmoji,
     }),
     __metadata("design:type", String)
 ], CourseModel.prototype, "name", void 0);
@@ -82,12 +97,13 @@ __decorate([
     Column({
         name: 'description',
         type: 'text',
+        charset: config.database.charsets.withEmoji,
+        collation: config.database.collations.withEmoji,
     }),
     __metadata("design:type", String)
 ], CourseModel.prototype, "description", void 0);
 __decorate([
     OneToMany(() => CourseChapterModel, (chapter) => chapter.course, {
-        eager: true,
         cascade: true,
     }),
     __metadata("design:type", Array)
@@ -99,6 +115,16 @@ __decorate([
     }),
     __metadata("design:type", Array)
 ], CourseModel.prototype, "images", void 0);
+__decorate([
+    ManyToOne(() => SubjectModel, (subject) => subject.courses, {
+        eager: true,
+    }),
+    __metadata("design:type", SubjectModel)
+], CourseModel.prototype, "subject", void 0);
+__decorate([
+    RelationId((course) => course.subject),
+    __metadata("design:type", String)
+], CourseModel.prototype, "subjectId", void 0);
 CourseModel = __decorate([
     Entity('course'),
     __metadata("design:paramtypes", [Object])

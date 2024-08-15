@@ -7,12 +7,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model } from '../../Core/Data/Model.js';
 import { Column, Entity, JoinTable, ManyToMany, OneToMany, OneToOne, RelationId, } from 'typeorm';
 import { BlogPostModel } from '../../Blog/Data/BlogPostModel.js';
 import { UserModel } from '../../Users/Data/UserModel.js';
 import { PollQuestionModel } from './Relations/PollQuestionModel.js';
-let PollModel = class PollModel extends Model {
+import { SearchableModel } from '../../Core/Data/SearchableModel.js';
+import { config } from '../../config.js';
+let PollModel = class PollModel extends SearchableModel {
     constructor(data) {
         super();
         if (data) {
@@ -34,8 +35,9 @@ let PollModel = class PollModel extends Model {
     requireAuth;
     stopAt;
     isStopped;
-    static entriesToSearch() {
-        return ['title', 'description'];
+    addSearchToQuery(query, needle) {
+        query.andWhere('poll.title LIKE :needle', { needle: `%${needle}%` });
+        return [];
     }
 };
 __decorate([
@@ -69,6 +71,8 @@ __decorate([
     Column({
         name: 'title',
         type: 'varchar',
+        charset: config.database.charsets.withEmoji,
+        collation: config.database.collations.withEmoji,
     }),
     __metadata("design:type", String)
 ], PollModel.prototype, "title", void 0);
@@ -77,6 +81,8 @@ __decorate([
         name: 'description',
         type: 'text',
         nullable: true,
+        charset: config.database.charsets.withEmoji,
+        collation: config.database.collations.withEmoji,
     }),
     __metadata("design:type", String)
 ], PollModel.prototype, "description", void 0);
@@ -84,6 +90,8 @@ __decorate([
     Column({
         name: 'can_vote',
         type: 'simple-array',
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", Array)
 ], PollModel.prototype, "canVote", void 0);
@@ -91,6 +99,8 @@ __decorate([
     Column({
         name: 'can_see_results',
         type: 'simple-array',
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", Array)
 ], PollModel.prototype, "canSeeResults", void 0);

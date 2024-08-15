@@ -1,4 +1,5 @@
 import Dates from '../../Core/Utils/date.js';
+import { AssignedWorkCommentModel } from '../Data/Relations/AssignedWorkCommentModel.js';
 export class TaskService {
     automatedCheck(tasks, answers) {
         const comments = [];
@@ -16,12 +17,11 @@ export class TaskService {
                     ],
                 },
                 score: this.checkAnswer(answer, relatedTask),
-                task: answer.taskId,
                 taskId: answer.taskId,
                 createdAt: Dates.now(),
                 updatedAt: Dates.now(),
             };
-            comments.push(comment);
+            comments.push(new AssignedWorkCommentModel(comment));
         }
         return comments;
     }

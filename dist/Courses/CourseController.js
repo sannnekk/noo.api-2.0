@@ -24,8 +24,8 @@ let CourseController = class CourseController {
         try {
             await Asserts.isAuthenticated(context);
             const pagination = this.courseValidator.parsePagination(context.query);
-            const { courses, meta } = await this.courseService.get(pagination, context.credentials.userId, context.credentials.role);
-            return new ApiResponse({ data: courses, meta });
+            const { entities, meta } = await this.courseService.get(pagination, context.credentials.userId, context.credentials.role);
+            return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
             return new ApiResponse(error);
@@ -104,19 +104,6 @@ let CourseController = class CourseController {
             const workId = this.courseValidator.parseId(context.params.workId);
             const assignWorkOptions = this.courseValidator.parseAssignWorkOptions(context.body);
             await this.courseService.assignWorkToMaterial(materialSlug, workId, assignWorkOptions.solveDeadline, assignWorkOptions.checkDeadline);
-            return new ApiResponse();
-        }
-        catch (error) {
-            return new ApiResponse(error);
-        }
-    }
-    async assignStudents(context) {
-        try {
-            await Asserts.isAuthenticated(context);
-            Asserts.teacher(context);
-            const courseSlug = this.courseValidator.parseSlug(context.params.courseSlug);
-            const { studentIds } = this.courseValidator.parseStudentIds(context.body);
-            await this.courseService.assignStudents(courseSlug, studentIds);
             return new ApiResponse();
         }
         catch (error) {
@@ -217,12 +204,6 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "assignWorkToMaterial", null);
-__decorate([
-    Patch('/:courseSlug/assign-students'),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Context]),
-    __metadata("design:returntype", Promise)
-], CourseController.prototype, "assignStudents", null);
 __decorate([
     Patch('/:courseSlug/add-students'),
     __metadata("design:type", Function),

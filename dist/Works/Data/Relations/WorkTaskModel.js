@@ -13,6 +13,7 @@ import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm';
 import { AssignedWorkAnswerModel } from '../../../AssignedWorks/Data/Relations/AssignedWorkAnswerModel.js';
 import { AssignedWorkCommentModel } from '../../../AssignedWorks/Data/Relations/AssignedWorkCommentModel.js';
 import { WorkModel } from '../WorkModel.js';
+import { config } from '../../../config.js';
 let WorkTaskModel = class WorkTaskModel extends Model {
     constructor(data) {
         super();
@@ -44,6 +45,8 @@ __decorate([
     Column({
         name: 'slug',
         type: 'varchar',
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", String)
 ], WorkTaskModel.prototype, "slug", void 0);
@@ -92,6 +95,8 @@ __decorate([
         name: 'right_answer',
         type: 'varchar',
         nullable: true,
+        charset: config.database.charsets.withEmoji,
+        collation: config.database.collations.withEmoji,
     }),
     __metadata("design:type", Object)
 ], WorkTaskModel.prototype, "rightAnswer", void 0);
@@ -129,7 +134,11 @@ __decorate([
     __metadata("design:type", Object)
 ], WorkTaskModel.prototype, "assignedWorkComments", void 0);
 WorkTaskModel = __decorate([
-    Entity('work_task'),
+    Entity('work_task', {
+        orderBy: {
+            order: 'ASC',
+        },
+    }),
     __metadata("design:paramtypes", [Object])
 ], WorkTaskModel);
 export { WorkTaskModel };

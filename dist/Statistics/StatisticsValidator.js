@@ -6,15 +6,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 import { Validator } from '../Core/Request/Validator.js';
 import { ErrorConverter } from '../Core/Request/ValidatorDecorator.js';
-import { z } from 'zod';
+import { StatisticsOptionsScheme } from './Schemes/StatisticsOptionsScheme.js';
 let StatisticsValidator = class StatisticsValidator extends Validator {
-    statisticsOptionsScheme = z.object({
-        from: z.date(),
-        to: z.date(),
-        type: z.string().optional(), // TODO: use enum from work module
-    });
     parseGetStatistics(data) {
-        return this.parse(data, this.statisticsOptionsScheme);
+        return this.parse(data, StatisticsOptionsScheme);
     }
 };
 StatisticsValidator = __decorate([

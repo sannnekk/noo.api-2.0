@@ -7,15 +7,16 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model } from '../../Core/Data/Model.js';
 import * as ULID from '../../Core/Data/Ulid.js';
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, RelationId, } from 'typeorm';
+import { Brackets, Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, RelationId, } from 'typeorm';
 import { UserModel } from '../../Users/Data/UserModel.js';
 import { WorkModel } from '../../Works/Data/WorkModel.js';
 import { CalenderEventModel } from '../../Calender/Data/CalenderEventModel.js';
 import { AssignedWorkAnswerModel } from './Relations/AssignedWorkAnswerModel.js';
 import { AssignedWorkCommentModel } from './Relations/AssignedWorkCommentModel.js';
-let AssignedWorkModel = class AssignedWorkModel extends Model {
+import { SearchableModel } from '../../Core/Data/SearchableModel.js';
+import { config } from '../../config.js';
+let AssignedWorkModel = class AssignedWorkModel extends SearchableModel {
     constructor(data) {
         super();
         if (data) {
@@ -56,7 +57,8 @@ let AssignedWorkModel = class AssignedWorkModel extends Model {
     calenderEvents;
     score;
     maxScore;
-    isArchived = false;
+    isArchivedByMentors;
+    isArchivedByStudent;
     isNewAttempt;
     _excludedTaskIds;
     get excludedTaskIds() {
@@ -68,8 +70,19 @@ let AssignedWorkModel = class AssignedWorkModel extends Model {
     set excludedTaskIds(value) {
         this._excludedTaskIds = JSON.stringify(value);
     }
-    static entriesToSearch() {
-        return ['work.name', 'student.name', 'mentors.name'];
+    addSearchToQuery(query, needle) {
+        query.andWhere(new Brackets((qb) => {
+            qb.where('assigned_work__student.name LIKE :needle', {
+                needle: `%${needle}%`,
+            });
+            qb.orWhere('assigned_work__work.name LIKE :needle', {
+                needle: `%${needle}%`,
+            });
+            qb.orWhere('assigned_work__mentors.name LIKE :needle', {
+                needle: `%${needle}%`,
+            });
+        }));
+        return ['student', 'work', 'mentors'];
     }
     static readableSolveStatus(status) {
         switch (status) {
@@ -109,6 +122,8 @@ __decorate([
     Column({
         name: 'slug',
         type: 'varchar',
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", String)
 ], AssignedWorkModel.prototype, "slug", void 0);
@@ -256,12 +271,20 @@ __decorate([
 ], AssignedWorkModel.prototype, "maxScore", void 0);
 __decorate([
     Column({
-        name: 'is_archived',
+        name: 'is_archived_by_mentors',
         type: 'boolean',
         default: false,
     }),
     __metadata("design:type", Boolean)
-], AssignedWorkModel.prototype, "isArchived", void 0);
+], AssignedWorkModel.prototype, "isArchivedByMentors", void 0);
+__decorate([
+    Column({
+        name: 'is_archived_by_student',
+        type: 'boolean',
+        default: false,
+    }),
+    __metadata("design:type", Boolean)
+], AssignedWorkModel.prototype, "isArchivedByStudent", void 0);
 __decorate([
     Column({
         name: 'is_new_attempt',

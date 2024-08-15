@@ -24,8 +24,8 @@ let AssignedWorkController = class AssignedWorkController {
         try {
             await Asserts.isAuthenticated(context);
             const pagination = this.assignedWorkValidator.parsePagination(context.query);
-            const { assignedWorks, meta } = await this.assignedWorkService.getWorks(context.credentials.userId, context.credentials.role, pagination);
-            return new ApiResponse({ data: assignedWorks, meta });
+            const { entities, meta } = await this.assignedWorkService.getWorks(context.credentials.userId, context.credentials.role, pagination);
+            return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
             return new ApiResponse(error);
@@ -37,8 +37,8 @@ let AssignedWorkController = class AssignedWorkController {
             Asserts.teacherOrAdmin(context);
             const userId = this.assignedWorkValidator.parseId(context.params.userId);
             const pagination = this.assignedWorkValidator.parsePagination(context.query);
-            const { assignedWorks, meta } = await this.assignedWorkService.getWorks(userId, undefined, pagination);
-            return new ApiResponse({ data: assignedWorks, meta });
+            const { entities, meta } = await this.assignedWorkService.getWorks(userId, undefined, pagination);
+            return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
             return new ApiResponse(error);
@@ -113,7 +113,7 @@ let AssignedWorkController = class AssignedWorkController {
             Asserts.mentor(context);
             const workId = this.assignedWorkValidator.parseId(context.params.id);
             const checkOptions = this.assignedWorkValidator.parseCheck(context.body);
-            await this.assignedWorkService.checkWork(workId, checkOptions);
+            await this.assignedWorkService.checkWork(workId, checkOptions, context.credentials.userId);
             return new ApiResponse();
         }
         catch (error) {
@@ -136,9 +136,9 @@ let AssignedWorkController = class AssignedWorkController {
     async archive(context) {
         try {
             await Asserts.isAuthenticated(context);
-            Asserts.mentor(context);
+            Asserts.mentorOrStudent(context);
             const workId = this.assignedWorkValidator.parseId(context.params.id);
-            await this.assignedWorkService.archiveWork(workId);
+            await this.assignedWorkService.archiveWork(workId, context.credentials.role);
             return new ApiResponse();
         }
         catch (error) {
@@ -148,9 +148,9 @@ let AssignedWorkController = class AssignedWorkController {
     async unarchive(context) {
         try {
             await Asserts.isAuthenticated(context);
-            Asserts.mentor(context);
+            Asserts.mentorOrStudent(context);
             const workId = this.assignedWorkValidator.parseId(context.params.id);
-            await this.assignedWorkService.unarchiveWork(workId);
+            await this.assignedWorkService.unarchiveWork(workId, context.credentials.role);
             return new ApiResponse();
         }
         catch (error) {

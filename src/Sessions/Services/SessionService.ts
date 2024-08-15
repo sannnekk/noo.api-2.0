@@ -39,6 +39,16 @@ export class SessionService {
     })
   }
 
+  public async deleteSessionsForUser(userId: User['id']): Promise<void> {
+    const { entities: sessions } = await this.sessionRepository.find({
+      user: { id: userId } as User,
+    })
+
+    await Promise.all(
+      sessions.map((session) => this.sessionRepository.delete(session.id))
+    )
+  }
+
   public async getCurrentSession(
     context: Context,
     userId?: User['id']

@@ -46,7 +46,8 @@ export abstract class Validator {
       pagination.sort,
       pagination.order,
       pagination.search,
-      pagination.filter,
+      // TODO: Fix any
+      pagination.filter as any,
       pagination.relations
     )
   }
@@ -61,6 +62,14 @@ export abstract class Validator {
 
   public parseVersion(version: unknown): Version {
     return new Version(this.parse(version, this.versionScheme))
+  }
+
+  public parseString(value: unknown): string {
+    return this.parse<string>(value, z.string())
+  }
+
+  public parseNonemptyString(value: unknown): string {
+    return this.parse<string>(value, z.string().min(1))
   }
 
   protected parse<T>(o: unknown, schema: z.ZodType): T {

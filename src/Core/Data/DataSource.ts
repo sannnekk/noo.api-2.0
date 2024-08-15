@@ -19,11 +19,13 @@ import { PollModel } from '@modules/Polls/Data/PollModel'
 import { PollQuestionModel } from '@modules/Polls/Data/Relations/PollQuestionModel'
 import { PollAnswerModel } from '@modules/Polls/Data/Relations/PollAnswerModel'
 import { SessionModel } from '@modules/Sessions/Data/SessionModel'
-import { GoogleDocsBindingModel } from '@modules/GoogleDocs/Data/GoogleDocsBindingModel'
+import { GoogleSheetsBindingModel } from '@modules/GoogleSheets/Data/GoogleSheetsBindingModel'
 import { FAQArticleModel } from '@modules/FAQ/Data/FAQArticleModel'
 import { UserAvatarModel } from '@modules/Users/Data/Relations/UserAvatarModel'
 import { MentorAssignmentModel } from '@modules/Users/Data/Relations/MentorAssignmentModel'
 import { SubjectModel } from '@modules/Subjects/Data/SubjectModel'
+import { SnippetModel } from '@modules/Snippets/Data/SnippetModel'
+import { config } from '@modules/config'
 
 export const CoreDataSource = new DataSource({
   type: 'mysql',
@@ -34,7 +36,8 @@ export const CoreDataSource = new DataSource({
   database: process.env.DB_NAME,
   synchronize: false,
   logging: false,
-  charset: 'utf8mb4',
+  charset: config.database.collations.default,
+  debug: config.database.debug,
   entities: [
     SubjectModel,
     FAQArticleModel,
@@ -58,7 +61,8 @@ export const CoreDataSource = new DataSource({
     BlogPostReactionModel,
     BlogPostModel,
     SessionModel,
-    GoogleDocsBindingModel,
+    GoogleSheetsBindingModel,
+    SnippetModel,
   ],
   subscribers: [],
   migrations: [],

@@ -21,6 +21,7 @@ import { MediaModel } from '@modules/Media/Data/MediaModel'
 import { Media } from '@modules/Media/Data/Media'
 import { SearchableModel } from '@modules/Core/Data/SearchableModel'
 import { BaseModel } from '@modules/Core/Data/Model'
+import { config } from '@modules/config'
 
 @Entity('blog_post')
 export class BlogPostModel extends SearchableModel implements BlogPost {
@@ -47,6 +48,8 @@ export class BlogPostModel extends SearchableModel implements BlogPost {
   @Column({
     name: 'title',
     type: 'varchar',
+    charset: config.database.charsets.withEmoji,
+    collation: config.database.collations.withEmoji,
   })
   title!: string
 
@@ -65,6 +68,8 @@ export class BlogPostModel extends SearchableModel implements BlogPost {
   @Column({
     name: 'tags',
     type: 'simple-array',
+    charset: config.database.charsets.withEmoji,
+    collation: config.database.collations.withEmoji,
   })
   tags!: string[]
 

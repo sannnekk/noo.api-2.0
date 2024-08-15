@@ -7,13 +7,14 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model } from '../../Core/Data/Model.js';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, RelationId, } from 'typeorm';
+import { Brackets, Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, RelationId, } from 'typeorm';
 import { UserModel } from '../../Users/Data/UserModel.js';
 import { PollModel } from '../../Polls/Data/PollModel.js';
 import { BlogPostReactionModel } from './Relations/BlogPostReactionModel.js';
 import { MediaModel } from '../../Media/Data/MediaModel.js';
-let BlogPostModel = class BlogPostModel extends Model {
+import { SearchableModel } from '../../Core/Data/SearchableModel.js';
+import { config } from '../../config.js';
+let BlogPostModel = class BlogPostModel extends SearchableModel {
     constructor(data) {
         super();
         if (data) {
@@ -39,20 +40,21 @@ let BlogPostModel = class BlogPostModel extends Model {
     poll;
     pollId;
     files;
-    static entriesToSearch() {
-        return [
-            'title',
-            'content',
-            'tags',
-            'author.name',
-            'author.username',
-        ];
+    addSearchToQuery(query, needle) {
+        query.andWhere(new Brackets((qb) => {
+            qb.orWhere('blog_post.title LIKE :needle', { needle: `%${needle}%` });
+            qb.orWhere('blog_post.content LIKE :needle', { needle: `%${needle}%` });
+            qb.orWhere('blog_post.tags LIKE :needle', { needle: `%${needle}%` });
+        }));
+        return [];
     }
 };
 __decorate([
     Column({
         name: 'title',
         type: 'varchar',
+        charset: config.database.charsets.withEmoji,
+        collation: config.database.collations.withEmoji,
     }),
     __metadata("design:type", String)
 ], BlogPostModel.prototype, "title", void 0);
@@ -75,6 +77,8 @@ __decorate([
     Column({
         name: 'tags',
         type: 'simple-array',
+        charset: config.database.charsets.withEmoji,
+        collation: config.database.collations.withEmoji,
     }),
     __metadata("design:type", Array)
 ], BlogPostModel.prototype, "tags", void 0);

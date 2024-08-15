@@ -24,9 +24,9 @@ let BlogController = class BlogController {
         try {
             await Asserts.isAuthenticated(context);
             const pagination = this.blogValidator.parsePagination(context.query);
-            const { posts, meta } = await this.blogService.getAll(pagination, context.credentials.userId);
+            const { entities, meta } = await this.blogService.getAll(pagination, context.credentials.userId);
             return new ApiResponse({
-                data: posts,
+                data: entities,
                 meta,
             });
         }

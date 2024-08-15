@@ -3,6 +3,7 @@ import { Column, Entity, ManyToOne, RelationId } from 'typeorm'
 import { AssignedWorkModel } from '@modules/AssignedWorks/Data/AssignedWorkModel'
 import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
 import { CalenderEvent } from './CalenderEvent'
+import { config } from '@modules/config'
 
 @Entity('calender_event')
 export class CalenderEventModel extends Model implements CalenderEvent {
@@ -17,12 +18,16 @@ export class CalenderEventModel extends Model implements CalenderEvent {
   @Column({
     name: 'title',
     type: 'varchar',
+    charset: config.database.charsets.withEmoji,
+    collation: config.database.collations.withEmoji,
   })
   title!: string
 
   @Column({
     name: 'description',
     type: 'text',
+    charset: config.database.charsets.withEmoji,
+    collation: config.database.collations.withEmoji,
   })
   description!: string
 
@@ -36,6 +41,8 @@ export class CalenderEventModel extends Model implements CalenderEvent {
   @Column({
     name: 'url',
     type: 'varchar',
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
   url!: string
 
@@ -71,6 +78,8 @@ export class CalenderEventModel extends Model implements CalenderEvent {
     name: 'username',
     type: 'varchar',
     nullable: false,
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
   username!: string
 

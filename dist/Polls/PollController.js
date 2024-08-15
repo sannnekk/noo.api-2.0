@@ -25,8 +25,8 @@ let PollController = class PollController {
             await Asserts.isAuthenticated(context);
             Asserts.teacherOrAdmin(context);
             const pagination = this.pollValidator.parsePagination(context.query);
-            const { polls, meta } = await this.pollService.getPolls(pagination);
-            return new ApiResponse({ data: polls, meta });
+            const { entities, meta } = await this.pollService.getPolls(pagination);
+            return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
             return new ApiResponse(error);
@@ -37,8 +37,8 @@ let PollController = class PollController {
             await Asserts.isAuthenticated(context);
             Asserts.teacherOrAdmin(context);
             const pagination = this.pollValidator.parsePagination(context.query);
-            const { questions, meta } = await this.pollService.searchQuestions(pagination);
-            return new ApiResponse({ data: questions, meta });
+            const { entities, meta } = await this.pollService.searchQuestions(pagination);
+            return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
             return new ApiResponse(error);
@@ -71,8 +71,8 @@ let PollController = class PollController {
             await Asserts.isAuthenticated(context);
             const pollId = this.pollValidator.parseId(context.params.pollId);
             const pagination = this.pollValidator.parsePagination(context.query);
-            const { users, meta } = await this.pollService.searchWhoVoted(context.credentials.role, pollId, pagination);
-            return new ApiResponse({ data: users, meta });
+            const { entities, meta } = await this.pollService.searchWhoVoted(context.credentials.role, pollId, pagination);
+            return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
             return new ApiResponse(error);
@@ -83,8 +83,8 @@ let PollController = class PollController {
             await Asserts.isAuthenticated(context);
             const pollId = this.pollValidator.parseId(context.params.pollId);
             const pagination = this.pollValidator.parsePagination(context.query);
-            const { users, meta } = await this.pollService.searchWhoVotedUnregistered(context.credentials.role, pollId, pagination);
-            return new ApiResponse({ data: users, meta });
+            const { entities, meta } = await this.pollService.searchWhoVotedUnregistered(context.credentials.role, pollId, pagination);
+            return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
             return new ApiResponse(error);

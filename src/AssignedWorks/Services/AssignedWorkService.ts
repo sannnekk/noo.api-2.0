@@ -466,26 +466,34 @@ export class AssignedWorkService {
     await this.assignedWorkRepository.update(foundWork)
   }
 
-  public async archiveWork(id: AssignedWork['id']) {
+  public async archiveWork(id: AssignedWork['id'], role: User['role']) {
     const foundWork = await this.getAssignedWork(id)
 
     if (!foundWork) {
       throw new NotFoundError()
     }
 
-    foundWork.isArchived = true
+    if (role === 'student') {
+      foundWork.isArchivedByStudent = true
+    } else if (role === 'mentor') {
+      foundWork.isArchivedByMentors = true
+    }
 
     await this.assignedWorkRepository.update(foundWork)
   }
 
-  public async unarchiveWork(id: AssignedWork['id']) {
+  public async unarchiveWork(id: AssignedWork['id'], role: User['role']) {
     const foundWork = await this.getAssignedWork(id)
 
     if (!foundWork) {
       throw new NotFoundError()
     }
 
-    foundWork.isArchived = false
+    if (role === 'student') {
+      foundWork.isArchivedByStudent = false
+    } else if (role === 'mentor') {
+      foundWork.isArchivedByMentors = false
+    }
 
     await this.assignedWorkRepository.update(foundWork)
   }

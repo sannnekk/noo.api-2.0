@@ -25,8 +25,8 @@ let WorkController = class WorkController {
             await Asserts.isAuthenticated(context);
             Asserts.teacherOrAdmin(context);
             const pagination = this.workValidator.parsePagination(context.query);
-            const { works, meta } = await this.workService.getWorks(pagination);
-            return new ApiResponse({ data: works, meta });
+            const { entities, meta } = await this.workService.getWorks(pagination);
+            return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
             return new ApiResponse(error);

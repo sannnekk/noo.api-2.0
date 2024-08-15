@@ -256,7 +256,8 @@ export abstract class Repository<T extends BaseModel> {
   async findOne(
     conditions: Record<string, unknown> | Record<string, unknown>[],
     relations?: Readonly<RelationsType<T>>,
-    sort?: any | undefined
+    sort?: any | undefined,
+    options?: FindOneOptions
   ): Promise<T | null> {
     const findOneOptions = this.mergeWithDefaultFindOneOptions(options)
 
@@ -265,7 +266,6 @@ export abstract class Repository<T extends BaseModel> {
       where: conditions,
       order: sort,
       relationLoadStrategy: findOneOptions.relationLoadStrategy,
-      relationLoadStrategy,
     }) as Promise<T | null>
   }
 
@@ -297,9 +297,6 @@ export abstract class Repository<T extends BaseModel> {
     groupBy?: string,
     options?: SearchOptions
   ): Promise<{ entities: T[]; meta: RequestMeta }> {
-    const time = Date.now()
-    console.log('STARTED SEARCH')
-
     const searchOptions = this.mergeWithDefaultSearchOptions(options)
     const queryPagination = new Pagination().assign(pagination)
     const query = this.queryBuilder(this.entityName)
@@ -345,8 +342,6 @@ export abstract class Repository<T extends BaseModel> {
     } else {
       ;[entities, total] = await query.getManyAndCount()
     }
-
-    console.log('FINISHED SEARCH, took ms:', Date.now() - time)
 
     return {
       entities,

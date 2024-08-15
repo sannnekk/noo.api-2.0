@@ -7,6 +7,7 @@ import { WorkTask } from '@modules/Works/Data/Relations/WorkTask'
 import { AssignedWorkComment } from './AssignedWorkComment'
 import { AssignedWorkModel } from '../AssignedWorkModel'
 import { AssignedWork } from '../AssignedWork'
+import { config } from '@modules/config'
 
 @Entity('assigned_work_comment')
 export class AssignedWorkCommentModel
@@ -32,6 +33,8 @@ export class AssignedWorkCommentModel
   @Column({
     name: 'slug',
     type: 'varchar',
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
   slug!: string
 

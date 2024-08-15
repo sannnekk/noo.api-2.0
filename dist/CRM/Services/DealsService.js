@@ -1,10 +1,8 @@
-import { Service } from '../../Core/Services/Service.js';
 import { CourseRequestRepository } from '../Data/CourseRequestRepository.js';
 import log from '../../Core/Logs/Logger.js';
-export class DealsService extends Service {
+export class DealsService {
     courseRequestRepository;
     constructor() {
-        super();
         this.courseRequestRepository = new CourseRequestRepository();
     }
     async create(email, courseId) {

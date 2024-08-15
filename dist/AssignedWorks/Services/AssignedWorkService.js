@@ -1,6 +1,4 @@
 import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
-import { Pagination } from '../../Core/Data/Pagination.js';
-import { Service } from '../../Core/Services/Service.js';
 import { UnauthorizedError } from '../../Core/Errors/UnauthorizedError.js';
 import { UserRepository } from '../../Users/Data/UserRepository.js';
 import { WorkRepository } from '../../Works/Data/WorkRepository.js';
@@ -21,17 +19,19 @@ import { AssignedWorkCommentRepository } from '../Data/AssignedWorkCommentReposi
 import { AssignedWorkAnswerRepository } from '../Data/AssignedWorkAnswerRepository.js';
 import Dates from '../../Core/Utils/date.js';
 import { AssignedWorkOptions } from '../AssignedWorkOptions.js';
-export class AssignedWorkService extends Service {
+import TypeORM from 'typeorm';
+import { UserService } from '../../Users/Services/UserService.js';
+export class AssignedWorkService {
     taskService;
     assignedWorkRepository;
     materialRepository;
     workRepository;
     userRepository;
+    userService;
     answerRepository;
     commentRepository;
     calenderService;
     constructor() {
-        super();
         this.taskService = new TaskService();
         this.assignedWorkRepository = new AssignedWorkRepository();
         this.materialRepository = new CourseMaterialRepository();
@@ -40,6 +40,7 @@ export class AssignedWorkService extends Service {
         this.answerRepository = new AssignedWorkAnswerRepository();
         this.commentRepository = new AssignedWorkCommentRepository();
         this.calenderService = new CalenderService();
+        this.userService = new UserService();
     }
     async getWorks(userId, userRole, pagination) {
         if (!userRole) {
@@ -53,17 +54,14 @@ export class AssignedWorkService extends Service {
         const conditions = userRole == 'student'
             ? { student: { id: userId } }
             : { mentors: { id: userId } };
-        pagination = new Pagination().assign(pagination);
-        pagination.entriesToSearch = AssignedWorkModel.entriesToSearch();
         const relations = ['work', 'student', 'mentors'];
-        const assignedWorks = await this.assignedWorkRepository.find(conditions, relations, pagination);
-        for (const work of assignedWorks) {
+        const { entities, meta } = await this.assignedWorkRepository.search(conditions, pagination, relations);
+        for (const work of entities) {
             if (work.isNewAttempt && work.work) {
-                work.work.name = `[Пересдача] ${work.work.name}`;
+                work.work.name = `🔁 ${work.work.name}`;
             }
         }
-        const meta = await this.getRequestMeta(this.assignedWorkRepository, conditions, pagination, relations);
-        return { assignedWorks, meta };
+        return { entities, meta };
     }
     async getWorkById(id, role) {
         const assignedWork = await this.assignedWorkRepository.findOne({ id }, ['mentors', 'student', 'work.tasks'], {
@@ -80,11 +78,11 @@ export class AssignedWorkService extends Service {
         assignedWork.comments = [];
         this.excludeTasks(assignedWork);
         if (assignedWork.isNewAttempt) {
-            assignedWork.work.name = `[Пересдача] ${assignedWork.work.name}`;
+            assignedWork.work.name = `🔁 (Пересдача) ${assignedWork.work.name}`;
         }
         if (assignedWork.solveStatus !== 'not-started') {
             const answers = await this.answerRepository.findAll({
-                assignedWorkId: assignedWork.id,
+                assignedWork: { id: assignedWork.id },
             });
             assignedWork.answers = answers;
         }
@@ -94,7 +92,7 @@ export class AssignedWorkService extends Service {
             assignedWork.checkStatus === 'checked-after-deadline' ||
             assignedWork.checkStatus === 'checked-automatically') {
             const comments = await this.commentRepository.findAll({
-                assignedWorkId: assignedWork.id,
+                assignedWork: { id: assignedWork.id },
             });
             assignedWork.comments = comments;
         }
@@ -103,23 +101,24 @@ export class AssignedWorkService extends Service {
     async createWork(options, taskIdsToExclude = []) {
         const work = await this.workRepository.findOne({
             id: options.workId,
-        }, ['tasks']);
+        }, ['tasks', 'subject']);
         const student = await this.userRepository.findOne({
             id: options.studentId,
-        }, ['mentor']);
+        }, ['mentorAssignmentsAsStudent']);
         if (!work) {
             throw new NotFoundError('Работа не найдена');
         }
         if (!student) {
             throw new NotFoundError('Ученик не найден');
         }
-        if (!student.mentor) {
-            throw new NotFoundError('У ученика нет куратора');
+        const mentor = await this.userService.getMentor(student, work.subject.id);
+        if (!mentor) {
+            throw new NotFoundError('У ученика нет куратора по данному предмету');
         }
         const assignedWork = new AssignedWorkModel();
         assignedWork.work = { id: work.id };
         assignedWork.student = { id: student.id };
-        assignedWork.mentors = [{ id: student.mentor.id }];
+        assignedWork.mentors = [{ id: mentor.id }];
         assignedWork.excludedTaskIds = taskIdsToExclude;
         assignedWork.maxScore = this.getMaxScore(work.tasks, taskIdsToExclude);
         assignedWork.solveStatus = 'not-started';
@@ -130,7 +129,7 @@ export class AssignedWorkService extends Service {
         const createdWork = await this.assignedWorkRepository.create(assignedWork);
         work.tasks = [];
         createdWork.student = student;
-        createdWork.mentors = [student.mentor];
+        createdWork.mentors = [mentor];
         createdWork.work = work;
         if (assignedWork.solveDeadlineAt) {
             await this.calenderService.createSolveDeadlineEvent(createdWork);
@@ -154,7 +153,7 @@ export class AssignedWorkService extends Service {
         const rightTaskIds = assignedWork.excludedTaskIds;
         if (options.onlyFalse) {
             const comments = await this.commentRepository.findAll({
-                assignedWorkId,
+                assignedWork: { id: assignedWork.id },
             }, ['task']);
             const newExcludes = comments
                 .filter((comment) => comment.task?.highestScore === comment.score)
@@ -162,14 +161,17 @@ export class AssignedWorkService extends Service {
                 .filter(Boolean);
             rightTaskIds.push(...newExcludes);
         }
-        this.createWork({
+        await this.createWork({
             workId: assignedWork.work.id,
             studentId,
             isNewAttempt: true,
         }, rightTaskIds);
     }
     async getOrCreateWork(materialSlug, studentId) {
-        const material = await this.materialRepository.findOne({ slug: materialSlug }, ['work']);
+        const material = await this.materialRepository.findOne({
+            slug: materialSlug,
+            chapter: { course: { id: TypeORM.Not(TypeORM.IsNull()) } },
+        }, ['work']);
         if (!material) {
             throw new NotFoundError('Материал не найден');
         }
@@ -236,7 +238,7 @@ export class AssignedWorkService extends Service {
         await this.assignedWorkRepository.update(foundWork);
         await this.calenderService.createWorkMadeEvent(foundWork);
     }
-    async checkWork(assignedWorkId, checkOptions) {
+    async checkWork(assignedWorkId, checkOptions, checkerId) {
         const foundWork = await this.getAssignedWork(assignedWorkId, [
             'work',
             'mentors',
@@ -244,6 +246,9 @@ export class AssignedWorkService extends Service {
         ]);
         if (!foundWork) {
             throw new NotFoundError();
+        }
+        if (!foundWork.mentors.some((mentor) => mentor.id === checkerId)) {
+            throw new UnauthorizedError('Вы не можете проверить эту работу, так как не являетесь куратором этой работы');
         }
         if ([
             'checked-in-deadline',
@@ -297,20 +302,30 @@ export class AssignedWorkService extends Service {
         foundWork.comments = saveOptions.comments || [];
         await this.assignedWorkRepository.update(foundWork);
     }
-    async archiveWork(id) {
+    async archiveWork(id, role) {
         const foundWork = await this.getAssignedWork(id);
         if (!foundWork) {
             throw new NotFoundError();
         }
-        foundWork.isArchived = true;
+        if (role === 'student') {
+            foundWork.isArchivedByStudent = true;
+        }
+        else if (role === 'mentor') {
+            foundWork.isArchivedByMentors = true;
+        }
         await this.assignedWorkRepository.update(foundWork);
     }
-    async unarchiveWork(id) {
+    async unarchiveWork(id, role) {
         const foundWork = await this.getAssignedWork(id);
         if (!foundWork) {
             throw new NotFoundError();
         }
-        foundWork.isArchived = false;
+        if (role === 'student') {
+            foundWork.isArchivedByStudent = false;
+        }
+        else if (role === 'mentor') {
+            foundWork.isArchivedByMentors = false;
+        }
         await this.assignedWorkRepository.update(foundWork);
     }
     async transferWorkToAnotherMentor(workId, mentorId, currentMentorId) {
@@ -339,21 +354,21 @@ export class AssignedWorkService extends Service {
         await this.assignedWorkRepository.update(foundWork);
     }
     async replaceMentor(workId, newMentorentorId) {
-        const work = await this.assignedWorkRepository.findOne({
+        const assignedWork = await this.assignedWorkRepository.findOne({
             id: workId,
-        });
-        if (!work) {
+        }, ['work.subject']);
+        if (!assignedWork) {
             throw new NotFoundError();
         }
-        const mentor = await this.userRepository.findOne({
+        const newMentor = await this.userRepository.findOne({
             id: newMentorentorId,
             role: 'mentor',
         });
-        if (!mentor) {
+        if (!newMentor) {
             throw new NotFoundError('Куратор не найден');
         }
-        work.mentors = [mentor];
-        await this.assignedWorkRepository.update(work);
+        assignedWork.mentors = [newMentor];
+        await this.assignedWorkRepository.update(assignedWork);
     }
     async shiftDeadline(id, role, userId) {
         const work = await this.getAssignedWork(id, ['mentors']);

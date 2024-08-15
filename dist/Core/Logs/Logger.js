@@ -15,11 +15,6 @@ const logger = winston.createLogger({
             dirname: process.env.LOG_DIR,
             maxsize: 5 * 1024 * 1024, // 5MB
         }),
-        new winston.transports.File({
-            filename: process.env.LOG_COMBINED_FILE,
-            dirname: process.env.LOG_DIR,
-            maxsize: 5 * 1024 * 1024, // 5MB
-        }),
     ],
 });
 if (process.env.APP_ENV === 'dev') {

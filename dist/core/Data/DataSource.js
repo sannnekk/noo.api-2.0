@@ -18,7 +18,13 @@ import { PollModel } from '../../Polls/Data/PollModel.js';
 import { PollQuestionModel } from '../../Polls/Data/Relations/PollQuestionModel.js';
 import { PollAnswerModel } from '../../Polls/Data/Relations/PollAnswerModel.js';
 import { SessionModel } from '../../Sessions/Data/SessionModel.js';
-import { GoogleDocsBindingModel } from '../../GoogleDocs/Data/GoogleDocsBindingModel.js';
+import { GoogleSheetsBindingModel } from '../../GoogleSheets/Data/GoogleSheetsBindingModel.js';
+import { FAQArticleModel } from '../../FAQ/Data/FAQArticleModel.js';
+import { UserAvatarModel } from '../../Users/Data/Relations/UserAvatarModel.js';
+import { MentorAssignmentModel } from '../../Users/Data/Relations/MentorAssignmentModel.js';
+import { SubjectModel } from '../../Subjects/Data/SubjectModel.js';
+import { SnippetModel } from '../../Snippets/Data/SnippetModel.js';
+import { config } from '../../config.js';
 export const CoreDataSource = new DataSource({
     type: 'mysql',
     host: process.env.DB_HOST,
@@ -28,10 +34,15 @@ export const CoreDataSource = new DataSource({
     database: process.env.DB_NAME,
     synchronize: false,
     logging: false,
-    charset: 'utf8mb4',
+    charset: config.database.collations.default,
+    debug: config.database.debug,
     entities: [
+        SubjectModel,
+        FAQArticleModel,
         MediaModel,
         UserModel,
+        UserAvatarModel,
+        MentorAssignmentModel,
         CourseModel,
         CourseChapterModel,
         CourseMaterialModel,
@@ -48,7 +59,8 @@ export const CoreDataSource = new DataSource({
         BlogPostReactionModel,
         BlogPostModel,
         SessionModel,
-        GoogleDocsBindingModel,
+        GoogleSheetsBindingModel,
+        SnippetModel,
     ],
     subscribers: [],
     migrations: [],

@@ -8,8 +8,13 @@ import { MediaModel } from '@modules/Media/Data/MediaModel'
 import { CourseChapterModel } from './CourseChapterModel'
 import { CourseMaterial } from './CourseMaterial'
 import { CourseChapter } from './CourseChapter'
+import { config } from '@modules/config'
 
-@Entity('course_material')
+@Entity('course_material', {
+  orderBy: {
+    order: 'ASC',
+  },
+})
 export class CourseMaterialModel extends Model implements CourseMaterial {
   constructor(data?: Partial<CourseMaterial>) {
     super()
@@ -30,18 +35,24 @@ export class CourseMaterialModel extends Model implements CourseMaterial {
   @Column({
     name: 'slug',
     type: 'varchar',
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
   slug!: string
 
   @Column({
     name: 'name',
     type: 'varchar',
+    charset: config.database.charsets.withEmoji,
+    collation: config.database.collations.withEmoji,
   })
   name!: string
 
   @Column({
     name: 'description',
     type: 'text',
+    charset: config.database.charsets.withEmoji,
+    collation: config.database.collations.withEmoji,
   })
   description!: string
 
@@ -70,7 +81,7 @@ export class CourseMaterialModel extends Model implements CourseMaterial {
     type: 'int',
     default: 0,
   })
-  order: number = 0
+  order!: number
 
   @Column({
     name: 'is_active',

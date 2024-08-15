@@ -9,6 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 import { PrimaryColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { generate } from './Ulid.js';
+import { config } from '../../config.js';
 export class Model {
     set(data) {
         Object.assign(this, data);
@@ -35,6 +36,8 @@ __decorate([
     PrimaryColumn({
         name: 'id',
         type: 'varchar',
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", String)
 ], Model.prototype, "id", void 0);

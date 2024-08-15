@@ -13,7 +13,8 @@ import { CourseMaterialModel } from '../../Courses/Data/Relations/CourseMaterial
 import { CourseModel } from '../../Courses/Data/CourseModel.js';
 import { PollAnswerModel } from '../../Polls/Data/Relations/PollAnswerModel.js';
 import { BlogPostModel } from '../../Blog/Data/BlogPostModel.js';
-import { UserModel } from '../../Users/Data/UserModel.js';
+import { UserAvatarModel } from '../../Users/Data/Relations/UserAvatarModel.js';
+import { config } from '../../config.js';
 let MediaModel = class MediaModel extends Model {
     constructor(data) {
         super();
@@ -29,13 +30,15 @@ let MediaModel = class MediaModel extends Model {
     course;
     pollAnswer;
     blogPost;
-    user;
+    avatar;
 };
 __decorate([
     Column({
         name: 'src',
         type: 'varchar',
         length: 1024,
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", String)
 ], MediaModel.prototype, "src", void 0);
@@ -44,6 +47,8 @@ __decorate([
         name: 'name',
         type: 'varchar',
         length: 255,
+        charset: config.database.charsets.withEmoji,
+        collation: config.database.collations.withEmoji,
     }),
     __metadata("design:type", String)
 ], MediaModel.prototype, "name", void 0);
@@ -86,11 +91,17 @@ __decorate([
     __metadata("design:type", Object)
 ], MediaModel.prototype, "blogPost", void 0);
 __decorate([
-    OneToOne(() => UserModel, (user) => user.avatar),
-    __metadata("design:type", UserModel)
-], MediaModel.prototype, "user", void 0);
+    OneToOne(() => UserAvatarModel, (avatar) => avatar.media, {
+        onDelete: 'SET NULL',
+    }),
+    __metadata("design:type", UserAvatarModel)
+], MediaModel.prototype, "avatar", void 0);
 MediaModel = __decorate([
-    Entity('media'),
+    Entity('media', {
+        orderBy: {
+            order: 'ASC',
+        },
+    }),
     __metadata("design:paramtypes", [Object])
 ], MediaModel);
 export { MediaModel };

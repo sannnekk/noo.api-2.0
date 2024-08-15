@@ -1,6 +1,6 @@
 {
   "name": "noo.api",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "",
   "main": "src/main.ts",
   "type": "module",
@@ -8,8 +8,9 @@
     "dev": "nodemon",
     "start": "node -r dotenv/config -r tsconfig-paths/register dist/main.js",
     "test": "mocha -r dotenv/config test/*.spec.ts",
-    "build": "eslint --fix src && tsc --project tsconfig.json && cd dist && tsc-alias -p ../tsconfig.json",
-    "lint": "prettier --write src/**/*.ts && eslint --fix src"
+    "build": "eslint --fix src && npm run check-version && tsc --project tsconfig.json && cd dist && tsc-alias -p ../tsconfig.json",
+    "lint": "prettier --write src/**/*.ts && eslint --fix src",
+    "check-version": "node ./scripts/check-version.js"
   },
   "repository": {
     "type": "git",

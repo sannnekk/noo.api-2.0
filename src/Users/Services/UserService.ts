@@ -20,6 +20,9 @@ import { FindOptionsWhere } from 'typeorm'
 import TypeORM from 'typeorm'
 import { MentorAssignmentModel } from '../Data/Relations/MentorAssignmentModel'
 import { SubjectRepository } from '@modules/Subjects/Data/SubjectRepository'
+import { PasswordUpdateDTO } from '../DTO/PasswordUpdateDTO'
+import { CantChangeRoleError } from '../Errors/CantChangeRoleError'
+import { UnauthorizedError } from '@modules/Core/Errors/UnauthorizedError'
 
 export class UserService {
   private readonly userRepository: UserRepository
@@ -45,8 +48,14 @@ export class UserService {
     mentorId: User['id'],
     subjectId: Subject['id']
   ) {
-    const student = await this.userRepository.findOne({ id: studentId })
-    const mentor = await this.userRepository.findOne({ id: mentorId })
+    const student = await this.userRepository.findOne({
+      id: studentId,
+      role: 'student',
+    })
+    const mentor = await this.userRepository.findOne({
+      id: mentorId,
+      role: 'mentor',
+    })
     const subject = await this.subjectRepository.findOne({ id: subjectId })
 
     if (!student || !mentor) {
@@ -63,10 +72,13 @@ export class UserService {
       )
     }
 
-    let mentorAssignment = await this.mentorAssignmentRepository.findOne({
-      student: { id: studentId },
-      subject: { id: subjectId },
-    })
+    let mentorAssignment = await this.mentorAssignmentRepository.findOne(
+      {
+        student: { id: studentId },
+        subject: { id: subjectId },
+      },
+      ['student', 'mentor', 'subject']
+    )
 
     if (!mentorAssignment) {
       mentorAssignment = new MentorAssignmentModel({
@@ -79,7 +91,7 @@ export class UserService {
     } else {
       mentorAssignment.mentor = mentor
 
-      await this.mentorAssignmentRepository.update(mentorAssignment)
+      await this.mentorAssignmentRepository.updateRaw(mentorAssignment)
     }
   }
 
@@ -171,37 +183,55 @@ export class UserService {
     return mentorAssignmentsAsStudent.mentor
   }
 
-  public async update(
-    id: User['id'],
-    data: UpdateUserDTO,
-    updaterRole: User['role']
-  ): Promise<void> {
+  public async update(id: User['id'], data: UpdateUserDTO): Promise<void> {
     const existingUser = await this.userRepository.findOne({ id })
 
     if (!existingUser) {
       throw new NotFoundError()
     }
 
-    if (data.password) {
-      data.password = await Hash.hash(data.password)
-    }
-
     const user = new UserModel({
       ...existingUser,
       ...data,
-      role: existingUser.role,
     })
 
-    if (
-      data.role &&
-      data.role !== existingUser.role &&
-      existingUser.role === 'student' &&
-      ['teacher', 'admin'].includes(updaterRole)
-    ) {
-      user.role = data.role
+    await this.userRepository.update(user)
+  }
+
+  public async changePassword(
+    id: User['id'],
+    passwordDTO: PasswordUpdateDTO
+  ): Promise<void> {
+    const user = await this.userRepository.findOne({ id })
+
+    if (!user) {
+      throw new NotFoundError('Пользователь не найден.')
     }
 
+    if (!(await Hash.compare(passwordDTO.oldPassword, user.password!))) {
+      throw new UnauthorizedError('Неверный пароль.')
+    }
+
+    user.password = await Hash.hash(passwordDTO.newPassword)
+
     await this.userRepository.update(user)
+  }
+
+  public async changeRole(id: User['id'], role: User['role']): Promise<void> {
+    const user = await this.userRepository.findOne({ id })
+
+    if (!user) {
+      throw new NotFoundError('Пользователь не найден.')
+    }
+
+    if (user.role !== 'student') {
+      throw new CantChangeRoleError()
+    }
+
+    user.role = role
+
+    await this.userRepository.update(user)
+    await this.sessionService.deleteSessionsForUser(user.id)
   }
 
   public async updateTelegram(
@@ -261,6 +291,18 @@ export class UserService {
     await this.userRepository.update(user)
   }
 
+  public async verifyManual(id: User['id']): Promise<void> {
+    const user = await this.userRepository.findOne({ id })
+
+    if (!user) {
+      throw new NotFoundError()
+    }
+
+    user.verificationToken = null as any
+
+    await this.userRepository.update(user)
+  }
+
   public async confirmEmailUpdate(username: string, token: string) {
     const user = await this.userRepository.findOne({ username })
 
@@ -284,13 +326,18 @@ export class UserService {
     await this.userRepository.update(user)
   }
 
-  public async delete(id: string): Promise<void> {
+  public async delete(id: string, password: string): Promise<void> {
     const user = await this.userRepository.findOne({ id })
 
     if (!user) {
       throw new NotFoundError()
     }
 
+    if (!(await Hash.compare(password, user.password!))) {
+      throw new UnauthorizedError('Неверный пароль.')
+    }
+
+    // remove everything except works
     user.name = 'Deleted User'
     user.username = user.slug = `deleted-${Math.random()
       .toString(36)

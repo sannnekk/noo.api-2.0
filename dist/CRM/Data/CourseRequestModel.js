@@ -9,6 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 import { Model } from '../../Core/Data/Model.js';
 import { Column, Entity } from 'typeorm';
+import { config } from '../../config.js';
 let CourseRequestModel = class CourseRequestModel extends Model {
     constructor(data) {
         super();
@@ -23,6 +24,8 @@ __decorate([
     Column({
         name: 'course_id',
         type: 'varchar',
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", String)
 ], CourseRequestModel.prototype, "courseId", void 0);
@@ -30,6 +33,8 @@ __decorate([
     Column({
         name: 'email',
         type: 'varchar',
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", String)
 ], CourseRequestModel.prototype, "email", void 0);

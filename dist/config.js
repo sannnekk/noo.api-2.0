@@ -1,6 +1,6 @@
 import Dates from './Core/Utils/date.js';
 export const config = {
-    version: '2.1.0',
+    version: '3.0.0',
     changelogPath: 'changelog.json',
     expressJson: {
         limit: process.env.MAX_REQUEST_SIZE,
@@ -12,4 +12,15 @@ export const config = {
         },
     },
     expressUrlencoded: { extended: true, limit: process.env.MAX_REQUEST_SIZE },
+    database: {
+        debug: process.env.DB_DEBUG === 'true',
+        charsets: {
+            withEmoji: 'utf8mb4',
+            default: 'utf8',
+        },
+        collations: {
+            withEmoji: 'utf8mb4_bin',
+            default: 'utf8_general_ci',
+        },
+    },
 };

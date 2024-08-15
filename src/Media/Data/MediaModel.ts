@@ -8,8 +8,13 @@ import { BlogPost } from '@modules/Blog/Data/BlogPost'
 import { PollAnswer } from '@modules/Polls/Data/Relations/PollAnswer'
 import { BlogPostModel } from '@modules/Blog/Data/BlogPostModel'
 import { UserAvatarModel } from '@modules/Users/Data/Relations/UserAvatarModel'
+import { config } from '@modules/config'
 
-@Entity('media')
+@Entity('media', {
+  orderBy: {
+    order: 'ASC',
+  },
+})
 export class MediaModel extends Model implements Media {
   constructor(data?: Partial<Media>) {
     super()
@@ -23,6 +28,8 @@ export class MediaModel extends Model implements Media {
     name: 'src',
     type: 'varchar',
     length: 1024,
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
   src!: string
 
@@ -30,6 +37,8 @@ export class MediaModel extends Model implements Media {
     name: 'name',
     type: 'varchar',
     length: 255,
+    charset: config.database.charsets.withEmoji,
+    collation: config.database.collations.withEmoji,
   })
   name?: string
 

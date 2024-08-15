@@ -203,10 +203,13 @@ export class AssignedWorkController {
   public async archive(context: Context): Promise<ApiResponse> {
     try {
       await Asserts.isAuthenticated(context)
-      Asserts.mentor(context)
+      Asserts.mentorOrStudent(context)
       const workId = this.assignedWorkValidator.parseId(context.params.id)
 
-      await this.assignedWorkService.archiveWork(workId)
+      await this.assignedWorkService.archiveWork(
+        workId,
+        context.credentials.role
+      )
 
       return new ApiResponse()
     } catch (error: any) {
@@ -218,10 +221,13 @@ export class AssignedWorkController {
   public async unarchive(context: Context): Promise<ApiResponse> {
     try {
       await Asserts.isAuthenticated(context)
-      Asserts.mentor(context)
+      Asserts.mentorOrStudent(context)
       const workId = this.assignedWorkValidator.parseId(context.params.id)
 
-      await this.assignedWorkService.unarchiveWork(workId)
+      await this.assignedWorkService.unarchiveWork(
+        workId,
+        context.credentials.role
+      )
 
       return new ApiResponse()
     } catch (error: any) {

@@ -3,8 +3,13 @@ import { type Session } from './Session'
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm'
 import { User } from '@modules/Users/Data/User'
 import { UserModel } from '@modules/Users/Data/UserModel'
+import { config } from '@modules/config'
 
-@Entity('session')
+@Entity('session', {
+  orderBy: {
+    lastRequestAt: 'DESC',
+  },
+})
 export class SessionModel extends Model implements Session {
   public constructor(data?: Partial<Session>) {
     super()
@@ -17,6 +22,8 @@ export class SessionModel extends Model implements Session {
   @Column({
     name: 'user_agent',
     type: 'varchar',
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
   userAgent!: string
 
@@ -30,6 +37,8 @@ export class SessionModel extends Model implements Session {
     name: 'browser',
     type: 'varchar',
     nullable: true,
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
   browser?: string | null | undefined
 
@@ -37,6 +46,8 @@ export class SessionModel extends Model implements Session {
     name: 'os',
     type: 'varchar',
     nullable: true,
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
   os?: string | null | undefined
 
@@ -44,12 +55,16 @@ export class SessionModel extends Model implements Session {
     name: 'device',
     type: 'varchar',
     nullable: true,
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
   device?: string | null | undefined
 
   @Column({
     name: 'ip_address',
     type: 'varchar',
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
   })
   ipAddress!: string
 

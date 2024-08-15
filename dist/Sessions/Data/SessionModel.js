@@ -10,6 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 import { Model } from '../../Core/Data/Model.js';
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 import { UserModel } from '../../Users/Data/UserModel.js';
+import { config } from '../../config.js';
 let SessionModel = class SessionModel extends Model {
     constructor(data) {
         super();
@@ -31,6 +32,8 @@ __decorate([
     Column({
         name: 'user_agent',
         type: 'varchar',
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", String)
 ], SessionModel.prototype, "userAgent", void 0);
@@ -46,6 +49,8 @@ __decorate([
         name: 'browser',
         type: 'varchar',
         nullable: true,
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", Object)
 ], SessionModel.prototype, "browser", void 0);
@@ -54,6 +59,8 @@ __decorate([
         name: 'os',
         type: 'varchar',
         nullable: true,
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", Object)
 ], SessionModel.prototype, "os", void 0);
@@ -62,6 +69,8 @@ __decorate([
         name: 'device',
         type: 'varchar',
         nullable: true,
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", Object)
 ], SessionModel.prototype, "device", void 0);
@@ -69,6 +78,8 @@ __decorate([
     Column({
         name: 'ip_address',
         type: 'varchar',
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
     }),
     __metadata("design:type", String)
 ], SessionModel.prototype, "ipAddress", void 0);
@@ -89,7 +100,11 @@ __decorate([
     __metadata("design:type", String)
 ], SessionModel.prototype, "userId", void 0);
 SessionModel = __decorate([
-    Entity('session'),
+    Entity('session', {
+        orderBy: {
+            lastRequestAt: 'DESC',
+        },
+    }),
     __metadata("design:paramtypes", [Object])
 ], SessionModel);
 export { SessionModel };

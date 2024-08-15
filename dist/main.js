@@ -6,6 +6,7 @@ import { injectControllers, setContextClass, } from 'express-controller-decorato
 import { Context } from './Core/Request/Context.js';
 import { config } from './config.js';
 // import modules
+import './Auth/AuthController.js';
 import './Users/UserController.js';
 import './Courses/CourseController.js';
 import './Works/WorkController.js';
@@ -17,7 +18,12 @@ import './Blog/BlogController.js';
 import './Polls/PollController.js';
 import './CRM/CRMController.js';
 import './Sessions/SessionsController.js';
-import './GoogleDocs/GoogleDocsController.js';
+import './GoogleSheets/GoogleSheetsController.js';
+import './Platform/PlatformController.js';
+import './Subjects/SubjectController.js';
+import './Snippets/SnippetsController.js';
+import './FAQ/FAQController.js';
+//import '@modules/Notifications/NotificationController'
 await CoreDataSource.initialize();
 const app = express();
 app.set('trust proxy', true);

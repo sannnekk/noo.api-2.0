@@ -1,5 +1,3 @@
-import { merge } from 'ts-deepmerge';
-import TypeORM from 'typeorm';
 import Dates from '../Utils/date.js';
 export class Pagination {
     page;
@@ -7,7 +5,6 @@ export class Pagination {
     sort;
     order;
     search;
-    entries = [];
     filters = {};
     relations = [];
     constructor(page, limit, sort, order, search, filters, relations) {
@@ -32,45 +29,19 @@ export class Pagination {
     set take(value) {
         this.limit = value;
     }
-    get orderOptions() {
+    getOrderOptions(entityName) {
         return {
-            [this.sort]: this.order,
+            [`${entityName}.${this.sort}`]: this.order,
         };
-    }
-    set entriesToSearch(entries) {
-        this.entries = entries;
-    }
-    get entriesToSearch() {
-        return this.entries;
     }
     get relationsToLoad() {
         return this.relations;
     }
-    getCondition(conditions) {
-        let allConditions = [{ ...this.filters }];
-        if (Array.isArray(conditions)) {
-            allConditions = conditions.map((condition) => merge(this.filters, condition));
-        }
-        else {
-            allConditions = [merge(conditions || {}, this.filters)];
-        }
-        if (!this.search.length || !this.entries.length) {
-            if (allConditions.length === 1) {
-                return allConditions[0];
-            }
-            return allConditions;
-        }
-        const result = this.entries.flatMap((entry) => {
-            const merges = [];
-            for (const condition of allConditions) {
-                merges.push(merge(this.getSearchCondition(entry, this.search), condition));
-            }
-            return merges;
-        });
-        if (result.length === 1 && Object.keys(result[0]).length === 0) {
-            return undefined;
-        }
-        return result;
+    get searchQuery() {
+        return this.search;
+    }
+    set searchQuery(value) {
+        this.search = value;
     }
     getFilter(name) {
         return this.filters[name];
@@ -81,59 +52,28 @@ export class Pagination {
     setFilter(name, value) {
         this.filters[name] = value;
     }
-    getSearchCondition(entry, search) {
-        if (entry.includes('.')) {
-            const [relation] = entry.split('.');
-            const rest = entry.slice(relation.length + 1);
-            return {
-                [relation]: {
-                    ...this.getSearchCondition(rest, search),
-                },
-            };
-        }
-        return { [entry]: TypeORM.ILike(`%${this.search}%`) };
-    }
     parseFilterValues(filters) {
         const parsedFilters = {};
         let value;
         for (const key in filters) {
             value = filters[key];
             if (value === 'null') {
-                parsedFilters[key] = null;
+                parsedFilters[key] = () => `${key} IS NULL`;
                 continue;
             }
             if (/^range\([0-9.|:\-\_a-zA-Z]+\)$/.test(value)) {
-                const [min, max] = value
-                    .slice(6, -1)
-                    .split('|')
-                    .map((v) => this.typeConvert(v));
-                parsedFilters[key] = TypeORM.Between(min, max);
+                this.addRangeFilter(key, value, parsedFilters);
                 continue;
             }
             if (/^arr\([0-9.|:\-\_a-zA-Z]+\)$/.test(value)) {
-                parsedFilters[key] = TypeORM.In(value
-                    .slice(4, -1)
-                    .split('|')
-                    .map((v) => this.typeConvert(v)));
-                if (parsedFilters[key].length === 0) {
-                    parsedFilters[key] = undefined;
-                }
+                this.addArrayFilter(key, value, parsedFilters);
                 continue;
             }
             if (/^tags\([0-9.|:\-\_a-zA-Z]+\)$/.test(value)) {
-                parsedFilters[key] = value
-                    .slice(5, -1)
-                    .split('|')
-                    .map((v) => TypeORM.ILike(`%${this.typeConvert(v)},%`));
-                if (parsedFilters[key].length === 0) {
-                    parsedFilters[key] = undefined;
-                }
-                if (parsedFilters[key].length === 1) {
-                    parsedFilters[key] = parsedFilters[key][0];
-                }
+                this.addTagFilter(key, value, parsedFilters);
                 continue;
             }
-            parsedFilters[key] = this.typeConvert(value);
+            this.addSimpleFilter(key, value, parsedFilters);
         }
         return parsedFilters;
     }
@@ -157,5 +97,63 @@ export class Pagination {
             return Dates.fromISOString(value);
         }
         return value;
+    }
+    addRangeFilter(key, value, parsedFilters) {
+        const [min, max] = value.slice(6, -1).split('|').map(this.typeConvert);
+        parsedFilters[key] = (query, metadata) => {
+            key = this.getDbNameAndAddJoins(query, key, metadata);
+            if (min !== null) {
+                query.andWhere(`${key} >= :min`, { min });
+            }
+            if (max !== null) {
+                query.andWhere(`${key} <= :max`, { max });
+            }
+        };
+    }
+    addArrayFilter(key, value, parsedFilters) {
+        const values = value.slice(4, -1).split('|').map(this.typeConvert);
+        if (values.length !== 0) {
+            parsedFilters[key] = (query, metadata) => {
+                key = this.getDbNameAndAddJoins(query, key, metadata);
+                query.andWhere(`${key} IN (:...values)`, { values });
+            };
+        }
+    }
+    addTagFilter(key, value, parsedFilters) {
+        const tags = value.slice(5, -1).split('|').map(this.typeConvert);
+        if (parsedFilters[key].length === 0) {
+            parsedFilters[key] = () => void 0;
+        }
+        else {
+            parsedFilters[key] = (query, metadata) => {
+                key = this.getDbNameAndAddJoins(query, key, metadata);
+                for (const tag of tags) {
+                    query.andWhere(`${key} LIKE :tag`, {
+                        tag: `%${tag}%`,
+                    });
+                }
+            };
+        }
+    }
+    addSimpleFilter(key, value, parsedFilters) {
+        const convertedValue = this.typeConvert(value);
+        parsedFilters[key] = (query, metadata) => {
+            key = this.getDbNameAndAddJoins(query, key, metadata);
+            query.andWhere(`${key} = :${key}`, { [key]: convertedValue });
+        };
+    }
+    getDbNameAndAddJoins(query, key, metadata) {
+        const entityName = metadata.tableName;
+        const [relationProp, column] = key.split('.');
+        if (!column) {
+            return `${entityName}.${key}`;
+        }
+        const relation = metadata.relations.find((r) => r.propertyName === relationProp);
+        if (!relation) {
+            return `${entityName}.${key}`;
+        }
+        const fullAlias = `${relationProp}__${relation.propertyName}`;
+        query.leftJoinAndSelect(`${entityName}.${relationProp}`, fullAlias);
+        return `${fullAlias}.${column}`;
     }
 }
