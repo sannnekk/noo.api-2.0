@@ -228,12 +228,29 @@ export class UserController {
   @Patch('/:studentId/:subjectId/mentor/:mentorId')
   async assignMentor(context: Context): Promise<ApiResponse> {
     try {
+      await Asserts.isAuthenticated(context)
       Asserts.notStudent(context)
       const studentId = this.userValidator.parseId(context.params.studentId)
       const mentorId = this.userValidator.parseId(context.params.mentorId)
       const subjectId = this.userValidator.parseId(context.params.subjectId)
 
       await this.userService.assignMentor(studentId, mentorId, subjectId)
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
+
+  @Delete('/:studentId/:subjectId/mentor')
+  async unassignMentor(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.notStudent(context)
+      const studentId = this.userValidator.parseId(context.params.studentId)
+      const subjectId = this.userValidator.parseId(context.params.subjectId)
+
+      await this.userService.unassignMentor(studentId, subjectId)
 
       return new ApiResponse()
     } catch (error: any) {

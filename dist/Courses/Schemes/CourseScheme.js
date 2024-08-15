@@ -18,6 +18,9 @@ export const CourseScheme = z.object({
         .optional(),
     images: z.array(MediaScheme),
     chapters: z.array(ChapterScheme),
+    author: z.object({
+        id: z.string().ulid(),
+    }),
     subject: z.object({
         id: z.string().ulid(),
     }, { message: 'Предмет не указан' }),

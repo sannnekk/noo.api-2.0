@@ -179,11 +179,25 @@ let UserController = class UserController {
     }
     async assignMentor(context) {
         try {
+            await Asserts.isAuthenticated(context);
             Asserts.notStudent(context);
             const studentId = this.userValidator.parseId(context.params.studentId);
             const mentorId = this.userValidator.parseId(context.params.mentorId);
             const subjectId = this.userValidator.parseId(context.params.subjectId);
             await this.userService.assignMentor(studentId, mentorId, subjectId);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
+    async unassignMentor(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.notStudent(context);
+            const studentId = this.userValidator.parseId(context.params.studentId);
+            const subjectId = this.userValidator.parseId(context.params.subjectId);
+            await this.userService.unassignMentor(studentId, subjectId);
             return new ApiResponse();
         }
         catch (error) {
@@ -284,6 +298,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "assignMentor", null);
+__decorate([
+    Delete('/:studentId/:subjectId/mentor'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "unassignMentor", null);
 __decorate([
     Delete('/:id/:password'),
     __metadata("design:type", Function),

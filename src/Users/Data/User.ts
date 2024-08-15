@@ -1,6 +1,5 @@
 import { UserRoleType } from '@modules/Core/Security/roles'
 import { BaseModel } from '@modules/Core/Data/Model'
-import * as ULID from '@modules/Core/Data/Ulid'
 import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
 import { Course } from '@modules/Courses/Data/Course'
 import { Poll } from '@modules/Polls/Data/Poll'
@@ -25,7 +24,6 @@ export interface User extends BaseModel {
   isBlocked: boolean
   forbidden?: number
   courses?: Course[]
-  courseIds: ULID.Ulid[]
   verificationToken: string | null
   coursesAsStudent?: Course[]
   assignedWorksAsStudent?: AssignedWork[] | undefined

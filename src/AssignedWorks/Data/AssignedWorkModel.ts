@@ -245,15 +245,18 @@ export class AssignedWorkModel extends SearchableModel implements AssignedWork {
   ): string[] {
     query.andWhere(
       new Brackets((qb) => {
-        qb.where('assigned_work__student.name LIKE :needle', {
+        qb.where('LOWER(assigned_work__student.name) LIKE LOWER(:needle)', {
           needle: `%${needle}%`,
         })
-        qb.orWhere('assigned_work__work.name LIKE :needle', {
+        qb.orWhere('LOWER(assigned_work__work.name) LIKE LOWER(:needle)', {
           needle: `%${needle}%`,
         })
-        qb.orWhere('assigned_work__mentors.name LIKE :needle', {
-          needle: `%${needle}%`,
-        })
+        /* qb.orWhere(
+          'LOWER(assigned_work__assigned_work_mentors.name) LIKE LOWER(:needle)',
+          {
+            needle: `%${needle}%`,
+          }
+        ) */
       })
     )
 

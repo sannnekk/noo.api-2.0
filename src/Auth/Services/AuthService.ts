@@ -88,7 +88,7 @@ export class AuthService {
     })
 
     if (!user) {
-      throw new NotFoundError()
+      throw new NotFoundError('Пользователь не найден.')
     }
 
     if (user.verificationToken !== token) {
@@ -181,7 +181,7 @@ export class AuthService {
     const user = await this.userRepository.findOne({ email })
 
     if (!user) {
-      throw new NotFoundError()
+      throw new NotFoundError('Пользователь с таким email не найден.')
     }
 
     if (user.isBlocked) {

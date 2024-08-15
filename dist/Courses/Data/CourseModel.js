@@ -48,8 +48,12 @@ let CourseModel = class CourseModel extends SearchableModel {
     subjectId;
     addSearchToQuery(query, needle) {
         query.andWhere(new Brackets((qb) => {
-            qb.where(`course.name LIKE :needle`, { needle: `%${needle}%` });
-            qb.orWhere(`course.description LIKE :needle`, { needle: `%${needle}%` });
+            qb.where(`LOWER(course.name) LIKE LOWER(:needle)`, {
+                needle: `%${needle}%`,
+            });
+            qb.orWhere(`LOWER(course.description) LIKE LOWER(:needle)`, {
+                needle: `%${needle}%`,
+            });
         }));
         return [];
     }

@@ -29,7 +29,7 @@ let GoogleSheetsBindingModel = class GoogleSheetsBindingModel extends Searchable
     lastErrorText;
     frequency;
     addSearchToQuery(query, needle) {
-        query.andWhere('google_docs_binding.name LIKE :needle', {
+        query.andWhere('LOWER(google_docs_binding.name) LIKE LOWER(:needle)', {
             needle: `%${needle}%`,
         });
         return [];

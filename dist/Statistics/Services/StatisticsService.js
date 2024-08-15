@@ -237,7 +237,7 @@ export class StatisticsService {
                 },
                 {
                     name: 'Проверено в дедлайн (%)',
-                    value: checkedInDeadlinePercent,
+                    value: checkedInDeadlinePercent || 0,
                 },
                 {
                     name: 'Проверено после дедлайна',
@@ -245,7 +245,7 @@ export class StatisticsService {
                 },
                 {
                     name: 'Проверено после дедлайна (%)',
-                    value: checkedAfterDeadlinePercent,
+                    value: checkedAfterDeadlinePercent || 0,
                 },
                 {
                     name: 'Сдвиги дедлайнов',
@@ -328,7 +328,7 @@ export class StatisticsService {
                 },
                 {
                     name: 'Выполнено в дедлайн (%)',
-                    value: completedInDeadlinePercent,
+                    value: completedInDeadlinePercent || 0,
                 },
                 {
                     name: 'Выполнено после дедлайна',
@@ -336,7 +336,7 @@ export class StatisticsService {
                 },
                 {
                     name: 'Выполнено после дедлайна (%)',
-                    value: completedAfterDeadlinePercent,
+                    value: completedAfterDeadlinePercent || 0,
                 },
                 {
                     name: 'Сдвиги дедлайнов',

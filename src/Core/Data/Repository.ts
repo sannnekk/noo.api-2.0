@@ -410,11 +410,18 @@ export abstract class Repository<T extends BaseModel> {
     for (const relation of relations) {
       const relationData = this.buildRelationPath(relation as string)
 
-      if (!relationData) {
-        continue
-      }
+      for (const data of relationData) {
+        // check if the relation is already added
+        if (
+          query.expressionMap.joinAttributes.some(
+            (attr) => attr.alias.name === data.alias
+          )
+        ) {
+          continue
+        }
 
-      query.leftJoinAndSelect(relationData.propPath, relationData.alias)
+        query.leftJoinAndSelect(data.propPath, data.alias)
+      }
     }
   }
 
@@ -494,18 +501,46 @@ export abstract class Repository<T extends BaseModel> {
    */
   private buildRelationPath(
     relation: string
-  ): undefined | { propPath: string; alias: string } {
-    const relationMeta = this.metadata.relations.find(
-      (rel) => rel.propertyName === relation
-    )
-
-    if (!relationMeta) {
-      return undefined
+  ): { propPath: string; alias: string }[] {
+    if (relation.includes('.')) {
+      return this.buildComplexRelationPath(relation)
     }
 
-    return {
-      propPath: `${this.entityName}.${relation}`,
-      alias: `${this.entityName}__${relation}`,
+    return [
+      {
+        propPath: `${this.entityName}.${relation}`,
+        alias: `${this.entityName}__${relation}`,
+      },
+    ]
+  }
+
+  private buildComplexRelationPath(
+    relation: string
+  ): { propPath: string; alias: string }[] {
+    const relatedEntities = relation.split('.')
+
+    const joins: { propPath: string; alias: string }[] = []
+
+    for (const entity of relatedEntities) {
+      const prevJoin = joins.at(-1)
+
+      if (!prevJoin) {
+        const [join] = this.buildRelationPath(entity)
+
+        if (!join) {
+          return []
+        }
+
+        joins.push(join)
+        continue
+      }
+
+      joins.push({
+        propPath: `${prevJoin.alias}.${entity}`,
+        alias: `${prevJoin.alias}__${entity}`,
+      })
     }
+
+    return joins
   }
 }

@@ -44,8 +44,9 @@ let WorkModel = class WorkModel extends SearchableModel {
     subjectId;
     addSearchToQuery(query, needle) {
         query.andWhere(new Brackets((qb) => {
-            qb.where('work.name LIKE :needle', { needle: `%${needle}%` });
-            qb.orWhere('work.description LIKE :needle', { needle: `%${needle}%` });
+            qb.where('LOWER(work.name) LIKE LOWER(:needle)', {
+                needle: `%${needle}%`,
+            });
         }));
         return [];
     }

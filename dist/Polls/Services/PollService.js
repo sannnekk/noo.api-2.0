@@ -12,6 +12,7 @@ import { PollAuthService } from './PollAuthService.js';
 import { z } from 'zod';
 import * as TypeORM from 'typeorm';
 import { PollQuestionRepository } from '../Data/PollQuestionRepository.js';
+import { UnknownError } from '../../Core/Errors/UnknownError.js';
 export class PollService {
     pollRepository;
     pollAnswerRepository;
@@ -193,7 +194,7 @@ export class PollService {
             this.pollAnswerRepository.createMany(answerModels);
         }
         catch (error) {
-            throw new Error('Не удалось сохранить ответы.');
+            throw new UnknownError('Не удалось сохранить ответы');
         }
     }
     async editAnswer(id, data) {

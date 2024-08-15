@@ -7,13 +7,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model } from '../../Core/Data/Model.js';
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Brackets, Column, Entity, OneToMany, } from 'typeorm';
 import { CourseModel } from '../../Courses/Data/CourseModel.js';
 import { WorkModel } from '../../Works/Data/WorkModel.js';
 import { MentorAssignmentModel } from '../../Users/Data/Relations/MentorAssignmentModel.js';
 import { config } from '../../config.js';
-let SubjectModel = class SubjectModel extends Model {
+import { SearchableModel } from '../../Core/Data/SearchableModel.js';
+let SubjectModel = class SubjectModel extends SearchableModel {
     constructor(data) {
         super();
         if (data) {
@@ -25,6 +25,14 @@ let SubjectModel = class SubjectModel extends Model {
     courses;
     works;
     mentorAssignments;
+    addSearchToQuery(query, needle) {
+        query.andWhere(new Brackets((qb) => {
+            qb.where('LOWER(subject.name) LIKE LOWER(:needle)', {
+                needle: `%${needle}%`,
+            });
+        }));
+        return [];
+    }
 };
 __decorate([
     Column({

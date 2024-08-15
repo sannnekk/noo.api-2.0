@@ -103,9 +103,13 @@ export class BlogPostModel extends SearchableModel implements BlogPost {
   ): string[] {
     query.andWhere(
       new Brackets((qb) => {
-        qb.orWhere('blog_post.title LIKE :needle', { needle: `%${needle}%` })
+        qb.orWhere('LOWER(blog_post.title) LIKE LOWER(:needle)', {
+          needle: `%${needle}%`,
+        })
         qb.orWhere('blog_post.content LIKE :needle', { needle: `%${needle}%` })
-        qb.orWhere('blog_post.tags LIKE :needle', { needle: `%${needle}%` })
+        qb.orWhere('LOWER(blog_post.tags) LIKE LOWER(:needle)', {
+          needle: `%${needle}%`,
+        })
       })
     )
 

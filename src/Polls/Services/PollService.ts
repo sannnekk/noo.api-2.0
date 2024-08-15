@@ -16,6 +16,7 @@ import { z } from 'zod'
 import * as TypeORM from 'typeorm'
 import { PollQuestion } from '../Data/Relations/PollQuestion'
 import { PollQuestionRepository } from '../Data/PollQuestionRepository'
+import { UnknownError } from '@modules/Core/Errors/UnknownError'
 
 export class PollService {
   private readonly pollRepository: PollRepository
@@ -273,7 +274,7 @@ export class PollService {
     try {
       this.pollAnswerRepository.createMany(answerModels)
     } catch (error) {
-      throw new Error('Не удалось сохранить ответы.')
+      throw new UnknownError('Не удалось сохранить ответы')
     }
   }
 

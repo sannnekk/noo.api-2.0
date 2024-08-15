@@ -3,6 +3,8 @@ import { User } from '../Data/User'
 export interface UpdateUserDTO {
   id: User['id']
   name?: User['name']
-  email?: User['email']
+  avatar?: User['avatar']
+  password?: User['password']
   isBlocked?: User['isBlocked']
+  forbidden?: User['forbidden']
 }

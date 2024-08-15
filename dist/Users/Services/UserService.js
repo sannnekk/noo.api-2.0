@@ -13,18 +13,21 @@ import { MentorAssignmentModel } from '../Data/Relations/MentorAssignmentModel.j
 import { SubjectRepository } from '../../Subjects/Data/SubjectRepository.js';
 import { CantChangeRoleError } from '../Errors/CantChangeRoleError.js';
 import { UnauthorizedError } from '../../Core/Errors/UnauthorizedError.js';
+import { TransferAssignedWorkService } from '../../AssignedWorks/Services/TransferAssignedWorkService.js';
 export class UserService {
     userRepository;
     emailService;
     sessionService;
     mentorAssignmentRepository;
     subjectRepository;
+    transferAssignedWorkService;
     constructor() {
         this.userRepository = new UserRepository();
         this.emailService = new EmailService();
         this.sessionService = new SessionService();
         this.mentorAssignmentRepository = new MentorAssignmentRepository();
         this.subjectRepository = new SubjectRepository();
+        this.transferAssignedWorkService = new TransferAssignedWorkService();
     }
     async assignMentor(studentId, mentorId, subjectId) {
         const student = await this.userRepository.findOne({
@@ -61,6 +64,20 @@ export class UserService {
             mentorAssignment.mentor = mentor;
             await this.mentorAssignmentRepository.updateRaw(mentorAssignment);
         }
+        /* await this.transferAssignedWorkService.transferNotFinishedWorks(
+          student,
+          mentor
+        ) */
+    }
+    async unassignMentor(studentId, subjectId) {
+        const mentorAssignment = await this.mentorAssignmentRepository.findOne({
+            student: { id: studentId },
+            subject: { id: subjectId },
+        });
+        if (!mentorAssignment) {
+            throw new NotFoundError('Куратор не найден.');
+        }
+        await this.mentorAssignmentRepository.delete(mentorAssignment.id);
     }
     async getByUsername(username) {
         const user = await this.userRepository.findOne({ username }, [
@@ -83,7 +100,13 @@ export class UserService {
         return { ...user, ...onlineStatus };
     }
     async getUsers(pagination) {
-        return this.userRepository.search(undefined, pagination);
+        const relations = [];
+        if (pagination?.relationsToLoad.includes('mentorAssignmentsAsStudent')) {
+            relations.push('mentorAssignmentsAsStudent');
+            relations.push('mentorAssignmentsAsStudent.subject');
+            relations.push('mentorAssignmentsAsStudent.mentor');
+        }
+        return this.userRepository.search(undefined, pagination, relations);
     }
     async getStudentsOf(mentorId, pagination) {
         const { entities: mentorAssignations, meta } = await this.mentorAssignmentRepository.search({
@@ -122,6 +145,9 @@ export class UserService {
         const existingUser = await this.userRepository.findOne({ id });
         if (!existingUser) {
             throw new NotFoundError();
+        }
+        if (data.password) {
+            data.password = await Hash.hash(data.password);
         }
         const user = new UserModel({
             ...existingUser,

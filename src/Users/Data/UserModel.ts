@@ -7,7 +7,6 @@ import {
   ManyToMany,
   OneToMany,
   OneToOne,
-  RelationId,
   SelectQueryBuilder,
 } from 'typeorm'
 import type { UserRolesType } from '@modules/Core/Security/roles'
@@ -113,22 +112,8 @@ export class UserModel extends SearchableModel implements User {
   @OneToMany(() => MentorAssignmentModel, (assignment) => assignment.student)
   mentorAssignmentsAsStudent?: MentorAssignmentModel[]
 
-  /*
-  @OneToMany(() => UserModel, (user) => user.mentor)
-  students?: User[]
-
-  @RelationId((user: UserModel) => user.mentor)
-  mentorId?: string
-
-  @ManyToOne(() => UserModel, (user) => user.students)
-  mentor?: User 
-  */
-
   @OneToMany(() => CourseModel, (course) => course.author)
   courses?: Course[]
-
-  @RelationId((user: UserModel) => user.courses)
-  courseIds!: string[]
 
   @ManyToMany(() => CourseModel, (course) => course.students)
   @JoinTable()
@@ -226,10 +211,16 @@ export class UserModel extends SearchableModel implements User {
   ): string[] {
     query.andWhere(
       new Brackets((qb) => {
-        qb.where('user.username LIKE :needle', { needle: `%${needle}%` })
-        qb.orWhere('user.name LIKE :needle', { needle: `%${needle}%` })
-        qb.orWhere('user.email LIKE :needle', { needle: `%${needle}%` })
-        qb.orWhere('user.telegramUsername LIKE :needle', {
+        qb.where('LOWER(user.username) LIKE LOWER(:needle)', {
+          needle: `%${needle}%`,
+        })
+        qb.orWhere('LOWER(user.name) LIKE LOWER(:needle)', {
+          needle: `%${needle}%`,
+        })
+        qb.orWhere('LOWER(user.email) LIKE LOWER(:needle)', {
+          needle: `%${needle}%`,
+        })
+        qb.orWhere('LOWER(user.telegramUsername) LIKE LOWER(:needle)', {
           needle: `%${needle}%`,
         })
       })

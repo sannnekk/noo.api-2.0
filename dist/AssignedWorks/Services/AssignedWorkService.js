@@ -113,13 +113,15 @@ export class AssignedWorkService {
             throw new NotFoundError('Ученик не найден');
         }
         const mentor = await this.userService.getMentor(student, work.subject.id);
-        if (!mentor) {
+        if (!mentor && work.type !== 'test') {
             throw new NotFoundError('У ученика нет куратора по данному предмету');
         }
         const assignedWork = new AssignedWorkModel();
+        if (work.type !== 'test') {
+            assignedWork.mentors = [{ id: mentor.id }];
+        }
         assignedWork.work = { id: work.id };
         assignedWork.student = { id: student.id };
-        assignedWork.mentors = [{ id: mentor.id }];
         assignedWork.excludedTaskIds = taskIdsToExclude;
         assignedWork.maxScore = this.getMaxScore(work.tasks, taskIdsToExclude);
         assignedWork.solveStatus = 'not-started';
@@ -130,12 +132,12 @@ export class AssignedWorkService {
         const createdWork = await this.assignedWorkRepository.create(assignedWork);
         work.tasks = [];
         createdWork.student = student;
-        createdWork.mentors = [mentor];
+        createdWork.mentors = work.type === 'test' ? [] : [mentor];
         createdWork.work = work;
         if (assignedWork.solveDeadlineAt) {
             await this.calenderService.createSolveDeadlineEvent(createdWork);
         }
-        if (assignedWork.checkDeadlineAt) {
+        if (assignedWork.checkDeadlineAt && work.type !== 'test') {
             await this.calenderService.createCheckDeadlineEvent(createdWork);
         }
         return createdWork;

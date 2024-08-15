@@ -281,10 +281,13 @@ export class Repository {
     addRelations(query, relations = []) {
         for (const relation of relations) {
             const relationData = this.buildRelationPath(relation);
-            if (!relationData) {
-                continue;
+            for (const data of relationData) {
+                // check if the relation is already added
+                if (query.expressionMap.joinAttributes.some((attr) => attr.alias.name === data.alias)) {
+                    continue;
+                }
+                query.leftJoinAndSelect(data.propPath, data.alias);
             }
-            query.leftJoinAndSelect(relationData.propPath, relationData.alias);
         }
     }
     /**
@@ -346,13 +349,34 @@ export class Repository {
      * @returns relation path and alias
      */
     buildRelationPath(relation) {
-        const relationMeta = this.metadata.relations.find((rel) => rel.propertyName === relation);
-        if (!relationMeta) {
-            return undefined;
+        if (relation.includes('.')) {
+            return this.buildComplexRelationPath(relation);
         }
-        return {
-            propPath: `${this.entityName}.${relation}`,
-            alias: `${this.entityName}__${relation}`,
-        };
+        return [
+            {
+                propPath: `${this.entityName}.${relation}`,
+                alias: `${this.entityName}__${relation}`,
+            },
+        ];
+    }
+    buildComplexRelationPath(relation) {
+        const relatedEntities = relation.split('.');
+        const joins = [];
+        for (const entity of relatedEntities) {
+            const prevJoin = joins.at(-1);
+            if (!prevJoin) {
+                const [join] = this.buildRelationPath(entity);
+                if (!join) {
+                    return [];
+                }
+                joins.push(join);
+                continue;
+            }
+            joins.push({
+                propPath: `${prevJoin.alias}.${entity}`,
+                alias: `${prevJoin.alias}__${entity}`,
+            });
+        }
+        return joins;
     }
 }

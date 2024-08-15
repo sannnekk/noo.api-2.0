@@ -107,8 +107,9 @@ export class WorkModel extends SearchableModel implements Work {
   ): string[] {
     query.andWhere(
       new Brackets((qb) => {
-        qb.where('work.name LIKE :needle', { needle: `%${needle}%` })
-        qb.orWhere('work.description LIKE :needle', { needle: `%${needle}%` })
+        qb.where('LOWER(work.name) LIKE LOWER(:needle)', {
+          needle: `%${needle}%`,
+        })
       })
     )
 

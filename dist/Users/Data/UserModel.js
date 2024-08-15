@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Brackets, Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, OneToOne, RelationId, } from 'typeorm';
+import { Brackets, Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, OneToOne, } from 'typeorm';
 import { CourseModel } from '../../Courses/Data/CourseModel.js';
 import { AssignedWorkModel } from '../../AssignedWorks/Data/AssignedWorkModel.js';
 import { BlogPostModel } from '../../Blog/Data/BlogPostModel.js';
@@ -41,18 +41,7 @@ let UserModel = class UserModel extends SearchableModel {
     newEmail;
     mentorAssignmentsAsMentor;
     mentorAssignmentsAsStudent;
-    /*
-    @OneToMany(() => UserModel, (user) => user.mentor)
-    students?: User[]
-  
-    @RelationId((user: UserModel) => user.mentor)
-    mentorId?: string
-  
-    @ManyToOne(() => UserModel, (user) => user.students)
-    mentor?: User
-    */
     courses;
-    courseIds;
     coursesAsStudent;
     assignedWorksAsMentor;
     assignedWorksAsStudent;
@@ -71,10 +60,16 @@ let UserModel = class UserModel extends SearchableModel {
     verificationToken;
     addSearchToQuery(query, needle) {
         query.andWhere(new Brackets((qb) => {
-            qb.where('user.username LIKE :needle', { needle: `%${needle}%` });
-            qb.orWhere('user.name LIKE :needle', { needle: `%${needle}%` });
-            qb.orWhere('user.email LIKE :needle', { needle: `%${needle}%` });
-            qb.orWhere('user.telegramUsername LIKE :needle', {
+            qb.where('LOWER(user.username) LIKE LOWER(:needle)', {
+                needle: `%${needle}%`,
+            });
+            qb.orWhere('LOWER(user.name) LIKE LOWER(:needle)', {
+                needle: `%${needle}%`,
+            });
+            qb.orWhere('LOWER(user.email) LIKE LOWER(:needle)', {
+                needle: `%${needle}%`,
+            });
+            qb.orWhere('LOWER(user.telegramUsername) LIKE LOWER(:needle)', {
                 needle: `%${needle}%`,
             });
         }));
@@ -156,10 +151,6 @@ __decorate([
     OneToMany(() => CourseModel, (course) => course.author),
     __metadata("design:type", Array)
 ], UserModel.prototype, "courses", void 0);
-__decorate([
-    RelationId((user) => user.courses),
-    __metadata("design:type", Array)
-], UserModel.prototype, "courseIds", void 0);
 __decorate([
     ManyToMany(() => CourseModel, (course) => course.students),
     JoinTable(),

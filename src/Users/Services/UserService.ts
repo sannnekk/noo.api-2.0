@@ -23,6 +23,7 @@ import { SubjectRepository } from '@modules/Subjects/Data/SubjectRepository'
 import { PasswordUpdateDTO } from '../DTO/PasswordUpdateDTO'
 import { CantChangeRoleError } from '../Errors/CantChangeRoleError'
 import { UnauthorizedError } from '@modules/Core/Errors/UnauthorizedError'
+import { TransferAssignedWorkService } from '@modules/AssignedWorks/Services/TransferAssignedWorkService'
 
 export class UserService {
   private readonly userRepository: UserRepository
@@ -35,12 +36,15 @@ export class UserService {
 
   private readonly subjectRepository: SubjectRepository
 
+  private readonly transferAssignedWorkService: TransferAssignedWorkService
+
   constructor() {
     this.userRepository = new UserRepository()
     this.emailService = new EmailService()
     this.sessionService = new SessionService()
     this.mentorAssignmentRepository = new MentorAssignmentRepository()
     this.subjectRepository = new SubjectRepository()
+    this.transferAssignedWorkService = new TransferAssignedWorkService()
   }
 
   public async assignMentor(
@@ -93,6 +97,24 @@ export class UserService {
 
       await this.mentorAssignmentRepository.updateRaw(mentorAssignment)
     }
+
+    /* await this.transferAssignedWorkService.transferNotFinishedWorks(
+      student,
+      mentor
+    ) */
+  }
+
+  public async unassignMentor(studentId: User['id'], subjectId: Subject['id']) {
+    const mentorAssignment = await this.mentorAssignmentRepository.findOne({
+      student: { id: studentId },
+      subject: { id: subjectId },
+    })
+
+    if (!mentorAssignment) {
+      throw new NotFoundError('Куратор не найден.')
+    }
+
+    await this.mentorAssignmentRepository.delete(mentorAssignment.id)
   }
 
   public async getByUsername(username: string): Promise<User & OnlineStatus> {
@@ -125,7 +147,15 @@ export class UserService {
   }
 
   public async getUsers(pagination: Pagination | undefined) {
-    return this.userRepository.search(undefined, pagination)
+    const relations: (keyof User)[] = []
+
+    if (pagination?.relationsToLoad.includes('mentorAssignmentsAsStudent')) {
+      relations.push('mentorAssignmentsAsStudent')
+      relations.push('mentorAssignmentsAsStudent.subject' as keyof User)
+      relations.push('mentorAssignmentsAsStudent.mentor' as keyof User)
+    }
+
+    return this.userRepository.search(undefined, pagination, relations)
   }
 
   public async getStudentsOf(mentorId: User['id'], pagination?: Pagination) {
@@ -188,6 +218,10 @@ export class UserService {
 
     if (!existingUser) {
       throw new NotFoundError()
+    }
+
+    if (data.password) {
+      data.password = await Hash.hash(data.password)
     }
 
     const user = new UserModel({

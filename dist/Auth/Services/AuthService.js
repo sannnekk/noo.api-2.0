@@ -60,7 +60,7 @@ export class AuthService {
             username,
         });
         if (!user) {
-            throw new NotFoundError();
+            throw new NotFoundError('Пользователь не найден.');
         }
         if (user.verificationToken !== token) {
             throw new InvalidVerificationTokenError();
@@ -120,7 +120,7 @@ export class AuthService {
     async forgotPassword(email) {
         const user = await this.userRepository.findOne({ email });
         if (!user) {
-            throw new NotFoundError();
+            throw new NotFoundError('Пользователь с таким email не найден.');
         }
         if (user.isBlocked) {
             throw new UnauthenticatedError('Этот аккаунт заблокирован.');

@@ -120,8 +120,12 @@ export class CourseModel extends SearchableModel implements Course {
   ): string[] {
     query.andWhere(
       new Brackets((qb) => {
-        qb.where(`course.name LIKE :needle`, { needle: `%${needle}%` })
-        qb.orWhere(`course.description LIKE :needle`, { needle: `%${needle}%` })
+        qb.where(`LOWER(course.name) LIKE LOWER(:needle)`, {
+          needle: `%${needle}%`,
+        })
+        qb.orWhere(`LOWER(course.description) LIKE LOWER(:needle)`, {
+          needle: `%${needle}%`,
+        })
       })
     )
 

@@ -1,5 +1,26 @@
 [
 	{
+		"version": "3.0.2",
+		"date": "2024-16-08",
+		"authors": [
+			"sannnekk"
+		],
+		"changes": [
+			{
+				"type": "fix",
+				"description": "Fixed mentor assigned works search"
+			},
+			{
+				"type": "feat",
+				"description": "Mentors are now in user list"
+			},
+			{
+				"type": "impr",
+				"description": "A lot of improvements and bug fixes"
+			}
+		]
+	},
+	{
 		"version": "3.0.1",
 		"date": "2024-15-08",
 		"authors": [
