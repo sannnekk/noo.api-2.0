@@ -82,9 +82,10 @@ let UserController = class UserController {
     async getMyStudents(context) {
         try {
             await Asserts.isAuthenticated(context);
-            Asserts.mentor(context);
+            Asserts.notStudent(context);
             const pagination = this.userValidator.parsePagination(context.query);
-            const { entities, meta } = await this.userService.getStudentsOf(context.credentials.userId, pagination);
+            const mentorId = this.userValidator.parseOptionalId(context.params.mentorId);
+            const { entities, meta } = await this.userService.getStudentsOf(mentorId || context.credentials.userId, pagination);
             return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
@@ -138,7 +139,7 @@ let UserController = class UserController {
             await Asserts.isAuthenticated(context);
             await Asserts.teacherOrAdmin(context);
             const id = this.userValidator.parseId(context.params.id);
-            const role = this.userValidator.parseRole(context.body);
+            const { role } = this.userValidator.parseRole(context.body);
             await this.userService.changeRole(id, role);
             return new ApiResponse();
         }
@@ -236,7 +237,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "getStudents", null);
 __decorate([
-    Get('/student/search/own'),
+    Get('/student/search/own/:mentorId?'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)

@@ -10,7 +10,7 @@ export interface Work extends BaseModel {
   name: string
   type: 'trial-work' | 'phrase' | 'mini-test' | 'test' | 'second-part'
   description: string
-  subject?: Subject
+  subject: Subject | null
   subjectId?: Subject['id']
   materialId?: CourseMaterial['id']
   materials?: CourseMaterial[]

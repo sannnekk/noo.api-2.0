@@ -21,6 +21,7 @@ import Dates from '../../Core/Utils/date.js';
 import { AssignedWorkOptions } from '../AssignedWorkOptions.js';
 import TypeORM from 'typeorm';
 import { UserService } from '../../Users/Services/UserService.js';
+import { CantDeleteMadeWorkError } from '../Errors/CantDeleteMadeWorkError.js';
 export class AssignedWorkService {
     taskService;
     assignedWorkRepository;
@@ -424,6 +425,10 @@ export class AssignedWorkService {
         }
         if (!foundWork.mentors.some((mentor) => mentor.id === mentorId)) {
             throw new UnauthorizedError();
+        }
+        if (foundWork.solveStatus === 'not-started' ||
+            foundWork.solveStatus === 'in-progress') {
+            throw new CantDeleteMadeWorkError();
         }
         await this.assignedWorkRepository.delete(id);
     }

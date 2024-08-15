@@ -38,8 +38,11 @@ export class CalenderService {
         if (!pagination?.getFilter('username')) {
             throw new UnauthorizedError();
         }
-        const condition = await this.userRelationService.getCondition(requester, pagination?.getFilter('username'));
-        return this.calenderEventRepository.search(condition, pagination);
+        /* const condition = await this.userRelationService.getCondition(
+          requester,
+          pagination?.getFilter('username')
+        ) */
+        return this.calenderEventRepository.search(undefined, pagination);
     }
     async getOne(id, username) {
         const event = await this.calenderEventRepository.findOne({ id });

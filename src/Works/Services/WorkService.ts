@@ -4,6 +4,7 @@ import { WorkRepository } from '../Data/WorkRepository'
 import { Work } from '../Data/Work'
 import { WorkModel } from '../Data/WorkModel'
 import { WorkDTO } from '../DTO/WorkDTO'
+import { Subject } from '@modules/Subjects/Data/Subject'
 
 export class WorkService {
   private readonly workRepository: WorkRepository
@@ -50,6 +51,7 @@ export class WorkService {
   public async copyWork(workSlug: Work['slug']) {
     const work = await this.workRepository.findOne({ slug: workSlug }, [
       'tasks',
+      'subject',
     ])
 
     if (!work) {
@@ -60,6 +62,9 @@ export class WorkService {
       type: work.type,
       name: `[копия] ${work.name}`,
       description: work.description,
+      subject: {
+        id: work.subject!.id,
+      } as Subject,
     } as Work
 
     newWork.tasks = work.tasks.map(

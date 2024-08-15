@@ -32,6 +32,7 @@ import Dates from '@modules/Core/Utils/date'
 import { AssignedWorkOptions } from '../AssignedWorkOptions'
 import TypeORM, { FindOptionsWhere } from 'typeorm'
 import { UserService } from '@modules/Users/Services/UserService'
+import { CantDeleteMadeWorkError } from '../Errors/CantDeleteMadeWorkError'
 
 export class AssignedWorkService {
   private readonly taskService: TaskService
@@ -649,6 +650,13 @@ export class AssignedWorkService {
 
     if (!foundWork.mentors!.some((mentor) => mentor.id === mentorId)) {
       throw new UnauthorizedError()
+    }
+
+    if (
+      foundWork.solveStatus === 'not-started' ||
+      foundWork.solveStatus === 'in-progress'
+    ) {
+      throw new CantDeleteMadeWorkError()
     }
 
     await this.assignedWorkRepository.delete(id)

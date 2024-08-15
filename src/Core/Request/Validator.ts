@@ -56,6 +56,10 @@ export abstract class Validator {
     return this.parse<string>(id, this.idScheme)
   }
 
+  public parseOptionalId(id: unknown): Ulid | undefined {
+    return this.parse<string | undefined>(id, this.idScheme.or(z.undefined()))
+  }
+
   public parseSlug(slug: unknown): string {
     return this.parse<string>(slug, this.slugScheme)
   }

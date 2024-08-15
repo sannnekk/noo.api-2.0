@@ -91,16 +91,19 @@ export class UserController {
     }
   }
 
-  @Get('/student/search/own')
+  @Get('/student/search/own/:mentorId?')
   async getMyStudents(context: Context): Promise<ApiResponse> {
     try {
       await Asserts.isAuthenticated(context)
-      Asserts.mentor(context)
+      Asserts.notStudent(context)
 
       const pagination = this.userValidator.parsePagination(context.query)
+      const mentorId = this.userValidator.parseOptionalId(
+        context.params.mentorId
+      )
 
       const { entities, meta } = await this.userService.getStudentsOf(
-        context.credentials.userId,
+        mentorId || context.credentials.userId,
         pagination
       )
 
@@ -172,7 +175,7 @@ export class UserController {
       await Asserts.teacherOrAdmin(context)
 
       const id = this.userValidator.parseId(context.params.id)
-      const role = this.userValidator.parseRole(context.body)
+      const { role } = this.userValidator.parseRole(context.body)
 
       await this.userService.changeRole(id, role)
 

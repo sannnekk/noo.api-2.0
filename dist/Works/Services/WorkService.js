@@ -36,6 +36,7 @@ export class WorkService {
     async copyWork(workSlug) {
         const work = await this.workRepository.findOne({ slug: workSlug }, [
             'tasks',
+            'subject',
         ]);
         if (!work) {
             throw new NotFoundError('Работа не найдена');
@@ -44,6 +45,9 @@ export class WorkService {
             type: work.type,
             name: `[копия] ${work.name}`,
             description: work.description,
+            subject: {
+                id: work.subject.id,
+            },
         };
         newWork.tasks = work.tasks.map((task) => ({
             order: task.order,

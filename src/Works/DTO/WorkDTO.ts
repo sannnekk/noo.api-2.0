@@ -17,5 +17,6 @@ export interface WorkDTO {
     solveHint?: WorkTask['solveHint']
     checkHint?: WorkTask['checkHint']
     checkingStrategy?: WorkTask['checkingStrategy']
+    isAnswerVisibleBeforeCheck: WorkTask['isAnswerVisibleBeforeCheck']
   }[]
 }

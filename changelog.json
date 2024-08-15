@@ -1,5 +1,18 @@
 [
 	{
+		"version": "3.0.1",
+		"date": "2024-15-08",
+		"authors": [
+			"sannnekk"
+		],
+		"changes": [
+			{
+				"type": "fix",
+				"description": "Bugfixes after a huge update"
+			}
+		]
+	},
+	{
 		"version": "3.0.0",
 		"date": "2024-15-08",
 		"authors": [

@@ -11,9 +11,10 @@ import { UpdatePasswordScheme } from './Schemes/UpdatePasswordScheme.js';
 import { TelegramUpdateScheme } from './Schemes/TelegramUpdateScheme.js';
 import { EmailUpdateScheme } from './Schemes/EmailUpdateScheme.js';
 import { UserUpdateScheme } from './Schemes/UserUpdateScheme.js';
+import { z } from 'zod';
 let UserValidator = class UserValidator extends Validator {
     parseRole(role) {
-        return this.parse(role, UserRoleScheme);
+        return this.parse(role, z.object({ role: UserRoleScheme }));
     }
     parseUpdate(user) {
         return this.parse(user, UserUpdateScheme);

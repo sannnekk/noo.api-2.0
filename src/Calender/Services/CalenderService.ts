@@ -65,12 +65,12 @@ export class CalenderService {
       throw new UnauthorizedError()
     }
 
-    const condition = await this.userRelationService.getCondition(
+    /* const condition = await this.userRelationService.getCondition(
       requester,
       pagination?.getFilter('username')
-    )
+    ) */
 
-    return this.calenderEventRepository.search(condition, pagination)
+    return this.calenderEventRepository.search(undefined, pagination)
   }
 
   public async getOne(

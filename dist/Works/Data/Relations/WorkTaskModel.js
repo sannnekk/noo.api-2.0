@@ -35,6 +35,7 @@ let WorkTaskModel = class WorkTaskModel extends Model {
     solveHint;
     checkHint;
     checkingStrategy;
+    isAnswerVisibleBeforeCheck;
     assignedWorkAnswers;
     assignedWorkComments;
     sluggify() {
@@ -125,6 +126,14 @@ __decorate([
     }),
     __metadata("design:type", Object)
 ], WorkTaskModel.prototype, "checkingStrategy", void 0);
+__decorate([
+    Column({
+        name: 'is_answer_visible_before_check',
+        type: 'boolean',
+        default: false,
+    }),
+    __metadata("design:type", Boolean)
+], WorkTaskModel.prototype, "isAnswerVisibleBeforeCheck", void 0);
 __decorate([
     OneToMany(() => AssignedWorkAnswerModel, (answer) => answer.task),
     __metadata("design:type", Object)

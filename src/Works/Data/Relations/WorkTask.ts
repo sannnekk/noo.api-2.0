@@ -18,6 +18,7 @@ export interface WorkTask extends BaseModel {
   rightAnswer?: string
   solveHint?: DeltaContentType
   checkHint?: DeltaContentType
+  isAnswerVisibleBeforeCheck: boolean
   checkingStrategy?: 'type1' | 'type2' | 'type3' | 'type4'
   assignedWorkAnswers?: AssignedWorkAnswer[]
   assignedWorkAnswerIds?: AssignedWorkAnswer['id'][]

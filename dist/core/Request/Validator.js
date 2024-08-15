@@ -32,6 +32,9 @@ let Validator = class Validator {
     parseId(id) {
         return this.parse(id, this.idScheme);
     }
+    parseOptionalId(id) {
+        return this.parse(id, this.idScheme.or(z.undefined()));
+    }
     parseSlug(slug) {
         return this.parse(slug, this.slugScheme);
     }

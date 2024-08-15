@@ -102,6 +102,13 @@ export class WorkTaskModel extends Model implements WorkTask {
   })
   checkingStrategy?: 'type1' | 'type2' | 'type3' | 'type4' | undefined
 
+  @Column({
+    name: 'is_answer_visible_before_check',
+    type: 'boolean',
+    default: false,
+  })
+  isAnswerVisibleBeforeCheck!: boolean
+
   @OneToMany(() => AssignedWorkAnswerModel, (answer) => answer.task)
   assignedWorkAnswers?: AssignedWorkAnswer[] | undefined
 

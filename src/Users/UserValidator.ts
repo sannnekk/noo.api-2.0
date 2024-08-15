@@ -10,11 +10,15 @@ import { UpdatePasswordScheme } from './Schemes/UpdatePasswordScheme'
 import { TelegramUpdateScheme } from './Schemes/TelegramUpdateScheme'
 import { EmailUpdateScheme } from './Schemes/EmailUpdateScheme'
 import { UserUpdateScheme } from './Schemes/UserUpdateScheme'
+import { z } from 'zod'
 
 @ErrorConverter()
 export class UserValidator extends Validator {
-  public parseRole(role: unknown): User['role'] {
-    return this.parse<User['role']>(role, UserRoleScheme)
+  public parseRole(role: unknown): { role: User['role'] } {
+    return this.parse<{ role: User['role'] }>(
+      role,
+      z.object({ role: UserRoleScheme })
+    )
   }
 
   public parseUpdate(user: unknown): UpdateUserDTO {
