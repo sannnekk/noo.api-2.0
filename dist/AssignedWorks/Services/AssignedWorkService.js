@@ -21,7 +21,6 @@ import Dates from '../../Core/Utils/date.js';
 import { AssignedWorkOptions } from '../AssignedWorkOptions.js';
 import TypeORM from 'typeorm';
 import { UserService } from '../../Users/Services/UserService.js';
-import { CantDeleteMadeWorkError } from '../Errors/CantDeleteMadeWorkError.js';
 export class AssignedWorkService {
     taskService;
     assignedWorkRepository;
@@ -420,18 +419,27 @@ export class AssignedWorkService {
         }
         await this.assignedWorkRepository.update(work);
     }
-    async deleteWork(id, mentorId) {
-        const foundWork = await this.assignedWorkRepository.findOne({ id });
+    async deleteWork(id, userId, userRole) {
+        const foundWork = await this.assignedWorkRepository.findOne({ id }, [
+            'mentors',
+            'student',
+        ]);
         if (!foundWork) {
-            throw new NotFoundError();
+            throw new NotFoundError('Работа не найдена. Возможно, она была уже удалена');
         }
-        if (!foundWork.mentors.some((mentor) => mentor.id === mentorId)) {
+        if (userRole === 'mentor' &&
+            !foundWork.mentors.some((mentor) => mentor.id === userId)) {
             throw new UnauthorizedError();
         }
-        if (foundWork.solveStatus === 'not-started' ||
-            foundWork.solveStatus === 'in-progress') {
-            throw new CantDeleteMadeWorkError();
+        if (userRole === 'student' && foundWork.studentId !== userId) {
+            throw new UnauthorizedError();
         }
+        /* if (
+          foundWork.solveStatus === 'not-started' ||
+          foundWork.solveStatus === 'in-progress'
+        ) {
+          throw new CantDeleteMadeWorkError()
+        } */
         await this.assignedWorkRepository.delete(id);
     }
     async getAssignedWork(id, relations = []) {

@@ -198,9 +198,9 @@ let AssignedWorkController = class AssignedWorkController {
     async delete(context) {
         try {
             await Asserts.isAuthenticated(context);
-            Asserts.mentor(context);
+            Asserts.mentorOrStudent(context);
             const workId = this.assignedWorkValidator.parseId(context.params.id);
-            await this.assignedWorkService.deleteWork(workId, context.credentials.id);
+            await this.assignedWorkService.deleteWork(workId, context.credentials.userId, context.credentials.role);
             return new ApiResponse();
         }
         catch (error) {
