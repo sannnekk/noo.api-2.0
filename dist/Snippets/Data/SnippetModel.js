@@ -45,7 +45,7 @@ __decorate([
 ], SnippetModel.prototype, "content", void 0);
 __decorate([
     ManyToOne(() => UserModel, (user) => user.snippets),
-    __metadata("design:type", UserModel)
+    __metadata("design:type", Object)
 ], SnippetModel.prototype, "user", void 0);
 __decorate([
     RelationId((snippet) => snippet.user),

@@ -4,6 +4,7 @@ import { UserModel } from '@modules/Users/Data/UserModel'
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm'
 import { Snippet } from './Snippet'
 import { config } from '@modules/config'
+import { User } from '@modules/Users/Data/User'
 
 @Entity('snippet')
 export class SnippetModel extends Model implements Snippet {
@@ -35,7 +36,7 @@ export class SnippetModel extends Model implements Snippet {
   public content!: DeltaContentType
 
   @ManyToOne(() => UserModel, (user) => user.snippets)
-  public user!: UserModel
+  public user!: User
 
   @RelationId((snippet: SnippetModel) => snippet.user)
   public userId!: string
