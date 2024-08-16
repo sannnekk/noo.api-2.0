@@ -19,9 +19,12 @@ export const CourseScheme = z.object({
     .optional(),
   images: z.array(MediaScheme),
   chapters: z.array(ChapterScheme),
-  author: z.object({
-    id: z.string().ulid(),
-  }),
+  author: z
+    .object({
+      id: z.string().ulid(),
+    })
+    .nullable()
+    .optional(),
   subject: z.object(
     {
       id: z.string().ulid(),
