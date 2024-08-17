@@ -35,7 +35,7 @@ export const CoreDataSource = new DataSource({
     database: process.env.DB_NAME,
     synchronize: false,
     logging: false,
-    charset: config.database.collations.default,
+    charset: config.database.collations.withEmoji,
     debug: config.database.debug,
     entities: [
         SubjectModel,
