@@ -85,6 +85,25 @@ export class AssignedWorkController {
     }
   }
 
+  @Get('/progress/:workId')
+  public async getProgressByWorkId(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.student(context)
+
+      const workId = this.assignedWorkValidator.parseId(context.params.workId)
+
+      const progress = await this.assignedWorkService.getProgressByWorkId(
+        workId,
+        context.credentials.userId
+      )
+
+      return new ApiResponse({ data: progress })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
+
   @Post('/')
   public async create(context: Context): Promise<ApiResponse> {
     try {

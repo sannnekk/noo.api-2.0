@@ -60,6 +60,8 @@ let AssignedWorkModel = class AssignedWorkModel extends SearchableModel {
     isArchivedByMentors;
     isArchivedByStudent;
     isNewAttempt;
+    studentComment;
+    mentorComment;
     _excludedTaskIds;
     get excludedTaskIds() {
         if (this._excludedTaskIds) {
@@ -296,6 +298,22 @@ __decorate([
     }),
     __metadata("design:type", Boolean)
 ], AssignedWorkModel.prototype, "isNewAttempt", void 0);
+__decorate([
+    Column({
+        name: 'student_comment',
+        type: 'json',
+        nullable: true,
+    }),
+    __metadata("design:type", Object)
+], AssignedWorkModel.prototype, "studentComment", void 0);
+__decorate([
+    Column({
+        name: 'mentor_comment',
+        type: 'json',
+        nullable: true,
+    }),
+    __metadata("design:type", Object)
+], AssignedWorkModel.prototype, "mentorComment", void 0);
 __decorate([
     Column({
         name: 'filtered_out_task_ids',

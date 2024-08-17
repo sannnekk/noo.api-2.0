@@ -1,6 +1,6 @@
 import Dates from './Core/Utils/date.js';
 export const config = {
-    version: '3.0.3',
+    version: '3.0.4',
     changelogPath: 'changelog.json',
     expressJson: {
         limit: process.env.MAX_REQUEST_SIZE,

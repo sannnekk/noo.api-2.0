@@ -1,5 +1,22 @@
 [
 	{
+		"version": "3.0.4",
+		"date": "2024-17-08",
+		"authors": [
+			"sannnekk"
+		],
+		"changes": [
+			{
+				"type": "feat",
+				"description": "Added work autosave"
+			},
+			{
+				"type": "feat",
+				"description": "Added work comments"
+			}
+		]
+	},
+	{
 		"version": "3.0.3",
 		"date": "2024-17-08",
 		"authors": [

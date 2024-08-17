@@ -23,6 +23,7 @@ import { AssignedWork } from './AssignedWork'
 import { SearchableModel } from '@modules/Core/Data/SearchableModel'
 import { BaseModel } from '@modules/Core/Data/Model'
 import { config } from '@modules/config'
+import { DeltaContentType } from '@modules/Core/Data/DeltaContentType'
 
 @Entity('assigned_work')
 export class AssignedWorkModel extends SearchableModel implements AssignedWork {
@@ -153,14 +154,14 @@ export class AssignedWorkModel extends SearchableModel implements AssignedWork {
     type: 'timestamp',
     nullable: true,
   })
-  solvedAt?: Date | undefined
+  solvedAt!: Date | null
 
   @Column({
     name: 'checked_at',
     type: 'timestamp',
     nullable: true,
   })
-  checkedAt?: Date | undefined
+  checkedAt!: Date | null
 
   @OneToMany(() => AssignedWorkAnswerModel, (answer) => answer.assignedWork, {
     cascade: true,
@@ -191,7 +192,7 @@ export class AssignedWorkModel extends SearchableModel implements AssignedWork {
     type: 'int',
     nullable: true,
   })
-  score?: number | undefined
+  score!: number | null
 
   @Column({
     name: 'max_score',
@@ -219,6 +220,20 @@ export class AssignedWorkModel extends SearchableModel implements AssignedWork {
     default: false,
   })
   isNewAttempt!: boolean
+
+  @Column({
+    name: 'student_comment',
+    type: 'json',
+    nullable: true,
+  })
+  studentComment!: DeltaContentType | null
+
+  @Column({
+    name: 'mentor_comment',
+    type: 'json',
+    nullable: true,
+  })
+  mentorComment!: DeltaContentType | null
 
   @Column({
     name: 'filtered_out_task_ids',

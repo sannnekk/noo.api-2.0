@@ -32,6 +32,7 @@ import Dates from '@modules/Core/Utils/date'
 import { AssignedWorkOptions } from '../AssignedWorkOptions'
 import TypeORM, { FindOptionsWhere } from 'typeorm'
 import { UserService } from '@modules/Users/Services/UserService'
+import { AssignedWorkProgress } from '../Types/AssignedWorkProgress'
 
 export class AssignedWorkService {
   private readonly taskService: TaskService
@@ -151,6 +152,32 @@ export class AssignedWorkService {
     }
 
     return assignedWork
+  }
+
+  public async getProgressByWorkId(
+    workId: Work['id'],
+    studentId: User['id']
+  ): Promise<AssignedWorkProgress | null> {
+    const assignedWork = await this.assignedWorkRepository.findOne(
+      {
+        work: { id: workId },
+        student: { id: studentId },
+      },
+      ['work']
+    )
+
+    if (!assignedWork) {
+      return null
+    }
+
+    const progress: AssignedWorkProgress = {
+      score: assignedWork.score || null,
+      maxScore: assignedWork.maxScore,
+      solveStatus: assignedWork.solveStatus,
+      checkStatus: assignedWork.checkStatus,
+    }
+
+    return progress
   }
 
   public async createWork(
@@ -360,6 +387,10 @@ export class AssignedWorkService {
       solveOptions.answers
     )
 
+    if (solveOptions.studentComment) {
+      foundWork.studentComment = solveOptions.studentComment
+    }
+
     if (foundWork.work.tasks.every((task) => task.type !== 'text')) {
       foundWork.checkStatus = 'checked-automatically'
       foundWork.checkedAt = Dates.now()
@@ -420,6 +451,10 @@ export class AssignedWorkService {
     foundWork.checkedAt = Dates.now()
     foundWork.score = this.getScore(foundWork.comments)
 
+    if (checkOptions.mentorComment) {
+      foundWork.mentorComment = checkOptions.mentorComment
+    }
+
     await this.assignedWorkRepository.update(foundWork)
     await this.calenderService.createWorkCheckedEvent(foundWork)
   }
@@ -444,6 +479,10 @@ export class AssignedWorkService {
       }
 
       foundWork.solveStatus = 'in-progress'
+
+      if (saveOptions.studentComment) {
+        foundWork.studentComment = saveOptions.studentComment
+      }
     } else if (role == 'mentor') {
       if (
         foundWork.checkStatus === 'checked-in-deadline' ||
@@ -461,6 +500,10 @@ export class AssignedWorkService {
       }
 
       foundWork.checkStatus = 'in-progress'
+
+      if (saveOptions.mentorComment) {
+        foundWork.mentorComment = saveOptions.mentorComment
+      }
     }
 
     foundWork.answers = saveOptions.answers

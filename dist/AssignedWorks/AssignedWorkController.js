@@ -58,6 +58,18 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse(error);
         }
     }
+    async getProgressByWorkId(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.student(context);
+            const workId = this.assignedWorkValidator.parseId(context.params.workId);
+            const progress = await this.assignedWorkService.getProgressByWorkId(workId, context.credentials.userId);
+            return new ApiResponse({ data: progress });
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
     async create(context) {
         try {
             await Asserts.isAuthenticated(context);
@@ -226,6 +238,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], AssignedWorkController.prototype, "getOne", null);
+__decorate([
+    Get('/progress/:workId'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], AssignedWorkController.prototype, "getProgressByWorkId", null);
 __decorate([
     Post('/'),
     __metadata("design:type", Function),
