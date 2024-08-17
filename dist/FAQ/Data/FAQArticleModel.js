@@ -7,22 +7,30 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, ManyToOne, RelationId, } from 'typeorm';
 import { SearchableModel } from '../../Core/Data/SearchableModel.js';
 import { config } from '../../config.js';
+import { FAQCategoryModel } from './Relations/FAQCategoryModel.js';
 let FAQArticleModel = class FAQArticleModel extends SearchableModel {
     constructor(data) {
         super();
         if (data) {
             this.set(data);
+            if (data.categoryId) {
+                this.category = new FAQCategoryModel({ id: data.categoryId });
+            }
         }
     }
     for;
     title;
+    order;
     content;
     category;
+    categoryId;
     addSearchToQuery(query, needle) {
-        query.andWhere('faq_article.title LIKE :needle', { needle: `%${needle}%` });
+        query.andWhere('LOWER(faq_article.title) LIKE LOWER(:needle)', {
+            needle: `%${needle}%`,
+        });
         return [];
     }
 };
@@ -33,7 +41,7 @@ __decorate([
         charset: config.database.charsets.default,
         collation: config.database.collations.default,
     }),
-    __metadata("design:type", Object)
+    __metadata("design:type", Array)
 ], FAQArticleModel.prototype, "for", void 0);
 __decorate([
     Column({
@@ -47,6 +55,15 @@ __decorate([
 ], FAQArticleModel.prototype, "title", void 0);
 __decorate([
     Column({
+        name: 'order',
+        type: 'int',
+        nullable: false,
+        default: 0,
+    }),
+    __metadata("design:type", Number)
+], FAQArticleModel.prototype, "order", void 0);
+__decorate([
+    Column({
         name: 'content',
         type: 'json',
         nullable: false,
@@ -54,17 +71,19 @@ __decorate([
     __metadata("design:type", Object)
 ], FAQArticleModel.prototype, "content", void 0);
 __decorate([
-    Column({
-        name: 'category',
-        type: 'varchar',
-        nullable: false,
-        charset: config.database.charsets.withEmoji,
-        collation: config.database.collations.withEmoji,
-    }),
-    __metadata("design:type", String)
+    ManyToOne(() => FAQCategoryModel, (category) => category.articles),
+    __metadata("design:type", FAQCategoryModel)
 ], FAQArticleModel.prototype, "category", void 0);
+__decorate([
+    RelationId((article) => article.category),
+    __metadata("design:type", Object)
+], FAQArticleModel.prototype, "categoryId", void 0);
 FAQArticleModel = __decorate([
-    Entity('faq_article'),
+    Entity('faq_article', {
+        orderBy: {
+            order: 'ASC',
+        },
+    }),
     __metadata("design:paramtypes", [Object])
 ], FAQArticleModel);
 export { FAQArticleModel };

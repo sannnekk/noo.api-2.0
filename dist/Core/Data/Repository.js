@@ -189,6 +189,14 @@ export class Repository {
         return this.repository.createQueryBuilder(alias);
     }
     /**
+     * Get this repository's tree repository
+     *
+     * @returns The tree repository instance
+     */
+    treeRepository() {
+        return this.repository.manager.getTreeRepository(this.model);
+    }
+    /**
      * Search for entities. Uses entities that extend SearchableModel.
      * If no pagination is provided, it will create one with default oprions (page 1, limit 25)
      *

@@ -48,8 +48,8 @@ let WorkController = class WorkController {
             await Asserts.isAuthenticated(context);
             Asserts.teacher(context);
             const workDTO = this.workValidator.parseCreation(context.body);
-            await this.workService.createWork(workDTO);
-            return new ApiResponse();
+            const work = await this.workService.createWork(workDTO);
+            return new ApiResponse({ data: work });
         }
         catch (error) {
             return new ApiResponse(error);

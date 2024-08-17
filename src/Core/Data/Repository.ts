@@ -235,7 +235,7 @@ export abstract class Repository<T extends BaseModel> {
    * @param sort The sort options to use
    */
   async findAll(
-    conditions?: Partial<T> | Partial<T>[],
+    conditions?: FindOptionsWhere<T> | FindOptionsWhere<T>[],
     relations?: Readonly<RelationsType<T>>,
     sort?: TypeORM.FindOptionsOrder<T>
   ): Promise<T[]> {
@@ -279,6 +279,15 @@ export abstract class Repository<T extends BaseModel> {
     return this.repository.createQueryBuilder(
       alias
     ) as unknown as TypeORM.SelectQueryBuilder<T>
+  }
+
+  /**
+   * Get this repository's tree repository
+   *
+   * @returns The tree repository instance
+   */
+  public treeRepository() {
+    return this.repository.manager.getTreeRepository(this.model)
   }
 
   /**

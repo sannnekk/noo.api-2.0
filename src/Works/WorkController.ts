@@ -61,9 +61,9 @@ export class WorkController {
 
       const workDTO = this.workValidator.parseCreation(context.body)
 
-      await this.workService.createWork(workDTO)
+      const work = await this.workService.createWork(workDTO)
 
-      return new ApiResponse()
+      return new ApiResponse({ data: work })
     } catch (error: any) {
       return new ApiResponse(error)
     }

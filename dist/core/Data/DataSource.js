@@ -25,6 +25,7 @@ import { MentorAssignmentModel } from '../../Users/Data/Relations/MentorAssignme
 import { SubjectModel } from '../../Subjects/Data/SubjectModel.js';
 import { SnippetModel } from '../../Snippets/Data/SnippetModel.js';
 import { config } from '../../config.js';
+import { FAQCategoryModel } from '../../FAQ/Data/Relations/FAQCategoryModel.js';
 export const CoreDataSource = new DataSource({
     type: 'mysql',
     host: process.env.DB_HOST,
@@ -39,6 +40,7 @@ export const CoreDataSource = new DataSource({
     entities: [
         SubjectModel,
         FAQArticleModel,
+        FAQCategoryModel,
         MediaModel,
         UserModel,
         UserAvatarModel,

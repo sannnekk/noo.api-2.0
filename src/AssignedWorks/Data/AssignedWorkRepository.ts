@@ -1,34 +1,30 @@
 import { Repository } from '@modules/Core/Data/Repository'
 import { AssignedWork } from './AssignedWork'
 import { AssignedWorkModel } from './AssignedWorkModel'
+import TypeORM from 'typeorm'
 
 export class AssignedWorkRepository extends Repository<AssignedWork> {
   constructor() {
     super(AssignedWorkModel)
   }
 
-  public async getNotFinishedWorks(
+  public async getNotCheckedNotTestWorks(
     studentId: string,
+    subjectId: string,
     relations: (keyof AssignedWork)[]
   ): Promise<AssignedWork[]> {
-    const { entities: notStartedWorks } = await this.search(
+    return this.findAll(
       {
-        studentId,
-        solveStatus: 'not-started',
+        student: {
+          id: studentId,
+        },
+        checkStatus: 'not-checked',
+        work: { type: TypeORM.Not('test'), subject: { id: subjectId } },
       },
-      undefined,
-      relations
-    )
-
-    const { entities: inProgressWorks } = await this.search(
+      relations,
       {
-        studentId,
-        solveStatus: 'in-progress',
-      },
-      undefined,
-      relations
+        id: 'DESC',
+      }
     )
-
-    return [...notStartedWorks, ...inProgressWorks]
   }
 }

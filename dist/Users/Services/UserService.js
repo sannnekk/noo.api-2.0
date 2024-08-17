@@ -64,10 +64,7 @@ export class UserService {
             mentorAssignment.mentor = mentor;
             await this.mentorAssignmentRepository.updateRaw(mentorAssignment);
         }
-        /* await this.transferAssignedWorkService.transferNotFinishedWorks(
-          student,
-          mentor
-        ) */
+        await this.transferAssignedWorkService.transferNotCheckedWorks(student, mentor, subject);
     }
     async unassignMentor(studentId, subjectId) {
         const mentorAssignment = await this.mentorAssignmentRepository.findOne({

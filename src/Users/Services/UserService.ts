@@ -98,10 +98,11 @@ export class UserService {
       await this.mentorAssignmentRepository.updateRaw(mentorAssignment)
     }
 
-    /* await this.transferAssignedWorkService.transferNotFinishedWorks(
+    await this.transferAssignedWorkService.transferNotCheckedWorks(
       student,
-      mentor
-    ) */
+      mentor,
+      subject
+    )
   }
 
   public async unassignMentor(studentId: User['id'], subjectId: Subject['id']) {

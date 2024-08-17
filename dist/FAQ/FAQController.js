@@ -20,20 +20,65 @@ let FAQController = class FAQController {
         this.faqService = new FAQService();
         this.faqValidator = new FAQValidator();
     }
-    async getFAQ(context) {
+    async getArticles(context) {
         try {
             await Asserts.isAuthenticated(context);
+            const pagination = this.faqValidator.parsePagination(context.query);
             const role = context.credentials.role;
-            const faq = await this.faqService.getFAQ(role);
-            return new ApiResponse({ data: faq });
+            const { entities, meta } = await this.faqService.getArticles(role, pagination);
+            return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
             return new ApiResponse(error);
         }
     }
-    async createFAQ(context) {
+    async getArticle(context) {
         try {
-            await Asserts.teacherOrAdmin(context);
+            await Asserts.isAuthenticated(context);
+            const id = this.faqValidator.parseId(context.params.id);
+            const article = await this.faqService.getArticle(id, context.credentials.role);
+            return new ApiResponse({ data: article });
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
+    async getCategoryTree(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            const categories = await this.faqService.getCategoryTree();
+            return new ApiResponse({ data: categories });
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
+    async getTreeWithArticles(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            const categories = await this.faqService.getTreeWithArticles();
+            return new ApiResponse({ data: categories });
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
+    async searchCategories(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.teacherOrAdmin(context);
+            const pagination = this.faqValidator.parsePagination(context.query);
+            const { entities, meta } = await this.faqService.searchCategories(pagination);
+            return new ApiResponse({ data: entities, meta });
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
+    async createArticle(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.teacherOrAdmin(context);
             const article = this.faqValidator.parseArticle(context.body);
             const faq = await this.faqService.createArticle(article);
             return new ApiResponse({ data: faq });
@@ -42,9 +87,22 @@ let FAQController = class FAQController {
             return new ApiResponse(error);
         }
     }
+    async createCategory(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.teacherOrAdmin(context);
+            const parsedCategory = this.faqValidator.parseCategory(context.body);
+            const category = await this.faqService.createCategory(parsedCategory);
+            return new ApiResponse({ data: category });
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
     async updateFAQ(context) {
         try {
-            await Asserts.teacherOrAdmin(context);
+            await Asserts.isAuthenticated(context);
+            Asserts.teacherOrAdmin(context);
             const id = this.faqValidator.parseId(context.params.id);
             const article = this.faqValidator.parseArticle(context.body);
             await this.faqService.updateArticle(id, article);
@@ -54,11 +112,37 @@ let FAQController = class FAQController {
             return new ApiResponse(error);
         }
     }
+    async updateCategory(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.teacherOrAdmin(context);
+            const id = this.faqValidator.parseId(context.params.id);
+            const category = this.faqValidator.parseCategory(context.body);
+            await this.faqService.updateCategory(id, category);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
     async deleteFAQ(context) {
         try {
-            await Asserts.teacherOrAdmin(context);
+            await Asserts.isAuthenticated(context);
+            Asserts.teacherOrAdmin(context);
             const id = this.faqValidator.parseId(context.params.id);
             await this.faqService.deleteArticle(id);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
+    async deleteCategory(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.teacherOrAdmin(context);
+            const id = this.faqValidator.parseId(context.params.id);
+            await this.faqService.deleteCategory(id);
             return new ApiResponse();
         }
         catch (error) {
@@ -71,13 +155,43 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
-], FAQController.prototype, "getFAQ", null);
+], FAQController.prototype, "getArticles", null);
+__decorate([
+    Get('/article/:id'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], FAQController.prototype, "getArticle", null);
+__decorate([
+    Get('/category/tree'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], FAQController.prototype, "getCategoryTree", null);
+__decorate([
+    Get('/category/tree/article'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], FAQController.prototype, "getTreeWithArticles", null);
+__decorate([
+    Get('/category/search'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], FAQController.prototype, "searchCategories", null);
 __decorate([
     Post(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
-], FAQController.prototype, "createFAQ", null);
+], FAQController.prototype, "createArticle", null);
+__decorate([
+    Post('/category'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], FAQController.prototype, "createCategory", null);
 __decorate([
     Patch('/:id'),
     __metadata("design:type", Function),
@@ -85,11 +199,23 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], FAQController.prototype, "updateFAQ", null);
 __decorate([
+    Patch('/category/:id'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], FAQController.prototype, "updateCategory", null);
+__decorate([
     Delete('/:id'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], FAQController.prototype, "deleteFAQ", null);
+__decorate([
+    Delete('/category/:id'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], FAQController.prototype, "deleteCategory", null);
 FAQController = __decorate([
     Controller('/faq'),
     __metadata("design:paramtypes", [])

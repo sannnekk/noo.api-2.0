@@ -26,6 +26,7 @@ import { MentorAssignmentModel } from '@modules/Users/Data/Relations/MentorAssig
 import { SubjectModel } from '@modules/Subjects/Data/SubjectModel'
 import { SnippetModel } from '@modules/Snippets/Data/SnippetModel'
 import { config } from '@modules/config'
+import { FAQCategoryModel } from '@modules/FAQ/Data/Relations/FAQCategoryModel'
 
 export const CoreDataSource = new DataSource({
   type: 'mysql',
@@ -41,6 +42,7 @@ export const CoreDataSource = new DataSource({
   entities: [
     SubjectModel,
     FAQArticleModel,
+    FAQCategoryModel,
     MediaModel,
     UserModel,
     UserAvatarModel,

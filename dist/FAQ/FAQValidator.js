@@ -7,9 +7,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { Validator } from '../Core/Request/Validator.js';
 import { ErrorConverter } from '../Core/Request/ValidatorDecorator.js';
 import { FAQArticleScheme } from './Schemes/FAQArticleScheme.js';
+import { FAQCategoryScheme } from './Schemes/FAQCategoryScheme.js';
 let FAQValidator = class FAQValidator extends Validator {
     parseArticle(data) {
         return this.parse(data, FAQArticleScheme);
+    }
+    parseCategory(data) {
+        return this.parse(data, FAQCategoryScheme);
     }
 };
 FAQValidator = __decorate([

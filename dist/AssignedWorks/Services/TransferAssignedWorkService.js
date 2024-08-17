@@ -4,13 +4,16 @@ export class TransferAssignedWorkService {
     constructor() {
         this.assignedWorkRepository = new AssignedWorkRepository();
     }
-    async transferNotFinishedWorks(student, newMentor) {
-        const notStartedWorks = await this.assignedWorkRepository.getNotFinishedWorks(student.id, [
-            'mentors',
-        ]);
+    async transferNotCheckedWorks(student, newMentor, subject) {
+        const notStartedWorks = await this.assignedWorkRepository.getNotCheckedNotTestWorks(student.id, subject.id, ['mentors']);
+        // TODO: make it more efficient
+        // get only first 50 works mutating the mentors array, TODO: change it to a better solution
+        notStartedWorks.splice(0, 50);
         notStartedWorks.forEach((work) => {
             work.mentors = [newMentor];
         });
-        await Promise.all(notStartedWorks.map(this.assignedWorkRepository.update));
+        for (const work of notStartedWorks) {
+            await this.assignedWorkRepository.update(work);
+        }
     }
 }
