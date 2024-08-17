@@ -8,7 +8,7 @@ export class AssignedWorkRepository extends Repository<AssignedWork> {
     super(AssignedWorkModel)
   }
 
-  public async getNotCheckedNotTestWorks(
+  public async getNotCheckedWorks(
     studentId: string,
     subjectId: string,
     relations: (keyof AssignedWork)[]
@@ -18,8 +18,11 @@ export class AssignedWorkRepository extends Repository<AssignedWork> {
         student: {
           id: studentId,
         },
-        checkStatus: 'not-checked',
-        work: { type: TypeORM.Not('test'), subject: { id: subjectId } },
+        checkStatus: TypeORM.In([
+          'not-checked',
+          'checked-automatically',
+        ] as AssignedWork['checkStatus'][]),
+        work: { subject: { id: subjectId } },
       },
       relations,
       {

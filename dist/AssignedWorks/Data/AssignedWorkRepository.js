@@ -5,13 +5,16 @@ export class AssignedWorkRepository extends Repository {
     constructor() {
         super(AssignedWorkModel);
     }
-    async getNotCheckedNotTestWorks(studentId, subjectId, relations) {
+    async getNotCheckedWorks(studentId, subjectId, relations) {
         return this.findAll({
             student: {
                 id: studentId,
             },
-            checkStatus: 'not-checked',
-            work: { type: TypeORM.Not('test'), subject: { id: subjectId } },
+            checkStatus: TypeORM.In([
+                'not-checked',
+                'checked-automatically',
+            ]),
+            work: { subject: { id: subjectId } },
         }, relations, {
             id: 'DESC',
         });

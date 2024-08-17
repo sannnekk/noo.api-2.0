@@ -15,22 +15,14 @@ export class TransferAssignedWorkService {
     subject: Subject
   ): Promise<void> {
     const notStartedWorks =
-      await this.assignedWorkRepository.getNotCheckedNotTestWorks(
+      await this.assignedWorkRepository.getNotCheckedWorks(
         student.id,
         subject.id,
         ['mentors']
       )
 
-    // TODO: make it more efficient
-
-    // get only first 50 works mutating the mentors array, TODO: change it to a better solution
-    notStartedWorks.splice(0, 50)
-
-    notStartedWorks.forEach((work) => {
-      work.mentors = [newMentor]
-    })
-
     for (const work of notStartedWorks) {
+      work.mentors = [newMentor]
       await this.assignedWorkRepository.update(work)
     }
   }
