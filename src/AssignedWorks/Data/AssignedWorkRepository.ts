@@ -13,15 +13,17 @@ export class AssignedWorkRepository extends Repository<AssignedWork> {
     subjectId: string,
     relations: (keyof AssignedWork)[]
   ): Promise<AssignedWork[]> {
+    const checkStatusToTransfer: AssignedWork['checkStatus'][] = [
+      'not-checked',
+      'checked-automatically',
+    ]
+
     return this.findAll(
       {
         student: {
           id: studentId,
         },
-        checkStatus: TypeORM.In([
-          'not-checked',
-          'checked-automatically',
-        ] as AssignedWork['checkStatus'][]),
+        checkStatus: TypeORM.In(checkStatusToTransfer),
         work: { subject: { id: subjectId } },
       },
       relations,

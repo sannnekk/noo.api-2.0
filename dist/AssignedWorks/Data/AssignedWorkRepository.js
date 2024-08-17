@@ -6,14 +6,15 @@ export class AssignedWorkRepository extends Repository {
         super(AssignedWorkModel);
     }
     async getNotCheckedWorks(studentId, subjectId, relations) {
+        const checkStatusToTransfer = [
+            'not-checked',
+            'checked-automatically',
+        ];
         return this.findAll({
             student: {
                 id: studentId,
             },
-            checkStatus: TypeORM.In([
-                'not-checked',
-                'checked-automatically',
-            ]),
+            checkStatus: TypeORM.In(checkStatusToTransfer),
             work: { subject: { id: subjectId } },
         }, relations, {
             id: 'DESC',
