@@ -41,7 +41,7 @@ async function telegramLog(
     data = data.slice(0, 500)
   }
 
-  const message = `*Error Id: ${id}*\nLevel: ${levelEmoji}\n\n\`\`\`${data}\`\`\``
+  const message = `*Error Id: ${id}*\nLevel: ${levelEmoji}\n\n\`\`\`\n${data}\`\`\``
 
   await send(chatId, message, token)
 }
