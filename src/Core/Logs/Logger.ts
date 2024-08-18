@@ -1,37 +1,22 @@
-import winston from 'winston'
+import logFile from './FileLogger'
+import logTelegram from './TelegramLogger'
 
-type LogLevel = 'error' | 'debug'
+export type LogLevel = 'error' | 'debug'
 
-const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.json(),
-  transports: [
-    new winston.transports.File({
-      filename: process.env.LOG_ERROR_FILE,
-      level: 'error',
-      dirname: process.env.LOG_DIR,
-      maxsize: 5 * 1024 * 1024, // 5MB
-    }),
-    new winston.transports.File({
-      filename: process.env.LOG_DEBUG_FILE,
-      level: 'debug',
-      dirname: process.env.LOG_DIR,
-      maxsize: 5 * 1024 * 1024, // 5MB
-    }),
-  ],
-})
+export function log(level: LogLevel, id: string, data: object | string) {
+  if (process.env.LOG_MODE === 'console') {
+    // eslint-disable-next-line no-console
+    console.log(data)
+    return
+  }
 
-if (process.env.APP_ENV === 'dev') {
-  logger.add(
-    new winston.transports.Console({
-      format: winston.format.simple(),
-    })
-  )
+  if (process.env.LOG_MODE === 'file') {
+    logFile(level, data)
+    return
+  }
+
+  if (process.env.LOG_MODE === 'telegram') {
+    logTelegram(id, level, data)
+    return
+  }
 }
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function log(level: LogLevel, data: object | string) {
-  logger.log(level, data)
-}
-
-export default log

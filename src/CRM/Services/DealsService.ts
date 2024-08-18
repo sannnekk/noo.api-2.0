@@ -1,6 +1,5 @@
 import { CourseRequest } from '../Data/CourseRequest'
 import { CourseRequestRepository } from '../Data/CourseRequestRepository'
-import log from '@modules/Core/Logs/Logger'
 
 export class DealsService {
   private readonly courseRequestRepository: CourseRequestRepository
@@ -13,18 +12,15 @@ export class DealsService {
     email: CourseRequest['email'],
     courseId: CourseRequest['id']
   ) {
-    log('debug', 'Creating course request in Service')
-    log('debug', { email, courseId })
     /* this.courseRequestRepository.create(
       new CourseRequestModel({ email, courseId })
     ) */
+
+    return { email, courseId }
   }
 
   public async remove(email: string) {
-    log('debug', 'Removing course request in Service')
-    log('debug', { email })
-
-    return
+    return email
     /* const courseRequest = await this.courseRequestRepository.findOne({
       email,
     })

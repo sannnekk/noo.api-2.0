@@ -1,21 +1,17 @@
 import { CourseRequestRepository } from '../Data/CourseRequestRepository.js';
-import log from '../../Core/Logs/Logger.js';
 export class DealsService {
     courseRequestRepository;
     constructor() {
         this.courseRequestRepository = new CourseRequestRepository();
     }
     async create(email, courseId) {
-        log('debug', 'Creating course request in Service');
-        log('debug', { email, courseId });
         /* this.courseRequestRepository.create(
           new CourseRequestModel({ email, courseId })
         ) */
+        return { email, courseId };
     }
     async remove(email) {
-        log('debug', 'Removing course request in Service');
-        log('debug', { email });
-        return;
+        return email;
         /* const courseRequest = await this.courseRequestRepository.findOne({
           email,
         })

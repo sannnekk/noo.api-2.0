@@ -3,7 +3,7 @@ import { StatusCodes } from 'http-status-codes'
 import { InternalError } from '../Errors/InternalError'
 import type { RequestMeta } from './RequestMeta'
 import { AppError } from '../Errors/AppError'
-import log from '../Logs/Logger'
+import { log } from '../Logs/Logger'
 
 export interface Response {
   data: any
@@ -34,12 +34,16 @@ export class ApiResponse extends ControllerResponse {
 
     if (payload instanceof Error) {
       if (!(payload instanceof AppError)) {
+        const errorId = Math.random().toString(36).substring(7).toUpperCase()
+
         this.status = 500
         this.body = {
-          error: 'Системная ошибка. Пожалуйста, сообщите об этом в поддержку',
+          error:
+            'Системная ошибка. Пожалуйста, сообщите об этом в поддержку. Передайте в поддержку следующий идентификатор ошибки: ' +
+            errorId,
         }
 
-        return log('error', JSON.stringify(payload))
+        return log('error', errorId, payload)
       }
 
       const { status, message } = this.getErrorData(payload)
