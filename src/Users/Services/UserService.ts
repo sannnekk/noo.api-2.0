@@ -326,8 +326,8 @@ export class UserService {
     await this.userRepository.update(user)
   }
 
-  public async verifyManual(id: User['id']): Promise<void> {
-    const user = await this.userRepository.findOne({ id })
+  public async verifyManual(username: User['username']): Promise<void> {
+    const user = await this.userRepository.findOne({ username })
 
     if (!user) {
       throw new NotFoundError()

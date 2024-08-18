@@ -35,7 +35,7 @@ let UserController = class UserController {
         try {
             await Asserts.isAuthenticated(context);
             Asserts.teacherOrAdmin(context);
-            const username = this.userValidator.parseSlug(context.params.username);
+            const username = this.userValidator.parseNonemptyString(context.params.username);
             await this.userService.verifyManual(username);
             return new ApiResponse();
         }

@@ -212,8 +212,8 @@ export class UserService {
         await this.emailService.sendEmailChangeConfirmation(user.name, newEmail, user.username, emailChangeToken);
         await this.userRepository.update(user);
     }
-    async verifyManual(id) {
-        const user = await this.userRepository.findOne({ id });
+    async verifyManual(username) {
+        const user = await this.userRepository.findOne({ username });
         if (!user) {
             throw new NotFoundError();
         }
