@@ -37,8 +37,8 @@ async function telegramLog(
       break
   }
 
-  if (data.length > 4000) {
-    data = data.slice(0, 500)
+  if (data.length > 750) {
+    data = data.slice(0, 750)
   }
 
   const message = `*Error Id: ${id}*\nLevel: ${levelEmoji}\n\n\`\`\`\n${data}\`\`\``
