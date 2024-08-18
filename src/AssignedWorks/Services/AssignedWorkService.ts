@@ -470,7 +470,7 @@ export class AssignedWorkService {
       throw new NotFoundError()
     }
 
-    if (role == 'student') {
+    if (role === 'student') {
       if (
         foundWork.solveStatus === 'made-in-deadline' ||
         foundWork.solveStatus === 'made-after-deadline'
@@ -483,7 +483,7 @@ export class AssignedWorkService {
       if (saveOptions.studentComment) {
         foundWork.studentComment = saveOptions.studentComment
       }
-    } else if (role == 'mentor') {
+    } else if (role === 'mentor') {
       if (
         foundWork.checkStatus === 'checked-in-deadline' ||
         foundWork.checkStatus === 'checked-after-deadline' ||
@@ -507,7 +507,7 @@ export class AssignedWorkService {
     }
 
     foundWork.answers = saveOptions.answers
-    foundWork.comments = saveOptions.comments || []
+    foundWork.comments = saveOptions.comments || foundWork.comments || []
 
     await this.assignedWorkRepository.update(foundWork)
   }

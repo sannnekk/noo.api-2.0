@@ -115,7 +115,7 @@ export class Pagination {
         continue
       }
 
-      if (/^tags\([0-9.|:\-\_a-zA-Z]+\)$/.test(value)) {
+      if (/^tags\((?:[\p{L}\p{N}_]+)(?:\|[\p{L}\p{N}_]+)*\)$/u.test(value)) {
         this.addTagFilter(key, value, parsedFilters)
         continue
       }
@@ -160,6 +160,7 @@ export class Pagination {
     parsedFilters: Filters
   ): void {
     const [min, max] = value.slice(6, -1).split('|').map(this.typeConvert)
+    const parameterKey = Math.random().toString(36).slice(3)
 
     parsedFilters[key] = (
       query: TypeORM.SelectQueryBuilder<BaseModel>,
@@ -168,11 +169,15 @@ export class Pagination {
       key = this.getDbNameAndAddJoins(query, key, metadata)
 
       if (min !== null) {
-        query.andWhere(`${key} >= :min`, { min })
+        query.andWhere(`${key} >= :min${parameterKey}`, {
+          [`min${parameterKey}`]: min,
+        })
       }
 
       if (max !== null) {
-        query.andWhere(`${key} <= :max`, { max })
+        query.andWhere(`${key} <= :max${parameterKey}`, {
+          [`max${parameterKey}`]: max,
+        })
       }
     }
   }
@@ -183,6 +188,7 @@ export class Pagination {
     parsedFilters: Filters
   ): void {
     const values = value.slice(4, -1).split('|').map(this.typeConvert)
+    const parameterKey = Math.random().toString(36).slice(3)
 
     if (values.length !== 0) {
       parsedFilters[key] = (
@@ -191,7 +197,9 @@ export class Pagination {
       ) => {
         key = this.getDbNameAndAddJoins(query, key, metadata)
 
-        query.andWhere(`${key} IN (:...values)`, { values })
+        query.andWhere(`${key} IN (:...values${parameterKey})`, {
+          [`values${parameterKey}`]: values,
+        })
       }
     }
   }
@@ -202,10 +210,9 @@ export class Pagination {
     parsedFilters: Filters
   ): void {
     const tags = value.slice(5, -1).split('|').map(this.typeConvert)
+    const parameterKey = Math.random().toString(36).slice(3)
 
-    if (parsedFilters[key].length === 0) {
-      parsedFilters[key] = () => void 0
-    } else {
+    if (tags?.length > 0) {
       parsedFilters[key] = (
         query: TypeORM.SelectQueryBuilder<BaseModel>,
         metadata: TypeORM.EntityMetadata
@@ -213,8 +220,8 @@ export class Pagination {
         key = this.getDbNameAndAddJoins(query, key, metadata)
 
         for (const tag of tags) {
-          query.andWhere(`${key} LIKE :tag`, {
-            tag: `%${tag}%`,
+          query.andWhere(`${key} LIKE :tag${parameterKey}`, {
+            [`tag${parameterKey}`]: `%${tag}%`,
           })
         }
       }
