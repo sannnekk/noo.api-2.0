@@ -346,13 +346,13 @@ export class UserService {
     }
 
     if (!user.newEmail) {
-      throw new UnauthenticatedError('Смена почты не запрошена.')
+      throw new NotFoundError('Смена почты не запрошена.')
     }
 
     const emailChangeToken = await this.getChangeEmailToken(user)
 
     if (emailChangeToken !== token) {
-      throw new UnauthenticatedError('Неверный токен.')
+      throw new UnauthorizedError('Неверный токен.')
     }
 
     user.email = user.newEmail

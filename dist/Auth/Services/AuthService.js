@@ -86,7 +86,7 @@ export class AuthService {
             {
                 email: credentials.usernameOrEmail,
             },
-        ], ['mentorAssignmentsAsMentor', 'mentorAssignmentsAsStudent']);
+        ]);
         if (!user) {
             throw new UnauthenticatedError('Неверный логин или пароль');
         }

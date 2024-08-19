@@ -125,17 +125,14 @@ export class AuthService {
     credentials: LoginDTO,
     context: Context
   ): Promise<{ token: JWT.JWT; payload: JWT.JWTPayload; user: Partial<User> }> {
-    const user = await this.userRepository.findOne(
-      [
-        {
-          username: credentials.usernameOrEmail,
-        },
-        {
-          email: credentials.usernameOrEmail,
-        },
-      ],
-      ['mentorAssignmentsAsMentor', 'mentorAssignmentsAsStudent']
-    )
+    const user = await this.userRepository.findOne([
+      {
+        username: credentials.usernameOrEmail,
+      },
+      {
+        email: credentials.usernameOrEmail,
+      },
+    ])
 
     if (!user) {
       throw new UnauthenticatedError('Неверный логин или пароль')
