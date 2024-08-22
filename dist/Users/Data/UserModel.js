@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Brackets, Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, OneToOne, } from 'typeorm';
+import { Brackets, Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, OneToOne, RelationId, } from 'typeorm';
 import { CourseModel } from '../../Courses/Data/CourseModel.js';
 import { AssignedWorkModel } from '../../AssignedWorks/Data/AssignedWorkModel.js';
 import { BlogPostModel } from '../../Blog/Data/BlogPostModel.js';
@@ -43,6 +43,7 @@ let UserModel = class UserModel extends SearchableModel {
     mentorAssignmentsAsStudent;
     courses;
     coursesAsStudent;
+    courseAsStudentIds;
     assignedWorksAsMentor;
     assignedWorksAsStudent;
     blogPosts;
@@ -156,6 +157,10 @@ __decorate([
     JoinTable(),
     __metadata("design:type", Array)
 ], UserModel.prototype, "coursesAsStudent", void 0);
+__decorate([
+    RelationId((user) => user.coursesAsStudent),
+    __metadata("design:type", Array)
+], UserModel.prototype, "courseAsStudentIds", void 0);
 __decorate([
     ManyToMany(() => AssignedWorkModel, (assignedWork) => assignedWork.mentors),
     __metadata("design:type", Array)

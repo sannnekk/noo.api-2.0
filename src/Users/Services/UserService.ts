@@ -351,7 +351,7 @@ export class UserService {
 
     const emailChangeToken = await this.getChangeEmailToken(user)
 
-    if (emailChangeToken !== token) {
+    if (!(await Hash.compare(token, emailChangeToken))) {
       throw new UnauthorizedError('Неверный токен.')
     }
 

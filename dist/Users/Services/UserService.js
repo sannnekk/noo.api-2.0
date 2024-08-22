@@ -229,7 +229,7 @@ export class UserService {
             throw new NotFoundError('Смена почты не запрошена.');
         }
         const emailChangeToken = await this.getChangeEmailToken(user);
-        if (emailChangeToken !== token) {
+        if (!(await Hash.compare(token, emailChangeToken))) {
             throw new UnauthorizedError('Неверный токен.');
         }
         user.email = user.newEmail;

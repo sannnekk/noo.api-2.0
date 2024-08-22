@@ -51,6 +51,7 @@ export abstract class Model implements BaseModel {
         }
       }
     }
+
     return { ...jsonObj, password: undefined }
   }
 }

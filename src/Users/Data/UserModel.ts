@@ -7,6 +7,7 @@ import {
   ManyToMany,
   OneToMany,
   OneToOne,
+  RelationId,
   SelectQueryBuilder,
 } from 'typeorm'
 import type { UserRolesType } from '@modules/Core/Security/roles'
@@ -118,6 +119,9 @@ export class UserModel extends SearchableModel implements User {
   @ManyToMany(() => CourseModel, (course) => course.students)
   @JoinTable()
   coursesAsStudent?: Course[]
+
+  @RelationId((user: UserModel) => user.coursesAsStudent)
+  courseAsStudentIds!: string[]
 
   @ManyToMany(() => AssignedWorkModel, (assignedWork) => assignedWork.mentors)
   assignedWorksAsMentor?: AssignedWork[]

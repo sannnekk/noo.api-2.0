@@ -1,5 +1,26 @@
 [
 	{
+		"version": "3.0.5",
+		"date": "2024-22-08",
+		"authors": [
+			"sannnekk"
+		],
+		"changes": [
+			{
+				"type": "fix",
+				"description": "Fixed cant change email error"
+			},
+			{
+				"type": "feat",
+				"description": "Can now click on the work in the work list to see the work details"
+			},
+			{
+				"type": "feat",
+				"description": "Can manage student courses on user edit page"
+			}
+		]
+	},
+	{
 		"version": "3.0.4",
 		"date": "2024-17-08",
 		"authors": [

@@ -40,6 +40,23 @@ export class CourseController {
     }
   }
 
+  @Get('/student/:studentId')
+  public async getStudentCourses(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.notStudent(context)
+      const studentId = this.courseValidator.parseId(context.params.studentId)
+      const pagination = this.courseValidator.parsePagination(context.query)
+
+      const { entities: courses, meta } =
+        await this.courseService.getStudentCourses(studentId, pagination)
+
+      return new ApiResponse({ data: courses, meta })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
+
   @Get('/:slug')
   public async getBySlug(context: Context): Promise<ApiResponse> {
     try {

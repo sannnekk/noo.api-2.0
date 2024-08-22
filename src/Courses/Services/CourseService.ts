@@ -59,6 +59,20 @@ export class CourseService {
     return this.courseRepository.search(conditions, pagination, relations)
   }
 
+  public async getStudentCourses(
+    studentId: User['id'],
+    pagination: Pagination
+  ) {
+    return this.courseRepository.search(
+      {
+        students: {
+          id: studentId,
+        },
+      },
+      pagination
+    )
+  }
+
   public async getBySlug(slug: string, role: User['role']): Promise<Course> {
     const condition = {
       slug,

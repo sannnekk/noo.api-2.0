@@ -37,6 +37,13 @@ export class CourseService {
         const relations = ['author'];
         return this.courseRepository.search(conditions, pagination, relations);
     }
+    async getStudentCourses(studentId, pagination) {
+        return this.courseRepository.search({
+            students: {
+                id: studentId,
+            },
+        }, pagination);
+    }
     async getBySlug(slug, role) {
         const condition = {
             slug,
