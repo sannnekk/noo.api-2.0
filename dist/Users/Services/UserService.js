@@ -228,8 +228,7 @@ export class UserService {
         if (!user.newEmail) {
             throw new NotFoundError('Смена почты не запрошена.');
         }
-        const emailChangeToken = await this.getChangeEmailToken(user);
-        if (!(await Hash.compare(token, emailChangeToken))) {
+        if (!(await this.verifyChangeEmailToken(user, token))) {
             throw new UnauthorizedError('Неверный токен.');
         }
         user.email = user.newEmail;
@@ -270,6 +269,12 @@ export class UserService {
             return '-';
         }
         return Hash.hash(`${user.id}${user.email}${user.newEmail}`);
+    }
+    async verifyChangeEmailToken(user, token) {
+        if (!user.newEmail) {
+            return false;
+        }
+        return Hash.compare(`${user.id}${user.email}${user.newEmail}`, token);
     }
     async removeAssociatedMentorAssignments(user) {
         const conditions = [
