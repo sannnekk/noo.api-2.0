@@ -127,10 +127,13 @@ export class UserService {
   }
 
   public async unassignMentor(studentId: User['id'], subjectId: Subject['id']) {
-    const mentorAssignment = await this.mentorAssignmentRepository.findOne({
-      student: { id: studentId },
-      subject: { id: subjectId },
-    })
+    const mentorAssignment = await this.mentorAssignmentRepository.findOne(
+      {
+        student: { id: studentId },
+        subject: { id: subjectId },
+      },
+      ['student', 'mentor', 'subject']
+    )
 
     if (!mentorAssignment) {
       throw new NotFoundError('Куратор не найден.')

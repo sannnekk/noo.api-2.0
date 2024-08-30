@@ -77,7 +77,7 @@ export class UserService {
         const mentorAssignment = await this.mentorAssignmentRepository.findOne({
             student: { id: studentId },
             subject: { id: subjectId },
-        });
+        }, ['student', 'mentor', 'subject']);
         if (!mentorAssignment) {
             throw new NotFoundError('Куратор не найден.');
         }
