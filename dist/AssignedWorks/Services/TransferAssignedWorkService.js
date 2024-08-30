@@ -6,6 +6,9 @@ export class TransferAssignedWorkService {
     }
     async transferNotCheckedWorks(student, newMentor, subject) {
         const assignedWorkIds = await this.assignedWorkRepository.findWorkIdsByStudentAndSubject(student.id, subject.id);
+        if (assignedWorkIds.length === 0) {
+            return;
+        }
         // remove all mentors from assigned works
         await this.assignedWorkRepository.removeMentorsFromAssignedWorks(assignedWorkIds);
         // assign new mentor to assigned works

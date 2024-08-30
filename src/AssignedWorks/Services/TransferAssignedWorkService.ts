@@ -20,6 +20,10 @@ export class TransferAssignedWorkService {
         subject.id
       )
 
+    if (assignedWorkIds.length === 0) {
+      return
+    }
+
     // remove all mentors from assigned works
     await this.assignedWorkRepository.removeMentorsFromAssignedWorks(
       assignedWorkIds
