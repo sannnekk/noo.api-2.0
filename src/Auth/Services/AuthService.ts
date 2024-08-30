@@ -13,6 +13,7 @@ import { SessionService } from '@modules/Sessions/Services/SessionService'
 import { UserRepository } from '@modules/Users/Data/UserRepository'
 import { User } from '@modules/Users/Data/User'
 import { UserModel } from '@modules/Users/Data/UserModel'
+import { NotificationService } from '@modules/Notifications/Services/NotificationService'
 
 export class AuthService {
   private readonly userRepository: UserRepository
@@ -21,10 +22,13 @@ export class AuthService {
 
   private readonly sessionService: SessionService
 
+  private readonly notificationService: NotificationService
+
   constructor() {
     this.userRepository = new UserRepository()
     this.emailService = new EmailService()
     this.sessionService = new SessionService()
+    this.notificationService = new NotificationService()
   }
 
   public async create(user: User): Promise<void> {
@@ -74,6 +78,7 @@ export class AuthService {
       user.name,
       user.verificationToken
     )
+    await this.notificationService.generateAndSend('welcome', user.id)
   }
 
   public async checkUsername(username: string): Promise<boolean> {
@@ -98,6 +103,10 @@ export class AuthService {
     user.verificationToken = null as any
 
     await this.userRepository.update(user)
+    await this.notificationService.generateAndSend(
+      'user.email-verified',
+      user.id
+    )
   }
 
   public async resendVerification(email: string): Promise<void> {
@@ -156,6 +165,10 @@ export class AuthService {
 
     if (!session) {
       session = await this.sessionService.createSession(context, user.id)
+
+      await this.notificationService.generateAndSend('user.login', user.id, {
+        session,
+      })
     }
 
     const payload: JWT.JWTPayload = {

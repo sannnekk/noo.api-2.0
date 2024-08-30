@@ -21,6 +21,8 @@ import Dates from '../../Core/Utils/date.js';
 import { AssignedWorkOptions } from '../AssignedWorkOptions.js';
 import TypeORM from 'typeorm';
 import { UserService } from '../../Users/Services/UserService.js';
+import { NotificationService } from '../../Notifications/Services/NotificationService.js';
+import { CantDeleteMadeWorkError } from '../Errors/CantDeleteMadeWorkError.js';
 export class AssignedWorkService {
     taskService;
     assignedWorkRepository;
@@ -31,6 +33,7 @@ export class AssignedWorkService {
     answerRepository;
     commentRepository;
     calenderService;
+    notificationService;
     constructor() {
         this.taskService = new TaskService();
         this.assignedWorkRepository = new AssignedWorkRepository();
@@ -41,6 +44,7 @@ export class AssignedWorkService {
         this.commentRepository = new AssignedWorkCommentRepository();
         this.calenderService = new CalenderService();
         this.userService = new UserService();
+        this.notificationService = new NotificationService();
     }
     async getWorks(userId, userRole, pagination) {
         if (!userRole) {
@@ -258,6 +262,12 @@ export class AssignedWorkService {
         }
         await this.assignedWorkRepository.update(foundWork);
         await this.calenderService.createWorkMadeEvent(foundWork);
+        await this.notificationService.generateAndSend('assigned-work.work-made-for-student', foundWork.student.id, { assignedWork: foundWork });
+        if (foundWork.checkStatus !== 'checked-automatically') {
+            for (const mentor of foundWork.mentors) {
+                await this.notificationService.generateAndSend('assigned-work.work-made-for-mentor', mentor.id, { assignedWork: foundWork });
+            }
+        }
     }
     async checkWork(assignedWorkId, checkOptions, checkerId) {
         const foundWork = await this.getAssignedWork(assignedWorkId, [
@@ -297,6 +307,10 @@ export class AssignedWorkService {
         }
         await this.assignedWorkRepository.update(foundWork);
         await this.calenderService.createWorkCheckedEvent(foundWork);
+        await this.notificationService.generateAndSend('assigned-work.work-checked-for-student', foundWork.student.id, { assignedWork: foundWork });
+        for (const mentor of foundWork.mentors) {
+            await this.notificationService.generateAndSend('assigned-work.work-checked-for-mentor', mentor.id, { assignedWork: foundWork });
+        }
     }
     async saveProgress(assignedWorkId, saveOptions, role) {
         const foundWork = await this.getAssignedWork(assignedWorkId);
@@ -359,7 +373,11 @@ export class AssignedWorkService {
         await this.assignedWorkRepository.update(foundWork);
     }
     async transferWorkToAnotherMentor(workId, mentorId, currentMentorId) {
-        const foundWork = await this.getAssignedWork(workId);
+        const foundWork = await this.getAssignedWork(workId, [
+            'work',
+            'mentors',
+            'student',
+        ]);
         if (!foundWork) {
             throw new NotFoundError();
         }
@@ -382,6 +400,7 @@ export class AssignedWorkService {
         }
         foundWork.mentors = [mentor, newMentor];
         await this.assignedWorkRepository.update(foundWork);
+        await this.notificationService.generateAndSend('assigned-work.work-transferred-to-another-mentor', newMentor.id, { assignedWork: foundWork });
     }
     async replaceMentor(workId, newMentorentorId) {
         const assignedWork = await this.assignedWorkRepository.findOne({
@@ -447,6 +466,28 @@ export class AssignedWorkService {
         }
         await this.assignedWorkRepository.update(work);
     }
+    async sendToRevision(workId, mentorId) {
+        const work = await this.getAssignedWork(workId, ['mentors']);
+        if (!work) {
+            throw new NotFoundError();
+        }
+        if (!work.mentors.some((mentor) => mentor.id === mentorId)) {
+            throw new UnauthorizedError();
+        }
+        if (work.checkStatus === 'in-progress' ||
+            work.checkStatus === 'checked-in-deadline' ||
+            work.checkStatus === 'checked-after-deadline' ||
+            work.checkStatus === 'checked-automatically') {
+            throw new WorkAlreadyCheckedError();
+        }
+        if (work.solveStatus === 'in-progress' ||
+            work.solveStatus === 'not-started') {
+            throw new WorkIsNotSolvedYetError();
+        }
+        work.solveStatus = 'in-progress';
+        work.solvedAt = null;
+        await this.assignedWorkRepository.update(work);
+    }
     async deleteWork(id, userId, userRole) {
         const foundWork = await this.assignedWorkRepository.findOne({ id }, [
             'mentors',
@@ -462,12 +503,9 @@ export class AssignedWorkService {
         if (userRole === 'student' && foundWork.studentId !== userId) {
             throw new UnauthorizedError();
         }
-        /* if (
-          foundWork.solveStatus === 'not-started' ||
-          foundWork.solveStatus === 'in-progress'
-        ) {
-          throw new CantDeleteMadeWorkError()
-        } */
+        if (foundWork.solvedAt) {
+            throw new CantDeleteMadeWorkError();
+        }
         await this.assignedWorkRepository.delete(id);
     }
     async getAssignedWork(id, relations = []) {

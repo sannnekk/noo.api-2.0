@@ -13,6 +13,7 @@ import { UserModel } from '../../Users/Data/UserModel.js';
 import { PollQuestionModel } from './Relations/PollQuestionModel.js';
 import { SearchableModel } from '../../Core/Data/SearchableModel.js';
 import { config } from '../../config.js';
+import { CourseMaterialModel } from '../../Courses/Data/Relations/CourseMaterialModel.js';
 let PollModel = class PollModel extends SearchableModel {
     constructor(data) {
         super();
@@ -24,6 +25,7 @@ let PollModel = class PollModel extends SearchableModel {
         }
     }
     post;
+    materials;
     questions;
     votedUsers;
     votedUserIds;
@@ -44,6 +46,10 @@ __decorate([
     OneToOne(() => BlogPostModel, (post) => post.poll, { onDelete: 'CASCADE' }),
     __metadata("design:type", Object)
 ], PollModel.prototype, "post", void 0);
+__decorate([
+    OneToMany(() => CourseMaterialModel, (material) => material.poll),
+    __metadata("design:type", Array)
+], PollModel.prototype, "materials", void 0);
 __decorate([
     OneToMany(() => PollQuestionModel, (question) => question.poll, {
         cascade: true,

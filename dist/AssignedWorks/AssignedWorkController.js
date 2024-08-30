@@ -34,7 +34,7 @@ let AssignedWorkController = class AssignedWorkController {
     async getFromUser(context) {
         try {
             await Asserts.isAuthenticated(context);
-            Asserts.teacherOrAdmin(context);
+            Asserts.notStudent(context);
             const userId = this.assignedWorkValidator.parseId(context.params.userId);
             const pagination = this.assignedWorkValidator.parsePagination(context.query);
             const { entities, meta } = await this.assignedWorkService.getWorks(userId, undefined, pagination);
@@ -49,8 +49,11 @@ let AssignedWorkController = class AssignedWorkController {
             await Asserts.isAuthenticated(context);
             const workId = this.assignedWorkValidator.parseId(context.params.id);
             const work = await this.assignedWorkService.getWorkById(workId, context.credentials.role);
-            if (context.credentials.role == 'student') {
+            if (context.credentials.role === 'student') {
                 Asserts.isAuthorized(context, work.studentId);
+            }
+            if (context.credentials.role === 'mentor' && work.work.type !== 'test') {
+                Asserts.isAuthorized(context, work.mentorIds);
             }
             return new ApiResponse({ data: work });
         }
@@ -207,6 +210,18 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse(error);
         }
     }
+    async sendToRevision(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.mentor(context);
+            const workId = this.assignedWorkValidator.parseId(context.params.id);
+            await this.assignedWorkService.sendToRevision(workId, context.credentials.userId);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
     async delete(context) {
         try {
             await Asserts.isAuthenticated(context);
@@ -310,6 +325,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], AssignedWorkController.prototype, "shiftDeadline", null);
+__decorate([
+    Patch('/:id/send-to-revision'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], AssignedWorkController.prototype, "sendToRevision", null);
 __decorate([
     Delete('/:id'),
     __metadata("design:type", Function),

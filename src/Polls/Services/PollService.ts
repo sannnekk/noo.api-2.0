@@ -17,6 +17,7 @@ import * as TypeORM from 'typeorm'
 import { PollQuestion } from '../Data/Relations/PollQuestion'
 import { PollQuestionRepository } from '../Data/PollQuestionRepository'
 import { UnknownError } from '@modules/Core/Errors/UnknownError'
+import { NotificationService } from '@modules/Notifications/Services/NotificationService'
 
 export class PollService {
   private readonly pollRepository: PollRepository
@@ -29,12 +30,15 @@ export class PollService {
 
   private readonly pollAuthService: PollAuthService
 
+  private readonly notificationService: NotificationService
+
   constructor() {
     this.pollRepository = new PollRepository()
     this.pollAnswerRepository = new PollAnswerRepository()
     this.pollQuestionRepository = new PollQuestionRepository()
     this.userRepository = new UserRepository()
     this.pollAuthService = new PollAuthService()
+    this.notificationService = new NotificationService()
   }
 
   public async getPolls(pagination: Pagination) {
@@ -273,6 +277,12 @@ export class PollService {
     this.pollRepository.update(poll)
     try {
       this.pollAnswerRepository.createMany(answerModels)
+
+      if (userId) {
+        this.notificationService.generateAndSend('poll.poll-answered', userId, {
+          poll,
+        })
+      }
     } catch (error) {
       throw new UnknownError('Не удалось сохранить ответы')
     }

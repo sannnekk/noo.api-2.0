@@ -59,7 +59,7 @@ export class Repository {
     async createMany(data) {
         const models = data.map((item) => new this.model(item));
         try {
-            await this.repository.save(models);
+            return this.repository.save(models);
         }
         catch (error) {
             if (error?.code === '23505') {

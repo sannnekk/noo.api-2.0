@@ -46,7 +46,7 @@ export class AssignedWorkController {
   public async getFromUser(context: Context): Promise<ApiResponse> {
     try {
       await Asserts.isAuthenticated(context)
-      Asserts.teacherOrAdmin(context)
+      Asserts.notStudent(context)
       const userId = this.assignedWorkValidator.parseId(context.params.userId)
       const pagination = this.assignedWorkValidator.parsePagination(
         context.query
@@ -75,8 +75,12 @@ export class AssignedWorkController {
         context.credentials!.role
       )
 
-      if (context.credentials!.role == 'student') {
+      if (context.credentials!.role === 'student') {
         Asserts.isAuthorized(context, work.studentId)
+      }
+
+      if (context.credentials!.role === 'mentor' && work.work.type !== 'test') {
+        Asserts.isAuthorized(context, work.mentorIds)
       }
 
       return new ApiResponse({ data: work })
@@ -304,6 +308,24 @@ export class AssignedWorkController {
       await this.assignedWorkService.shiftDeadline(
         workId,
         context.credentials.role,
+        context.credentials.userId
+      )
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
+
+  @Patch('/:id/send-to-revision')
+  public async sendToRevision(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.mentor(context)
+      const workId = this.assignedWorkValidator.parseId(context.params.id)
+
+      await this.assignedWorkService.sendToRevision(
+        workId,
         context.credentials.userId
       )
 

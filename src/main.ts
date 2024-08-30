@@ -27,7 +27,7 @@ import '@modules/Platform/PlatformController'
 import '@modules/Subjects/SubjectController'
 import '@modules/Snippets/SnippetsController'
 import '@modules/FAQ/FAQController'
-//import '@modules/Notifications/NotificationController'
+import '@modules/Notifications/NotificationController'
 
 await CoreDataSource.initialize()
 

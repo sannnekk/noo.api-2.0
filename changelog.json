@@ -1,5 +1,54 @@
 [
 	{
+		"version": "3.1.0",
+		"date": "2024-28-08",
+		"authors": [
+			"sannnekk"
+		],
+		"changes": [
+			{
+				"type": "feat",
+				"description": "Added notifications"
+			},
+			{
+				"type": "feat",
+				"description": "Mentors can now send works back for revision"
+			},
+			{
+				"type": "feat",
+				"description": "Materials can now have poll attached"
+			},
+			{
+				"type": "impr",
+				"description": "Improved algorithm of transfering works on mentor change"
+			},
+			{
+				"type": "fix",
+				"description": "Fixed UI bugs"
+			},
+			{
+				"type": "fix",
+				"description": "Fixed that students can't unarchive works"
+			},
+			{
+				"type": "fix",
+				"description": "Fixed that students can delete any work"
+			},
+			{
+				"type": "fix",
+				"description": "Fixed date range in teachers statistics"
+			},
+			{
+				"type": "fix",
+				"description": "Fixed orphans in the database"
+			},
+			{
+				"type": "impr",
+				"description": "Telegram notifications"
+			}
+		]
+	},
+	{
 		"version": "3.0.5",
 		"date": "2024-22-08",
 		"authors": [

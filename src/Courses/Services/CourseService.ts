@@ -89,7 +89,7 @@ export class CourseService {
 
     const course = await this.courseRepository.findOne(
       condition,
-      ['chapters.materials.work' as any, 'author'],
+      ['chapters.materials.work' as any, 'author', 'chapters.materials.poll'],
       {
         chapters: {
           order: 'ASC',

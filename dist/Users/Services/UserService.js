@@ -14,6 +14,7 @@ import { SubjectRepository } from '../../Subjects/Data/SubjectRepository.js';
 import { CantChangeRoleError } from '../Errors/CantChangeRoleError.js';
 import { UnauthorizedError } from '../../Core/Errors/UnauthorizedError.js';
 import { TransferAssignedWorkService } from '../../AssignedWorks/Services/TransferAssignedWorkService.js';
+import { NotificationService } from '../../Notifications/Services/NotificationService.js';
 export class UserService {
     userRepository;
     emailService;
@@ -21,6 +22,7 @@ export class UserService {
     mentorAssignmentRepository;
     subjectRepository;
     transferAssignedWorkService;
+    notificationService;
     constructor() {
         this.userRepository = new UserRepository();
         this.emailService = new EmailService();
@@ -28,6 +30,7 @@ export class UserService {
         this.mentorAssignmentRepository = new MentorAssignmentRepository();
         this.subjectRepository = new SubjectRepository();
         this.transferAssignedWorkService = new TransferAssignedWorkService();
+        this.notificationService = new NotificationService();
     }
     async assignMentor(studentId, mentorId, subjectId) {
         const student = await this.userRepository.findOne({
@@ -61,9 +64,13 @@ export class UserService {
             await this.mentorAssignmentRepository.create(mentorAssignment);
         }
         else {
+            const oldMentor = mentorAssignment.mentor;
             mentorAssignment.mentor = mentor;
             await this.mentorAssignmentRepository.updateRaw(mentorAssignment);
+            await this.notificationService.generateAndSend('user.mentor-removed-for-student', student.id, { mentor: oldMentor, subject });
         }
+        await this.notificationService.generateAndSend('user.mentor-assigned-for-student', student.id, { mentor, subject });
+        await this.notificationService.generateAndSend('user.mentor-assigned-for-mentor', mentor.id, { student, subject });
         await this.transferAssignedWorkService.transferNotCheckedWorks(student, mentor, subject);
     }
     async unassignMentor(studentId, subjectId) {
@@ -75,6 +82,8 @@ export class UserService {
             throw new NotFoundError('Куратор не найден.');
         }
         await this.mentorAssignmentRepository.delete(mentorAssignment.id);
+        await this.notificationService.generateAndSend('user.mentor-removed-for-student', studentId, { mentor: mentorAssignment.mentor, subject: mentorAssignment.subject });
+        await this.notificationService.generateAndSend('user.mentor-removed-for-mentor', mentorAssignment.mentor.id, { student: mentorAssignment.student, subject: mentorAssignment.subject });
     }
     async getByUsername(username) {
         const user = await this.userRepository.findOne({ username }, [
@@ -171,9 +180,16 @@ export class UserService {
         if (user.role !== 'student') {
             throw new CantChangeRoleError();
         }
+        // reset user's relations
+        user.courses = [];
+        user.coursesAsStudent = [];
+        user.mentorAssignmentsAsMentor = [];
+        user.mentorAssignmentsAsStudent = [];
+        user.snippets = [];
         user.role = role;
         await this.userRepository.update(user);
         await this.sessionService.deleteSessionsForUser(user.id);
+        await this.notificationService.generateAndSend('user.role-changed', user.id, { newRole: role });
     }
     async updateTelegram(id, data) {
         const user = await this.userRepository.findOne({ id });
@@ -192,6 +208,7 @@ export class UserService {
             user.avatar.telegramAvatarUrl = data.telegramAvatarUrl;
         }
         await this.userRepository.update(user);
+        await this.notificationService.generateAndSend('user.telegram-updated', user.id);
     }
     async sendEmailUpdate(id, newEmail) {
         const user = await this.userRepository.findOne({ id });

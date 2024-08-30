@@ -16,4 +16,10 @@ export const MaterialScheme = z.object({
   description: z.string().nullable().optional(),
   content: DeltaScheme,
   files: z.array(MediaScheme),
+  poll: z
+    .object({
+      id: z.string().ulid(),
+    })
+    .nullable()
+    .optional(),
 })

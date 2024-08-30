@@ -1,3 +1,14 @@
+function escapeSpecialTelegramCharacters(text: string) {
+  return text
+    .replace(/\[/g, '\\[')
+    .replace(/`/g, '\\`')
+    .replace(/~/g, '\\~')
+    .replace(/>/g, '\\>')
+    .replace(/#/g, '\\#')
+    .replace(/\./g, '\\.')
+    .replace(/!/g, '\\!')
+}
+
 export async function send(
   userTelegramId: string,
   message: string,
@@ -11,7 +22,7 @@ export async function send(
       },
       body: JSON.stringify({
         chat_id: userTelegramId,
-        text: message,
+        text: escapeSpecialTelegramCharacters(message),
         // set parse mode to the text where * is bold, _ is italic, etc.
         parse_mode: 'MarkdownV2',
       }),

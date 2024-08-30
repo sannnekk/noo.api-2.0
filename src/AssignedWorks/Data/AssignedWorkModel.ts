@@ -165,6 +165,7 @@ export class AssignedWorkModel extends SearchableModel implements AssignedWork {
 
   @OneToMany(() => AssignedWorkAnswerModel, (answer) => answer.assignedWork, {
     cascade: true,
+    orphanedRowAction: 'delete',
   })
   answers!: AssignedWorkAnswer[]
 
@@ -174,7 +175,7 @@ export class AssignedWorkModel extends SearchableModel implements AssignedWork {
   @OneToMany(
     () => AssignedWorkCommentModel,
     (comment) => comment.assignedWork,
-    { cascade: true }
+    { cascade: true, orphanedRowAction: 'delete' }
   )
   comments!: AssignedWorkComment[]
 

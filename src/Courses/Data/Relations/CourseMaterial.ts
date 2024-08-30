@@ -3,6 +3,7 @@ import { DeltaContentType } from '@modules/Core/Data/DeltaContentType'
 import { Work } from '@modules/Works/Data/Work'
 import { Media } from '@modules/Media/Data/Media'
 import { CourseChapter } from './CourseChapter'
+import { Poll } from '@modules/Polls/Data/Poll'
 
 export interface CourseMaterial {
   id: ULID.Ulid
@@ -19,6 +20,8 @@ export interface CourseMaterial {
   workCheckDeadline?: Date
   files: Media[]
   isActive: boolean
+  poll?: Poll
+  pollId?: Poll['id']
   createdAt: Date
   updatedAt: Date
 }

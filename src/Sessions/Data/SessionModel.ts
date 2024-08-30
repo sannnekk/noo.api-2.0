@@ -75,7 +75,9 @@ export class SessionModel extends Model implements Session {
   })
   lastRequestAt!: Date
 
-  @ManyToOne(() => UserModel, (user) => user.sessions)
+  @ManyToOne(() => UserModel, (user) => user.sessions, {
+    onDelete: 'CASCADE',
+  })
   user!: User
 
   @RelationId((session: SessionModel) => session.user)

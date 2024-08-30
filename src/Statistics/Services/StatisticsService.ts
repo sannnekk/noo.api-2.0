@@ -109,6 +109,14 @@ export class StatisticsService {
       .andWhere('assigned_work.checked_at IS NOT NULL')
       .getCount()
 
+    const automaticallyCheckedWorksCount =
+      await assignedWorkRepositoryQueryBuilder
+        .clone()
+        .andWhere('assigned_work.check_status = :check_status', {
+          check_status: 'checked-automatically',
+        })
+        .getCount()
+
     const totalAssignedWorksInDateRange =
       await assignedWorkRepositoryQueryBuilder
         .clone()
@@ -118,13 +126,23 @@ export class StatisticsService {
     const checkedWorksInDateRange = await assignedWorkRepositoryQueryBuilder
       .clone()
       .andWhere('assigned_work.checked_at IS NOT NULL')
-      .andWhere(this.getDateRange('assigned_work.created_at', from, to))
+      .andWhere(this.getDateRange('assigned_work.checked_at', from, to))
       .getCount()
+
+    const automaticallyCheckedWorksInDateRange =
+      await assignedWorkRepositoryQueryBuilder
+        .clone()
+        .andWhere('assigned_work.check_status = :check_status', {
+          check_status: 'checked-automatically',
+        })
+        .andWhere(this.getDateRange('assigned_work.checked_at', from, to))
+        .getCount()
 
     const newUsersPerDay = (
       await userRepositoryQueryBuilder
         .clone()
         .select(['COUNT(user.id) as count', 'DATE(user.created_at) as date'])
+        .where(this.getDateRange('user.created_at', from, to))
         .groupBy('date')
         .getRawMany()
     ).map((item) => ({ date: new Date(item.date), count: item.count }))
@@ -144,10 +162,12 @@ export class StatisticsService {
         .clone()
         .select([
           'COUNT(assigned_work.id) as count',
-          'DATE(assigned_work.checked_at) as date',
+          'DATE(assigned_work.solved_at) as date',
         ])
-        .andWhere('assigned_work.checked_at IS NOT NULL')
+        .andWhere('assigned_work.solved_at IS NOT NULL')
+        .andWhere(this.getDateRange('assigned_work.solved_at', from, to))
         .groupBy('date')
+        .orderBy('date', 'ASC')
         .getRawMany()
     ).map((item) => ({ date: new Date(item.date), count: item.count }))
 
@@ -208,12 +228,20 @@ export class StatisticsService {
           value: checkedWorks,
         },
         {
+          name: 'Проверено автоматически',
+          value: automaticallyCheckedWorksCount,
+        },
+        {
           name: 'Всего работ за период',
           value: totalAssignedWorksInDateRange,
         },
         {
           name: 'Проверено работ за период',
           value: checkedWorksInDateRange,
+        },
+        {
+          name: 'Проверено автоматически за период',
+          value: automaticallyCheckedWorksInDateRange,
         },
       ],
       plots: [newUsersPerDayPlot, worksSolvedPerDayPlot],

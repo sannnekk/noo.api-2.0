@@ -84,6 +84,7 @@ export class WorkModel extends SearchableModel implements Work {
 
   @OneToMany(() => WorkTaskModel, (task) => task.work, {
     cascade: true,
+    orphanedRowAction: 'delete',
   })
   tasks!: WorkTask[]
 

@@ -240,6 +240,7 @@ __decorate([
 __decorate([
     OneToMany(() => AssignedWorkAnswerModel, (answer) => answer.assignedWork, {
         cascade: true,
+        orphanedRowAction: 'delete',
     }),
     __metadata("design:type", Array)
 ], AssignedWorkModel.prototype, "answers", void 0);
@@ -248,7 +249,7 @@ __decorate([
     __metadata("design:type", Array)
 ], AssignedWorkModel.prototype, "answerIds", void 0);
 __decorate([
-    OneToMany(() => AssignedWorkCommentModel, (comment) => comment.assignedWork, { cascade: true }),
+    OneToMany(() => AssignedWorkCommentModel, (comment) => comment.assignedWork, { cascade: true, orphanedRowAction: 'delete' }),
     __metadata("design:type", Array)
 ], AssignedWorkModel.prototype, "comments", void 0);
 __decorate([

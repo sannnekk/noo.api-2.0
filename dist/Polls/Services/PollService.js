@@ -13,18 +13,21 @@ import { z } from 'zod';
 import * as TypeORM from 'typeorm';
 import { PollQuestionRepository } from '../Data/PollQuestionRepository.js';
 import { UnknownError } from '../../Core/Errors/UnknownError.js';
+import { NotificationService } from '../../Notifications/Services/NotificationService.js';
 export class PollService {
     pollRepository;
     pollAnswerRepository;
     pollQuestionRepository;
     userRepository;
     pollAuthService;
+    notificationService;
     constructor() {
         this.pollRepository = new PollRepository();
         this.pollAnswerRepository = new PollAnswerRepository();
         this.pollQuestionRepository = new PollQuestionRepository();
         this.userRepository = new UserRepository();
         this.pollAuthService = new PollAuthService();
+        this.notificationService = new NotificationService();
     }
     async getPolls(pagination) {
         pagination = new Pagination().assign(pagination);
@@ -192,6 +195,11 @@ export class PollService {
         this.pollRepository.update(poll);
         try {
             this.pollAnswerRepository.createMany(answerModels);
+            if (userId) {
+                this.notificationService.generateAndSend('poll.poll-answered', userId, {
+                    poll,
+                });
+            }
         }
         catch (error) {
             throw new UnknownError('Не удалось сохранить ответы');

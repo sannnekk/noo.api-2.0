@@ -109,6 +109,7 @@ __decorate([
 __decorate([
     OneToMany(() => CourseChapterModel, (chapter) => chapter.course, {
         cascade: true,
+        orphanedRowAction: 'delete',
     }),
     __metadata("design:type", Array)
 ], CourseModel.prototype, "chapters", void 0);

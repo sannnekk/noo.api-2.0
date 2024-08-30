@@ -18,6 +18,8 @@ import { Poll, PollVisibility } from './Poll'
 import { SearchableModel } from '@modules/Core/Data/SearchableModel'
 import { BaseModel } from '@modules/Core/Data/Model'
 import { config } from '@modules/config'
+import { CourseMaterialModel } from '@modules/Courses/Data/Relations/CourseMaterialModel'
+import { CourseMaterial } from '@modules/Courses/Data/Relations/CourseMaterial'
 
 @Entity('poll')
 export class PollModel extends SearchableModel implements Poll {
@@ -37,6 +39,9 @@ export class PollModel extends SearchableModel implements Poll {
 
   @OneToOne(() => BlogPostModel, (post) => post.poll, { onDelete: 'CASCADE' })
   post!: BlogPost
+
+  @OneToMany(() => CourseMaterialModel, (material) => material.poll)
+  materials!: CourseMaterial[]
 
   @OneToMany(() => PollQuestionModel, (question) => question.poll, {
     cascade: true,

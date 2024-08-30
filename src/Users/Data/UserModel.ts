@@ -34,6 +34,7 @@ import { MentorAssignmentModel } from './Relations/MentorAssignmentModel'
 import { SnippetModel } from '@modules/Snippets/Data/SnippetModel'
 import { Snippet } from '@modules/Snippets/Data/Snippet'
 import { config } from '@modules/config'
+import { NotificationModel } from '@modules/Notifications/Data/NotificationModel'
 
 @Entity('user')
 export class UserModel extends SearchableModel implements User {
@@ -141,6 +142,9 @@ export class UserModel extends SearchableModel implements User {
   @ManyToMany(() => PollModel, (poll) => poll.votedUsers)
   votedPolls!: Poll[]
 
+  @OneToMany(() => NotificationModel, (notification) => notification.user)
+  notifications?: Notification[]
+
   @OneToMany(() => SessionModel, (session) => session.user, {
     onDelete: 'CASCADE',
   })
@@ -235,5 +239,18 @@ export class UserModel extends SearchableModel implements User {
 
   private sluggify(username: string): string {
     return username.toLowerCase().replace(/\s/g, '-')
+  }
+
+  public static getRoleName(role: User['role']): string {
+    switch (role) {
+      case 'student':
+        return 'Ученик'
+      case 'mentor':
+        return 'Куратор'
+      case 'teacher':
+        return 'Преподаватель'
+      case 'admin':
+        return 'Администратор'
+    }
   }
 }

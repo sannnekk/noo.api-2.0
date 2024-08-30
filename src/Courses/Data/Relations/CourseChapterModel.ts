@@ -77,7 +77,7 @@ export class CourseChapterModel extends Model implements CourseChapter {
   @OneToMany(
     () => CourseMaterialModel,
     (material: CourseMaterial) => material.chapter,
-    { cascade: true }
+    { cascade: true, orphanedRowAction: 'delete' }
   )
   materials?: CourseMaterial[] | undefined
 

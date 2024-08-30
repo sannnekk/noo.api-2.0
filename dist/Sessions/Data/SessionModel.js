@@ -92,7 +92,9 @@ __decorate([
     __metadata("design:type", Date)
 ], SessionModel.prototype, "lastRequestAt", void 0);
 __decorate([
-    ManyToOne(() => UserModel, (user) => user.sessions),
+    ManyToOne(() => UserModel, (user) => user.sessions, {
+        onDelete: 'CASCADE',
+    }),
     __metadata("design:type", Object)
 ], SessionModel.prototype, "user", void 0);
 __decorate([

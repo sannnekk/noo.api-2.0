@@ -116,11 +116,11 @@ export abstract class Repository<T extends BaseModel> {
    * @throws AlreadyExistError if any of the entities already exists
    * @param data The data to create the entities with
    */
-  async createMany(data: T[]): Promise<void> {
+  async createMany(data: T[]): Promise<T[]> {
     const models = data.map((item) => new this.model(item))
 
     try {
-      await this.repository.save(models)
+      return this.repository.save(models) as unknown as T[]
     } catch (error: any) {
       if (error?.code === '23505') {
         throw new AlreadyExistError()

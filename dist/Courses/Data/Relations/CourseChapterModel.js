@@ -83,7 +83,7 @@ __decorate([
     __metadata("design:type", Object)
 ], CourseChapterModel.prototype, "courseId", void 0);
 __decorate([
-    OneToMany(() => CourseMaterialModel, (material) => material.chapter, { cascade: true }),
+    OneToMany(() => CourseMaterialModel, (material) => material.chapter, { cascade: true, orphanedRowAction: 'delete' }),
     __metadata("design:type", Object)
 ], CourseChapterModel.prototype, "materials", void 0);
 __decorate([

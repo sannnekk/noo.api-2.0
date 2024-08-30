@@ -9,14 +9,17 @@ import { InvalidVerificationTokenError } from '../Errors/InvalidVerificationToke
 import { SessionService } from '../../Sessions/Services/SessionService.js';
 import { UserRepository } from '../../Users/Data/UserRepository.js';
 import { UserModel } from '../../Users/Data/UserModel.js';
+import { NotificationService } from '../../Notifications/Services/NotificationService.js';
 export class AuthService {
     userRepository;
     emailService;
     sessionService;
+    notificationService;
     constructor() {
         this.userRepository = new UserRepository();
         this.emailService = new EmailService();
         this.sessionService = new SessionService();
+        this.notificationService = new NotificationService();
     }
     async create(user) {
         user.password = await Hash.hash(user.password);
@@ -50,6 +53,7 @@ export class AuthService {
         //await this.userRepository.setRandomMentor(user)
         await this.create(user);
         await this.emailService.sendVerificationEmail(user.email, user.username, user.name, user.verificationToken);
+        await this.notificationService.generateAndSend('welcome', user.id);
     }
     async checkUsername(username) {
         const user = await this.userRepository.findOne({ username });
@@ -67,6 +71,7 @@ export class AuthService {
         }
         user.verificationToken = null;
         await this.userRepository.update(user);
+        await this.notificationService.generateAndSend('user.email-verified', user.id);
     }
     async resendVerification(email) {
         const user = await this.userRepository.findOne({ email });
@@ -102,6 +107,9 @@ export class AuthService {
         let session = await this.sessionService.getCurrentSession(context, user.id);
         if (!session) {
             session = await this.sessionService.createSession(context, user.id);
+            await this.notificationService.generateAndSend('user.login', user.id, {
+                session,
+            });
         }
         const payload = {
             userId: user.id,

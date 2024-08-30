@@ -26,6 +26,7 @@ import { SubjectModel } from '../../Subjects/Data/SubjectModel.js';
 import { SnippetModel } from '../../Snippets/Data/SnippetModel.js';
 import { config } from '../../config.js';
 import { FAQCategoryModel } from '../../FAQ/Data/Relations/FAQCategoryModel.js';
+import { NotificationModel } from '../../Notifications/Data/NotificationModel.js';
 export const CoreDataSource = new DataSource({
     type: 'mysql',
     host: process.env.DB_HOST,
@@ -63,6 +64,7 @@ export const CoreDataSource = new DataSource({
         SessionModel,
         GoogleSheetsBindingModel,
         SnippetModel,
+        NotificationModel,
     ],
     subscribers: [],
     migrations: [],

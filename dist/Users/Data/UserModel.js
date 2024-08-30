@@ -20,6 +20,7 @@ import { SearchableModel } from '../../Core/Data/SearchableModel.js';
 import { MentorAssignmentModel } from './Relations/MentorAssignmentModel.js';
 import { SnippetModel } from '../../Snippets/Data/SnippetModel.js';
 import { config } from '../../config.js';
+import { NotificationModel } from '../../Notifications/Data/NotificationModel.js';
 let UserModel = class UserModel extends SearchableModel {
     constructor(data) {
         super();
@@ -50,6 +51,7 @@ let UserModel = class UserModel extends SearchableModel {
     blogPostReactions;
     pollAnswers;
     votedPolls;
+    notifications;
     sessions;
     snippets;
     avatar;
@@ -78,6 +80,18 @@ let UserModel = class UserModel extends SearchableModel {
     }
     sluggify(username) {
         return username.toLowerCase().replace(/\s/g, '-');
+    }
+    static getRoleName(role) {
+        switch (role) {
+            case 'student':
+                return 'Ученик';
+            case 'mentor':
+                return 'Куратор';
+            case 'teacher':
+                return 'Преподаватель';
+            case 'admin':
+                return 'Администратор';
+        }
     }
 };
 __decorate([
@@ -185,6 +199,10 @@ __decorate([
     ManyToMany(() => PollModel, (poll) => poll.votedUsers),
     __metadata("design:type", Array)
 ], UserModel.prototype, "votedPolls", void 0);
+__decorate([
+    OneToMany(() => NotificationModel, (notification) => notification.user),
+    __metadata("design:type", Array)
+], UserModel.prototype, "notifications", void 0);
 __decorate([
     OneToMany(() => SessionModel, (session) => session.user, {
         onDelete: 'CASCADE',

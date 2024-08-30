@@ -15,6 +15,7 @@ import { WorkModel } from '../../../Works/Data/WorkModel.js';
 import { MediaModel } from '../../../Media/Data/MediaModel.js';
 import { CourseChapterModel } from './CourseChapterModel.js';
 import { config } from '../../../config.js';
+import { PollModel } from '../../../Polls/Data/PollModel.js';
 let CourseMaterialModel = class CourseMaterialModel extends Model {
     constructor(data) {
         super();
@@ -40,6 +41,8 @@ let CourseMaterialModel = class CourseMaterialModel extends Model {
     chapterId;
     work;
     workId;
+    poll;
+    pollId;
     files;
     sluggify(text) {
         return `${ULID.generate()}-${Transliteration.sluggify(text)}`;
@@ -123,12 +126,20 @@ __decorate([
 ], CourseMaterialModel.prototype, "chapterId", void 0);
 __decorate([
     ManyToOne(() => WorkModel, (work) => work.materials),
-    __metadata("design:type", Object)
+    __metadata("design:type", WorkModel)
 ], CourseMaterialModel.prototype, "work", void 0);
 __decorate([
     RelationId((material) => material.work),
-    __metadata("design:type", Object)
+    __metadata("design:type", String)
 ], CourseMaterialModel.prototype, "workId", void 0);
+__decorate([
+    ManyToOne(() => PollModel, (poll) => poll.materials),
+    __metadata("design:type", Object)
+], CourseMaterialModel.prototype, "poll", void 0);
+__decorate([
+    RelationId((material) => material.poll),
+    __metadata("design:type", Object)
+], CourseMaterialModel.prototype, "pollId", void 0);
 __decorate([
     OneToMany(() => MediaModel, (media) => media.courseMaterial, {
         eager: true,

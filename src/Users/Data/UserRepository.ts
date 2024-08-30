@@ -1,6 +1,7 @@
 import { Repository } from '@modules/Core/Data/Repository'
 import { User } from './User'
 import { UserModel } from './UserModel'
+import { FindOptionsWhere } from 'typeorm'
 
 export class UserRepository extends Repository<User> {
   constructor() {
@@ -22,6 +23,20 @@ export class UserRepository extends Repository<User> {
     }
 
     const users = await query.getMany()
+
+    return users.map((user) => user.id)
+  }
+
+  public async findIds(conditions?: FindOptionsWhere<User>): Promise<string[]> {
+    const query = await this.queryBuilder('user').select('user.id as id')
+
+    if (conditions) {
+      query.setFindOptions({ where: conditions })
+    }
+
+    const users = (await query.getRawMany()) as {
+      id: string
+    }[]
 
     return users.map((user) => user.id)
   }

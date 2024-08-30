@@ -9,6 +9,8 @@ import { CourseChapterModel } from './CourseChapterModel'
 import { CourseMaterial } from './CourseMaterial'
 import { CourseChapter } from './CourseChapter'
 import { config } from '@modules/config'
+import { PollModel } from '@modules/Polls/Data/PollModel'
+import { Poll } from '@modules/Polls/Data/Poll'
 
 @Entity('course_material', {
   orderBy: {
@@ -103,10 +105,16 @@ export class CourseMaterialModel extends Model implements CourseMaterial {
   chapterId!: CourseChapter['id']
 
   @ManyToOne(() => WorkModel, (work) => work.materials)
-  work?: WorkModel | undefined
+  work?: WorkModel
 
   @RelationId((material: CourseMaterialModel) => material.work)
-  workId?: string | undefined
+  workId?: string
+
+  @ManyToOne(() => PollModel, (poll) => poll.materials)
+  poll?: Poll
+
+  @RelationId((material: CourseMaterialModel) => material.poll)
+  pollId?: Poll['id']
 
   @OneToMany(() => MediaModel, (media) => media.courseMaterial, {
     eager: true,

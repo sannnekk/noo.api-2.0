@@ -23,7 +23,7 @@ import './Platform/PlatformController.js';
 import './Subjects/SubjectController.js';
 import './Snippets/SnippetsController.js';
 import './FAQ/FAQController.js';
-//import '@modules/Notifications/NotificationController'
+import './Notifications/NotificationController.js';
 await CoreDataSource.initialize();
 const app = express();
 app.set('trust proxy', true);

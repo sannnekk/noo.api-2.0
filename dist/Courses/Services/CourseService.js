@@ -56,7 +56,7 @@ export class CourseService {
                 }
                 : undefined,
         };
-        const course = await this.courseRepository.findOne(condition, ['chapters.materials.work', 'author'], {
+        const course = await this.courseRepository.findOne(condition, ['chapters.materials.work', 'author', 'chapters.materials.poll'], {
             chapters: {
                 order: 'ASC',
                 materials: {

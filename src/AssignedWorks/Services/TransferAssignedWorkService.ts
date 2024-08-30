@@ -14,16 +14,21 @@ export class TransferAssignedWorkService {
     newMentor: User,
     subject: Subject
   ): Promise<void> {
-    const notStartedWorks =
-      await this.assignedWorkRepository.getNotCheckedWorks(
+    const assignedWorkIds =
+      await this.assignedWorkRepository.findWorkIdsByStudentAndSubject(
         student.id,
-        subject.id,
-        ['mentors']
+        subject.id
       )
 
-    for (const work of notStartedWorks) {
-      work.mentors = [newMentor]
-      await this.assignedWorkRepository.update(work)
-    }
+    // remove all mentors from assigned works
+    await this.assignedWorkRepository.removeMentorsFromAssignedWorks(
+      assignedWorkIds
+    )
+
+    // assign new mentor to assigned works
+    await this.assignedWorkRepository.assignMentorToAssignedWorks(
+      assignedWorkIds,
+      newMentor.id
+    )
   }
 }

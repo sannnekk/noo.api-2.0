@@ -24,6 +24,7 @@ import { PasswordUpdateDTO } from '../DTO/PasswordUpdateDTO'
 import { CantChangeRoleError } from '../Errors/CantChangeRoleError'
 import { UnauthorizedError } from '@modules/Core/Errors/UnauthorizedError'
 import { TransferAssignedWorkService } from '@modules/AssignedWorks/Services/TransferAssignedWorkService'
+import { NotificationService } from '@modules/Notifications/Services/NotificationService'
 
 export class UserService {
   private readonly userRepository: UserRepository
@@ -38,6 +39,8 @@ export class UserService {
 
   private readonly transferAssignedWorkService: TransferAssignedWorkService
 
+  private readonly notificationService: NotificationService
+
   constructor() {
     this.userRepository = new UserRepository()
     this.emailService = new EmailService()
@@ -45,6 +48,7 @@ export class UserService {
     this.mentorAssignmentRepository = new MentorAssignmentRepository()
     this.subjectRepository = new SubjectRepository()
     this.transferAssignedWorkService = new TransferAssignedWorkService()
+    this.notificationService = new NotificationService()
   }
 
   public async assignMentor(
@@ -93,10 +97,27 @@ export class UserService {
 
       await this.mentorAssignmentRepository.create(mentorAssignment)
     } else {
+      const oldMentor = mentorAssignment.mentor
       mentorAssignment.mentor = mentor
 
       await this.mentorAssignmentRepository.updateRaw(mentorAssignment)
+      await this.notificationService.generateAndSend(
+        'user.mentor-removed-for-student',
+        student.id,
+        { mentor: oldMentor, subject }
+      )
     }
+
+    await this.notificationService.generateAndSend(
+      'user.mentor-assigned-for-student',
+      student.id,
+      { mentor, subject }
+    )
+    await this.notificationService.generateAndSend(
+      'user.mentor-assigned-for-mentor',
+      mentor.id,
+      { student, subject }
+    )
 
     await this.transferAssignedWorkService.transferNotCheckedWorks(
       student,
@@ -116,6 +137,18 @@ export class UserService {
     }
 
     await this.mentorAssignmentRepository.delete(mentorAssignment.id)
+
+    await this.notificationService.generateAndSend(
+      'user.mentor-removed-for-student',
+      studentId,
+      { mentor: mentorAssignment.mentor, subject: mentorAssignment.subject }
+    )
+
+    await this.notificationService.generateAndSend(
+      'user.mentor-removed-for-mentor',
+      mentorAssignment.mentor.id,
+      { student: mentorAssignment.student, subject: mentorAssignment.subject }
+    )
   }
 
   public async getByUsername(username: string): Promise<User & OnlineStatus> {
@@ -263,10 +296,23 @@ export class UserService {
       throw new CantChangeRoleError()
     }
 
+    // reset user's relations
+    user.courses = []
+    user.coursesAsStudent = []
+    user.mentorAssignmentsAsMentor = []
+    user.mentorAssignmentsAsStudent = []
+    user.snippets = []
+
     user.role = role
 
     await this.userRepository.update(user)
     await this.sessionService.deleteSessionsForUser(user.id)
+
+    await this.notificationService.generateAndSend(
+      'user.role-changed',
+      user.id,
+      { newRole: role }
+    )
   }
 
   public async updateTelegram(
@@ -292,6 +338,11 @@ export class UserService {
     }
 
     await this.userRepository.update(user)
+
+    await this.notificationService.generateAndSend(
+      'user.telegram-updated',
+      user.id
+    )
   }
 
   public async sendEmailUpdate(id: User['id'], newEmail: User['email']) {
