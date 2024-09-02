@@ -1,5 +1,26 @@
 [
 	{
+		"version": "3.1.1",
+		"date": "2024-02-09",
+		"authors": [
+			"sannnekk"
+		],
+		"changes": [
+			{
+				"type": "feat",
+				"description": "Added recheck automatically button for everyone but students"
+			},
+			{
+				"type": "impr",
+				"description": "Corrected orphaned row action for assigned work answers and comments"
+			},
+			{
+				"type": "fix",
+				"description": "Fixed that sometimes the messages are not sent to telegram"
+			}
+		]
+	},
+	{
 		"version": "3.1.0",
 		"date": "2024-28-08",
 		"authors": [

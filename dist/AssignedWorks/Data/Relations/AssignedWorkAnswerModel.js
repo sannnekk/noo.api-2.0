@@ -72,7 +72,9 @@ __decorate([
     __metadata("design:type", Object)
 ], AssignedWorkAnswerModel.prototype, "taskId", void 0);
 __decorate([
-    ManyToOne(() => AssignedWorkModel, (assignedWork) => assignedWork.answers),
+    ManyToOne(() => AssignedWorkModel, (assignedWork) => assignedWork.answers, {
+        orphanedRowAction: 'delete',
+    }),
     __metadata("design:type", Object)
 ], AssignedWorkAnswerModel.prototype, "assignedWork", void 0);
 AssignedWorkAnswerModel = __decorate([

@@ -56,7 +56,9 @@ export class AssignedWorkCommentModel
   @RelationId((comment: AssignedWorkCommentModel) => comment.task)
   taskId!: AssignedWork['id']
 
-  @ManyToOne(() => AssignedWorkModel, (assignedWork) => assignedWork.comments)
+  @ManyToOne(() => AssignedWorkModel, (assignedWork) => assignedWork.comments, {
+    orphanedRowAction: 'delete',
+  })
   assignedWork?: AssignedWork | undefined
 
   private sluggify(): string {

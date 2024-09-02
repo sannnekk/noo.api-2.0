@@ -312,6 +312,22 @@ export class AssignedWorkService {
             await this.notificationService.generateAndSend('assigned-work.work-checked-for-mentor', mentor.id, { assignedWork: foundWork });
         }
     }
+    async rechekAutomatically(workId) {
+        const foundWork = await this.getAssignedWork(workId, [
+            'work.tasks',
+            'answers',
+        ]);
+        if (!foundWork) {
+            throw new NotFoundError('Работа не найдена');
+        }
+        if (foundWork.checkStatus !== 'checked-automatically') {
+            throw new WorkIsNotSolvedYetError();
+        }
+        foundWork.comments = this.taskService.automatedCheck(foundWork.work.tasks, foundWork.answers);
+        foundWork.checkedAt = Dates.now();
+        foundWork.score = this.getScore(foundWork.comments);
+        await this.assignedWorkRepository.update(foundWork);
+    }
     async saveProgress(assignedWorkId, saveOptions, role) {
         const foundWork = await this.getAssignedWork(assignedWorkId);
         if (!foundWork) {

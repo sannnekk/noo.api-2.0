@@ -494,6 +494,31 @@ export class AssignedWorkService {
     }
   }
 
+  public async rechekAutomatically(workId: AssignedWork['id']) {
+    const foundWork = await this.getAssignedWork(workId, [
+      'work.tasks' as any,
+      'answers',
+    ])
+
+    if (!foundWork) {
+      throw new NotFoundError('Работа не найдена')
+    }
+
+    if (foundWork.checkStatus !== 'checked-automatically') {
+      throw new WorkIsNotSolvedYetError()
+    }
+
+    foundWork.comments = this.taskService.automatedCheck(
+      foundWork.work.tasks,
+      foundWork.answers
+    )
+
+    foundWork.checkedAt = Dates.now()
+    foundWork.score = this.getScore(foundWork.comments)
+
+    await this.assignedWorkRepository.update(foundWork)
+  }
+
   public async saveProgress(
     assignedWorkId: AssignedWork['id'],
     saveOptions: SaveOptions,

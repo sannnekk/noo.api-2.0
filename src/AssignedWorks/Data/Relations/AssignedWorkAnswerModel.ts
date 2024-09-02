@@ -60,7 +60,9 @@ export class AssignedWorkAnswerModel
   @RelationId((answer: AssignedWorkAnswerModel) => answer.task)
   taskId!: WorkTask['id']
 
-  @ManyToOne(() => AssignedWorkModel, (assignedWork) => assignedWork.answers)
+  @ManyToOne(() => AssignedWorkModel, (assignedWork) => assignedWork.answers, {
+    orphanedRowAction: 'delete',
+  })
   assignedWork?: AssignedWork | undefined
 
   public sluggify(): string {

@@ -68,7 +68,9 @@ __decorate([
     __metadata("design:type", Object)
 ], AssignedWorkCommentModel.prototype, "taskId", void 0);
 __decorate([
-    ManyToOne(() => AssignedWorkModel, (assignedWork) => assignedWork.comments),
+    ManyToOne(() => AssignedWorkModel, (assignedWork) => assignedWork.comments, {
+        orphanedRowAction: 'delete',
+    }),
     __metadata("design:type", Object)
 ], AssignedWorkCommentModel.prototype, "assignedWork", void 0);
 AssignedWorkCommentModel = __decorate([

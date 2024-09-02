@@ -202,6 +202,22 @@ export class AssignedWorkController {
     }
   }
 
+  @Patch('/:id/recheck-automatically')
+  public async rechekAutomatically(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.notStudent(context)
+
+      const workId = this.assignedWorkValidator.parseId(context.params.id)
+
+      await this.assignedWorkService.rechekAutomatically(workId)
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
+
   @Patch('/:id/save')
   public async save(context: Context): Promise<ApiResponse> {
     try {

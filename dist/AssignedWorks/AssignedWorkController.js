@@ -135,6 +135,18 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse(error);
         }
     }
+    async rechekAutomatically(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.notStudent(context);
+            const workId = this.assignedWorkValidator.parseId(context.params.id);
+            await this.assignedWorkService.rechekAutomatically(workId);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
     async save(context) {
         try {
             await Asserts.isAuthenticated(context);
@@ -289,6 +301,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], AssignedWorkController.prototype, "check", null);
+__decorate([
+    Patch('/:id/recheck-automatically'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], AssignedWorkController.prototype, "rechekAutomatically", null);
 __decorate([
     Patch('/:id/save'),
     __metadata("design:type", Function),
