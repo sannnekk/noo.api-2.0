@@ -103,7 +103,11 @@ export class UserService {
             throw new NotFoundError('Пользователь не найден.');
         }
         const onlineStatus = await this.sessionService.getOnlineStatus(user.id);
-        return { ...user, ...onlineStatus };
+        return {
+            ...user,
+            ...onlineStatus,
+            password: undefined,
+        };
     }
     async getUsers(pagination) {
         const relations = [];
@@ -152,9 +156,9 @@ export class UserService {
         if (!existingUser) {
             throw new NotFoundError();
         }
-        if (data.password) {
-            data.password = await Hash.hash(data.password);
-        }
+        /* if (data.password) {
+          data.password = await Hash.hash(data.password)
+        } */
         const user = new UserModel({
             ...existingUser,
             ...data,

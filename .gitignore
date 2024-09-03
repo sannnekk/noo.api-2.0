@@ -1,4 +1,5 @@
 .env
+.clinic
 /node_modules
 /k8n
 test.sh

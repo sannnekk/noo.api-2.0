@@ -180,7 +180,11 @@ export class UserService {
 
     const onlineStatus = await this.sessionService.getOnlineStatus(user.id)
 
-    return { ...user, ...onlineStatus }
+    return {
+      ...user,
+      ...onlineStatus,
+      password: undefined,
+    }
   }
 
   public async getUsers(pagination: Pagination | undefined) {
@@ -257,9 +261,9 @@ export class UserService {
       throw new NotFoundError()
     }
 
-    if (data.password) {
+    /* if (data.password) {
       data.password = await Hash.hash(data.password)
-    }
+    } */
 
     const user = new UserModel({
       ...existingUser,
