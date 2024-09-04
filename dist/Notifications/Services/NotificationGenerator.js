@@ -79,7 +79,7 @@ export class NotificationGenerator {
     mentorAssignedForStudentNotification(mentor, subject) {
         return new NotificationModel({
             title: `Вам назначен куратор`,
-            message: `Ваш новый куратор: ${mentor.name} gо предмету: ${subject.name}`,
+            message: `Ваш новый куратор: ${mentor.name} по предмету: ${subject.name}`,
             type: 'mentor-assigned',
         });
     }

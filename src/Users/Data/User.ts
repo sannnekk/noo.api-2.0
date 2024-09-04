@@ -14,12 +14,13 @@ export interface User extends BaseModel {
   name: string
   username: string
   email: string
-  newEmail?: string
+  newEmail: string | null
   avatar: UserAvatar | null
   mentorAssignmentsAsMentor?: MentorAssignment[]
   mentorAssignmentsAsStudent?: MentorAssignment[]
-  telegramUsername?: string
-  telegramId?: string
+  telegramUsername: string | null
+  telegramId: string | null
+  telegramNotificationsEnabled: boolean
   password?: string
   isBlocked: boolean
   forbidden?: number

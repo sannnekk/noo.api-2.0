@@ -149,6 +149,8 @@ export class Pagination {
         };
     }
     getDbNameAndAddJoins(query, key, metadata) {
+        const alias = query.alias;
+        const mainTableName = metadata.tableName;
         const entityName = metadata.tableName;
         const [relationProp, column] = key.split('.');
         if (!column) {
@@ -158,8 +160,11 @@ export class Pagination {
         if (!relation) {
             return `${entityName}.${key}`;
         }
-        const fullAlias = `${relationProp}__${relation.propertyName}`;
-        query.leftJoinAndSelect(`${entityName}.${relationProp}`, fullAlias);
+        const fullAlias = `${alias}__${mainTableName}_${relationProp}`;
+        const alreadyJoined = query.expressionMap.joinAttributes.some((join) => join.alias.name === fullAlias);
+        if (!alreadyJoined) {
+            query.leftJoinAndSelect(`${entityName}.${relationProp}`, fullAlias);
+        }
         return `${fullAlias}.${column}`;
     }
 }

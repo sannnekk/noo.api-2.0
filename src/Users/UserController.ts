@@ -162,7 +162,11 @@ export class UserController {
         Asserts.isAuthorized(context, id)
       }
 
-      await this.userService.changePassword(id, updatePasswordDTO)
+      await this.userService.changePassword(
+        id,
+        updatePasswordDTO,
+        context.credentials!.role
+      )
 
       return new ApiResponse()
     } catch (error: any) {
@@ -220,6 +224,38 @@ export class UserController {
       }
 
       await this.userService.sendEmailUpdate(id, updateEmailDTO.email)
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
+
+  @Patch('/:id/block')
+  async block(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.teacherOrAdmin(context)
+
+      const id = this.userValidator.parseId(context.params.id)
+
+      await this.userService.block(id)
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
+
+  @Patch('/:id/unblock')
+  async unblock(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.teacherOrAdmin(context)
+
+      const id = this.userValidator.parseId(context.params.id)
+
+      await this.userService.unblock(id)
 
       return new ApiResponse()
     } catch (error: any) {

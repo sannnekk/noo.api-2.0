@@ -57,6 +57,7 @@ let UserModel = class UserModel extends SearchableModel {
     avatar;
     telegramId;
     telegramUsername;
+    telegramNotificationsEnabled;
     password;
     isBlocked;
     forbidden;
@@ -152,7 +153,7 @@ __decorate([
         charset: config.database.charsets.default,
         collation: config.database.collations.default,
     }),
-    __metadata("design:type", String)
+    __metadata("design:type", Object)
 ], UserModel.prototype, "newEmail", void 0);
 __decorate([
     OneToMany(() => MentorAssignmentModel, (assignment) => assignment.mentor),
@@ -244,6 +245,14 @@ __decorate([
     }),
     __metadata("design:type", Object)
 ], UserModel.prototype, "telegramUsername", void 0);
+__decorate([
+    Column({
+        name: 'telegram_notifications_enabled',
+        type: 'boolean',
+        default: true,
+    }),
+    __metadata("design:type", Boolean)
+], UserModel.prototype, "telegramNotificationsEnabled", void 0);
 __decorate([
     Column({
         name: 'password',

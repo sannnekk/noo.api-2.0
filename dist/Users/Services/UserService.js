@@ -156,22 +156,24 @@ export class UserService {
         if (!existingUser) {
             throw new NotFoundError();
         }
-        /* if (data.password) {
-          data.password = await Hash.hash(data.password)
-        } */
         const user = new UserModel({
             ...existingUser,
             ...data,
         });
         await this.userRepository.update(user);
     }
-    async changePassword(id, passwordDTO) {
+    async changePassword(id, passwordDTO, role) {
         const user = await this.userRepository.findOne({ id });
         if (!user) {
             throw new NotFoundError('Пользователь не найден.');
         }
-        if (!(await Hash.compare(passwordDTO.oldPassword, user.password))) {
-            throw new UnauthorizedError('Неверный пароль.');
+        if (['student', 'mentor'].includes(role)) {
+            if (!passwordDTO.oldPassword) {
+                throw new UnauthorizedError('Старый пароль неверный');
+            }
+            if (!(await Hash.compare(passwordDTO.oldPassword, user.password))) {
+                throw new UnauthorizedError('Неверный пароль.');
+            }
         }
         user.password = await Hash.hash(passwordDTO.newPassword);
         await this.userRepository.update(user);
@@ -200,7 +202,7 @@ export class UserService {
         if (!user) {
             throw new NotFoundError('Пользователь не найден.');
         }
-        user.telegramId = data.telegramId;
+        user.telegramId = data.telegramId || null;
         user.telegramUsername = data.telegramUsername;
         if (!user.avatar && data.telegramAvatarUrl) {
             user.avatar = new UserAvatarModel({
@@ -213,6 +215,23 @@ export class UserService {
         }
         await this.userRepository.update(user);
         await this.notificationService.generateAndSend('user.telegram-updated', user.id);
+    }
+    async block(id) {
+        const user = await this.userRepository.findOne({ id });
+        if (!user) {
+            throw new NotFoundError('Пользователь не найден.');
+        }
+        user.isBlocked = true;
+        await this.userRepository.update(user);
+        await this.sessionService.deleteSessionsForUser(user.id);
+    }
+    async unblock(id) {
+        const user = await this.userRepository.findOne({ id });
+        if (!user) {
+            throw new NotFoundError('Пользователь не найден.');
+        }
+        user.isBlocked = false;
+        await this.userRepository.update(user);
     }
     async sendEmailUpdate(id, newEmail) {
         const user = await this.userRepository.findOne({ id });

@@ -245,6 +245,8 @@ export class Pagination {
     key: string,
     metadata: TypeORM.EntityMetadata
   ): string {
+    const alias = query.alias
+    const mainTableName = metadata.tableName
     const entityName = metadata.tableName
     const [relationProp, column] = key.split('.')
 
@@ -260,9 +262,15 @@ export class Pagination {
       return `${entityName}.${key}`
     }
 
-    const fullAlias = `${relationProp}__${relation.propertyName}`
+    const fullAlias = `${alias}__${mainTableName}_${relationProp}`
 
-    query.leftJoinAndSelect(`${entityName}.${relationProp}`, fullAlias)
+    const alreadyJoined = query.expressionMap.joinAttributes.some(
+      (join) => join.alias.name === fullAlias
+    )
+
+    if (!alreadyJoined) {
+      query.leftJoinAndSelect(`${entityName}.${relationProp}`, fullAlias)
+    }
 
     return `${fullAlias}.${column}`
   }

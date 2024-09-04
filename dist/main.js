@@ -26,7 +26,7 @@ import './FAQ/FAQController.js';
 import './Notifications/NotificationController.js';
 await CoreDataSource.initialize();
 const app = express();
-app.set('trust proxy', true);
+app.set('trust proxy', 1);
 app.use(cors());
 app.use(express.json(config.expressJson));
 app.use(express.urlencoded(config.expressUrlencoded));

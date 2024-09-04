@@ -106,7 +106,7 @@ export class UserModel extends SearchableModel implements User {
     charset: config.database.charsets.default,
     collation: config.database.collations.default,
   })
-  newEmail?: string
+  newEmail!: string | null
 
   @OneToMany(() => MentorAssignmentModel, (assignment) => assignment.mentor)
   mentorAssignmentsAsMentor?: MentorAssignmentModel[]
@@ -169,7 +169,7 @@ export class UserModel extends SearchableModel implements User {
     charset: config.database.charsets.default,
     collation: config.database.collations.default,
   })
-  telegramId?: string | undefined
+  telegramId!: string | null
 
   @Column({
     name: 'telegram_username',
@@ -179,7 +179,14 @@ export class UserModel extends SearchableModel implements User {
     charset: config.database.charsets.withEmoji,
     collation: config.database.collations.withEmoji,
   })
-  telegramUsername?: string | undefined
+  telegramUsername!: string | null
+
+  @Column({
+    name: 'telegram_notifications_enabled',
+    type: 'boolean',
+    default: true,
+  })
+  telegramNotificationsEnabled!: boolean
 
   @Column({
     name: 'password',

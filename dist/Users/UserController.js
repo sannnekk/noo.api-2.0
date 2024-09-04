@@ -127,7 +127,7 @@ let UserController = class UserController {
             if (!['teacher', 'admin'].includes(context.credentials.role)) {
                 Asserts.isAuthorized(context, id);
             }
-            await this.userService.changePassword(id, updatePasswordDTO);
+            await this.userService.changePassword(id, updatePasswordDTO, context.credentials.role);
             return new ApiResponse();
         }
         catch (error) {
@@ -171,6 +171,30 @@ let UserController = class UserController {
                 Asserts.isAuthorized(context, id);
             }
             await this.userService.sendEmailUpdate(id, updateEmailDTO.email);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
+    async block(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.teacherOrAdmin(context);
+            const id = this.userValidator.parseId(context.params.id);
+            await this.userService.block(id);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
+    async unblock(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.teacherOrAdmin(context);
+            const id = this.userValidator.parseId(context.params.id);
+            await this.userService.unblock(id);
             return new ApiResponse();
         }
         catch (error) {
@@ -292,6 +316,18 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "updateEmail", null);
+__decorate([
+    Patch('/:id/block'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "block", null);
+__decorate([
+    Patch('/:id/unblock'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "unblock", null);
 __decorate([
     Patch('/:studentId/:subjectId/mentor/:mentorId'),
     __metadata("design:type", Function),

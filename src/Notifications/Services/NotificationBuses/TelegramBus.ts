@@ -3,6 +3,7 @@ import type { Notification } from '../../Data/Notification'
 import { send } from '@modules/Core/Utils/telegram'
 
 type TelegramMessage = {
+  allowed: boolean
   chatId: string
   text: string
 }
@@ -25,11 +26,14 @@ export class TelegramBus extends NotificationBus {
     return notifications
       .map((notification) => {
         return {
-          chatId: notification?.user?.telegramId,
+          allowed: notification.user.telegramNotificationsEnabled,
+          chatId: notification.user?.telegramId,
           text: this.formatMessage(notification),
         }
       })
-      .filter((message) => message.chatId) as TelegramMessage[]
+      .filter(
+        (message) => message.chatId && message.allowed
+      ) as TelegramMessage[]
   }
 
   private formatMessage(notification: Notification) {

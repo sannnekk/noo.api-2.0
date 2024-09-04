@@ -14,11 +14,12 @@ export class TelegramBus extends NotificationBus {
         return notifications
             .map((notification) => {
             return {
-                chatId: notification?.user?.telegramId,
+                allowed: notification.user.telegramNotificationsEnabled,
+                chatId: notification.user?.telegramId,
                 text: this.formatMessage(notification),
             };
         })
-            .filter((message) => message.chatId);
+            .filter((message) => message.chatId && message.allowed);
     }
     formatMessage(notification) {
         let emoji = '🔔';
