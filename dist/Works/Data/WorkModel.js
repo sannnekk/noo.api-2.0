@@ -97,7 +97,6 @@ __decorate([
 __decorate([
     OneToMany(() => WorkTaskModel, (task) => task.work, {
         cascade: true,
-        orphanedRowAction: 'delete',
     }),
     __metadata("design:type", Array)
 ], WorkModel.prototype, "tasks", void 0);

@@ -12,6 +12,7 @@ import { Context } from '../Core/Request/Context.js';
 import { ApiResponse } from '../Core/Response/ApiResponse.js';
 import { DealsService } from './Services/DealsService.js';
 import CrmAsserts from './Security/CrmAsserts.js';
+import { log } from '../Core/Logs/Logger.js';
 let CRMController = class CRMController {
     dealsService;
     constructor() {
@@ -20,8 +21,7 @@ let CRMController = class CRMController {
     async onDealCreation(context) {
         try {
             CrmAsserts.hasSecret(context);
-            //log('debug', 'Creating deal')
-            //log('debug', context.body as any)
+            log('debug', 'CRM Incoming', context.body);
             //await this.dealsService.create('mock', 'abracadabra')
             return new ApiResponse();
         }
@@ -33,7 +33,7 @@ let CRMController = class CRMController {
         try {
             CrmAsserts.hasSecret(context);
             //log('debug', 'Canceling deal')
-            //log('debug', context.body as any)
+            log('debug', 'CRM Cancelling', context.body);
             //await this.dealsService.remove('mock')
             return new ApiResponse();
         }

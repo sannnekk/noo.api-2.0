@@ -84,6 +84,7 @@ __decorate([
 __decorate([
     ManyToOne(() => WorkModel, (work) => work.tasks, {
         onDelete: 'CASCADE',
+        orphanedRowAction: 'delete',
     }),
     __metadata("design:type", Object)
 ], WorkTaskModel.prototype, "work", void 0);

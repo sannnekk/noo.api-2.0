@@ -97,7 +97,6 @@ export class CourseModel extends SearchableModel implements Course {
 
   @OneToMany(() => CourseChapterModel, (chapter) => chapter.course, {
     cascade: true,
-    orphanedRowAction: 'delete',
   })
   chapters!: CourseChapter[]
 

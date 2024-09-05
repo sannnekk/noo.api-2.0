@@ -65,6 +65,7 @@ export class WorkTaskModel extends Model implements WorkTask {
 
   @ManyToOne(() => WorkModel, (work) => work.tasks, {
     onDelete: 'CASCADE',
+    orphanedRowAction: 'delete',
   })
   work?: Work | undefined
 

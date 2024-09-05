@@ -117,6 +117,7 @@ __decorate([
 __decorate([
     ManyToOne(() => CourseChapterModel, (chapter) => chapter.materials, {
         onDelete: 'CASCADE',
+        orphanedRowAction: 'delete',
     }),
     __metadata("design:type", Object)
 ], CourseMaterialModel.prototype, "chapter", void 0);

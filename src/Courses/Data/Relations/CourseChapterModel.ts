@@ -68,6 +68,7 @@ export class CourseChapterModel extends Model implements CourseChapter {
 
   @ManyToOne(() => CourseModel, (course: Course) => course.chapters, {
     onDelete: 'CASCADE',
+    orphanedRowAction: 'delete',
   })
   course?: Course
 
@@ -77,7 +78,7 @@ export class CourseChapterModel extends Model implements CourseChapter {
   @OneToMany(
     () => CourseMaterialModel,
     (material: CourseMaterial) => material.chapter,
-    { cascade: true, orphanedRowAction: 'delete' }
+    { cascade: true }
   )
   materials?: CourseMaterial[] | undefined
 

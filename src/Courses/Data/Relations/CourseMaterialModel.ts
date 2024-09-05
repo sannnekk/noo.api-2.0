@@ -97,6 +97,7 @@ export class CourseMaterialModel extends Model implements CourseMaterial {
     (chapter: CourseChapter) => chapter.materials,
     {
       onDelete: 'CASCADE',
+      orphanedRowAction: 'delete',
     }
   )
   chapter!: CourseChapter
