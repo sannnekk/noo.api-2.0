@@ -21,7 +21,7 @@ let CRMController = class CRMController {
     async onDealCreation(context) {
         try {
             CrmAsserts.hasSecret(context);
-            log('debug', 'Заявка на создание', context.body);
+            log('crm', 'Заявка на создание', context.body);
             //await this.dealsService.create('mock', 'abracadabra')
             return new ApiResponse();
         }

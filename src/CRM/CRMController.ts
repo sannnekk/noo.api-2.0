@@ -18,7 +18,7 @@ export class CRMController {
     try {
       CrmAsserts.hasSecret(context)
 
-      log('debug', 'Заявка на создание', context.body as any)
+      log('crm', 'Заявка на создание', context.body as any)
 
       //await this.dealsService.create('mock', 'abracadabra')
 
