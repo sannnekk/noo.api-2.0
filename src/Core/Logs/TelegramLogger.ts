@@ -23,6 +23,10 @@ async function telegramLog(
     data = data.stack ? data.message + '\n' + data.stack : data.message
   } else if (typeof data === 'object') {
     data = JSON.stringify(data, null, 2)
+
+    if (data.length > 3750) {
+      data = JSON.stringify(data)
+    }
   } else {
     data = String(data)
   }
@@ -38,8 +42,8 @@ async function telegramLog(
       break
   }
 
-  if (data.length > 3500) {
-    data = data.slice(0, 3500)
+  if (data.length > 3750) {
+    data = data.slice(0, 3750)
   }
 
   const message =
