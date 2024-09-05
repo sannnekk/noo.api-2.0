@@ -13,6 +13,7 @@ async function telegramLog(
   }
 
   const chatId = process.env.LOG_TELEGRAM_CHAT_ID
+  const eleonorChatId = process.env.LOG_TELEGRAM_ELEONOR_CHAT_ID
 
   if (!chatId) {
     return
@@ -37,13 +38,20 @@ async function telegramLog(
       break
   }
 
-  if (data.length > 750) {
-    data = data.slice(0, 750)
+  if (data.length > 1500) {
+    data = data.slice(0, 1500)
   }
 
-  const message = `*Error Id: ${id}*\nLevel: ${levelEmoji}\n\n\`\`\`\n${data}\`\`\``
+  const message =
+    level === 'crm'
+      ? `*Message: ${id}*\n\n\`\`\`\n${data}\`\`\``
+      : `*Error Id: ${id}*\nLevel: ${levelEmoji}\n\n\`\`\`\n${data}\`\`\``
 
   await send(chatId, message, token)
+
+  if (level === 'crm' && eleonorChatId) {
+    await send(eleonorChatId, message, token)
+  }
 }
 
 export default telegramLog

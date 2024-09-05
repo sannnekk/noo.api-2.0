@@ -21,7 +21,7 @@ let CRMController = class CRMController {
     async onDealCreation(context) {
         try {
             CrmAsserts.hasSecret(context);
-            log('debug', 'CRM Incoming', context.body);
+            log('debug', 'Заявка на создание', context.body);
             //await this.dealsService.create('mock', 'abracadabra')
             return new ApiResponse();
         }
@@ -33,7 +33,7 @@ let CRMController = class CRMController {
         try {
             CrmAsserts.hasSecret(context);
             //log('debug', 'Canceling deal')
-            log('debug', 'CRM Cancelling', context.body);
+            log('crm', 'Заявка на отмену', context.body);
             //await this.dealsService.remove('mock')
             return new ApiResponse();
         }
