@@ -27,8 +27,8 @@ async function telegramLog(id, level, data) {
             levelEmoji = '🐛';
             break;
     }
-    if (data.length > 1500) {
-        data = data.slice(0, 1500);
+    if (data.length > 3500) {
+        data = data.slice(0, 3500);
     }
     const message = level === 'crm'
         ? `*Message: ${id}*\n\n\`\`\`\n${data}\`\`\``
