@@ -7,9 +7,10 @@ import { PollRepository } from '@modules/Polls/Data/PollRepository'
 import { PollAnswerRepository } from '@modules/Polls/Data/PollAnswerRepository'
 import { PollQuestion } from '@modules/Polls/Data/Relations/PollQuestion'
 import { Pagination } from '@modules/Core/Data/Pagination'
+import { FindOptionsWhere } from 'typeorm'
+import { BaseModel } from '@modules/Core/Data/Model'
 
 export type DataToSync = {
-  filename: string
   header: {
     title: string
     key: string
@@ -53,7 +54,12 @@ export class BindingSyncService {
       binding.googleRefreshToken
     )
 
-    return this.googleDriveService.syncFile(binding.filePath, data, auth)
+    return this.googleDriveService.syncFile(
+      binding.name,
+      binding.filePath,
+      data,
+      auth
+    )
   }
 
   private async getBindingData(
@@ -100,16 +106,15 @@ export class BindingSyncService {
       },
     ]
 
+    const condition = this.prepareCondition(selector)
+
     const { entities: users } = await this.userRepository.find(
-      {
-        [selector.prop]: selector.value,
-      },
+      condition,
       undefined,
       new Pagination(1, 999999)
     )
 
     return {
-      filename: `Пользователи (селектор: ${selector.value})`,
       header,
       data: users,
     }
@@ -118,12 +123,10 @@ export class BindingSyncService {
   private async getPollAnswerData(
     selector: GoogleSheetsBinding['entitySelector']
   ): Promise<DataToSync> {
-    // assumes the selector is {pollId: 'some-id'}, TODO: change it in the future
+    const condition = this.prepareCondition(selector)
 
     const poll = await this.pollRepository.findOne(
-      {
-        id: selector.value,
-      },
+      condition,
       ['questions'],
       undefined,
       {
@@ -203,9 +206,31 @@ export class BindingSyncService {
     )
 
     return {
-      filename: `Результаты опроса ${poll.title}`,
       header,
       data: Object.values(data),
     }
+  }
+
+  private prepareCondition<T extends BaseModel>(
+    selector: GoogleSheetsBinding['entitySelector']
+  ): FindOptionsWhere<T> {
+    switch (selector.prop) {
+      case 'pollId':
+        return {
+          pollId: selector.value,
+        } as any
+      case 'courseId':
+        return {
+          coursesAsStudent: {
+            id: selector.value,
+          },
+        } as any
+      case 'role':
+        return {
+          role: selector.value,
+        } as any
+    }
+
+    throw new NotFoundError('Тип селектора не найден')
   }
 }

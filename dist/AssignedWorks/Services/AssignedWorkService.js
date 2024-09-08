@@ -136,7 +136,10 @@ export class AssignedWorkService {
             throw new NotFoundError('У ученика нет куратора по данному предмету');
         }
         const assignedWork = new AssignedWorkModel();
-        if (work.type !== 'test') {
+        if (work.type === 'test' && !mentor) {
+            assignedWork.mentors = [];
+        }
+        else {
             assignedWork.mentors = [{ id: mentor.id }];
         }
         assignedWork.work = { id: work.id };

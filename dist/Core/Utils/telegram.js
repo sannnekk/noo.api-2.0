@@ -1,10 +1,8 @@
 function escapeSpecialTelegramCharacters(text) {
     return text
-        .replace(/\[/g, '\\[')
         .replace(/~/g, '\\~')
         .replace(/>/g, '\\>')
         .replace(/#/g, '\\#')
-        .replace(/\./g, '\\.')
         .replace(/!/g, '\\!');
 }
 export async function send(userTelegramId, message, token) {

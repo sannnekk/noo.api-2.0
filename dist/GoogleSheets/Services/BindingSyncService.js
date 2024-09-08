@@ -27,7 +27,7 @@ export class BindingSyncService {
     async sync(binding) {
         const data = await this.getBindingData(binding.entityName, binding.entitySelector);
         const auth = await this.googleAuthService.getAuthObject(binding.googleOAuthToken, binding.googleRefreshToken);
-        return this.googleDriveService.syncFile(binding.filePath, data, auth);
+        return this.googleDriveService.syncFile(binding.name, binding.filePath, data, auth);
     }
     async getBindingData(entityName, entitySelector) {
         switch (entityName) {
@@ -66,20 +66,16 @@ export class BindingSyncService {
                 key: 'telegramUsername',
             },
         ];
-        const { entities: users } = await this.userRepository.find({
-            [selector.prop]: selector.value,
-        }, undefined, new Pagination(1, 999999));
+        const condition = this.prepareCondition(selector);
+        const { entities: users } = await this.userRepository.find(condition, undefined, new Pagination(1, 999999));
         return {
-            filename: `Пользователи (селектор: ${selector.value})`,
             header,
             data: users,
         };
     }
     async getPollAnswerData(selector) {
-        // assumes the selector is {pollId: 'some-id'}, TODO: change it in the future
-        const poll = await this.pollRepository.findOne({
-            id: selector.value,
-        }, ['questions'], undefined, {
+        const condition = this.prepareCondition(selector);
+        const poll = await this.pollRepository.findOne(condition, ['questions'], undefined, {
             relationLoadStrategy: 'query',
         });
         if (!poll) {
@@ -134,9 +130,27 @@ export class BindingSyncService {
             return acc;
         }, {});
         return {
-            filename: `Результаты опроса ${poll.title}`,
             header,
             data: Object.values(data),
         };
+    }
+    prepareCondition(selector) {
+        switch (selector.prop) {
+            case 'pollId':
+                return {
+                    pollId: selector.value,
+                };
+            case 'courseId':
+                return {
+                    coursesAsStudent: {
+                        id: selector.value,
+                    },
+                };
+            case 'role':
+                return {
+                    role: selector.value,
+                };
+        }
+        throw new NotFoundError('Тип селектора не найден');
     }
 }

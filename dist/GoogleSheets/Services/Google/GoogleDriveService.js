@@ -3,14 +3,15 @@ export class GoogleDriveService {
     /**
      * Sync data with file in google drive
      *
+     * @param fileName name of the file
      * @param filePath array of ids of folders and id of the file
      * @param data data to sync
      * @param tokens tokens to auth into google
      */
-    async syncFile(filePath, data, auth) {
+    async syncFile(fileName, filePath, data, auth) {
         const documentId = filePath.at(-1);
         const props = {
-            title: data.filename,
+            title: fileName,
         };
         const document = documentId
             ? new GoogleSpreadsheet(documentId, auth)

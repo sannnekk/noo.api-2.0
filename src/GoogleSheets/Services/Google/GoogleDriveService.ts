@@ -6,11 +6,13 @@ export class GoogleDriveService {
   /**
    * Sync data with file in google drive
    *
+   * @param fileName name of the file
    * @param filePath array of ids of folders and id of the file
    * @param data data to sync
    * @param tokens tokens to auth into google
    */
   public async syncFile(
+    fileName: string,
     filePath: string[],
     data: DataToSync,
     auth: OAuth2Client
@@ -18,7 +20,7 @@ export class GoogleDriveService {
     const documentId = filePath.at(-1)
 
     const props = {
-      title: data.filename,
+      title: fileName,
     }
 
     const document = documentId

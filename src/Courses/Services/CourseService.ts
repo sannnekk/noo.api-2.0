@@ -208,6 +208,28 @@ export class CourseService {
       .remove(studentIds)
   }
 
+  public async removeStudentsViaEmails(
+    courseSlug: string,
+    studentEmails: User['email'][]
+  ) {
+    const queryBuilder = this.courseRepository.queryBuilder()
+
+    const course = await this.courseRepository.findOne({ slug: courseSlug })
+
+    if (!course) {
+      throw new NotFoundError('Курс не найден')
+    }
+
+    const userIds = await this.userRepository.getIdsFromEmails(studentEmails, {
+      role: 'student',
+    })
+
+    await queryBuilder
+      .relation(CourseModel, 'students')
+      .of(course)
+      .remove(userIds)
+  }
+
   public async assignWorkToMaterial(
     materialSlug: string,
     workId: string,

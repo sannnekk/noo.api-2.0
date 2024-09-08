@@ -152,10 +152,23 @@ let CourseController = class CourseController {
     async addStudentsViaEmails(context) {
         try {
             await Asserts.isAuthenticated(context);
-            Asserts.teacher(context);
+            Asserts.teacherOrAdmin(context);
             const courseSlug = this.courseValidator.parseSlug(context.params.courseSlug);
             const { emails } = this.courseValidator.parseEmails(context.body);
             await this.courseService.addStudentsViaEmails(courseSlug, emails);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
+    async removeStudentsViaEmails(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.teacherOrAdmin(context);
+            const courseSlug = this.courseValidator.parseSlug(context.params.courseSlug);
+            const { emails } = this.courseValidator.parseEmails(context.body);
+            await this.courseService.removeStudentsViaEmails(courseSlug, emails);
             return new ApiResponse();
         }
         catch (error) {
@@ -241,6 +254,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "addStudentsViaEmails", null);
+__decorate([
+    Patch('/:courseSlug/remove-students-via-emails'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "removeStudentsViaEmails", null);
 __decorate([
     Delete('/:id'),
     __metadata("design:type", Function),

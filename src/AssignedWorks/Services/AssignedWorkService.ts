@@ -219,7 +219,9 @@ export class AssignedWorkService {
 
     const assignedWork = new AssignedWorkModel()
 
-    if (work.type !== 'test') {
+    if (work.type === 'test' && !mentor) {
+      assignedWork.mentors = []
+    } else {
       assignedWork.mentors = [{ id: mentor!.id } as User]
     }
 
