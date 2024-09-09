@@ -140,7 +140,7 @@ let AssignedWorkController = class AssignedWorkController {
             await Asserts.isAuthenticated(context);
             Asserts.notStudent(context);
             const workId = this.assignedWorkValidator.parseId(context.params.id);
-            await this.assignedWorkService.rechekAutomatically(workId);
+            await this.assignedWorkService.recheckAutomatically(workId);
             return new ApiResponse();
         }
         catch (error) {

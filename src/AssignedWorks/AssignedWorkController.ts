@@ -210,7 +210,7 @@ export class AssignedWorkController {
 
       const workId = this.assignedWorkValidator.parseId(context.params.id)
 
-      await this.assignedWorkService.rechekAutomatically(workId)
+      await this.assignedWorkService.recheckAutomatically(workId)
 
       return new ApiResponse()
     } catch (error: any) {

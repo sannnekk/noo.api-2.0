@@ -1,11 +1,15 @@
 import Dates from '../../Core/Utils/date.js';
 import { AssignedWorkCommentModel } from '../Data/Relations/AssignedWorkCommentModel.js';
+import { isAutomaticallyCheckable } from '../Utils/Task.js';
 export class TaskService {
     automatedCheck(tasks, answers) {
         const comments = [];
         for (const answer of answers) {
             const relatedTask = tasks.find((task) => task.id === answer.taskId);
-            if (!relatedTask || relatedTask.type === 'text') {
+            if (!relatedTask) {
+                continue;
+            }
+            if (!isAutomaticallyCheckable(relatedTask.type)) {
                 continue;
             }
             const comment = {

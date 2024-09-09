@@ -35,6 +35,8 @@ import { UserService } from '@modules/Users/Services/UserService'
 import { AssignedWorkProgress } from '../Types/AssignedWorkProgress'
 import { NotificationService } from '@modules/Notifications/Services/NotificationService'
 import { CantDeleteMadeWorkError } from '../Errors/CantDeleteMadeWorkError'
+import { isAutomaticallyCheckable } from '../Utils/Task'
+import { workAlreadyChecked, workAlreadyMade } from '../Utils/AssignedWork'
 
 export class AssignedWorkService {
   private readonly taskService: TaskService
@@ -145,9 +147,7 @@ export class AssignedWorkService {
     if (
       (assignedWork.checkStatus === 'in-progress' && role === 'mentor') ||
       (assignedWork.checkStatus === 'not-checked' && role === 'mentor') ||
-      assignedWork.checkStatus === 'checked-in-deadline' ||
-      assignedWork.checkStatus === 'checked-after-deadline' ||
-      assignedWork.checkStatus === 'checked-automatically'
+      workAlreadyChecked(assignedWork)
     ) {
       const comments = await this.commentRepository.findAll({
         assignedWork: { id: assignedWork.id } as AssignedWork,
@@ -371,10 +371,7 @@ export class AssignedWorkService {
       throw new UnauthorizedError('Вы не можете решить чужую работу')
     }
 
-    if (
-      foundWork.solveStatus === 'made-in-deadline' ||
-      foundWork.solveStatus === 'made-after-deadline'
-    ) {
+    if (workAlreadyMade(foundWork)) {
       throw new WorkAlreadySolvedError()
     }
 
@@ -398,7 +395,9 @@ export class AssignedWorkService {
       foundWork.studentComment = solveOptions.studentComment
     }
 
-    if (foundWork.work.tasks.every((task) => task.type !== 'text')) {
+    if (
+      foundWork.work.tasks.every((task) => isAutomaticallyCheckable(task.type))
+    ) {
       foundWork.checkStatus = 'checked-automatically'
       foundWork.checkedAt = Dates.now()
       foundWork.score = this.getScore(foundWork.comments)
@@ -446,17 +445,11 @@ export class AssignedWorkService {
       )
     }
 
-    if (
-      [
-        'checked-in-deadline',
-        'checked-after-deadline',
-        'checked-automatically',
-      ].includes(foundWork.checkStatus)
-    ) {
+    if (workAlreadyChecked(foundWork)) {
       throw new WorkAlreadyCheckedError()
     }
 
-    if (['not-started', 'in-progress'].includes(foundWork.solveStatus)) {
+    if (!workAlreadyMade(foundWork)) {
       throw new WorkIsNotSolvedYetError()
     }
 
@@ -496,7 +489,7 @@ export class AssignedWorkService {
     }
   }
 
-  public async rechekAutomatically(workId: AssignedWork['id']) {
+  public async recheckAutomatically(workId: AssignedWork['id']) {
     const foundWork = await this.getAssignedWork(workId, [
       'work.tasks' as any,
       'answers',
@@ -533,10 +526,7 @@ export class AssignedWorkService {
     }
 
     if (role === 'student') {
-      if (
-        foundWork.solveStatus === 'made-in-deadline' ||
-        foundWork.solveStatus === 'made-after-deadline'
-      ) {
+      if (workAlreadyMade(foundWork)) {
         throw new WorkAlreadySolvedError()
       }
 
@@ -546,18 +536,11 @@ export class AssignedWorkService {
         foundWork.studentComment = saveOptions.studentComment
       }
     } else if (role === 'mentor') {
-      if (
-        foundWork.checkStatus === 'checked-in-deadline' ||
-        foundWork.checkStatus === 'checked-after-deadline' ||
-        foundWork.checkStatus === 'checked-automatically'
-      ) {
+      if (workAlreadyChecked(foundWork)) {
         throw new WorkAlreadyCheckedError()
       }
 
-      if (
-        foundWork.solveStatus === 'not-started' ||
-        foundWork.solveStatus === 'in-progress'
-      ) {
+      if (!workAlreadyMade(foundWork)) {
         throw new WorkIsNotSolvedYetError()
       }
 
@@ -658,12 +641,9 @@ export class AssignedWorkService {
     workId: AssignedWork['id'],
     newMentorentorId: User['id']
   ) {
-    const assignedWork = await this.assignedWorkRepository.findOne(
-      {
-        id: workId as any,
-      },
-      ['work.subject']
-    )
+    const assignedWork = await this.assignedWorkRepository.findOne({
+      id: workId as any,
+    })
 
     if (!assignedWork) {
       throw new NotFoundError()
@@ -706,10 +686,7 @@ export class AssignedWorkService {
         throw new DeadlineAlreadyShiftedError()
       }
 
-      if (
-        work.solveStatus === 'made-in-deadline' ||
-        work.solveStatus === 'made-after-deadline'
-      ) {
+      if (workAlreadyMade(work)) {
         throw new WorkAlreadySolvedError()
       }
 
@@ -741,11 +718,7 @@ export class AssignedWorkService {
         throw new DeadlineAlreadyShiftedError()
       }
 
-      if (
-        work.checkStatus === 'checked-in-deadline' ||
-        work.checkStatus === 'checked-after-deadline' ||
-        work.checkStatus === 'checked-automatically'
-      ) {
+      if (workAlreadyChecked(work)) {
         throw new WorkAlreadyCheckedError()
       }
 
@@ -772,19 +745,11 @@ export class AssignedWorkService {
       throw new UnauthorizedError()
     }
 
-    if (
-      work.checkStatus === 'in-progress' ||
-      work.checkStatus === 'checked-in-deadline' ||
-      work.checkStatus === 'checked-after-deadline' ||
-      work.checkStatus === 'checked-automatically'
-    ) {
+    if (workAlreadyChecked(work)) {
       throw new WorkAlreadyCheckedError()
     }
 
-    if (
-      work.solveStatus === 'in-progress' ||
-      work.solveStatus === 'not-started'
-    ) {
+    if (!workAlreadyMade(work)) {
       throw new WorkIsNotSolvedYetError()
     }
 
@@ -821,7 +786,7 @@ export class AssignedWorkService {
       throw new UnauthorizedError()
     }
 
-    if (foundWork.solvedAt) {
+    if (workAlreadyMade(foundWork)) {
       throw new CantDeleteMadeWorkError()
     }
 

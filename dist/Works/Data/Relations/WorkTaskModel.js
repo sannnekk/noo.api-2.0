@@ -76,7 +76,7 @@ __decorate([
     Column({
         name: 'type',
         type: 'enum',
-        enum: ['text', 'one_choice', 'multiple_choice', 'word'],
+        enum: ['text', 'word', 'essay'],
         default: 'text',
     }),
     __metadata("design:type", String)

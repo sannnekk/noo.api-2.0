@@ -3,6 +3,7 @@ import { AssignedWorkAnswer } from '../Data/Relations/AssignedWorkAnswer'
 import { AssignedWorkComment } from '../Data/Relations/AssignedWorkComment'
 import Dates from '@modules/Core/Utils/date'
 import { AssignedWorkCommentModel } from '../Data/Relations/AssignedWorkCommentModel'
+import { isAutomaticallyCheckable } from '../Utils/Task'
 
 export class TaskService {
   public automatedCheck(
@@ -14,7 +15,11 @@ export class TaskService {
     for (const answer of answers) {
       const relatedTask = tasks.find((task) => task.id === answer.taskId)
 
-      if (!relatedTask || relatedTask.type === 'text') {
+      if (!relatedTask) {
+        continue
+      }
+
+      if (!isAutomaticallyCheckable(relatedTask.type)) {
         continue
       }
 

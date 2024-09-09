@@ -1,7 +1,6 @@
-import { log } from '../Logs/Logger.js';
 export async function send(userTelegramId, message, token) {
     try {
-        const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -13,11 +12,6 @@ export async function send(userTelegramId, message, token) {
                 parse_mode: 'html',
             }),
         });
-        if (response.status !== 200) {
-            log('error', 'Failed to send message to Telegram', await response.text());
-        }
     }
-    catch (error) {
-        log('error', 'Thrown failed to send message to Telegram', error.message);
-    }
+    catch (error) { }
 }

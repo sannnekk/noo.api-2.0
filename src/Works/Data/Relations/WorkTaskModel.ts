@@ -58,10 +58,10 @@ export class WorkTaskModel extends Model implements WorkTask {
   @Column({
     name: 'type',
     type: 'enum',
-    enum: ['text', 'one_choice', 'multiple_choice', 'word'],
+    enum: ['text', 'word', 'essay'],
     default: 'text',
   })
-  type!: 'text' | 'one_choice' | 'multiple_choice' | 'word'
+  type!: 'text' | 'essay' | 'word'
 
   @ManyToOne(() => WorkModel, (work) => work.tasks, {
     onDelete: 'CASCADE',
