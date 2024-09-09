@@ -51,4 +51,20 @@ export class PlatformService {
       throw new CantReadChangelogError()
     }
   }
+
+  /**
+   * Makes a heapdump using v8-profiler-next and returns the path to the file
+   *
+   * @returns {string} Path to the heapdump file
+   */
+  public async heapdump(): Promise<string> {
+    // TODO: Implement heapdump
+    /*  const { writeSnapshot } = await import('v8-profiler-next')
+
+    const path = `${config.heapdumpPath}/${Date.now()}.heapsnapshot`
+
+    writeSnapshot(path) */
+
+    return ''
+  }
 }

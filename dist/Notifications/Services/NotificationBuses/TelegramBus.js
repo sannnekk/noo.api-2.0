@@ -62,7 +62,9 @@ export class TelegramBus extends NotificationBus {
                 emoji = '🔔';
                 break;
         }
-        return `${emoji} *${notification.title}*\n${notification.message}`;
+        return `
+      ${emoji} <b>${notification.title}</b>\n${notification.message}
+    `;
     }
     async send(messages) {
         for (const message of messages) {

@@ -64,6 +64,21 @@ let PlatformController = class PlatformController {
             return new ApiResponse(error);
         }
     }
+    async heapdump(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.teacherOrAdmin(context);
+            const heapdumpFilePath = await this.platformService.heapdump();
+            return new ApiResponse({
+                data: {
+                    path: heapdumpFilePath,
+                },
+            });
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
 };
 __decorate([
     Get('/version'),
@@ -89,6 +104,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], PlatformController.prototype, "healthcheck", null);
+__decorate([
+    Get('/heapdump'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], PlatformController.prototype, "heapdump", null);
 PlatformController = __decorate([
     Controller('/platform'),
     __metadata("design:paramtypes", [])

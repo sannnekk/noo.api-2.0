@@ -74,4 +74,22 @@ export class PlatformController {
       return new ApiResponse(error)
     }
   }
+
+  @Get('/heapdump')
+  public async heapdump(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.teacherOrAdmin(context)
+
+      const heapdumpFilePath = await this.platformService.heapdump()
+
+      return new ApiResponse({
+        data: {
+          path: heapdumpFilePath,
+        },
+      })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
 }

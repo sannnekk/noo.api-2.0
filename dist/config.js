@@ -23,4 +23,5 @@ export const config = {
             default: 'utf8_general_ci',
         },
     },
+    heapdumpPath: 'uploads/heapdumps',
 };

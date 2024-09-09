@@ -79,7 +79,9 @@ export class TelegramBus extends NotificationBus {
         break
     }
 
-    return `${emoji} *${notification.title}*\n${notification.message}`
+    return `
+      ${emoji} <b>${notification.title}</b>\n${notification.message}
+    `
   }
 
   private async send(messages: TelegramMessage[]) {

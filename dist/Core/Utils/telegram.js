@@ -1,24 +1,23 @@
-function escapeSpecialTelegramCharacters(text) {
-    return text
-        .replace(/~/g, '\\~')
-        .replace(/>/g, '\\>')
-        .replace(/#/g, '\\#')
-        .replace(/!/g, '\\!');
-}
+import { log } from '../Logs/Logger.js';
 export async function send(userTelegramId, message, token) {
     try {
-        await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
                 chat_id: userTelegramId,
-                text: escapeSpecialTelegramCharacters(message),
+                text: message,
                 // set parse mode to the text where * is bold, _ is italic, etc.
-                parse_mode: 'MarkdownV2',
+                parse_mode: 'html',
             }),
         });
+        if (response.status !== 200) {
+            log('error', 'Failed to send message to Telegram', await response.text());
+        }
     }
-    catch (error) { }
+    catch (error) {
+        log('error', 'Thrown failed to send message to Telegram', error.message);
+    }
 }

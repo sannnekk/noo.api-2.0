@@ -46,10 +46,17 @@ async function telegramLog(
     data = data.slice(0, 3750)
   }
 
+  data = data
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('&', '&amp;')
+    .replaceAll('"', '&quot;')
+    .replaceAll('(', '(')
+
   const message =
     level === 'crm'
-      ? `*Message: ${id}*\n\n\`\`\`\n${data}\`\`\``
-      : `*Error Id: ${id}*\nLevel: ${levelEmoji}\n\n\`\`\`\n${data}\`\`\``
+      ? `<b>Message: ${id}</b>\n<pre expandable>${data}</pre>`
+      : `<b>Error Id: ${id}</b>\nLevel: ${levelEmoji}\n\n<pre expandable>${data}</pre>`
 
   await send(chatId, message, token)
 
