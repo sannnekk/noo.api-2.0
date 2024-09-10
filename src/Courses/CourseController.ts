@@ -184,12 +184,12 @@ export class CourseController {
     try {
       await Asserts.isAuthenticated(context)
       Asserts.teacher(context)
-      /* const courseSlug = this.courseValidator.parseSlug(
+      const courseSlug = this.courseValidator.parseSlug(
         context.params.courseSlug
       )
       const { studentIds } = this.courseValidator.parseStudentIds(context.body)
 
-      await this.courseService.addStudents(courseSlug, studentIds) */
+      await this.courseService.addStudents(courseSlug, studentIds)
 
       return new ApiResponse()
     } catch (error: any) {
@@ -202,12 +202,12 @@ export class CourseController {
     try {
       await Asserts.isAuthenticated(context)
       Asserts.teacher(context)
-      /* const courseSlug = this.courseValidator.parseSlug(
+      const courseSlug = this.courseValidator.parseSlug(
         context.params.courseSlug
       )
       const { studentIds } = this.courseValidator.parseStudentIds(context.body)
 
-      await this.courseService.removeStudents(courseSlug, studentIds) */
+      await this.courseService.removeStudents(courseSlug, studentIds)
 
       return new ApiResponse()
     } catch (error: any) {
@@ -220,12 +220,12 @@ export class CourseController {
     try {
       await Asserts.isAuthenticated(context)
       Asserts.teacherOrAdmin(context)
-      /* const courseSlug = this.courseValidator.parseSlug(
+      const courseSlug = this.courseValidator.parseSlug(
         context.params.courseSlug
       )
       const { emails } = this.courseValidator.parseEmails(context.body)
 
-      await this.courseService.addStudentsViaEmails(courseSlug, emails) */
+      await this.courseService.addStudentsViaEmails(courseSlug, emails)
 
       return new ApiResponse()
     } catch (error: any) {
@@ -238,12 +238,12 @@ export class CourseController {
     try {
       await Asserts.isAuthenticated(context)
       Asserts.teacherOrAdmin(context)
-      /* const courseSlug = this.courseValidator.parseSlug(
+      const courseSlug = this.courseValidator.parseSlug(
         context.params.courseSlug
       )
       const { emails } = this.courseValidator.parseEmails(context.body)
 
-      await this.courseService.removeStudentsViaEmails(courseSlug, emails) */
+      await this.courseService.removeStudentsViaEmails(courseSlug, emails)
 
       return new ApiResponse()
     } catch (error: any) {
