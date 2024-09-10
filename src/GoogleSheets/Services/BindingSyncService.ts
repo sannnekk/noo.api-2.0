@@ -217,7 +217,7 @@ export class BindingSyncService {
     switch (selector.prop) {
       case 'pollId':
         return {
-          pollId: selector.value,
+          id: selector.value,
         } as any
       case 'courseId':
         return {

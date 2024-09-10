@@ -10,6 +10,7 @@
     "test": "mocha -r dotenv/config test/*.spec.ts",
     "build": "eslint --fix src && npm run check:prod-ready && tsc --project tsconfig.json && cd dist && tsc-alias -p ../tsconfig.json",
     "lint": "prettier --write src/**/*.ts && eslint --fix src",
+    "doctor": "clinic doctor -- node -r dotenv/config -r tsconfig-paths/register dist/main.js",
     "check:prod-ready": "node ./scripts/check-version.js && node ./scripts/ensure-db-sync-off.js"
   },
   "repository": {

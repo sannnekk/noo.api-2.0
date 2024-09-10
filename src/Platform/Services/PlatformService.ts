@@ -8,6 +8,7 @@ import fs from 'fs'
 import { CantReadChangelogError } from '../Errors/CantReadChangelogError'
 import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
 import { Version } from '@modules/Core/Version/Version'
+//import profiler from 'v8-profiler-next'
 
 export class PlatformService {
   private readonly healthCheckService: HealthCheckService
@@ -58,13 +59,29 @@ export class PlatformService {
    * @returns {string} Path to the heapdump file
    */
   public async heapdump(): Promise<string> {
-    // TODO: Implement heapdump
-    /*  const { writeSnapshot } = await import('v8-profiler-next')
+    return 'Not implemented yet'
+    /* const snapshot = profiler.takeSnapshot('heapdump')
+    const path = `/uploads/dev/heapdump-${Date.now()}.heapsnapshot`
 
-    const path = `${config.heapdumpPath}/${Date.now()}.heapsnapshot`
+    try {
+      if (!fs.existsSync('/uploads/dev')) {
+        fs.mkdirSync('/uploads/dev', { recursive: true })
+      }
 
-    writeSnapshot(path) */
+      await new Promise((resolve, reject) => {
+        snapshot
+          .export()
+          .pipe(fs.createWriteStream(path))
+          .on('finish', resolve)
+          .on('error', reject)
+      })
 
-    return ''
+      snapshot.delete()
+
+      return path
+    } catch (error: any) {
+      snapshot.delete()
+      throw error
+    } */
   }
 }
