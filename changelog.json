@@ -1,5 +1,46 @@
 [
 	{
+		"version": "3.1.2",
+		"date": "2024-10-09",
+		"authors": [
+			"sannnekk"
+		],
+		"changes": [
+			{
+				"type": "feat",
+				"description": "Send notification to all course students functionality for teachers"
+			},
+			{
+				"type": "feat",
+				"description": "Added task type 'essay'"
+			},
+			{
+				"type": "fix",
+				"description": "Fixed setting solve status for the assigned work while checked by mentor"
+			},
+			{
+				"type": "feat",
+				"description": "Added showSolveHint and showCheckHint settings for assigned work module"
+			},
+			{
+				"type": "impr",
+				"description": "Moved score box to the bottom in assigned work module (asked by mentors)"
+			},
+			{
+				"type": "fix",
+				"description": "Fixed sending notifications with selector type role"
+			},
+			{
+				"type": "impr",
+				"description": "Split notifications by dates"
+			},
+			{
+				"type": "fix",
+				"description": "Fixed the loader not showing on notifications delete"
+			}
+		]
+	},
+	{
 		"version": "3.1.1",
 		"date": "2024-02-09",
 		"authors": [

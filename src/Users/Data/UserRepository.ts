@@ -28,16 +28,8 @@ export class UserRepository extends Repository<User> {
   }
 
   public async findIds(conditions?: FindOptionsWhere<User>): Promise<string[]> {
-    const query = await this.queryBuilder('user').select('user.id as id')
-
-    if (conditions) {
-      query.setFindOptions({ where: conditions })
-    }
-
-    const users = (await query.getRawMany()) as {
-      id: string
-    }[]
-
-    return users.map((user) => user.id)
+    return (
+      await this.repository.find({ where: conditions, select: ['id'] })
+    ).map((user) => user.id)
   }
 }

@@ -17,11 +17,6 @@ export class UserRepository extends Repository {
         return users.map((user) => user.id);
     }
     async findIds(conditions) {
-        const query = await this.queryBuilder('user').select('user.id as id');
-        if (conditions) {
-            query.setFindOptions({ where: conditions });
-        }
-        const users = (await query.getRawMany());
-        return users.map((user) => user.id);
+        return (await this.repository.find({ where: conditions, select: ['id'] })).map((user) => user.id);
     }
 }
