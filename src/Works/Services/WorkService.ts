@@ -5,12 +5,16 @@ import { Work } from '../Data/Work'
 import { WorkModel } from '../Data/WorkModel'
 import { WorkDTO } from '../DTO/WorkDTO'
 import { Subject } from '@modules/Subjects/Data/Subject'
+import { CourseMaterialRepository } from '@modules/Courses/Data/CourseMaterialRepository'
 
 export class WorkService {
   private readonly workRepository: WorkRepository
 
+  private readonly courseMaterialRepository: CourseMaterialRepository
+
   constructor() {
     this.workRepository = new WorkRepository()
+    this.courseMaterialRepository = new CourseMaterialRepository()
   }
 
   public async getWorks(pagination?: Pagination) {
@@ -20,9 +24,7 @@ export class WorkService {
   }
 
   public async getWorkBySlug(slug: Work['slug']) {
-    const work = await this.workRepository.findOne({ slug }, ['tasks'], {
-      tasks: { order: 'ASC' },
-    })
+    const work = await this.workRepository.findOne({ slug }, ['tasks'])
 
     if (!work) {
       throw new NotFoundError()
@@ -41,6 +43,25 @@ export class WorkService {
     }
 
     return work
+  }
+
+  public async getWorkRelatedMaterials(
+    id: Work['id'],
+    pagination?: Pagination
+  ) {
+    const work = await this.workRepository.findOne({ id })
+
+    if (!work) {
+      throw new NotFoundError('Работа не найдена')
+    }
+
+    return this.courseMaterialRepository.search(
+      {
+        work: { id: work.id },
+      },
+      pagination,
+      ['chapter.course']
+    )
   }
 
   public async createWork(workDTO: WorkDTO) {

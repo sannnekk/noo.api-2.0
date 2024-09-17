@@ -213,6 +213,15 @@ export abstract class Repository<T extends BaseModel> {
   }
 
   /**
+   * Delete entities by condition
+   *
+   * @param conditions Condition to delete by
+   */
+  async deleteWhere(conditions: FindOptionsWhere<T>): Promise<void> {
+    await this.repository.delete(conditions)
+  }
+
+  /**
    * Find many entities. If no pagination is provided, it will create one with default oprions (page 1, limit 25)
    *
    * @param conditions The conditions to find the entities with (ActiveRecord style)
@@ -523,6 +532,12 @@ export abstract class Repository<T extends BaseModel> {
     ]
   }
 
+  /**
+   * Get the relation path and alias for a complex relation
+   *
+   * @param relation Property name of the relation
+   * @returns relation path and alias
+   */
   private buildComplexRelationPath(
     relation: string
   ): { propPath: string; alias: string }[] {

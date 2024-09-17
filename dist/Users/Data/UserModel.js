@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Brackets, Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, OneToOne, RelationId, } from 'typeorm';
+import { Brackets, Column, Entity, JoinColumn, ManyToMany, OneToMany, OneToOne, RelationId, } from 'typeorm';
 import { CourseModel } from '../../Courses/Data/CourseModel.js';
 import { AssignedWorkModel } from '../../AssignedWorks/Data/AssignedWorkModel.js';
 import { BlogPostModel } from '../../Blog/Data/BlogPostModel.js';
@@ -21,6 +21,7 @@ import { MentorAssignmentModel } from './Relations/MentorAssignmentModel.js';
 import { SnippetModel } from '../../Snippets/Data/SnippetModel.js';
 import { config } from '../../config.js';
 import { NotificationModel } from '../../Notifications/Data/NotificationModel.js';
+import { CourseAssignmentModel } from '../../Courses/Data/Relations/CourseAssignmentModel.js';
 let UserModel = class UserModel extends SearchableModel {
     constructor(data) {
         super();
@@ -43,8 +44,9 @@ let UserModel = class UserModel extends SearchableModel {
     mentorAssignmentsAsMentor;
     mentorAssignmentsAsStudent;
     courses;
-    coursesAsStudent;
-    courseAsStudentIds;
+    courseAssignments;
+    courseAssignmentIds;
+    courseAssignmentsAsAssigner;
     assignedWorksAsMentor;
     assignedWorksAsStudent;
     blogPosts;
@@ -168,14 +170,17 @@ __decorate([
     __metadata("design:type", Array)
 ], UserModel.prototype, "courses", void 0);
 __decorate([
-    ManyToMany(() => CourseModel, (course) => course.students),
-    JoinTable(),
+    OneToMany(() => CourseAssignmentModel, (assignment) => assignment.student),
     __metadata("design:type", Array)
-], UserModel.prototype, "coursesAsStudent", void 0);
+], UserModel.prototype, "courseAssignments", void 0);
 __decorate([
-    RelationId((user) => user.coursesAsStudent),
+    RelationId((user) => user.courseAssignments),
     __metadata("design:type", Array)
-], UserModel.prototype, "courseAsStudentIds", void 0);
+], UserModel.prototype, "courseAssignmentIds", void 0);
+__decorate([
+    OneToMany(() => CourseAssignmentModel, (assignment) => assignment.assigner),
+    __metadata("design:type", Array)
+], UserModel.prototype, "courseAssignmentsAsAssigner", void 0);
 __decorate([
     ManyToMany(() => AssignedWorkModel, (assignedWork) => assignedWork.mentors),
     __metadata("design:type", Array)

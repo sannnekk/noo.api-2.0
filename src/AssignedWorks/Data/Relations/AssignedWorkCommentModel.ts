@@ -4,7 +4,7 @@ import * as ULID from '@modules/Core/Data/Ulid'
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm'
 import { WorkTaskModel } from '@modules/Works/Data/Relations/WorkTaskModel'
 import { WorkTask } from '@modules/Works/Data/Relations/WorkTask'
-import { AssignedWorkComment } from './AssignedWorkComment'
+import { AssignedWorkComment, DetailedScore } from './AssignedWorkComment'
 import { AssignedWorkModel } from '../AssignedWorkModel'
 import { AssignedWork } from '../AssignedWork'
 import { config } from '@modules/config'
@@ -49,6 +49,14 @@ export class AssignedWorkCommentModel
     type: 'float',
   })
   score!: number
+
+  @Column({
+    name: 'detailed_score',
+    type: 'json',
+    nullable: true,
+    default: null,
+  })
+  detailedScore!: DetailedScore | null
 
   @ManyToOne(() => WorkTaskModel, (task) => task.assignedWorkComments)
   task?: WorkTask | undefined

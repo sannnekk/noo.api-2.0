@@ -2,19 +2,20 @@ import { Pagination } from '../../Core/Data/Pagination.js';
 import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
 import { WorkRepository } from '../Data/WorkRepository.js';
 import { WorkModel } from '../Data/WorkModel.js';
+import { CourseMaterialRepository } from '../../Courses/Data/CourseMaterialRepository.js';
 export class WorkService {
     workRepository;
+    courseMaterialRepository;
     constructor() {
         this.workRepository = new WorkRepository();
+        this.courseMaterialRepository = new CourseMaterialRepository();
     }
     async getWorks(pagination) {
         pagination = new Pagination().assign(pagination);
         return this.workRepository.search(undefined, pagination);
     }
     async getWorkBySlug(slug) {
-        const work = await this.workRepository.findOne({ slug }, ['tasks'], {
-            tasks: { order: 'ASC' },
-        });
+        const work = await this.workRepository.findOne({ slug }, ['tasks']);
         if (!work) {
             throw new NotFoundError();
         }
@@ -28,6 +29,15 @@ export class WorkService {
             throw new NotFoundError();
         }
         return work;
+    }
+    async getWorkRelatedMaterials(id, pagination) {
+        const work = await this.workRepository.findOne({ id });
+        if (!work) {
+            throw new NotFoundError('Работа не найдена');
+        }
+        return this.courseMaterialRepository.search({
+            work: { id: work.id },
+        }, pagination, ['chapter.course']);
     }
     async createWork(workDTO) {
         const work = new WorkModel(workDTO);

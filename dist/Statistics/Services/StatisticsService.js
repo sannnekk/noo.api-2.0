@@ -40,6 +40,15 @@ export class StatisticsService {
         const assignedWorkRepositoryQueryBuilder = this.assignedWorkRepository.queryBuilder('assigned_work');
         const usersCount = await userRepositoryQueryBuilder.clone().getCount();
         const usersOnlineCount = await this.sessionService.getOnlineUsersCount();
+        const studentOnlineCount = await this.sessionService.getOnlineUsersCount({
+            user: { role: 'student' },
+        });
+        const mentorOnlineCount = await this.sessionService.getOnlineUsersCount({
+            user: { role: 'mentor' },
+        });
+        const teacherOnlineCount = await this.sessionService.getOnlineUsersCount({
+            user: { role: 'teacher' },
+        });
         const studentsCount = await userRepositoryQueryBuilder
             .clone()
             .where('user.role = :role', { role: 'student' })
@@ -51,25 +60,6 @@ export class StatisticsService {
         const teachersCount = await userRepositoryQueryBuilder
             .clone()
             .where('user.role = :role', { role: 'teacher' })
-            .getCount();
-        const usersCountInRange = await userRepositoryQueryBuilder
-            .clone()
-            .andWhere(this.getDateRange('user.created_at', from, to))
-            .getCount();
-        const studentsCountInRange = await userRepositoryQueryBuilder
-            .clone()
-            .where('user.role = :role', { role: 'student' })
-            .andWhere(this.getDateRange('user.created_at', from, to))
-            .getCount();
-        const mentorsCountInRange = await userRepositoryQueryBuilder
-            .clone()
-            .where('user.role = :role', { role: 'mentor' })
-            .andWhere(this.getDateRange('user.created_at', from, to))
-            .getCount();
-        const teachersCountInRange = await userRepositoryQueryBuilder
-            .clone()
-            .where('user.role = :role', { role: 'teacher' })
-            .andWhere(this.getDateRange('user.created_at', from, to))
             .getCount();
         const totalAssignedWorks = await assignedWorkRepositoryQueryBuilder
             .clone()
@@ -120,69 +110,87 @@ export class StatisticsService {
             .getRawMany()).map((item) => ({ date: new Date(item.date), count: item.count }));
         const worksSolvedPerDayPlot = this.plotService.generatePlot('Сдано работ в день', worksSolvedPerDay, 'secondary', (e) => e.date.toISOString().split('T')[0], (e) => parseInt(e.count));
         return {
-            entries: [
+            sections: [
                 {
-                    name: 'Всего пользователей',
-                    value: usersCount,
+                    name: 'Пользователи',
+                    description: 'Статистика по ученикам, кураторам и преподавателям',
+                    plots: [newUsersPerDayPlot],
+                    entries: [
+                        {
+                            name: 'Всего пользователей',
+                            value: usersCount,
+                            subEntries: [
+                                {
+                                    name: 'Учителей',
+                                    value: teachersCount,
+                                },
+                                {
+                                    name: 'Кураторов',
+                                    value: mentorsCount,
+                                },
+                                {
+                                    name: 'Учеников',
+                                    value: studentsCount,
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Пользователей онлайн',
+                            description: 'Количество пользователей, сделавших запрос за последние 15 минут',
+                            value: usersOnlineCount,
+                            subEntries: [
+                                {
+                                    name: 'Учителей',
+                                    value: teacherOnlineCount,
+                                },
+                                {
+                                    name: 'Кураторов',
+                                    value: mentorOnlineCount,
+                                },
+                                {
+                                    name: 'Учеников',
+                                    value: studentOnlineCount,
+                                },
+                            ],
+                        },
+                    ],
                 },
                 {
-                    name: 'Пользователей онлайн',
-                    value: usersOnlineCount,
-                },
-                {
-                    name: 'Всего учеников',
-                    value: studentsCount,
-                },
-                {
-                    name: 'Всего кураторов',
-                    value: mentorsCount,
-                },
-                {
-                    name: 'Всего учителей',
-                    value: teachersCount,
-                },
-                {
-                    name: 'Всего пользователей за период',
-                    value: usersCountInRange,
-                },
-                {
-                    name: 'Всего учеников за период',
-                    value: studentsCountInRange,
-                },
-                {
-                    name: 'Всего кураторов за период',
-                    value: mentorsCountInRange,
-                },
-                {
-                    name: 'Всего учителей за период',
-                    value: teachersCountInRange,
-                },
-                {
-                    name: 'Всего работ',
-                    value: totalAssignedWorks,
-                },
-                {
-                    name: 'Проверено работ',
-                    value: checkedWorks,
-                },
-                {
-                    name: 'Проверено автоматически',
-                    value: automaticallyCheckedWorksCount,
-                },
-                {
-                    name: 'Всего работ за период',
-                    value: totalAssignedWorksInDateRange,
-                },
-                {
-                    name: 'Проверено работ за период',
-                    value: checkedWorksInDateRange,
-                },
-                {
-                    name: 'Проверено автоматически за период',
-                    value: automaticallyCheckedWorksInDateRange,
+                    name: 'Работы',
+                    description: 'Статистика по работам',
+                    plots: [worksSolvedPerDayPlot],
+                    entries: [
+                        {
+                            name: 'Всего работ',
+                            value: totalAssignedWorks,
+                            subEntries: [
+                                {
+                                    name: 'Проверено',
+                                    value: checkedWorks,
+                                },
+                                {
+                                    name: 'Проверено автоматически',
+                                    value: automaticallyCheckedWorksCount,
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Работы за период',
+                            value: totalAssignedWorksInDateRange,
+                            subEntries: [
+                                {
+                                    name: 'Проверено',
+                                    value: checkedWorksInDateRange,
+                                },
+                                {
+                                    name: 'Проверено автоматически',
+                                    value: automaticallyCheckedWorksInDateRange,
+                                },
+                            ],
+                        },
+                    ],
                 },
             ],
-            plots: [newUsersPerDayPlot, worksSolvedPerDayPlot],
         };
     }
     async getMentorStatistics(mentorId, from, to, type) {
@@ -198,26 +206,27 @@ export class StatisticsService {
         }
         const total = await assignedWorksQueryBuilder
             .clone()
+            .andWhere('assigned_work.solved_at IS NOT NULL')
             .getCount();
         const checked = await assignedWorksQueryBuilder
             .clone()
-            .andWhere('assigned_work.checked_at IS NOT NULL')
+            .andWhere('assigned_work.check_status IN (:...statuses)', {
+            statuses: ['checked-in-deadline', 'checked-after-deadline'],
+        })
             .getCount();
         const notChecked = total - checked;
         const checkedInDeadline = await assignedWorksQueryBuilder
             .clone()
-            .andWhere('assigned_work.solve_status = :solve_status', {
+            .andWhere('assigned_work.check_status = :solve_status', {
             solve_status: 'checked-in-deadline',
         })
             .getCount();
-        const checkedInDeadlinePercent = Math.round((checkedInDeadline / total) * 100);
         const checkedAfterDeadline = await assignedWorksQueryBuilder
             .clone()
-            .andWhere('assigned_work.solve_status = :solve_status', {
+            .andWhere('assigned_work.check_status = :solve_status', {
             solve_status: 'checked-after-deadline',
         })
             .getCount();
-        const checkedAfterDeadlinePercent = Math.round((checkedAfterDeadline / total) * 100);
         const deadlinesShifted = await assignedWorksQueryBuilder
             .clone()
             .andWhere('assigned_work.check_deadline_shifted = :check_deadline_shifted', {
@@ -242,45 +251,47 @@ export class StatisticsService {
             .getRawMany();
         const scorePlot = this.plotService.generatePlot('Средний балл по работам учеников (в %)', scores, 'secondary', (e) => e.created_at.toISOString().split('T')[0], (e) => parseFloat(e.score || '0'));
         return {
-            entries: [
+            sections: [
                 {
-                    name: 'Всего работ',
-                    value: total,
+                    name: 'Работы',
+                    description: 'Статистика по работам',
+                    plots: [scorePlot],
+                    entries: [
+                        {
+                            name: 'Всего работ',
+                            value: total,
+                            subEntries: [
+                                {
+                                    name: 'Проверено',
+                                    value: checked,
+                                    percentage: this.percentage(checked, total),
+                                },
+                                {
+                                    name: 'Не проверено',
+                                    value: notChecked,
+                                    percentage: this.percentage(notChecked, total),
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Сдвиги дедлайнов',
+                            value: deadlinesShifted,
+                            subEntries: [
+                                {
+                                    name: 'Проверено в дедлайн',
+                                    value: checkedInDeadline,
+                                    percentage: this.percentage(checkedInDeadline, checked),
+                                },
+                                {
+                                    name: 'Проверено после дедлайна',
+                                    value: checkedAfterDeadline,
+                                    percentage: this.percentage(checkedAfterDeadline, checked),
+                                },
+                            ],
+                        },
+                    ],
                 },
-                {
-                    name: 'Проверено',
-                    value: checked,
-                },
-                {
-                    name: 'Не проверено',
-                    value: notChecked,
-                },
-                {
-                    name: 'Проверено в дедлайн',
-                    value: checkedInDeadline,
-                },
-                {
-                    name: 'Проверено в дедлайн (%)',
-                    value: checkedInDeadlinePercent || 0,
-                },
-                {
-                    name: 'Проверено после дедлайна',
-                    value: checkedAfterDeadline,
-                },
-                {
-                    name: 'Проверено после дедлайна (%)',
-                    value: checkedAfterDeadlinePercent || 0,
-                },
-                {
-                    name: 'Сдвиги дедлайнов',
-                    value: deadlinesShifted,
-                },
-                // {
-                // 	name: 'Передано другому куратору',
-                // 	value: transfered,
-                // },
             ],
-            plots: [scorePlot],
         };
     }
     async getStudentStatistics(studentId, from, to, type) {
@@ -300,16 +311,14 @@ export class StatisticsService {
             solve_status: 'made-in-deadline',
         })
             .getCount();
-        const completedInDeadlinePercent = Math.round((completedInDeadline / total) * 100);
         const completedAfterDeadline = await assignedWorksQueryBuilder
             .clone()
             .andWhere('assigned_work.solve_status = :solve_status', {
             solve_status: 'made-after-deadline',
         })
             .getCount();
-        const completedAfterDeadlinePercent = Math.round((completedAfterDeadline / total) * 100);
         const completed = completedInDeadline + completedAfterDeadline;
-        const notCompleted = total - completedInDeadline - completedAfterDeadline;
+        const notCompleted = total - completed;
         const { averageScore } = (await assignedWorksQueryBuilder
             .clone()
             .select('AVG(assigned_work.score / assigned_work.max_score * 100)', 'averageScore')
@@ -333,45 +342,50 @@ export class StatisticsService {
         const scorePlot = this.plotService.generatePlot('Балл по работам (в %)', scores, 'secondary', (e) => e.created_at.toISOString().split('T')[0], (e) => parseFloat(e.score || '0'), (e) => AssignedWorkModel.readableSolveStatus(e.solve_status));
         const monthPlot = await this.getStudentMonthPlot(studentId);
         return {
-            entries: [
+            sections: [
                 {
-                    name: 'Всего работ',
-                    value: total,
+                    name: 'Работы',
+                    description: 'Статистика по ысем работам',
+                    plots: [scorePlot],
+                    entries: [
+                        {
+                            name: 'Всего работ',
+                            value: total,
+                            subEntries: [
+                                {
+                                    name: 'Сдано в дедлайн',
+                                    value: completedInDeadline,
+                                    percentage: this.percentage(completedInDeadline, total),
+                                },
+                                {
+                                    name: 'Сдано после дедлайна',
+                                    value: completedAfterDeadline,
+                                    percentage: this.percentage(completedAfterDeadline, total),
+                                },
+                                {
+                                    name: 'Не сдано',
+                                    value: notCompleted,
+                                    percentage: this.percentage(notCompleted, total),
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Средний балл',
+                            value: parseFloat(averageScore || '0'),
+                        },
+                        {
+                            name: 'Сдвиги дедлайнов',
+                            value: deadlineShiftCount,
+                        },
+                    ],
                 },
                 {
-                    name: 'Выполнено',
-                    value: completed,
-                },
-                {
-                    name: 'Не выполнено',
-                    value: notCompleted,
-                },
-                {
-                    name: 'Выполнено в дедлайн',
-                    value: completedInDeadline,
-                },
-                {
-                    name: 'Выполнено в дедлайн (%)',
-                    value: completedInDeadlinePercent || 0,
-                },
-                {
-                    name: 'Выполнено после дедлайна',
-                    value: completedAfterDeadline,
-                },
-                {
-                    name: 'Выполнено после дедлайна (%)',
-                    value: completedAfterDeadlinePercent || 0,
-                },
-                {
-                    name: 'Сдвиги дедлайнов',
-                    value: deadlineShiftCount,
-                },
-                {
-                    name: 'Средний балл (в %)',
-                    value: parseFloat(parseFloat(averageScore).toFixed(2)) || 0,
+                    name: 'Статистика по месяцам',
+                    description: 'Статистика по работам по месяцам. Показывает средний балл по работам (в %) за каждый месяц',
+                    plots: [monthPlot],
+                    entries: [],
                 },
             ],
-            plots: [scorePlot, monthPlot],
         };
     }
     async getStudentMonthPlot(studentId) {
@@ -418,10 +432,34 @@ export class StatisticsService {
                 return 'Декабрь';
         }
     }
-    getDateRange(prop, from, to) {
+    getDateRange(prop, from, to, precision = 'day') {
+        switch (precision) {
+            case 'day':
+                from.setHours(0, 0, 0, 0);
+                to.setHours(23, 59, 59, 999);
+                break;
+            case 'hour':
+                from.setMinutes(0, 0, 0);
+                to.setMinutes(59, 59, 999);
+                break;
+            case 'minute':
+                from.setSeconds(0, 0);
+                to.setSeconds(59, 999);
+                break;
+            case 'second':
+                from.setMilliseconds(0);
+                to.setMilliseconds(999);
+                break;
+            case 'millisecond':
+            default:
+                break;
+        }
         return new Brackets((qb) => {
             qb.where(`${prop} >= :from`, { from });
             qb.andWhere(`${prop} <= :to`, { to });
         });
+    }
+    percentage(part, total) {
+        return Math.round((part / total) * 100);
     }
 }

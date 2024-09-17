@@ -26,13 +26,10 @@ export class CourseController {
   public async get(context: Context): Promise<ApiResponse> {
     try {
       await Asserts.isAuthenticated(context)
+      Asserts.notStudent(context)
       const pagination = this.courseValidator.parsePagination(context.query)
 
-      const { entities, meta } = await this.courseService.get(
-        pagination,
-        context.credentials!.userId,
-        context.credentials!.role
-      )
+      const { entities, meta } = await this.courseService.get(pagination)
 
       return new ApiResponse({ data: entities, meta })
     } catch (error: any) {
@@ -40,18 +37,63 @@ export class CourseController {
     }
   }
 
-  @Get('/student/:studentId')
+  @Get('/student/:studentId?')
   public async getStudentCourses(context: Context): Promise<ApiResponse> {
     try {
       await Asserts.isAuthenticated(context)
-      Asserts.notStudent(context)
-      const studentId = this.courseValidator.parseId(context.params.studentId)
+      const studentId =
+        this.courseValidator.parseOptionalId(context.params.studentId) ||
+        context.credentials!.userId
       const pagination = this.courseValidator.parsePagination(context.query)
 
-      const { entities: courses, meta } =
-        await this.courseService.getStudentCourses(studentId, pagination)
+      if (context.credentials!.role === 'student') {
+        Asserts.isAuthorized(context, studentId)
+      }
 
-      return new ApiResponse({ data: courses, meta })
+      const { entities: courseAssignments, meta } =
+        await this.courseService.getStudentCourseAssignments(
+          studentId,
+          pagination
+        )
+
+      return new ApiResponse({ data: courseAssignments, meta })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
+
+  @Patch('/:assignmentId/archive')
+  public async archive(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.student(context)
+      const assignmentId = this.courseValidator.parseSlug(
+        context.params.assignmentId
+      )
+
+      await this.courseService.archive(assignmentId, context.credentials.userId)
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
+
+  @Patch('/:assignmentId/unarchive')
+  public async unarchive(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.student(context)
+      const assignmentId = this.courseValidator.parseSlug(
+        context.params.assignmentId
+      )
+
+      await this.courseService.unarchive(
+        assignmentId,
+        context.credentials.userId
+      )
+
+      return new ApiResponse()
     } catch (error: any) {
       return new ApiResponse(error)
     }
@@ -67,13 +109,6 @@ export class CourseController {
         courseSlug,
         context.credentials!.role
       )
-
-      if (
-        context.credentials!.role === 'student' ||
-        context.credentials!.role == 'mentor'
-      ) {
-        course.studentIds = []
-      }
 
       return new ApiResponse({ data: course })
     } catch (error: any) {
@@ -189,7 +224,11 @@ export class CourseController {
       )
       const { studentIds } = this.courseValidator.parseStudentIds(context.body)
 
-      await this.courseService.addStudents(courseSlug, studentIds)
+      await this.courseService.addStudents(
+        courseSlug,
+        studentIds,
+        context.credentials.userId
+      )
 
       return new ApiResponse()
     } catch (error: any) {
@@ -225,7 +264,11 @@ export class CourseController {
       )
       const { emails } = this.courseValidator.parseEmails(context.body)
 
-      await this.courseService.addStudentsViaEmails(courseSlug, emails)
+      await this.courseService.addStudentsViaEmails(
+        courseSlug,
+        emails,
+        context.credentials.userId
+      )
 
       return new ApiResponse()
     } catch (error: any) {

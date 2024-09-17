@@ -27,6 +27,7 @@ import { SnippetModel } from '../../Snippets/Data/SnippetModel.js';
 import { config } from '../../config.js';
 import { FAQCategoryModel } from '../../FAQ/Data/Relations/FAQCategoryModel.js';
 import { NotificationModel } from '../../Notifications/Data/NotificationModel.js';
+import { CourseAssignmentModel } from '../../Courses/Data/Relations/CourseAssignmentModel.js';
 export const CoreDataSource = new DataSource({
     type: 'mysql',
     host: process.env.DB_HOST,
@@ -46,6 +47,7 @@ export const CoreDataSource = new DataSource({
         UserModel,
         UserAvatarModel,
         MentorAssignmentModel,
+        CourseAssignmentModel,
         CourseModel,
         CourseChapterModel,
         CourseMaterialModel,

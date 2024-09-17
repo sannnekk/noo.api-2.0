@@ -32,6 +32,7 @@ export class TaskService {
           ],
         },
         score: this.checkAnswer(answer, relatedTask),
+        detailedScore: null,
         taskId: answer.taskId,
         createdAt: Dates.now(),
         updatedAt: Dates.now(),

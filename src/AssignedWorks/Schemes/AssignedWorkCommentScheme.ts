@@ -6,5 +6,6 @@ export const AssignedWorkCommentScheme = z.object({
   slug: z.string().nullable().optional(),
   content: DeltaScheme.nullable().optional(),
   score: z.number(),
+  detailedScore: z.record(z.number()).nullable().optional(),
   taskId: z.string().ulid(),
 })

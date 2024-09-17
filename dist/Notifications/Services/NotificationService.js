@@ -143,7 +143,7 @@ export class NotificationService {
     }
     async prepareNotificationForCourseStudents(notification, courseId) {
         const userIds = await this.userRepository.findIds({
-            coursesAsStudent: { id: courseId },
+            courseAssignments: { course: { id: courseId } },
         });
         return userIds.map((userId) => ({
             ...notification,

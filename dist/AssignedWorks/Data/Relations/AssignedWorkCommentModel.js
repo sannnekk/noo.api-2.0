@@ -29,6 +29,7 @@ let AssignedWorkCommentModel = class AssignedWorkCommentModel extends Model {
     slug;
     content;
     score;
+    detailedScore;
     task;
     taskId;
     assignedWork;
@@ -59,6 +60,15 @@ __decorate([
     }),
     __metadata("design:type", Number)
 ], AssignedWorkCommentModel.prototype, "score", void 0);
+__decorate([
+    Column({
+        name: 'detailed_score',
+        type: 'json',
+        nullable: true,
+        default: null,
+    }),
+    __metadata("design:type", Object)
+], AssignedWorkCommentModel.prototype, "detailedScore", void 0);
 __decorate([
     ManyToOne(() => WorkTaskModel, (task) => task.assignedWorkComments),
     __metadata("design:type", Object)

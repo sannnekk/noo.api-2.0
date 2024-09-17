@@ -5,13 +5,18 @@ export class SessionRepository extends Repository {
     constructor() {
         super(SessionModel);
     }
-    async countOnlineUsers() {
-        return this.queryBuilder()
+    async countOnlineUsers(condition) {
+        const query = this.queryBuilder()
             .distinctOn(['userId'])
             .where('last_request_at >= :datetime', {
             datetime: new Date(Date.now() - SessionOptions.onlineThreshold).toISOString(),
-        })
-            .getCount();
+        });
+        if (condition) {
+            query.setFindOptions({
+                where: condition,
+            });
+        }
+        return query.getCount();
     }
     async findLast(userId) {
         return this.queryBuilder()

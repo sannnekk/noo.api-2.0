@@ -3,7 +3,7 @@
  *
  */
 
-type DatePrecision = 'day' | 'hour' | 'minute' | 'second' | 'millisecond'
+export type DatePrecision = 'day' | 'hour' | 'minute' | 'second' | 'millisecond'
 
 function toISOString(date: Date): string {
   return date.toISOString()

@@ -17,9 +17,13 @@ import { CourseChapterModel } from '../Data/Relations/CourseChapterModel'
 import { CourseIsEmptyError } from '../Errors/CourseIsEmptyError'
 import { WorkRepository } from '@modules/Works/Data/WorkRepository'
 import { WorkIsFromAnotherSubjectError } from '../Errors/WorkIsFromAnotherSubjectError'
+import { CourseAssignmentRepository } from '../Data/CourseAssignmentRepository'
+import { CourseAssignmentModel } from '../Data/Relations/CourseAssignmentModel'
 
 export class CourseService {
   private readonly courseRepository: CourseRepository
+
+  private readonly courseAssignmentRepository: CourseAssignmentRepository
 
   private readonly materialRepository: CourseMaterialRepository
 
@@ -31,45 +35,29 @@ export class CourseService {
 
   constructor() {
     this.courseRepository = new CourseRepository()
+    this.courseAssignmentRepository = new CourseAssignmentRepository()
     this.userRepository = new UserRepository()
     this.materialRepository = new CourseMaterialRepository()
     this.assignedWorkRepository = new AssignedWorkRepository()
     this.workRepository = new WorkRepository()
   }
 
-  public async get(
-    pagination: Pagination | undefined,
-    userId: User['id'],
-    userRole: User['role']
-  ) {
-    pagination = new Pagination().assign(pagination)
-
-    let conditions
-
-    if (userRole === 'student') {
-      conditions = {
-        students: {
-          id: userId,
-        },
-      } as any
-    }
-
-    const relations: (keyof Course)[] = ['author']
-
-    return this.courseRepository.search(conditions, pagination, relations)
+  public async get(pagination?: Pagination) {
+    return this.courseRepository.search(undefined, pagination, ['author'])
   }
 
-  public async getStudentCourses(
+  public async getStudentCourseAssignments(
     studentId: User['id'],
     pagination: Pagination
   ) {
-    return this.courseRepository.search(
+    return this.courseAssignmentRepository.search(
       {
-        students: {
+        student: {
           id: studentId,
         },
       },
-      pagination
+      pagination,
+      ['course', 'assigner', 'course.author']
     )
   }
 
@@ -87,20 +75,21 @@ export class CourseService {
           : undefined,
     }
 
+    const relations = [
+      'chapters.materials.work',
+      'author',
+      'chapters.materials.poll',
+    ]
+
+    if (role === 'teacher' || role === 'admin') {
+      relations.push('studentAssignments')
+    }
+
     const course = await this.courseRepository.findOne(
       condition,
-      ['chapters.materials.work' as any, 'author', 'chapters.materials.poll'],
-      {
-        chapters: {
-          order: 'ASC',
-          materials: {
-            order: 'ASC',
-            files: {
-              order: 'ASC',
-            },
-          },
-        },
-      }
+      relations as any,
+      undefined,
+      { relationLoadStrategy: 'query' }
     )
 
     if (!course) {
@@ -114,6 +103,36 @@ export class CourseService {
     }
 
     return course
+  }
+
+  public async archive(assignmentId: string, studentId: User['id']) {
+    const assignment = await this.courseAssignmentRepository.findOne({
+      id: assignmentId,
+      student: { id: studentId },
+    })
+
+    if (!assignment) {
+      throw new NotFoundError('Курс не найден')
+    }
+
+    assignment.isArchived = true
+
+    await this.courseAssignmentRepository.update(assignment)
+  }
+
+  public async unarchive(assignmentId: string, studentId: User['id']) {
+    const assignment = await this.courseAssignmentRepository.findOne({
+      id: assignmentId,
+      student: { id: studentId },
+    })
+
+    if (!assignment) {
+      throw new NotFoundError('Курс не найден')
+    }
+
+    assignment.isArchived = false
+
+    await this.courseAssignmentRepository.update(assignment)
   }
 
   public async getAssignedWorkToMaterial(
@@ -149,8 +168,27 @@ export class CourseService {
     await this.courseRepository.update(newCourse)
   }
 
-  public async addStudents(courseSlug: string, studentIds: User['id'][]) {
-    const queryBuilder = this.courseRepository.queryBuilder()
+  public async addStudents(
+    courseSlug: string,
+    studentIds: User['id'][],
+    assignerId: User['id']
+  ) {
+    const existingAssignments = await this.courseAssignmentRepository.findAll({
+      course: {
+        slug: courseSlug,
+      },
+      student: { id: TypeORM.In(studentIds) },
+    })
+
+    const studentIdsToAdd = studentIds.filter((studentId) => {
+      return !existingAssignments.some(
+        (assignment) => assignment.studentId === studentId
+      )
+    })
+
+    if (studentIdsToAdd.length === 0) {
+      return
+    }
 
     const course = await this.courseRepository.findOne({ slug: courseSlug })
 
@@ -158,76 +196,52 @@ export class CourseService {
       throw new NotFoundError('Курс не найден')
     }
 
-    await queryBuilder
-      .relation(CourseModel, 'students')
-      .of(course)
-      .add(studentIds)
+    const assignments = studentIdsToAdd.map((studentId) => {
+      return new CourseAssignmentModel({
+        student: { id: studentId } as User,
+        course: { id: course.id } as Course,
+        assigner: { id: assignerId } as User,
+      })
+    })
+
+    await this.courseAssignmentRepository.createMany(assignments)
   }
 
   public async addStudentsViaEmails(
     courseSlug: string,
-    studentEmails: User['email'][]
+    studentEmails: User['email'][],
+    assignerId: User['id']
   ) {
-    const queryBuilder = this.courseRepository.queryBuilder()
-
-    const course = await this.courseRepository.findOne({ slug: courseSlug })
-
-    if (!course) {
-      throw new NotFoundError('Курс не найден')
-    }
-
     const userIds = await this.userRepository.getIdsFromEmails(studentEmails, {
       role: 'student',
     })
 
     // Add students if they are not already in the course
-    const studentsToAdd = userIds.filter(
-      (id) => !course.studentIds!.some((studentId) => studentId === id)
-    )
-
-    if (studentsToAdd.length > 0) {
-      await queryBuilder
-        .relation(CourseModel, 'students')
-        .of(course)
-        .add(studentsToAdd)
-    }
+    await this.addStudents(courseSlug, userIds, assignerId)
   }
 
   public async removeStudents(courseSlug: string, studentIds: User['id'][]) {
-    const queryBuilder = this.courseRepository.queryBuilder()
-
     const course = await this.courseRepository.findOne({ slug: courseSlug })
 
     if (!course) {
       throw new NotFoundError('Курс не найден')
     }
 
-    await queryBuilder
-      .relation(CourseModel, 'students')
-      .of(course)
-      .remove(studentIds)
+    await this.courseAssignmentRepository.deleteWhere({
+      course: { id: course.id },
+      student: { id: TypeORM.In(studentIds) },
+    })
   }
 
   public async removeStudentsViaEmails(
     courseSlug: string,
     studentEmails: User['email'][]
   ) {
-    const queryBuilder = this.courseRepository.queryBuilder()
-
-    const course = await this.courseRepository.findOne({ slug: courseSlug })
-
-    if (!course) {
-      throw new NotFoundError('Курс не найден')
-    }
-
     const userIds = await this.userRepository.getIdsFromEmails(studentEmails, {
       role: 'student',
     })
 
-    await queryBuilder
-      .relation(CourseModel, 'students')
-      .of(course)
-      .remove(userIds)
+    await this.removeStudents(courseSlug, userIds)
   }
 
   public async assignWorkToMaterial(
@@ -316,9 +330,6 @@ export class CourseService {
       throw new NotFoundError()
     }
 
-    course.students = []
-
-    await this.courseRepository.update(course)
     await this.courseRepository.delete(id)
   }
 }

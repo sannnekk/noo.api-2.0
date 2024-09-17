@@ -1,254 +1,287 @@
 [
 	{
-		"version": "3.1.2",
-		"date": "2024-10-09",
+		"version": "3.2.0",
+		"date": "2024-09-15",
 		"authors": [
 			"sannnekk"
 		],
 		"changes": [
 			{
 				"type": "feat",
-				"description": "Send notification to all course students functionality for teachers"
+				"description": "Добавлены 2 новых типа заданий: 'сочинение' и 'итоговое сочинение'"
 			},
 			{
 				"type": "feat",
-				"description": "Added task type 'essay'"
-			},
-			{
-				"type": "fix",
-				"description": "Fixed setting solve status for the assigned work while checked by mentor"
+				"description": "Изменен принцип попадания ученика на курс: теперь видно дату присвоения и кто присвоил"
 			},
 			{
 				"type": "feat",
-				"description": "Added showSolveHint and showCheckHint settings for assigned work module"
+				"description": "Появилась возмодность архивировать курсы для учеников"
 			},
 			{
-				"type": "impr",
-				"description": "Moved score box to the bottom in assigned work module (asked by mentors)"
+				"type": "feat",
+				"description": "Добавлена новая статистика: онлайн по ролям пользователей, переделан дизайн статистики"
 			},
 			{
-				"type": "fix",
-				"description": "Fixed sending notifications with selector type role"
-			},
-			{
-				"type": "impr",
-				"description": "Split notifications by dates"
+				"type": "feat",
+				"description": "Добавлена возможность просматривать присвоенные материалы на странице работ"
 			},
 			{
 				"type": "fix",
-				"description": "Fixed the loader not showing on notifications delete"
+				"description": "Исправлена ошибка с тем что пользователи не видели прикрепленных файлов с устройств Apple"
+			},
+			{
+				"type": "fix",
+				"description": "Исправлена ошибка с эскпортом результатов опросов в интеграциях"
+			},
+			{
+				"type": "fix",
+				"description": "Много мелких исправлений и доработок"
+			}
+		]
+	},
+	{
+		"version": "3.1.2",
+		"date": "2024-09-10",
+		"authors": [
+			"sannnekk"
+		],
+		"changes": [
+			{
+				"type": "feat",
+				"description": "Добавлена возможность присылать уведомления ученикам курса для учителей"
+			},
+			{
+				"type": "fix",
+				"description": "Исправлена ошибка с неверным статусом работы при автосохранении во время проверки"
+			},
+			{
+				"type": "feat",
+				"description": "Добавлена возможность скрывать подсказки и пояснения"
+			},
+			{
+				"type": "impr",
+				"description": "Поле для ввода балла за задание сдвинуто вниз"
+			},
+			{
+				"type": "fix",
+				"description": "Исправлено отправление уведомлений по селектору роль"
+			},
+			{
+				"type": "impr",
+				"description": "Уведомления разбиты по дате"
+			},
+			{
+				"type": "fix",
+				"description": "Исправлено удаление уведомлений, теперь там видно загрузку"
 			}
 		]
 	},
 	{
 		"version": "3.1.1",
-		"date": "2024-02-09",
+		"date": "2024-09-02",
 		"authors": [
 			"sannnekk"
 		],
 		"changes": [
 			{
 				"type": "feat",
-				"description": "Added recheck automatically button for everyone but students"
+				"description": "Добавлена возможность перепроверить работу если она была автоматически проверена для всех кроме учеников"
 			},
 			{
 				"type": "impr",
-				"description": "Corrected orphaned row action for assigned work answers and comments"
+				"description": "Исправлена ршибка с созданием пустых ответов и комментариев в базе данных"
 			},
 			{
 				"type": "fix",
-				"description": "Fixed that sometimes the messages are not sent to telegram"
+				"description": "Исправлена ошибка с тем что некоторые уведомления не приходили в телеграм"
 			}
 		]
 	},
 	{
 		"version": "3.1.0",
-		"date": "2024-28-08",
+		"date": "2024-08-28",
 		"authors": [
 			"sannnekk"
 		],
 		"changes": [
 			{
 				"type": "feat",
-				"description": "Added notifications"
+				"description": "Добавлены уведомления"
 			},
 			{
 				"type": "feat",
-				"description": "Mentors can now send works back for revision"
+				"description": "Кураторы теперь могут отправлять работы на дорешивание"
 			},
 			{
 				"type": "feat",
-				"description": "Materials can now have poll attached"
+				"description": "Теперь можно прикрепить опрос к материалу"
 			},
 			{
 				"type": "impr",
-				"description": "Improved algorithm of transfering works on mentor change"
+				"description": "Улучшен алгоритм переноса работ при присвоении куратора"
 			},
 			{
 				"type": "fix",
-				"description": "Fixed UI bugs"
+				"description": "Исправлено множество ошибок с отображением дизайна"
 			},
 			{
 				"type": "fix",
-				"description": "Fixed that students can't unarchive works"
+				"description": "Исправлена ошибка с тем что ученики не могли разархивировать свои работы"
 			},
 			{
 				"type": "fix",
-				"description": "Fixed that students can delete any work"
+				"description": "Исправлена ошибка с рем что ученик мог удалить любую работу"
 			},
 			{
 				"type": "fix",
-				"description": "Fixed date range in teachers statistics"
-			},
-			{
-				"type": "fix",
-				"description": "Fixed orphans in the database"
+				"description": "Исправлен некорректный диапазон дат для статистики преподавателей"
 			},
 			{
 				"type": "impr",
-				"description": "Telegram notifications"
+				"description": "Уведомления в телеграм теперь доступны всем"
 			}
 		]
 	},
 	{
 		"version": "3.0.5",
-		"date": "2024-22-08",
+		"date": "2024-08-22",
 		"authors": [
 			"sannnekk"
 		],
 		"changes": [
 			{
 				"type": "fix",
-				"description": "Fixed cant change email error"
+				"description": "Исправлена ошибка с тем что нельзя было сменить имейл через ссылку в письме"
 			},
 			{
 				"type": "feat",
-				"description": "Can now click on the work in the work list to see the work details"
+				"description": "Теперь можно кликнуть на работу в списке работ и попасть на страницу работы"
 			},
 			{
 				"type": "feat",
-				"description": "Can manage student courses on user edit page"
+				"description": "Добавлена возможность управлять курсами ученика со страницы его профиля для учителей и админов"
 			}
 		]
 	},
 	{
 		"version": "3.0.4",
-		"date": "2024-17-08",
+		"date": "2024-08-17",
 		"authors": [
 			"sannnekk"
 		],
 		"changes": [
 			{
 				"type": "feat",
-				"description": "Added work autosave"
+				"description": "Добавлено автосохранение работ"
 			},
 			{
 				"type": "feat",
-				"description": "Added work comments"
+				"description": "Добавлены комментарии к работе"
 			}
 		]
 	},
 	{
 		"version": "3.0.3",
-		"date": "2024-17-08",
+		"date": "2024-08-17",
 		"authors": [
 			"sannnekk"
 		],
 		"changes": [
 			{
 				"type": "feat",
-				"description": "Transfer not checked works to the next mentor on mentor change"
+				"description": "Теперь при смене куратора переносятся все его непроверенные работы новому куратору"
 			},
 			{
 				"type": "feat",
-				"description": "Added help page"
+				"description": "Добавлена страница помощи"
 			},
 			{
 				"type": "impr",
-				"description": "A lot of improvements and bug fixes"
+				"description": "Много мелких исправлений и доработок"
 			}
 		]
 	},
 	{
 		"version": "3.0.2",
-		"date": "2024-16-08",
+		"date": "2024-08-16",
 		"authors": [
 			"sannnekk"
 		],
 		"changes": [
 			{
 				"type": "fix",
-				"description": "Fixed mentor assigned works search"
+				"description": "Исправлен поиск работ для кураторов"
 			},
 			{
 				"type": "feat",
-				"description": "Mentors are now in user list"
+				"description": "Теперь видно куратора в списке пользователей"
 			},
 			{
 				"type": "impr",
-				"description": "A lot of improvements and bug fixes"
+				"description": "Много мелких исправлений и доработок"
 			}
 		]
 	},
 	{
 		"version": "3.0.1",
-		"date": "2024-15-08",
+		"date": "2024-08-15",
 		"authors": [
 			"sannnekk"
 		],
 		"changes": [
 			{
 				"type": "fix",
-				"description": "Bugfixes after a huge update"
+				"description": "Испрпвления после крупного обновления"
 			}
 		]
 	},
 	{
 		"version": "3.0.0",
-		"date": "2024-15-08",
+		"date": "2024-08-15",
 		"authors": [
 			"sannnekk"
 		],
 		"changes": [
 			{
 				"type": "feat",
-				"description": "Added settings page"
+				"description": "Добавлена страница настроек"
 			},
 			{
 				"type": "feat",
-				"description": "Avatars not only from telegram but also self-uploaded now supported"
+				"description": "Можно загружать аватарку не только из телеграмм, но и файлом"
 			},
 			{
 				"type": "feat",
-				"description": "Introduced a mentor for each subject for a student"
+				"description": "Тепнрь у ученика не один куратор, а один на каждый предмет"
 			},
 			{
 				"type": "feat",
-				"description": "Introduced Subjects with relation to Works, Courses and MentorAssignments"
+				"description": "Появилась новая сущность: предметы. Теперь у курсов и работ должен быть предмет"
 			},
 			{
 				"type": "feat",
-				"description": "Added support for Google Spreadsheet integrations"
+				"description": "Добавлена интеграция с Google Sheets"
 			},
 			{
 				"type": "feat",
-				"description": "Added snippets for mentors"
+				"description": "Добавлены сниппеты для кураторов"
 			},
 			{
 				"type": "feat",
-				"description": "Introduced platform route with metadata of the whole platform"
+				"description": "Добавлена страница с информацией о платформе"
 			},
 			{
 				"type": "impr",
-				"description": "Separate route to change password"
+				"description": "Теперь пароль меняется отдельно, не через обновление всего пользователя"
 			},
 			{
 				"type": "feat",
-				"description": "Started versioning"
+				"description": "Начало ведения версий"
 			},
 			{
 				"type": "impr",
-				"description": "A lot of improvements and bug fixes"
+				"description": "Много мелких исправлений и доработок"
 			}
 		]
 	}

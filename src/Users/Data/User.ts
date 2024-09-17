@@ -7,6 +7,7 @@ import { Session } from '@modules/Sessions/Data/Session'
 import { UserAvatar } from './Relations/UserAvatar'
 import { MentorAssignment } from './Relations/MentorAssignment'
 import { Snippet } from '@modules/Snippets/Data/Snippet'
+import { CourseAssignment } from '@modules/Courses/Data/Relations/CourseAssignment'
 
 export interface User extends BaseModel {
   slug: string
@@ -26,8 +27,9 @@ export interface User extends BaseModel {
   forbidden?: number
   courses?: Course[]
   verificationToken: string | null
-  coursesAsStudent?: Course[]
-  courseAsStudentIds: Course['id'][]
+  courseAssignments?: CourseAssignment[]
+  courseAssignmentIds?: CourseAssignment['id'][]
+  courseAssignmentsAsAssigner?: CourseAssignment[]
   assignedWorksAsStudent?: AssignedWork[] | undefined
   assignedWorksAsMentor?: AssignedWork[] | undefined
   votedPolls?: Poll[]

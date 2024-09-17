@@ -28,6 +28,7 @@ import { SnippetModel } from '@modules/Snippets/Data/SnippetModel'
 import { config } from '@modules/config'
 import { FAQCategoryModel } from '@modules/FAQ/Data/Relations/FAQCategoryModel'
 import { NotificationModel } from '@modules/Notifications/Data/NotificationModel'
+import { CourseAssignmentModel } from '@modules/Courses/Data/Relations/CourseAssignmentModel'
 
 export const CoreDataSource = new DataSource({
   type: 'mysql',
@@ -48,6 +49,7 @@ export const CoreDataSource = new DataSource({
     UserModel,
     UserAvatarModel,
     MentorAssignmentModel,
+    CourseAssignmentModel,
     CourseModel,
     CourseChapterModel,
     CourseMaterialModel,

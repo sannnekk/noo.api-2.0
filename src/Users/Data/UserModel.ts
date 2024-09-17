@@ -3,7 +3,6 @@ import {
   Column,
   Entity,
   JoinColumn,
-  JoinTable,
   ManyToMany,
   OneToMany,
   OneToOne,
@@ -35,6 +34,8 @@ import { SnippetModel } from '@modules/Snippets/Data/SnippetModel'
 import { Snippet } from '@modules/Snippets/Data/Snippet'
 import { config } from '@modules/config'
 import { NotificationModel } from '@modules/Notifications/Data/NotificationModel'
+import { CourseAssignment } from '@modules/Courses/Data/Relations/CourseAssignment'
+import { CourseAssignmentModel } from '@modules/Courses/Data/Relations/CourseAssignmentModel'
 
 @Entity('user')
 export class UserModel extends SearchableModel implements User {
@@ -117,12 +118,14 @@ export class UserModel extends SearchableModel implements User {
   @OneToMany(() => CourseModel, (course) => course.author)
   courses?: Course[]
 
-  @ManyToMany(() => CourseModel, (course) => course.students)
-  @JoinTable()
-  coursesAsStudent?: Course[]
+  @OneToMany(() => CourseAssignmentModel, (assignment) => assignment.student)
+  courseAssignments?: CourseAssignment[]
 
-  @RelationId((user: UserModel) => user.coursesAsStudent)
-  courseAsStudentIds!: string[]
+  @RelationId((user: UserModel) => user.courseAssignments)
+  courseAssignmentIds!: CourseAssignment['id'][]
+
+  @OneToMany(() => CourseAssignmentModel, (assignment) => assignment.assigner)
+  courseAssignmentsAsAssigner?: CourseAssignment[]
 
   @ManyToMany(() => AssignedWorkModel, (assignedWork) => assignedWork.mentors)
   assignedWorksAsMentor?: AssignedWork[]

@@ -140,6 +140,14 @@ export class Repository {
         await this.repository.delete(id);
     }
     /**
+     * Delete entities by condition
+     *
+     * @param conditions Condition to delete by
+     */
+    async deleteWhere(conditions) {
+        await this.repository.delete(conditions);
+    }
+    /**
      * Find many entities. If no pagination is provided, it will create one with default oprions (page 1, limit 25)
      *
      * @param conditions The conditions to find the entities with (ActiveRecord style)
@@ -367,6 +375,12 @@ export class Repository {
             },
         ];
     }
+    /**
+     * Get the relation path and alias for a complex relation
+     *
+     * @param relation Property name of the relation
+     * @returns relation path and alias
+     */
     buildComplexRelationPath(relation) {
         const relatedEntities = relation.split('.');
         const joins = [];

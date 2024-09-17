@@ -10,12 +10,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 import * as Transliteration from '../../Core/Utils/transliteration.js';
 import * as ULID from '../../Core/Data/Ulid.js';
 import { UserModel } from '../../Users/Data/UserModel.js';
-import { Brackets, Column, Entity, ManyToMany, ManyToOne, OneToMany, RelationId, } from 'typeorm';
+import { Brackets, Column, Entity, ManyToOne, OneToMany, RelationId, } from 'typeorm';
 import { MediaModel } from '../../Media/Data/MediaModel.js';
 import { CourseChapterModel } from './Relations/CourseChapterModel.js';
 import { SearchableModel } from '../../Core/Data/SearchableModel.js';
 import { SubjectModel } from '../../Subjects/Data/SubjectModel.js';
 import { config } from '../../config.js';
+import { CourseAssignmentModel } from './Relations/CourseAssignmentModel.js';
 let CourseModel = class CourseModel extends SearchableModel {
     constructor(data) {
         super();
@@ -39,8 +40,7 @@ let CourseModel = class CourseModel extends SearchableModel {
     name;
     author;
     authorId;
-    students;
-    studentIds;
+    studentAssignments;
     description;
     chapters;
     images;
@@ -88,15 +88,9 @@ __decorate([
     __metadata("design:type", Object)
 ], CourseModel.prototype, "authorId", void 0);
 __decorate([
-    ManyToMany(() => UserModel, (user) => user.coursesAsStudent, {
-        cascade: true,
-    }),
+    OneToMany(() => CourseAssignmentModel, (assignment) => assignment.course),
     __metadata("design:type", Array)
-], CourseModel.prototype, "students", void 0);
-__decorate([
-    RelationId((course) => course.students),
-    __metadata("design:type", Array)
-], CourseModel.prototype, "studentIds", void 0);
+], CourseModel.prototype, "studentAssignments", void 0);
 __decorate([
     Column({
         name: 'description',

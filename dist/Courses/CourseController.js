@@ -23,8 +23,9 @@ let CourseController = class CourseController {
     async get(context) {
         try {
             await Asserts.isAuthenticated(context);
+            Asserts.notStudent(context);
             const pagination = this.courseValidator.parsePagination(context.query);
-            const { entities, meta } = await this.courseService.get(pagination, context.credentials.userId, context.credentials.role);
+            const { entities, meta } = await this.courseService.get(pagination);
             return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
@@ -34,11 +35,38 @@ let CourseController = class CourseController {
     async getStudentCourses(context) {
         try {
             await Asserts.isAuthenticated(context);
-            Asserts.notStudent(context);
-            const studentId = this.courseValidator.parseId(context.params.studentId);
+            const studentId = this.courseValidator.parseOptionalId(context.params.studentId) ||
+                context.credentials.userId;
             const pagination = this.courseValidator.parsePagination(context.query);
-            const { entities: courses, meta } = await this.courseService.getStudentCourses(studentId, pagination);
-            return new ApiResponse({ data: courses, meta });
+            if (context.credentials.role === 'student') {
+                Asserts.isAuthorized(context, studentId);
+            }
+            const { entities: courseAssignments, meta } = await this.courseService.getStudentCourseAssignments(studentId, pagination);
+            return new ApiResponse({ data: courseAssignments, meta });
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
+    async archive(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.student(context);
+            const assignmentId = this.courseValidator.parseSlug(context.params.assignmentId);
+            await this.courseService.archive(assignmentId, context.credentials.userId);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
+    async unarchive(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.student(context);
+            const assignmentId = this.courseValidator.parseSlug(context.params.assignmentId);
+            await this.courseService.unarchive(assignmentId, context.credentials.userId);
+            return new ApiResponse();
         }
         catch (error) {
             return new ApiResponse(error);
@@ -49,10 +77,6 @@ let CourseController = class CourseController {
             await Asserts.isAuthenticated(context);
             const courseSlug = this.courseValidator.parseSlug(context.params.slug);
             const course = await this.courseService.getBySlug(courseSlug, context.credentials.role);
-            if (context.credentials.role === 'student' ||
-                context.credentials.role == 'mentor') {
-                course.studentIds = [];
-            }
             return new ApiResponse({ data: course });
         }
         catch (error) {
@@ -129,7 +153,7 @@ let CourseController = class CourseController {
             Asserts.teacher(context);
             const courseSlug = this.courseValidator.parseSlug(context.params.courseSlug);
             const { studentIds } = this.courseValidator.parseStudentIds(context.body);
-            await this.courseService.addStudents(courseSlug, studentIds);
+            await this.courseService.addStudents(courseSlug, studentIds, context.credentials.userId);
             return new ApiResponse();
         }
         catch (error) {
@@ -155,7 +179,7 @@ let CourseController = class CourseController {
             Asserts.teacherOrAdmin(context);
             const courseSlug = this.courseValidator.parseSlug(context.params.courseSlug);
             const { emails } = this.courseValidator.parseEmails(context.body);
-            await this.courseService.addStudentsViaEmails(courseSlug, emails);
+            await this.courseService.addStudentsViaEmails(courseSlug, emails, context.credentials.userId);
             return new ApiResponse();
         }
         catch (error) {
@@ -195,11 +219,23 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "get", null);
 __decorate([
-    Get('/student/:studentId'),
+    Get('/student/:studentId?'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "getStudentCourses", null);
+__decorate([
+    Patch('/:assignmentId/archive'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "archive", null);
+__decorate([
+    Patch('/:assignmentId/unarchive'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "unarchive", null);
 __decorate([
     Get('/:slug'),
     __metadata("design:type", Function),

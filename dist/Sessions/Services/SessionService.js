@@ -52,8 +52,8 @@ export class SessionService {
         session.lastRequestAt = new Date();
         return this.sessionRepository.create(session);
     }
-    async getOnlineUsersCount() {
-        return this.sessionRepository.countOnlineUsers();
+    async getOnlineUsersCount(condition) {
+        return this.sessionRepository.countOnlineUsers(condition);
     }
     async getOnlineStatus(userId) {
         // find last session for user

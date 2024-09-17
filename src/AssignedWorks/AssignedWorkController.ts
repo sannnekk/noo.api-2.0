@@ -321,13 +321,13 @@ export class AssignedWorkController {
       Asserts.mentorOrStudent(context)
       const workId = this.assignedWorkValidator.parseId(context.params.id)
 
-      await this.assignedWorkService.shiftDeadline(
+      const newDeadlines = await this.assignedWorkService.shiftDeadline(
         workId,
         context.credentials.role,
         context.credentials.userId
       )
 
-      return new ApiResponse()
+      return new ApiResponse({ data: newDeadlines })
     } catch (error: any) {
       return new ApiResponse(error)
     }

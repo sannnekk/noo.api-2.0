@@ -729,6 +729,11 @@ export class AssignedWorkService {
     }
 
     await this.assignedWorkRepository.update(work)
+
+    return {
+      newSolveDeadlineAt: work.solveDeadlineAt,
+      newCheckDeadlineAt: work.checkDeadlineAt,
+    }
   }
 
   public async sendToRevision(

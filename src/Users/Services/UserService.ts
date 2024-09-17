@@ -308,7 +308,7 @@ export class UserService {
 
     // reset user's relations
     user.courses = []
-    user.coursesAsStudent = []
+    user.courseAssignments = []
     user.mentorAssignmentsAsMentor = []
     user.mentorAssignmentsAsStudent = []
     user.snippets = []
@@ -469,7 +469,7 @@ export class UserService {
     user.telegramUsername = null as any
     user.avatar = null as any
     user.courses = []
-    user.coursesAsStudent = []
+    user.courseAssignments = []
     user.votedPolls = []
     user.newEmail = null as any
     user.verificationToken = null as any

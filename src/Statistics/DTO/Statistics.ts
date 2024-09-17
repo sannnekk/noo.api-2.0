@@ -1,9 +1,21 @@
 import { Plot } from '../Data/Plot'
 
 export interface Statistics {
-  entries: {
+  sections: {
     name: string
-    value: number
+    description: string
+    entries: {
+      name: string
+      description?: string
+      value: number
+      percentage?: number
+      subEntries?: {
+        name: string
+        description?: string
+        value: number
+        percentage?: number
+      }[]
+    }[]
+    plots: Plot[]
   }[]
-  plots: Plot[]
 }

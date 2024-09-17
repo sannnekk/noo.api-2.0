@@ -215,8 +215,8 @@ let AssignedWorkController = class AssignedWorkController {
             await Asserts.isAuthenticated(context);
             Asserts.mentorOrStudent(context);
             const workId = this.assignedWorkValidator.parseId(context.params.id);
-            await this.assignedWorkService.shiftDeadline(workId, context.credentials.role, context.credentials.userId);
-            return new ApiResponse();
+            const newDeadlines = await this.assignedWorkService.shiftDeadline(workId, context.credentials.role, context.credentials.userId);
+            return new ApiResponse({ data: newDeadlines });
         }
         catch (error) {
             return new ApiResponse(error);

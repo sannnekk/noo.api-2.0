@@ -53,6 +53,25 @@ export class WorkController {
     }
   }
 
+  @Get('/:id/related-materials')
+  public async getWorkRelatedMaterials(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+
+      const id = this.workValidator.parseId(context.params.id)
+      const pagination = this.workValidator.parsePagination(context.query)
+
+      const { entities, meta } = await this.workService.getWorkRelatedMaterials(
+        id,
+        pagination
+      )
+
+      return new ApiResponse({ data: entities, meta })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
+
   @Post('/')
   public async createWork(context: Context): Promise<ApiResponse> {
     try {

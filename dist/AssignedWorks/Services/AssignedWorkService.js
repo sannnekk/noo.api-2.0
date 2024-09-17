@@ -472,6 +472,10 @@ export class AssignedWorkService {
             await this.calenderService.updateDeadlineFromWork(work, 'mentor-deadline');
         }
         await this.assignedWorkRepository.update(work);
+        return {
+            newSolveDeadlineAt: work.solveDeadlineAt,
+            newCheckDeadlineAt: work.checkDeadlineAt,
+        };
     }
     async sendToRevision(workId, mentorId) {
         const work = await this.getAssignedWork(workId, ['mentors']);

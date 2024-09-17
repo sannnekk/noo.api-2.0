@@ -6,7 +6,6 @@ import {
   Brackets,
   Column,
   Entity,
-  ManyToMany,
   ManyToOne,
   OneToMany,
   RelationId,
@@ -22,6 +21,8 @@ import { SearchableModel } from '@modules/Core/Data/SearchableModel'
 import { BaseModel } from '@modules/Core/Data/Model'
 import { SubjectModel } from '@modules/Subjects/Data/SubjectModel'
 import { config } from '@modules/config'
+import { CourseAssignmentModel } from './Relations/CourseAssignmentModel'
+import { CourseAssignment } from './Relations/CourseAssignment'
 
 type PartialCourse = Partial<Omit<Course, 'chapters'>> & {
   chapters?: (Partial<Omit<CourseChapter, 'materials'>> & {
@@ -79,13 +80,8 @@ export class CourseModel extends SearchableModel implements Course {
   @RelationId((course: CourseModel) => course.author)
   authorId!: User['id']
 
-  @ManyToMany(() => UserModel, (user) => user.coursesAsStudent, {
-    cascade: true,
-  })
-  students?: User[]
-
-  @RelationId((course: CourseModel) => course.students)
-  studentIds!: string[]
+  @OneToMany(() => CourseAssignmentModel, (assignment) => assignment.course)
+  studentAssignments?: CourseAssignment[]
 
   @Column({
     name: 'description',

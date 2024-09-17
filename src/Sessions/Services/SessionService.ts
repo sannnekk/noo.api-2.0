@@ -6,6 +6,7 @@ import { User } from '@modules/Users/Data/User'
 import { UnauthorizedError } from '@modules/Core/Errors/UnauthorizedError'
 import date from '@modules/Core/Utils/date'
 import { SessionOptions } from '../SessionsOptions'
+import { FindOptionsWhere } from 'typeorm'
 
 export type OnlineStatus = {
   isOnline: boolean
@@ -85,8 +86,10 @@ export class SessionService {
     return this.sessionRepository.create(session)
   }
 
-  public async getOnlineUsersCount(): Promise<number> {
-    return this.sessionRepository.countOnlineUsers()
+  public async getOnlineUsersCount(
+    condition?: FindOptionsWhere<Session>
+  ): Promise<number> {
+    return this.sessionRepository.countOnlineUsers(condition)
   }
 
   public async getOnlineStatus(userId: User['id']): Promise<OnlineStatus> {
