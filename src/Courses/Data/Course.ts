@@ -17,4 +17,5 @@ export interface Course extends BaseModel {
   subjectId: Subject['id']
   studentAssignments?: CourseAssignment[]
   studentAssignmentIds?: CourseAssignment['id'][]
+  studentCount?: number
 }

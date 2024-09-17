@@ -147,6 +147,19 @@ let CourseController = class CourseController {
             return new ApiResponse(error);
         }
     }
+    async getStudentList(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.teacherOrAdmin(context);
+            const courseId = this.courseValidator.parseId(context.params.courseId);
+            const pagination = this.courseValidator.parsePagination(context.query);
+            const { entities, meta } = await this.courseService.getStudentListWithAssignments(courseId, pagination);
+            return new ApiResponse({ data: entities, meta });
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
     async addStudents(context) {
         try {
             await Asserts.isAuthenticated(context);
@@ -272,6 +285,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "assignWorkToMaterial", null);
+__decorate([
+    Get('/:courseId/student-list'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "getStudentList", null);
 __decorate([
     Patch('/:courseSlug/add-students'),
     __metadata("design:type", Function),

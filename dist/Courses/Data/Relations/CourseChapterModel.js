@@ -85,7 +85,7 @@ __decorate([
 ], CourseChapterModel.prototype, "courseId", void 0);
 __decorate([
     OneToMany(() => CourseMaterialModel, (material) => material.chapter, { cascade: true }),
-    __metadata("design:type", Object)
+    __metadata("design:type", Array)
 ], CourseChapterModel.prototype, "materials", void 0);
 __decorate([
     RelationId((chapter) => chapter.materials),

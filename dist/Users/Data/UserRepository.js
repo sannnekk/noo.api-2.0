@@ -19,4 +19,19 @@ export class UserRepository extends Repository {
     async findIds(conditions) {
         return (await this.repository.find({ where: conditions, select: ['id'] })).map((user) => user.id);
     }
+    async getStudentsWithAssignments(courseId, pagination) {
+        const query = this.queryBuilder('user')
+            .leftJoinAndSelect('user.courseAssignments', 'courseAssignment', 'courseAssignment.courseId = :courseId', { courseId })
+            .where('user.role = :role', { role: 'student' })
+            .take(pagination.take)
+            .skip(pagination.offset);
+        const [entities, total] = await query.getManyAndCount();
+        return {
+            entities,
+            meta: {
+                total,
+                relations: ['courseAssignments'],
+            },
+        };
+    }
 }

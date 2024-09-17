@@ -279,6 +279,15 @@ export abstract class Repository<T extends BaseModel> {
   }
 
   /**
+   * Count entities
+   *
+   * @param conditions The conditions to count the entities with (ActiveRecord style)
+   */
+  async count(conditions?: FindOptionsWhere<T>): Promise<number> {
+    return this.repository.count({ where: conditions })
+  }
+
+  /**
    * Get this repository's query builder
    *
    * @param alias Alias for the query

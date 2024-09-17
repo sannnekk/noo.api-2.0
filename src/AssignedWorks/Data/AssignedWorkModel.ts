@@ -168,18 +168,12 @@ export class AssignedWorkModel extends SearchableModel implements AssignedWork {
   })
   answers!: AssignedWorkAnswer[]
 
-  @RelationId((assignedWork: AssignedWorkModel) => assignedWork.answers)
-  answerIds!: string[]
-
   @OneToMany(
     () => AssignedWorkCommentModel,
     (comment) => comment.assignedWork,
     { cascade: true }
   )
   comments!: AssignedWorkComment[]
-
-  @RelationId((assignedWork: AssignedWorkModel) => assignedWork.comments)
-  commentIds!: string[]
 
   @OneToMany(
     () => CalenderEventModel,

@@ -461,7 +461,7 @@ export class StatisticsService {
       sections: [
         {
           name: 'Работы',
-          description: 'Статистика по ысем работам',
+          description: 'Статистика по работам',
           plots: [scorePlot],
           entries: [
             {

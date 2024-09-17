@@ -12,8 +12,10 @@ import { WorkRepository } from '../../Works/Data/WorkRepository.js';
 import { WorkIsFromAnotherSubjectError } from '../Errors/WorkIsFromAnotherSubjectError.js';
 import { CourseAssignmentRepository } from '../Data/CourseAssignmentRepository.js';
 import { CourseAssignmentModel } from '../Data/Relations/CourseAssignmentModel.js';
+import { CourseChapterRepository } from '../Data/CourseChapterRepository.js';
 export class CourseService {
     courseRepository;
+    chapterRepository;
     courseAssignmentRepository;
     materialRepository;
     userRepository;
@@ -21,6 +23,7 @@ export class CourseService {
     workRepository;
     constructor() {
         this.courseRepository = new CourseRepository();
+        this.chapterRepository = new CourseChapterRepository();
         this.courseAssignmentRepository = new CourseAssignmentRepository();
         this.userRepository = new UserRepository();
         this.materialRepository = new CourseMaterialRepository();
@@ -38,43 +41,39 @@ export class CourseService {
         }, pagination, ['course', 'course.images', 'assigner']);
     }
     async getBySlug(slug, role) {
-        const condition = {
-            slug,
-            chapters: role === 'student'
-                ? {
-                    isActive: true,
-                    materials: {
-                        isActive: true,
-                    },
-                }
-                : undefined,
-        };
-        const course = await this.courseRepository.findOne(condition, ['chapters.materials.work', 'author', 'chapters.materials.poll'], {
-            chapters: {
-                order: 'ASC',
-                materials: {
-                    order: 'ASC',
-                    files: {
-                        order: 'ASC',
-                    },
-                },
-            },
-        });
+        const course = await this.courseRepository.findOne({ slug }, ['author']);
         if (!course) {
-            const courseExists = await this.courseRepository.findOne({ slug });
-            if (!courseExists) {
-                throw new NotFoundError('Курс не найден');
-            }
-            else {
-                throw new CourseIsEmptyError();
-            }
+            throw new NotFoundError('Курс не найден');
         }
+        let condition = {
+            course: { id: course.id },
+        };
+        if (role === 'student' || role === 'mentor') {
+            condition = {
+                ...condition,
+                isActive: true,
+                materials: {
+                    isActive: true,
+                },
+            };
+        }
+        const chapters = await this.chapterRepository.findAll(condition, [
+            'materials',
+            'materials.files',
+        ]);
+        if (chapters.length === 0) {
+            throw new CourseIsEmptyError();
+        }
+        course.chapters = chapters;
         if (role === 'teacher' || role === 'admin') {
-            course.studentAssignments = await this.courseAssignmentRepository.findAll({
-                course: { id: course?.id },
+            course.studentCount = await this.courseAssignmentRepository.count({
+                course: { id: course.id },
             });
         }
         return course;
+    }
+    async getStudentListWithAssignments(courseId, pagination) {
+        return this.userRepository.getStudentsWithAssignments(courseId, pagination);
     }
     async archive(assignmentId, studentId) {
         const assignment = await this.courseAssignmentRepository.findOne({

@@ -214,6 +214,27 @@ export class CourseController {
     }
   }
 
+  @Get('/:courseId/student-list')
+  public async getStudentList(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.teacherOrAdmin(context)
+
+      const courseId = this.courseValidator.parseId(context.params.courseId)
+      const pagination = this.courseValidator.parsePagination(context.query)
+
+      const { entities, meta } =
+        await this.courseService.getStudentListWithAssignments(
+          courseId,
+          pagination
+        )
+
+      return new ApiResponse({ data: entities, meta })
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
+
   @Patch('/:courseSlug/add-students')
   public async addStudents(context: Context): Promise<ApiResponse> {
     try {

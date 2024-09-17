@@ -1,15 +1,15 @@
 import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
 import { Pagination } from '@modules/Core/Data/Pagination'
 import { UnauthorizedError } from '@modules/Core/Errors/UnauthorizedError'
-import { User } from '@modules/Users/Data/User'
+import type { User } from '@modules/Users/Data/User'
 import { UserRepository } from '@modules/Users/Data/UserRepository'
 import { WorkRepository } from '@modules/Works/Data/WorkRepository'
-import { Work } from '@modules/Works/Data/Work'
+import type { Work } from '@modules/Works/Data/Work'
 import { CalenderService } from '@modules/Calender/Services/CalenderService'
-import { CourseMaterial } from '@modules/Courses/Data/Relations/CourseMaterial'
+import type { CourseMaterial } from '@modules/Courses/Data/Relations/CourseMaterial'
 import { CourseMaterialRepository } from '@modules/Courses/Data/CourseMaterialRepository'
 import { AssignedWorkRepository } from '../Data/AssignedWorkRepository'
-import { AssignedWork } from '../Data/AssignedWork'
+import type { AssignedWork } from '../Data/AssignedWork'
 import { AssignedWorkModel } from '../Data/AssignedWorkModel'
 import { WorkAlreadySolvedError } from '../Errors/WorkAlreadySolvedError'
 import { WorkAlreadyCheckedError } from '../Errors/WorkAlreadyCheckedError'
@@ -18,21 +18,21 @@ import { WorkAlreadyAssignedToThisMentorError } from '../Errors/WorkAlreadyAssig
 import { WorkAlreadyAssignedToEnoughMentorsError } from '../Errors/WorkAlreadyAssignedToEnoughMentorsError'
 import { SolveDeadlineNotSetError } from '../Errors/SolveDeadlineNotSetError'
 import { CheckDeadlineNotSetError } from '../Errors/CheckDeadlineNotSetError'
-import { AssignedWorkComment } from '../Data/Relations/AssignedWorkComment'
+import type { AssignedWorkComment } from '../Data/Relations/AssignedWorkComment'
 import { DeadlineAlreadyShiftedError } from '../Errors/DeadlineAlreadyShiftedError'
 import { TaskService } from './TaskService'
 import { AssignedWorkCommentRepository } from '../Data/AssignedWorkCommentRepository'
 import { AssignedWorkAnswerRepository } from '../Data/AssignedWorkAnswerRepository'
-import { RemakeOptions } from '../DTO/RemakeOptions'
-import { CreateOptions } from '../DTO/CreateOptions'
-import { SolveOptions } from '../DTO/SolveOptions'
-import { CheckOptions } from '../DTO/CheckOptions'
-import { SaveOptions } from '../DTO/SaveOptions'
+import type { RemakeOptions } from '../DTO/RemakeOptions'
+import type { CreateOptions } from '../DTO/CreateOptions'
+import type { SolveOptions } from '../DTO/SolveOptions'
+import type { CheckOptions } from '../DTO/CheckOptions'
+import type { SaveOptions } from '../DTO/SaveOptions'
 import Dates from '@modules/Core/Utils/date'
 import { AssignedWorkOptions } from '../AssignedWorkOptions'
-import TypeORM, { FindOptionsWhere } from 'typeorm'
+import type { FindOptionsWhere } from 'typeorm'
 import { UserService } from '@modules/Users/Services/UserService'
-import { AssignedWorkProgress } from '../Types/AssignedWorkProgress'
+import type { AssignedWorkProgress } from '../Types/AssignedWorkProgress'
 import { NotificationService } from '@modules/Notifications/Services/NotificationService'
 import { CantDeleteMadeWorkError } from '../Errors/CantDeleteMadeWorkError'
 import { isAutomaticallyCheckable } from '../Utils/Task'
@@ -111,21 +111,30 @@ export class AssignedWorkService {
   }
 
   public async getWorkById(id: AssignedWork['id'], role: User['role']) {
-    const assignedWork = await this.assignedWorkRepository.findOne(
-      { id },
-      ['mentors', 'student', 'work.tasks'],
+    const assignedWork = await this.assignedWorkRepository.findOne({ id }, [
+      'mentors',
+      'student',
+    ])
+
+    if (!assignedWork) {
+      throw new NotFoundError('Работа не найдена')
+    }
+
+    const work = await this.workRepository.findOne(
+      { id: assignedWork.workId },
+      ['tasks'],
       {
-        work: {
-          tasks: {
-            order: 'ASC',
-          },
+        tasks: {
+          order: 'ASC',
         },
       }
     )
 
-    if (!assignedWork) {
-      throw new NotFoundError()
+    if (!work) {
+      throw new NotFoundError('Работа не найдена')
     }
+
+    assignedWork.work = work
 
     assignedWork.answers = []
     assignedWork.comments = []
@@ -308,7 +317,6 @@ export class AssignedWorkService {
     const material = await this.materialRepository.findOne(
       {
         slug: materialSlug,
-        chapter: { course: { id: TypeORM.Not(TypeORM.IsNull()) } },
       },
       ['work']
     )
@@ -357,11 +365,7 @@ export class AssignedWorkService {
     solveOptions: SolveOptions,
     studentId: User['id']
   ) {
-    const foundWork = await this.getAssignedWork(assignedWorkId, [
-      'work',
-      'work.tasks' as any,
-      'student',
-    ])
+    const foundWork = await this.getAssignedWork(assignedWorkId, ['student'])
 
     if (!foundWork) {
       throw new NotFoundError()
@@ -373,6 +377,14 @@ export class AssignedWorkService {
 
     if (workAlreadyMade(foundWork)) {
       throw new WorkAlreadySolvedError()
+    }
+
+    const work = await this.workRepository.findOne({ id: foundWork.workId }, [
+      'tasks',
+    ])
+
+    if (!work) {
+      throw new NotFoundError()
     }
 
     if (
@@ -387,17 +399,13 @@ export class AssignedWorkService {
     foundWork.solvedAt = Dates.now()
     foundWork.answers = solveOptions.answers
     foundWork.comments = this.taskService.automatedCheck(
-      foundWork.work.tasks,
+      work.tasks,
       solveOptions.answers
     )
 
-    if (solveOptions.studentComment) {
-      foundWork.studentComment = solveOptions.studentComment
-    }
+    foundWork.studentComment = solveOptions.studentComment || null
 
-    if (
-      foundWork.work.tasks.every((task) => isAutomaticallyCheckable(task.type))
-    ) {
+    if (work.tasks.every((task) => isAutomaticallyCheckable(task.type))) {
       foundWork.checkStatus = 'checked-automatically'
       foundWork.checkedAt = Dates.now()
       foundWork.score = this.getScore(foundWork.comments)
@@ -490,10 +498,7 @@ export class AssignedWorkService {
   }
 
   public async recheckAutomatically(workId: AssignedWork['id']) {
-    const foundWork = await this.getAssignedWork(workId, [
-      'work.tasks' as any,
-      'answers',
-    ])
+    const foundWork = await this.getAssignedWork(workId, ['answers'])
 
     if (!foundWork) {
       throw new NotFoundError('Работа не найдена')
@@ -503,8 +508,16 @@ export class AssignedWorkService {
       throw new WorkIsNotSolvedYetError()
     }
 
+    const work = await this.workRepository.findOne({ id: foundWork.workId }, [
+      'tasks',
+    ])
+
+    if (!work) {
+      throw new NotFoundError('Работа не найдена')
+    }
+
     foundWork.comments = this.taskService.automatedCheck(
-      foundWork.work.tasks,
+      work.tasks,
       foundWork.answers
     )
 
@@ -531,10 +544,7 @@ export class AssignedWorkService {
       }
 
       foundWork.solveStatus = 'in-progress'
-
-      if (saveOptions.studentComment) {
-        foundWork.studentComment = saveOptions.studentComment
-      }
+      foundWork.studentComment = saveOptions.studentComment || null
     } else if (role === 'mentor') {
       if (workAlreadyChecked(foundWork)) {
         throw new WorkAlreadyCheckedError()
@@ -545,10 +555,7 @@ export class AssignedWorkService {
       }
 
       foundWork.checkStatus = 'in-progress'
-
-      if (saveOptions.mentorComment) {
-        foundWork.mentorComment = saveOptions.mentorComment
-      }
+      foundWork.mentorComment = saveOptions.mentorComment || null
     }
 
     foundWork.answers = saveOptions.answers

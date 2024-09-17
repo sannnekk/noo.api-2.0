@@ -2,7 +2,7 @@ import { UserRepository } from '@modules/Users/Data/UserRepository'
 import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
 import { UnknownError } from '@modules/Core/Errors/UnknownError'
 import { Pagination } from '@modules/Core/Data/Pagination'
-import TypeORM from 'typeorm'
+import TypeORM, { FindOptionsWhere } from 'typeorm'
 import { User } from '@modules/Users/Data/User'
 import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
 import { AssignedWorkRepository } from '@modules/AssignedWorks/Data/AssignedWorkRepository'
@@ -19,9 +19,12 @@ import { WorkRepository } from '@modules/Works/Data/WorkRepository'
 import { WorkIsFromAnotherSubjectError } from '../Errors/WorkIsFromAnotherSubjectError'
 import { CourseAssignmentRepository } from '../Data/CourseAssignmentRepository'
 import { CourseAssignmentModel } from '../Data/Relations/CourseAssignmentModel'
+import { CourseChapterRepository } from '../Data/CourseChapterRepository'
 
 export class CourseService {
   private readonly courseRepository: CourseRepository
+
+  private readonly chapterRepository: CourseChapterRepository
 
   private readonly courseAssignmentRepository: CourseAssignmentRepository
 
@@ -35,6 +38,7 @@ export class CourseService {
 
   constructor() {
     this.courseRepository = new CourseRepository()
+    this.chapterRepository = new CourseChapterRepository()
     this.courseAssignmentRepository = new CourseAssignmentRepository()
     this.userRepository = new UserRepository()
     this.materialRepository = new CourseMaterialRepository()
@@ -62,54 +66,51 @@ export class CourseService {
   }
 
   public async getBySlug(slug: string, role: User['role']): Promise<Course> {
-    const condition = {
-      slug,
-      chapters:
-        role === 'student'
-          ? {
-              isActive: true,
-              materials: {
-                isActive: true,
-              },
-            }
-          : undefined,
-    }
-
-    const course = await this.courseRepository.findOne(
-      condition,
-      ['chapters.materials.work', 'author', 'chapters.materials.poll'],
-      {
-        chapters: {
-          order: 'ASC',
-          materials: {
-            order: 'ASC',
-            files: {
-              order: 'ASC',
-            },
-          },
-        },
-      }
-    )
+    const course = await this.courseRepository.findOne({ slug }, ['author'])
 
     if (!course) {
-      const courseExists = await this.courseRepository.findOne({ slug })
+      throw new NotFoundError('Курс не найден')
+    }
 
-      if (!courseExists) {
-        throw new NotFoundError('Курс не найден')
-      } else {
-        throw new CourseIsEmptyError()
+    let condition: FindOptionsWhere<CourseChapter> = {
+      course: { id: course.id },
+    }
+
+    if (role === 'student' || role === 'mentor') {
+      condition = {
+        ...condition,
+        isActive: true,
+        materials: {
+          isActive: true,
+        },
       }
     }
 
+    const chapters = await this.chapterRepository.findAll(condition, [
+      'materials',
+      'materials.files',
+    ])
+
+    if (chapters.length === 0) {
+      throw new CourseIsEmptyError()
+    }
+
+    course.chapters = chapters
+
     if (role === 'teacher' || role === 'admin') {
-      course.studentAssignments = await this.courseAssignmentRepository.findAll(
-        {
-          course: { id: course?.id },
-        }
-      )
+      course.studentCount = await this.courseAssignmentRepository.count({
+        course: { id: course.id },
+      })
     }
 
     return course
+  }
+
+  public async getStudentListWithAssignments(
+    courseId: string,
+    pagination: Pagination
+  ) {
+    return this.userRepository.getStudentsWithAssignments(courseId, pagination)
   }
 
   public async archive(assignmentId: string, studentId: User['id']) {

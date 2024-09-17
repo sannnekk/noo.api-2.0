@@ -80,7 +80,7 @@ export class CourseChapterModel extends Model implements CourseChapter {
     (material: CourseMaterial) => material.chapter,
     { cascade: true }
   )
-  materials?: CourseMaterial[] | undefined
+  materials?: CourseMaterial[]
 
   @RelationId((chapter: CourseChapterModel) => chapter.materials)
   materialIds!: string[]

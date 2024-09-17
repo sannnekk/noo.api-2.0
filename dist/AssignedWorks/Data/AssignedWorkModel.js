@@ -51,9 +51,7 @@ let AssignedWorkModel = class AssignedWorkModel extends SearchableModel {
     solvedAt;
     checkedAt;
     answers;
-    answerIds;
     comments;
-    commentIds;
     calenderEvents;
     score;
     maxScore;
@@ -244,17 +242,9 @@ __decorate([
     __metadata("design:type", Array)
 ], AssignedWorkModel.prototype, "answers", void 0);
 __decorate([
-    RelationId((assignedWork) => assignedWork.answers),
-    __metadata("design:type", Array)
-], AssignedWorkModel.prototype, "answerIds", void 0);
-__decorate([
     OneToMany(() => AssignedWorkCommentModel, (comment) => comment.assignedWork, { cascade: true }),
     __metadata("design:type", Array)
 ], AssignedWorkModel.prototype, "comments", void 0);
-__decorate([
-    RelationId((assignedWork) => assignedWork.comments),
-    __metadata("design:type", Array)
-], AssignedWorkModel.prototype, "commentIds", void 0);
 __decorate([
     OneToMany(() => CalenderEventModel, (calenderEvent) => calenderEvent.assignedWork),
     __metadata("design:type", Array)

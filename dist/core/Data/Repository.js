@@ -188,6 +188,14 @@ export class Repository {
         });
     }
     /**
+     * Count entities
+     *
+     * @param conditions The conditions to count the entities with (ActiveRecord style)
+     */
+    async count(conditions) {
+        return this.repository.count({ where: conditions });
+    }
+    /**
      * Get this repository's query builder
      *
      * @param alias Alias for the query

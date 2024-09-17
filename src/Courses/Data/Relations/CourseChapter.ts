@@ -12,6 +12,6 @@ export interface CourseChapter {
   materialIds?: string[]
   order: number
   isActive: boolean
-  createdAt?: Date
-  updatedAt?: Date
+  createdAt: Date
+  updatedAt: Date
 }

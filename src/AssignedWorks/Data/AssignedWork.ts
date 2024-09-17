@@ -39,7 +39,5 @@ export interface AssignedWork extends BaseModel {
   studentComment: DeltaContentType | null
   mentorComment: DeltaContentType | null
   answers: AssignedWorkAnswer[]
-  answerIds: AssignedWorkAnswer['id'][]
   comments: AssignedWorkComment[]
-  commentIds: AssignedWorkComment['id'][]
 }

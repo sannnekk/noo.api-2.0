@@ -28,7 +28,6 @@ export interface User extends BaseModel {
   courses?: Course[]
   verificationToken: string | null
   courseAssignments?: CourseAssignment[]
-  courseAssignmentIds?: CourseAssignment['id'][]
   courseAssignmentsAsAssigner?: CourseAssignment[]
   assignedWorksAsStudent?: AssignedWork[] | undefined
   assignedWorksAsMentor?: AssignedWork[] | undefined

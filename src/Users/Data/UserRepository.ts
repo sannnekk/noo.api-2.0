@@ -1,7 +1,9 @@
 import { Repository } from '@modules/Core/Data/Repository'
-import { User } from './User'
 import { UserModel } from './UserModel'
 import { FindOptionsWhere } from 'typeorm'
+import type { User } from './User'
+import type { Course } from '@modules/Courses/Data/Course'
+import { Pagination } from '@modules/Core/Data/Pagination'
 
 export class UserRepository extends Repository<User> {
   constructor() {
@@ -31,5 +33,31 @@ export class UserRepository extends Repository<User> {
     return (
       await this.repository.find({ where: conditions, select: ['id'] })
     ).map((user) => user.id)
+  }
+
+  public async getStudentsWithAssignments(
+    courseId: Course['id'],
+    pagination: Pagination
+  ) {
+    const query = this.queryBuilder('user')
+      .leftJoinAndSelect(
+        'user.courseAssignments',
+        'courseAssignment',
+        'courseAssignment.courseId = :courseId',
+        { courseId }
+      )
+      .where('user.role = :role', { role: 'student' })
+      .take(pagination.take)
+      .skip(pagination.offset)
+
+    const [entities, total] = await query.getManyAndCount()
+
+    return {
+      entities,
+      meta: {
+        total,
+        relations: ['courseAssignments'],
+      },
+    }
   }
 }
