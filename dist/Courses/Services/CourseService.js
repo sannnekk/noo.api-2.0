@@ -38,7 +38,18 @@ export class CourseService {
         }, pagination, ['course', 'course.images', 'assigner']);
     }
     async getBySlug(slug, role) {
-        const course = await this.courseRepository.findOne({ slug }, ['chapters.materials.work', 'author', 'chapters.materials.poll'], {
+        const condition = {
+            slug,
+            chapters: role === 'student'
+                ? {
+                    isActive: true,
+                    materials: {
+                        isActive: true,
+                    },
+                }
+                : undefined,
+        };
+        const course = await this.courseRepository.findOne(condition, ['chapters.materials.work', 'author', 'chapters.materials.poll'], {
             chapters: {
                 order: 'ASC',
                 materials: {
