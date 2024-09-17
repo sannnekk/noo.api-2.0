@@ -75,22 +75,11 @@ export class CourseService {
           : undefined,
     }
 
-    const relations = [
+    const course = await this.courseRepository.findOne(condition, [
       'chapters.materials.work',
       'author',
       'chapters.materials.poll',
-    ]
-
-    if (role === 'teacher' || role === 'admin') {
-      relations.push('studentAssignments')
-    }
-
-    const course = await this.courseRepository.findOne(
-      condition,
-      relations as any,
-      undefined,
-      { relationLoadStrategy: 'query' }
-    )
+    ])
 
     if (!course) {
       const courseExists = await this.courseRepository.findOne({ slug })
@@ -100,6 +89,14 @@ export class CourseService {
       } else {
         throw new CourseIsEmptyError()
       }
+    }
+
+    if (role === 'teacher' || role === 'admin') {
+      course.studentAssignments = await this.courseAssignmentRepository.findAll(
+        {
+          course: { id: course?.id },
+        }
+      )
     }
 
     return course
