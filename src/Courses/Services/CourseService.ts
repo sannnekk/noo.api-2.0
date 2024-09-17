@@ -62,29 +62,21 @@ export class CourseService {
   }
 
   public async getBySlug(slug: string, role: User['role']): Promise<Course> {
-    const condition = {
-      slug,
-      chapters:
-        role === 'student'
-          ? {
-              chapters: {
-                order: 'ASC',
-                materials: {
-                  order: 'ASC',
-                  files: {
-                    order: 'ASC',
-                  },
-                },
-              },
-            }
-          : undefined,
-    }
-
-    const course = await this.courseRepository.findOne(condition, [
-      'chapters.materials.work',
-      'author',
-      'chapters.materials.poll',
-    ])
+    const course = await this.courseRepository.findOne(
+      { slug },
+      ['chapters.materials.work', 'author', 'chapters.materials.poll'],
+      {
+        chapters: {
+          order: 'ASC',
+          materials: {
+            order: 'ASC',
+            files: {
+              order: 'ASC',
+            },
+          },
+        },
+      }
+    )
 
     if (!course) {
       const courseExists = await this.courseRepository.findOne({ slug })

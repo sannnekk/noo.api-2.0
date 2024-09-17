@@ -38,27 +38,17 @@ export class CourseService {
         }, pagination, ['course', 'course.images', 'assigner']);
     }
     async getBySlug(slug, role) {
-        const condition = {
-            slug,
-            chapters: role === 'student'
-                ? {
-                    chapters: {
+        const course = await this.courseRepository.findOne({ slug }, ['chapters.materials.work', 'author', 'chapters.materials.poll'], {
+            chapters: {
+                order: 'ASC',
+                materials: {
+                    order: 'ASC',
+                    files: {
                         order: 'ASC',
-                        materials: {
-                            order: 'ASC',
-                            files: {
-                                order: 'ASC',
-                            },
-                        },
                     },
-                }
-                : undefined,
-        };
-        const course = await this.courseRepository.findOne(condition, [
-            'chapters.materials.work',
-            'author',
-            'chapters.materials.poll',
-        ]);
+                },
+            },
+        });
         if (!course) {
             const courseExists = await this.courseRepository.findOne({ slug });
             if (!courseExists) {
