@@ -24,7 +24,9 @@ export class WorkService {
   }
 
   public async getWorkBySlug(slug: Work['slug']) {
-    const work = await this.workRepository.findOne({ slug }, ['tasks'])
+    const work = await this.workRepository.findOne({ slug }, ['tasks'], {
+      tasks: { order: 'ASC' },
+    })
 
     if (!work) {
       throw new NotFoundError()

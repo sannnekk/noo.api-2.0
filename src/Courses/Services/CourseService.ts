@@ -57,7 +57,7 @@ export class CourseService {
         },
       },
       pagination,
-      ['course', 'assigner', 'course.author']
+      ['course', 'course.images', 'assigner']
     )
   }
 
@@ -67,9 +67,14 @@ export class CourseService {
       chapters:
         role === 'student'
           ? {
-              isActive: true,
-              materials: {
-                isActive: true,
+              chapters: {
+                order: 'ASC',
+                materials: {
+                  order: 'ASC',
+                  files: {
+                    order: 'ASC',
+                  },
+                },
               },
             }
           : undefined,

@@ -35,16 +35,21 @@ export class CourseService {
             student: {
                 id: studentId,
             },
-        }, pagination, ['course', 'assigner', 'course.author']);
+        }, pagination, ['course', 'course.images', 'assigner']);
     }
     async getBySlug(slug, role) {
         const condition = {
             slug,
             chapters: role === 'student'
                 ? {
-                    isActive: true,
-                    materials: {
-                        isActive: true,
+                    chapters: {
+                        order: 'ASC',
+                        materials: {
+                            order: 'ASC',
+                            files: {
+                                order: 'ASC',
+                            },
+                        },
                     },
                 }
                 : undefined,

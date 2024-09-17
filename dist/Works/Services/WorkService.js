@@ -15,7 +15,9 @@ export class WorkService {
         return this.workRepository.search(undefined, pagination);
     }
     async getWorkBySlug(slug) {
-        const work = await this.workRepository.findOne({ slug }, ['tasks']);
+        const work = await this.workRepository.findOne({ slug }, ['tasks'], {
+            tasks: { order: 'ASC' },
+        });
         if (!work) {
             throw new NotFoundError();
         }
