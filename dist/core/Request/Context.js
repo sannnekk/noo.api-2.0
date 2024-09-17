@@ -14,7 +14,9 @@ export class Context {
     userRepository;
     sessionService;
     constructor(req) {
-        this._req = req;
+        if (req.headers['content-type']?.includes('multipart/form-data')) {
+            this._req = req;
+        }
         this.userRepository = new UserRepository();
         this.sessionService = new SessionService();
         this.body = req.body;
@@ -58,10 +60,13 @@ export class Context {
         return true;
     }
     async getFiles() {
+        if (!this._req) {
+            return [];
+        }
         return new Promise((resolve, reject) => {
             const req = this._req;
             MediaHandler(req, undefined, (error) => {
-                if (req.files && Array.isArray(req.files)) {
+                if (req?.files && Array.isArray(req.files)) {
                     resolve(req.files);
                 }
                 else {

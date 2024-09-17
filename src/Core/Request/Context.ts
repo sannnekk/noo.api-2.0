@@ -16,7 +16,7 @@ export class Context {
 
   public readonly query: Record<string, string | number | undefined>
 
-  public readonly _req: Express.Request
+  public readonly _req?: Express.Request
 
   public readonly info: RequestInfo
 
@@ -25,7 +25,10 @@ export class Context {
   private readonly sessionService: SessionService
 
   public constructor(req: express.Request) {
-    this._req = req
+    if (req.headers['content-type']?.includes('multipart/form-data')) {
+      this._req = req
+    }
+
     this.userRepository = new UserRepository()
     this.sessionService = new SessionService()
     this.body = req.body
@@ -86,10 +89,14 @@ export class Context {
   }
 
   public async getFiles(): Promise<Express.Multer.File[]> {
+    if (!this._req) {
+      return []
+    }
+
     return new Promise((resolve, reject) => {
       const req = this._req
       MediaHandler(<any>req, <any>undefined, (error: any) => {
-        if (req.files && Array.isArray(req.files)) {
+        if (req?.files && Array.isArray(req.files)) {
           resolve(req.files)
         } else {
           reject(error)
