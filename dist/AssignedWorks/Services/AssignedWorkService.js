@@ -267,11 +267,11 @@ export class AssignedWorkService {
             foundWork.score = this.getScore(foundWork.comments);
         }
         await this.assignedWorkRepository.update(foundWork);
-        await this.calenderService.createWorkMadeEvent(foundWork);
-        await this.notificationService.generateAndSend('assigned-work.work-made-for-student', foundWork.student.id, { assignedWork: foundWork });
+        await this.calenderService.createWorkMadeEvent({ ...foundWork, work });
+        await this.notificationService.generateAndSend('assigned-work.work-made-for-student', foundWork.student.id, { assignedWork: { ...foundWork, work } });
         if (foundWork.checkStatus !== 'checked-automatically') {
             for (const mentor of foundWork.mentors) {
-                await this.notificationService.generateAndSend('assigned-work.work-made-for-mentor', mentor.id, { assignedWork: foundWork });
+                await this.notificationService.generateAndSend('assigned-work.work-made-for-mentor', mentor.id, { assignedWork: { ...foundWork, work } });
             }
         }
     }

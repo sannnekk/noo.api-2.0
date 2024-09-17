@@ -413,12 +413,12 @@ export class AssignedWorkService {
 
     await this.assignedWorkRepository.update(foundWork)
 
-    await this.calenderService.createWorkMadeEvent(foundWork)
+    await this.calenderService.createWorkMadeEvent({ ...foundWork, work })
 
     await this.notificationService.generateAndSend(
       'assigned-work.work-made-for-student',
       foundWork.student!.id,
-      { assignedWork: foundWork }
+      { assignedWork: { ...foundWork, work } }
     )
 
     if (foundWork.checkStatus !== 'checked-automatically') {
@@ -426,7 +426,7 @@ export class AssignedWorkService {
         await this.notificationService.generateAndSend(
           'assigned-work.work-made-for-mentor',
           mentor.id,
-          { assignedWork: foundWork }
+          { assignedWork: { ...foundWork, work } }
         )
       }
     }
