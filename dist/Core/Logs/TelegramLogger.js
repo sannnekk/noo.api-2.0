@@ -30,6 +30,12 @@ async function telegramLog(id, level, data) {
         case 'debug':
             levelEmoji = '🐛';
             break;
+        case 'info':
+            levelEmoji = '📃';
+            break;
+        case 'warning':
+            levelEmoji = '⚠️';
+            break;
     }
     if (data.length > 3750) {
         data = data.slice(0, 3750);

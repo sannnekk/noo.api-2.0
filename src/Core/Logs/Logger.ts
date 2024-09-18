@@ -1,7 +1,7 @@
 import logFile from './FileLogger'
 import logTelegram from './TelegramLogger'
 
-export type LogLevel = 'error' | 'debug' | 'crm'
+export type LogLevel = 'error' | 'debug' | 'crm' | 'info' | 'warning'
 
 export function log(level: LogLevel, id: string, data: object | string) {
   if (process.env.LOG_MODE === 'console') {

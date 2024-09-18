@@ -24,7 +24,11 @@ export class UserRepository extends Repository {
             .leftJoinAndSelect('user.courseAssignments', 'courseAssignment', 'courseAssignment.courseId = :courseId', { courseId })
             .where('user.role = :role', { role: 'student' })
             .take(pagination.take)
-            .skip(pagination.offset);
+            .skip(pagination.offset)
+            .orderBy('user.id', 'DESC');
+        if (pagination.searchQuery && typeof pagination.searchQuery === 'string') {
+            new UserModel().addSearchToQuery(query, pagination.searchQuery);
+        }
         const [entities, total] = await query.getManyAndCount();
         return {
             entities,

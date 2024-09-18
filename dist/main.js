@@ -24,6 +24,8 @@ import './Subjects/SubjectController.js';
 import './Snippets/SnippetsController.js';
 import './FAQ/FAQController.js';
 import './Notifications/NotificationController.js';
+import { log } from './Core/Logs/Logger.js';
+log('info', 'Container created', 'A new container created');
 await CoreDataSource.initialize();
 const app = express();
 app.set('trust proxy', 1);
@@ -32,8 +34,10 @@ app.use(express.json(config.expressJson));
 app.use(express.urlencoded(config.expressUrlencoded));
 setContextClass(Context);
 injectControllers(app);
-app.listen(process.env.APP_PORT, () => 
-// eslint-disable-next-line no-console
-console.log(`Server is running on port ${process.env.APP_PORT}`));
+app.listen(process.env.APP_PORT, () => {
+    // eslint-disable-next-line no-console
+    console.log(`Server is running on port ${process.env.APP_PORT}`);
+    log('info', 'Container initialized', 'A new container is listening on port ' + process.env.APP_PORT);
+});
 // for test purposes
 export default app;

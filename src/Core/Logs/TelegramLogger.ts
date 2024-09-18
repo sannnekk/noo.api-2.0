@@ -42,6 +42,12 @@ async function telegramLog(
     case 'debug':
       levelEmoji = '🐛'
       break
+    case 'info':
+      levelEmoji = '📃'
+      break
+    case 'warning':
+      levelEmoji = '⚠️'
+      break
   }
 
   if (data.length > 3750) {
