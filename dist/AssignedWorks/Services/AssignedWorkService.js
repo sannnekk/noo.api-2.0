@@ -97,8 +97,7 @@ export class AssignedWorkService {
             });
             assignedWork.answers = answers;
         }
-        if ((assignedWork.checkStatus === 'in-progress' && role === 'mentor') ||
-            (assignedWork.checkStatus === 'not-checked' && role === 'mentor') ||
+        if ((role === 'mentor' && !workAlreadyChecked(assignedWork)) ||
             workAlreadyChecked(assignedWork)) {
             const comments = await this.commentRepository.findAll({
                 assignedWork: { id: assignedWork.id },

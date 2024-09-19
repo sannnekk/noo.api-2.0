@@ -11,8 +11,13 @@ export class TaskService {
     answers: AssignedWorkAnswer[]
   ): AssignedWorkComment[] {
     const comments: AssignedWorkComment[] = []
+    const checkedTaskIds = new Set<string>()
 
     for (const answer of answers) {
+      if (checkedTaskIds.has(answer.taskId)) {
+        continue
+      }
+
       const relatedTask = tasks.find((task) => task.id === answer.taskId)
 
       if (!relatedTask) {
@@ -39,6 +44,8 @@ export class TaskService {
       }
 
       comments.push(new AssignedWorkCommentModel(comment))
+
+      checkedTaskIds.add(answer.taskId)
     }
 
     return comments

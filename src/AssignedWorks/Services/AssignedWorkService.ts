@@ -154,8 +154,7 @@ export class AssignedWorkService {
     }
 
     if (
-      (assignedWork.checkStatus === 'in-progress' && role === 'mentor') ||
-      (assignedWork.checkStatus === 'not-checked' && role === 'mentor') ||
+      (role === 'mentor' && !workAlreadyChecked(assignedWork)) ||
       workAlreadyChecked(assignedWork)
     ) {
       const comments = await this.commentRepository.findAll({

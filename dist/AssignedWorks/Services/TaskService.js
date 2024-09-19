@@ -4,7 +4,11 @@ import { isAutomaticallyCheckable } from '../Utils/Task.js';
 export class TaskService {
     automatedCheck(tasks, answers) {
         const comments = [];
+        const checkedTaskIds = new Set();
         for (const answer of answers) {
+            if (checkedTaskIds.has(answer.taskId)) {
+                continue;
+            }
             const relatedTask = tasks.find((task) => task.id === answer.taskId);
             if (!relatedTask) {
                 continue;
@@ -27,6 +31,7 @@ export class TaskService {
                 updatedAt: Dates.now(),
             };
             comments.push(new AssignedWorkCommentModel(comment));
+            checkedTaskIds.add(answer.taskId);
         }
         return comments;
     }

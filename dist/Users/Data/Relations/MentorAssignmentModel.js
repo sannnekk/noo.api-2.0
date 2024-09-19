@@ -7,11 +7,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Model } from '../../../Core/Data/Model.js';
-import { Entity, ManyToOne } from 'typeorm';
+import { Brackets, Entity, ManyToOne } from 'typeorm';
 import { UserModel } from '../UserModel.js';
 import { SubjectModel } from '../../../Subjects/Data/SubjectModel.js';
-let MentorAssignmentModel = class MentorAssignmentModel extends Model {
+import { SearchableModel } from '../../../Core/Data/SearchableModel.js';
+let MentorAssignmentModel = class MentorAssignmentModel extends SearchableModel {
     constructor(data) {
         super();
         if (data) {
@@ -29,6 +29,23 @@ let MentorAssignmentModel = class MentorAssignmentModel extends Model {
     mentor;
     student;
     subject;
+    addSearchToQuery(query, needle) {
+        query.andWhere(new Brackets((qb) => {
+            qb.where('LOWER(mentor_assignment__student.username) LIKE LOWER(:needle)', {
+                needle: `%${needle}%`,
+            });
+            qb.orWhere('LOWER(mentor_assignment__student.name) LIKE LOWER(:needle)', {
+                needle: `%${needle}%`,
+            });
+            qb.orWhere('LOWER(mentor_assignment__student.email) LIKE LOWER(:needle)', {
+                needle: `%${needle}%`,
+            });
+            qb.orWhere('LOWER(mentor_assignment__student.telegramUsername) LIKE LOWER(:needle)', {
+                needle: `%${needle}%`,
+            });
+        }));
+        return ['student'];
+    }
 };
 __decorate([
     ManyToOne(() => UserModel, (user) => user.mentorAssignmentsAsMentor),
