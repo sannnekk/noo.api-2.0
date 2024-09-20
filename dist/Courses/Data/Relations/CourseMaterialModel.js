@@ -88,7 +88,7 @@ __decorate([
         type: 'timestamp',
         nullable: true,
     }),
-    __metadata("design:type", Date)
+    __metadata("design:type", Object)
 ], CourseMaterialModel.prototype, "workSolveDeadline", void 0);
 __decorate([
     Column({
@@ -96,7 +96,7 @@ __decorate([
         type: 'timestamp',
         nullable: true,
     }),
-    __metadata("design:type", Date)
+    __metadata("design:type", Object)
 ], CourseMaterialModel.prototype, "workCheckDeadline", void 0);
 __decorate([
     Column({
@@ -127,7 +127,7 @@ __decorate([
 ], CourseMaterialModel.prototype, "chapterId", void 0);
 __decorate([
     ManyToOne(() => WorkModel, (work) => work.materials),
-    __metadata("design:type", WorkModel)
+    __metadata("design:type", Object)
 ], CourseMaterialModel.prototype, "work", void 0);
 __decorate([
     RelationId((material) => material.work),

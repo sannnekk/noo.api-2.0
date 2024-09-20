@@ -69,14 +69,14 @@ export class CourseMaterialModel extends Model implements CourseMaterial {
     type: 'timestamp',
     nullable: true,
   })
-  workSolveDeadline?: Date
+  workSolveDeadline!: Date | null
 
   @Column({
     name: 'work_check_deadline',
     type: 'timestamp',
     nullable: true,
   })
-  workCheckDeadline?: Date
+  workCheckDeadline!: Date | null
 
   @Column({
     name: 'order',
@@ -106,7 +106,7 @@ export class CourseMaterialModel extends Model implements CourseMaterial {
   chapterId!: CourseChapter['id']
 
   @ManyToOne(() => WorkModel, (work) => work.materials)
-  work?: WorkModel
+  work!: WorkModel | null
 
   @RelationId((material: CourseMaterialModel) => material.work)
   workId?: string

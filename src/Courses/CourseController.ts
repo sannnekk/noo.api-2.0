@@ -214,6 +214,25 @@ export class CourseController {
     }
   }
 
+  @Patch('/:materialSlug/unassign-work')
+  public async unassignWorkFromMaterial(
+    context: Context
+  ): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.teacher(context)
+      const materialSlug = this.courseValidator.parseSlug(
+        context.params.materialSlug
+      )
+
+      await this.courseService.unassignWorkFromMaterial(materialSlug)
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
+
   @Get('/:courseId/student-list')
   public async getStudentList(context: Context): Promise<ApiResponse> {
     try {

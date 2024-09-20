@@ -57,10 +57,12 @@ export class CourseService {
                 },
             };
         }
-        const chapters = await this.chapterRepository.findAll(condition, [
-            'materials',
-            'materials.files',
-        ]);
+        const chapters = await this.chapterRepository.findAll(condition, ['materials', 'materials.files', 'materials.work', 'materials.poll'], {
+            order: 'ASC',
+            materials: {
+                order: 'ASC',
+            },
+        });
         if (chapters.length === 0) {
             throw new CourseIsEmptyError();
         }
@@ -170,10 +172,6 @@ export class CourseService {
     async assignWorkToMaterial(materialSlug, workId, solveDeadline, checkDeadline) {
         const material = await this.materialRepository.findOne({
             slug: materialSlug,
-            chapter: {
-                id: TypeORM.Not(TypeORM.IsNull()),
-                course: { id: TypeORM.Not(TypeORM.IsNull()) },
-            },
         }, ['chapter.course']);
         const work = await this.workRepository.findOne({
             id: workId,
@@ -189,8 +187,20 @@ export class CourseService {
         }
         material.work = { id: workId };
         material.workId = workId;
-        material.workSolveDeadline = solveDeadline;
-        material.workCheckDeadline = checkDeadline;
+        material.workSolveDeadline = solveDeadline || null;
+        material.workCheckDeadline = checkDeadline || null;
+        await this.materialRepository.update(material);
+    }
+    async unassignWorkFromMaterial(materialSlug) {
+        const material = await this.materialRepository.findOne({
+            slug: materialSlug,
+        });
+        if (!material) {
+            throw new NotFoundError('Материал не найден');
+        }
+        material.work = null;
+        material.workSolveDeadline = null;
+        material.workCheckDeadline = null;
         await this.materialRepository.update(material);
     }
     async create(courseDTO, authorId) {

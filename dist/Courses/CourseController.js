@@ -147,6 +147,18 @@ let CourseController = class CourseController {
             return new ApiResponse(error);
         }
     }
+    async unassignWorkFromMaterial(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.teacher(context);
+            const materialSlug = this.courseValidator.parseSlug(context.params.materialSlug);
+            await this.courseService.unassignWorkFromMaterial(materialSlug);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
     async getStudentList(context) {
         try {
             await Asserts.isAuthenticated(context);
@@ -285,6 +297,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "assignWorkToMaterial", null);
+__decorate([
+    Patch('/:materialSlug/unassign-work'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "unassignWorkFromMaterial", null);
 __decorate([
     Get('/:courseId/student-list'),
     __metadata("design:type", Function),

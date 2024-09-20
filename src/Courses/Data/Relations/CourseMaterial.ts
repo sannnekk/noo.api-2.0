@@ -14,10 +14,10 @@ export interface CourseMaterial {
   order: number
   chapterId: string
   chapter?: CourseChapter
-  work?: Work
+  work: Work | null
   workId?: string
-  workSolveDeadline?: Date
-  workCheckDeadline?: Date
+  workSolveDeadline: Date | null
+  workCheckDeadline: Date | null
   files: Media[]
   isActive: boolean
   poll?: Poll
