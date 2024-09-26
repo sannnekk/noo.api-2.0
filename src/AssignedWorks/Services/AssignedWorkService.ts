@@ -756,7 +756,7 @@ export class AssignedWorkService {
       throw new UnauthorizedError()
     }
 
-    if (workAlreadyChecked(work)) {
+    if (workAlreadyChecked(work) || work.checkStatus === 'in-progress') {
       throw new WorkAlreadyCheckedError()
     }
 

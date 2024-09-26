@@ -487,7 +487,7 @@ export class AssignedWorkService {
         if (!work.mentors.some((mentor) => mentor.id === mentorId)) {
             throw new UnauthorizedError();
         }
-        if (workAlreadyChecked(work)) {
+        if (workAlreadyChecked(work) || work.checkStatus === 'in-progress') {
             throw new WorkAlreadyCheckedError();
         }
         if (!workAlreadyMade(work)) {
