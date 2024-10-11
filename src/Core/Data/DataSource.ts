@@ -29,6 +29,8 @@ import { config } from '@modules/config'
 import { FAQCategoryModel } from '@modules/FAQ/Data/Relations/FAQCategoryModel'
 import { NotificationModel } from '@modules/Notifications/Data/NotificationModel'
 import { CourseAssignmentModel } from '@modules/Courses/Data/Relations/CourseAssignmentModel'
+//import { EventModel } from '@modules/Event/Data/EventModel'
+import { CourseMaterialReactionModel } from '@modules/Courses/Data/Relations/CourseMaterialReactionModel'
 
 export const CoreDataSource = new DataSource({
   type: 'mysql',
@@ -53,6 +55,7 @@ export const CoreDataSource = new DataSource({
     CourseModel,
     CourseChapterModel,
     CourseMaterialModel,
+    CourseMaterialReactionModel,
     WorkModel,
     WorkTaskModel,
     AssignedWorkModel,
@@ -69,6 +72,7 @@ export const CoreDataSource = new DataSource({
     GoogleSheetsBindingModel,
     SnippetModel,
     NotificationModel,
+    //EventModel,
   ],
   subscribers: [],
   migrations: [],

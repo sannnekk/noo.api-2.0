@@ -16,6 +16,7 @@ import { MediaModel } from '../../../Media/Data/MediaModel.js';
 import { CourseChapterModel } from './CourseChapterModel.js';
 import { config } from '../../../config.js';
 import { PollModel } from '../../../Polls/Data/PollModel.js';
+import { CourseMaterialReactionModel } from './CourseMaterialReactionModel.js';
 let CourseMaterialModel = class CourseMaterialModel extends Model {
     constructor(data) {
         super();
@@ -44,6 +45,7 @@ let CourseMaterialModel = class CourseMaterialModel extends Model {
     poll;
     pollId;
     files;
+    reactions;
     sluggify(text) {
         return `${ULID.generate()}-${Transliteration.sluggify(text)}`;
     }
@@ -148,6 +150,10 @@ __decorate([
     }),
     __metadata("design:type", Array)
 ], CourseMaterialModel.prototype, "files", void 0);
+__decorate([
+    OneToMany(() => CourseMaterialReactionModel, (reaction) => reaction.material),
+    __metadata("design:type", Array)
+], CourseMaterialModel.prototype, "reactions", void 0);
 CourseMaterialModel = __decorate([
     Entity('course_material', {
         orderBy: {

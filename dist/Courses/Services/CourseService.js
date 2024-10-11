@@ -13,11 +13,14 @@ import { WorkIsFromAnotherSubjectError } from '../Errors/WorkIsFromAnotherSubjec
 import { CourseAssignmentRepository } from '../Data/CourseAssignmentRepository.js';
 import { CourseAssignmentModel } from '../Data/Relations/CourseAssignmentModel.js';
 import { CourseChapterRepository } from '../Data/CourseChapterRepository.js';
+import { CourseMaterialReactionRepository } from '../Data/CourseMaterialReactionRepository.js';
+import { UnauthorizedError } from '../../Core/Errors/UnauthorizedError.js';
 export class CourseService {
     courseRepository;
     chapterRepository;
     courseAssignmentRepository;
     materialRepository;
+    materialReactionRepository;
     userRepository;
     assignedWorkRepository;
     workRepository;
@@ -27,6 +30,7 @@ export class CourseService {
         this.courseAssignmentRepository = new CourseAssignmentRepository();
         this.userRepository = new UserRepository();
         this.materialRepository = new CourseMaterialRepository();
+        this.materialReactionRepository = new CourseMaterialReactionRepository();
         this.assignedWorkRepository = new AssignedWorkRepository();
         this.workRepository = new WorkRepository();
     }
@@ -40,10 +44,19 @@ export class CourseService {
             },
         }, pagination, ['course', 'course.images', 'assigner']);
     }
-    async getBySlug(slug, role) {
+    async getBySlug(slug, userId, role) {
         const course = await this.courseRepository.findOne({ slug }, ['author']);
         if (!course) {
             throw new NotFoundError('Курс не найден');
+        }
+        if (role === 'student') {
+            const courseAssignment = await this.courseAssignmentRepository.findOne({
+                student: { id: userId },
+                course: { id: course.id },
+            });
+            if (!courseAssignment) {
+                throw new UnauthorizedError('Вы не записаны на этот курс');
+            }
         }
         let condition = {
             course: { id: course.id },
@@ -72,6 +85,9 @@ export class CourseService {
                 course: { id: course.id },
             });
         }
+        if (role === 'student') {
+            await this.addMyReactionToMaterials(course, userId);
+        }
         return course;
     }
     async getStudentListWithAssignments(courseId, pagination) {
@@ -98,6 +114,15 @@ export class CourseService {
         }
         assignment.isArchived = false;
         await this.courseAssignmentRepository.update(assignment);
+    }
+    async toggleReaction(materialId, userId, reaction) {
+        const material = await this.materialRepository.findOne({
+            id: materialId,
+        });
+        if (!material) {
+            throw new NotFoundError('Материал не найден');
+        }
+        await this.materialReactionRepository.toggleReaction(materialId, userId, reaction);
     }
     async getAssignedWorkToMaterial(materialSlug, userId) {
         const assignedWork = await this.assignedWorkRepository.findOne({
@@ -234,5 +259,22 @@ export class CourseService {
             throw new NotFoundError();
         }
         await this.courseRepository.delete(id);
+    }
+    async addMyReactionToMaterials(course, userId) {
+        if (!course.chapters) {
+            return;
+        }
+        const materials = course
+            .chapters.map((chapter) => chapter.materials)
+            .flat();
+        const reactions = await this.materialReactionRepository.getMyReactions(userId, materials.filter(Boolean).map((material) => material.id));
+        materials.forEach((material) => {
+            if (material) {
+                const reaction = reactions.find(({ materialId }) => materialId === material.id);
+                if (reaction) {
+                    material.myReaction = reaction.reaction;
+                }
+            }
+        });
     }
 }

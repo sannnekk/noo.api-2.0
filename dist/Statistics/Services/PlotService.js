@@ -6,7 +6,7 @@ export class PlotService {
             data: items.map((item) => {
                 let key = keyFunc(item);
                 if (key instanceof Date) {
-                    key = key.toISOString().split('T')[0];
+                    key = `${key.getDate()}.${key.getMonth() + 1}.${key.getFullYear()}`;
                 }
                 return {
                     key,

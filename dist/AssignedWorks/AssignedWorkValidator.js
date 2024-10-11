@@ -11,6 +11,8 @@ import { AssignedWorkCreateOptionsScheme } from './Schemes/AssignedWorkCreateOpt
 import { AssignedWorkSolveOptionsScheme } from './Schemes/AssignedWorkSolveOptionsScheme.js';
 import { AssignedWorkCheckOptionsScheme } from './Schemes/AssignedWorkCheckOptionsScheme.js';
 import { AssignedWorkSaveOptionsScheme } from './Schemes/AssignedWorkSaveOptionsScheme.js';
+import { AssignedWorkAnswerScheme } from './Schemes/AssignedWorkAnswerScheme.js';
+import { AssignedWorkCommentScheme } from './Schemes/AssignedWorkCommentScheme.js';
 let AssignedWorkValidator = class AssignedWorkValidator extends Validator {
     parseRemake(body) {
         return this.parse(body, AssignedWorkRemakeOptionsScheme);
@@ -26,6 +28,12 @@ let AssignedWorkValidator = class AssignedWorkValidator extends Validator {
     }
     parseSave(data) {
         return this.parse(data, AssignedWorkSaveOptionsScheme);
+    }
+    parseAnswer(data) {
+        return this.parse(data, AssignedWorkAnswerScheme);
+    }
+    parseComment(data) {
+        return this.parse(data, AssignedWorkCommentScheme);
     }
 };
 AssignedWorkValidator = __decorate([

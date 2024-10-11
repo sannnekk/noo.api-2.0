@@ -21,6 +21,10 @@ export class CourseValidator extends Validator {
     emails: z.array(EmailScheme),
   })
 
+  public parseReaction(reaction: unknown): string {
+    return this.parse<string>(reaction, z.enum(['check', 'thinking']))
+  }
+
   public parseCreation(course: unknown): CourseCreationDTO {
     return this.parse<CourseCreationDTO>(course, CourseScheme)
   }

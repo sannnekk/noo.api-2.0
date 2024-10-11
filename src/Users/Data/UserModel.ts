@@ -18,23 +18,27 @@ import { BlogPostReactionModel } from '@modules/Blog/Data/Relations/BlogPostReac
 import type { BlogPostReaction } from '@modules/Blog/Data/Relations/BlogPostReaction'
 import type { BlogPost } from '@modules/Blog/Data/BlogPost'
 import { PollAnswerModel } from '@modules/Polls/Data/Relations/PollAnswerModel'
-import { PollAnswer } from '@modules/Polls/Data/Relations/PollAnswer'
+import type { PollAnswer } from '@modules/Polls/Data/Relations/PollAnswer'
 import { PollModel } from '@modules/Polls/Data/PollModel'
-import { Poll } from '@modules/Polls/Data/Poll'
+import type { Poll } from '@modules/Polls/Data/Poll'
 import type { User } from './User'
 import { SessionModel } from '@modules/Sessions/Data/SessionModel'
-import { Session } from '@modules/Sessions/Data/Session'
-import { UserAvatar } from './Relations/UserAvatar'
+import type { Session } from '@modules/Sessions/Data/Session'
+import type { UserAvatar } from './Relations/UserAvatar'
 import { UserAvatarModel } from './Relations/UserAvatarModel'
 import { SearchableModel } from '@modules/Core/Data/SearchableModel'
 import { BaseModel } from '@modules/Core/Data/Model'
 import { MentorAssignmentModel } from './Relations/MentorAssignmentModel'
 import { SnippetModel } from '@modules/Snippets/Data/SnippetModel'
-import { Snippet } from '@modules/Snippets/Data/Snippet'
+import type { Snippet } from '@modules/Snippets/Data/Snippet'
 import { config } from '@modules/config'
 import { NotificationModel } from '@modules/Notifications/Data/NotificationModel'
-import { CourseAssignment } from '@modules/Courses/Data/Relations/CourseAssignment'
+import type { CourseAssignment } from '@modules/Courses/Data/Relations/CourseAssignment'
 import { CourseAssignmentModel } from '@modules/Courses/Data/Relations/CourseAssignmentModel'
+//import { EventModel } from '@modules/Event/Data/EventModel'
+//import type { Event } from '@modules/Event/Data/Event'
+import type { CourseMaterialReaction } from '@modules/Courses/Data/Relations/CourseMaterialReaction'
+import { CourseMaterialReactionModel } from '@modules/Courses/Data/Relations/CourseMaterialReactionModel'
 
 @Entity('user')
 export class UserModel extends SearchableModel implements User {
@@ -135,6 +139,9 @@ export class UserModel extends SearchableModel implements User {
   @OneToMany(() => BlogPostReactionModel, (reaction) => reaction.user)
   blogPostReactions?: BlogPostReaction[]
 
+  @OneToMany(() => CourseMaterialReactionModel, (reaction) => reaction.user)
+  materialReactions?: CourseMaterialReaction[]
+
   @OneToMany(() => PollAnswerModel, (answer) => answer.user)
   pollAnswers?: PollAnswer[]
 
@@ -159,6 +166,9 @@ export class UserModel extends SearchableModel implements User {
   })
   @JoinColumn()
   avatar!: UserAvatar | null
+
+  //@OneToMany(() => EventModel, (event) => event.user)
+  //events?: Event[]
 
   @Column({
     name: 'telegram_id',

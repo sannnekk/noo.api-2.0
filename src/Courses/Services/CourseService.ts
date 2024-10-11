@@ -20,6 +20,8 @@ import { WorkIsFromAnotherSubjectError } from '../Errors/WorkIsFromAnotherSubjec
 import { CourseAssignmentRepository } from '../Data/CourseAssignmentRepository'
 import { CourseAssignmentModel } from '../Data/Relations/CourseAssignmentModel'
 import { CourseChapterRepository } from '../Data/CourseChapterRepository'
+import { CourseMaterialReactionRepository } from '../Data/CourseMaterialReactionRepository'
+import { UnauthorizedError } from '@modules/Core/Errors/UnauthorizedError'
 
 export class CourseService {
   private readonly courseRepository: CourseRepository
@@ -29,6 +31,8 @@ export class CourseService {
   private readonly courseAssignmentRepository: CourseAssignmentRepository
 
   private readonly materialRepository: CourseMaterialRepository
+
+  private readonly materialReactionRepository: CourseMaterialReactionRepository
 
   private readonly userRepository: UserRepository
 
@@ -42,6 +46,7 @@ export class CourseService {
     this.courseAssignmentRepository = new CourseAssignmentRepository()
     this.userRepository = new UserRepository()
     this.materialRepository = new CourseMaterialRepository()
+    this.materialReactionRepository = new CourseMaterialReactionRepository()
     this.assignedWorkRepository = new AssignedWorkRepository()
     this.workRepository = new WorkRepository()
   }
@@ -65,11 +70,26 @@ export class CourseService {
     )
   }
 
-  public async getBySlug(slug: string, role: User['role']): Promise<Course> {
+  public async getBySlug(
+    slug: string,
+    userId: User['id'],
+    role: User['role']
+  ): Promise<Course> {
     const course = await this.courseRepository.findOne({ slug }, ['author'])
 
     if (!course) {
       throw new NotFoundError('Курс не найден')
+    }
+
+    if (role === 'student') {
+      const courseAssignment = await this.courseAssignmentRepository.findOne({
+        student: { id: userId },
+        course: { id: course.id },
+      })
+
+      if (!courseAssignment) {
+        throw new UnauthorizedError('Вы не записаны на этот курс')
+      }
     }
 
     let condition: FindOptionsWhere<CourseChapter> = {
@@ -107,6 +127,10 @@ export class CourseService {
       course.studentCount = await this.courseAssignmentRepository.count({
         course: { id: course.id },
       })
+    }
+
+    if (role === 'student') {
+      await this.addMyReactionToMaterials(course, userId)
     }
 
     return course
@@ -147,6 +171,26 @@ export class CourseService {
     assignment.isArchived = false
 
     await this.courseAssignmentRepository.update(assignment)
+  }
+
+  public async toggleReaction(
+    materialId: string,
+    userId: User['id'],
+    reaction: string
+  ) {
+    const material = await this.materialRepository.findOne({
+      id: materialId,
+    })
+
+    if (!material) {
+      throw new NotFoundError('Материал не найден')
+    }
+
+    await this.materialReactionRepository.toggleReaction(
+      materialId,
+      userId,
+      reaction as any
+    )
   }
 
   public async getAssignedWorkToMaterial(
@@ -357,5 +401,32 @@ export class CourseService {
     }
 
     await this.courseRepository.delete(id)
+  }
+
+  private async addMyReactionToMaterials(course: Course, userId: User['id']) {
+    if (!course.chapters) {
+      return
+    }
+
+    const materials = course
+      .chapters!.map((chapter) => chapter.materials)
+      .flat()
+
+    const reactions = await this.materialReactionRepository.getMyReactions(
+      userId,
+      materials.filter(Boolean).map((material) => material!.id)
+    )
+
+    materials.forEach((material) => {
+      if (material) {
+        const reaction = reactions.find(
+          ({ materialId }) => materialId === material.id
+        )
+
+        if (reaction) {
+          material.myReaction = reaction.reaction
+        }
+      }
+    })
   }
 }

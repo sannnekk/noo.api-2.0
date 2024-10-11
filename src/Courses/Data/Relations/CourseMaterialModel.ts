@@ -6,11 +6,13 @@ import * as Transliteration from '@modules/Core/Utils/transliteration'
 import { WorkModel } from '@modules/Works/Data/WorkModel'
 import { MediaModel } from '@modules/Media/Data/MediaModel'
 import { CourseChapterModel } from './CourseChapterModel'
-import { CourseMaterial } from './CourseMaterial'
-import { CourseChapter } from './CourseChapter'
+import type { CourseMaterial } from './CourseMaterial'
+import type { CourseChapter } from './CourseChapter'
 import { config } from '@modules/config'
 import { PollModel } from '@modules/Polls/Data/PollModel'
-import { Poll } from '@modules/Polls/Data/Poll'
+import type { Poll } from '@modules/Polls/Data/Poll'
+import { CourseMaterialReactionModel } from './CourseMaterialReactionModel'
+import type { CourseMaterialReaction } from './CourseMaterialReaction'
 
 @Entity('course_material', {
   orderBy: {
@@ -122,6 +124,9 @@ export class CourseMaterialModel extends Model implements CourseMaterial {
     cascade: true,
   })
   files!: MediaModel[]
+
+  @OneToMany(() => CourseMaterialReactionModel, (reaction) => reaction.material)
+  reactions!: CourseMaterialReaction[]
 
   private sluggify(text: string): string {
     return `${ULID.generate()}-${Transliteration.sluggify(text)}`

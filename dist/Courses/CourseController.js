@@ -72,11 +72,24 @@ let CourseController = class CourseController {
             return new ApiResponse(error);
         }
     }
+    async react(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.student(context);
+            const materialId = this.courseValidator.parseId(context.params.materialId);
+            const reaction = this.courseValidator.parseReaction(context.params.reaction);
+            await this.courseService.toggleReaction(materialId, context.credentials.userId, reaction);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
     async getBySlug(context) {
         try {
             await Asserts.isAuthenticated(context);
             const courseSlug = this.courseValidator.parseSlug(context.params.slug);
-            const course = await this.courseService.getBySlug(courseSlug, context.credentials.role);
+            const course = await this.courseService.getBySlug(courseSlug, context.credentials.userId, context.credentials.role);
             return new ApiResponse({ data: course });
         }
         catch (error) {
@@ -261,6 +274,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "unarchive", null);
+__decorate([
+    Patch('/material/:materialId/react/:reaction'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "react", null);
 __decorate([
     Get('/:slug'),
     __metadata("design:type", Function),

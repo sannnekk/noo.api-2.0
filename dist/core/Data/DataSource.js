@@ -28,6 +28,8 @@ import { config } from '../../config.js';
 import { FAQCategoryModel } from '../../FAQ/Data/Relations/FAQCategoryModel.js';
 import { NotificationModel } from '../../Notifications/Data/NotificationModel.js';
 import { CourseAssignmentModel } from '../../Courses/Data/Relations/CourseAssignmentModel.js';
+//import { EventModel } from '@modules/Event/Data/EventModel'
+import { CourseMaterialReactionModel } from '../../Courses/Data/Relations/CourseMaterialReactionModel.js';
 export const CoreDataSource = new DataSource({
     type: 'mysql',
     host: process.env.DB_HOST,
@@ -51,6 +53,7 @@ export const CoreDataSource = new DataSource({
         CourseModel,
         CourseChapterModel,
         CourseMaterialModel,
+        CourseMaterialReactionModel,
         WorkModel,
         WorkTaskModel,
         AssignedWorkModel,
@@ -67,6 +70,7 @@ export const CoreDataSource = new DataSource({
         GoogleSheetsBindingModel,
         SnippetModel,
         NotificationModel,
+        //EventModel,
     ],
     subscribers: [],
     migrations: [],

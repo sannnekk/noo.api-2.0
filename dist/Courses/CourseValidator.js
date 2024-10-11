@@ -18,6 +18,9 @@ let CourseValidator = class CourseValidator extends Validator {
     studentEmailsScheme = z.object({
         emails: z.array(EmailScheme),
     });
+    parseReaction(reaction) {
+        return this.parse(reaction, z.enum(['check', 'thinking']));
+    }
     parseCreation(course) {
         return this.parse(course, CourseScheme);
     }

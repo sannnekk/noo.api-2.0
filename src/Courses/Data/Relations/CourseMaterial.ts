@@ -22,6 +22,7 @@ export interface CourseMaterial {
   isActive: boolean
   poll?: Poll
   pollId?: Poll['id']
+  myReaction?: string
   createdAt: Date
   updatedAt: Date
 }

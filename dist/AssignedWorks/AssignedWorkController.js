@@ -160,6 +160,32 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse(error);
         }
     }
+    async saveAnswer(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.student(context);
+            const assignedWorkId = this.assignedWorkValidator.parseId(context.params.id);
+            const answer = this.assignedWorkValidator.parseAnswer(context.body);
+            const answerId = await this.assignedWorkService.saveAnswer(assignedWorkId, answer, context.credentials.userId);
+            return new ApiResponse({ data: answerId });
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
+    async saveComment(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.mentor(context);
+            const assignedWorkId = this.assignedWorkValidator.parseId(context.params.id);
+            const comment = this.assignedWorkValidator.parseComment(context.body);
+            const commentId = await this.assignedWorkService.saveComment(assignedWorkId, comment, context.credentials.userId);
+            return new ApiResponse({ data: commentId });
+        }
+        catch (error) {
+            return new ApiResponse(error);
+        }
+    }
     async archive(context) {
         try {
             await Asserts.isAuthenticated(context);
@@ -313,6 +339,18 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], AssignedWorkController.prototype, "save", null);
+__decorate([
+    Patch('/:id/save-answer'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], AssignedWorkController.prototype, "saveAnswer", null);
+__decorate([
+    Patch('/:id/save-comment'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], AssignedWorkController.prototype, "saveComment", null);
 __decorate([
     Patch('/:id/archive'),
     __metadata("design:type", Function),

@@ -1,4 +1,4 @@
-import { User } from '@modules/Users/Data/User'
+import type { User } from '@modules/Users/Data/User'
 import { BaseModel } from '@modules/Core/Data/Model'
 import { BlogPost, Reaction } from '../BlogPost'
 

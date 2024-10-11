@@ -358,6 +358,49 @@ export class AssignedWorkService {
         foundWork.comments = saveOptions.comments || foundWork.comments || [];
         await this.assignedWorkRepository.update(foundWork);
     }
+    async saveAnswer(assignedWorkId, answer, userId) {
+        const foundWork = await this.getAssignedWork(assignedWorkId);
+        if (foundWork.studentId !== userId) {
+            throw new UnauthorizedError();
+        }
+        if (workAlreadyMade(foundWork)) {
+            throw new WorkAlreadySolvedError();
+        }
+        if (foundWork.solveStatus !== 'in-progress') {
+            foundWork.solveStatus = 'in-progress';
+            await this.assignedWorkRepository.update(foundWork);
+        }
+        if (answer.id) {
+            await this.answerRepository.update(answer);
+            return answer.id;
+        }
+        answer.assignedWork = { id: foundWork.id };
+        const createdAnswer = await this.answerRepository.create(answer);
+        return createdAnswer.id;
+    }
+    async saveComment(assignedWorkId, comment, userId) {
+        const foundWork = await this.getAssignedWork(assignedWorkId);
+        if (!foundWork.mentors.some((mentor) => mentor.id === userId)) {
+            throw new UnauthorizedError();
+        }
+        if (!workAlreadyMade(foundWork)) {
+            throw new WorkIsNotSolvedYetError();
+        }
+        if (workAlreadyChecked(foundWork)) {
+            throw new WorkAlreadyCheckedError();
+        }
+        if (foundWork.checkStatus !== 'in-progress') {
+            foundWork.checkStatus = 'in-progress';
+            await this.assignedWorkRepository.update(foundWork);
+        }
+        if (comment.id) {
+            await this.commentRepository.update(comment);
+            return comment.id;
+        }
+        comment.assignedWork = { id: foundWork.id };
+        const createdComment = await this.commentRepository.create(comment);
+        return createdComment.id;
+    }
     async archiveWork(id, role) {
         const foundWork = await this.getAssignedWork(id);
         if (!foundWork) {

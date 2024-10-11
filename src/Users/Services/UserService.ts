@@ -25,6 +25,7 @@ import { CantChangeRoleError } from '../Errors/CantChangeRoleError'
 import { UnauthorizedError } from '@modules/Core/Errors/UnauthorizedError'
 import { TransferAssignedWorkService } from '@modules/AssignedWorks/Services/TransferAssignedWorkService'
 import { NotificationService } from '@modules/Notifications/Services/NotificationService'
+import { CourseAssignmentRepository } from '@modules/Courses/Data/CourseAssignmentRepository'
 
 export class UserService {
   private readonly userRepository: UserRepository
@@ -41,6 +42,8 @@ export class UserService {
 
   private readonly notificationService: NotificationService
 
+  private readonly courseAssignmentRepository: CourseAssignmentRepository
+
   constructor() {
     this.userRepository = new UserRepository()
     this.emailService = new EmailService()
@@ -49,6 +52,7 @@ export class UserService {
     this.subjectRepository = new SubjectRepository()
     this.transferAssignedWorkService = new TransferAssignedWorkService()
     this.notificationService = new NotificationService()
+    this.courseAssignmentRepository = new CourseAssignmentRepository()
   }
 
   public async assignMentor(
@@ -306,12 +310,25 @@ export class UserService {
       throw new CantChangeRoleError()
     }
 
-    // reset user's relations
-    user.courses = []
-    user.courseAssignments = []
-    user.mentorAssignmentsAsMentor = []
-    user.mentorAssignmentsAsStudent = []
-    user.snippets = []
+    const mentorAssignment = await this.mentorAssignmentRepository.findOne({
+      student: { id: user.id },
+    })
+
+    if (mentorAssignment) {
+      throw new CantChangeRoleError(
+        'Нельзя изменить роль ученика, у которого есть куратор. Сначала открепите куратора.'
+      )
+    }
+
+    const courseAssignment = await this.courseAssignmentRepository.findOne({
+      student: { id: user.id },
+    })
+
+    if (courseAssignment) {
+      throw new CantChangeRoleError(
+        'Нельзя изменить роль ученика, который засписан хотя бы на один курс. Сначала открепите ученика со всех курсов.'
+      )
+    }
 
     user.role = role
 
@@ -455,6 +472,9 @@ export class UserService {
     if (!(await Hash.compare(password, user.password!))) {
       throw new UnauthorizedError('Неверный пароль.')
     }
+
+    await this.mentorAssignmentRepository.deleteFromStudent(user.id)
+    await this.courseAssignmentRepository.deleteFromStudent(user.id)
 
     // remove everything except works
     user.name = 'Deleted User'

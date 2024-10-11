@@ -22,6 +22,7 @@ import { SnippetModel } from '../../Snippets/Data/SnippetModel.js';
 import { config } from '../../config.js';
 import { NotificationModel } from '../../Notifications/Data/NotificationModel.js';
 import { CourseAssignmentModel } from '../../Courses/Data/Relations/CourseAssignmentModel.js';
+import { CourseMaterialReactionModel } from '../../Courses/Data/Relations/CourseMaterialReactionModel.js';
 let UserModel = class UserModel extends SearchableModel {
     constructor(data) {
         super();
@@ -50,12 +51,15 @@ let UserModel = class UserModel extends SearchableModel {
     assignedWorksAsStudent;
     blogPosts;
     blogPostReactions;
+    materialReactions;
     pollAnswers;
     votedPolls;
     notifications;
     sessions;
     snippets;
     avatar;
+    //@OneToMany(() => EventModel, (event) => event.user)
+    //events?: Event[]
     telegramId;
     telegramUsername;
     telegramNotificationsEnabled;
@@ -192,6 +196,10 @@ __decorate([
     OneToMany(() => BlogPostReactionModel, (reaction) => reaction.user),
     __metadata("design:type", Array)
 ], UserModel.prototype, "blogPostReactions", void 0);
+__decorate([
+    OneToMany(() => CourseMaterialReactionModel, (reaction) => reaction.user),
+    __metadata("design:type", Array)
+], UserModel.prototype, "materialReactions", void 0);
 __decorate([
     OneToMany(() => PollAnswerModel, (answer) => answer.user),
     __metadata("design:type", Array)

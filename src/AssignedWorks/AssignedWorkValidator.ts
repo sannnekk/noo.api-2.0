@@ -10,6 +10,10 @@ import { AssignedWorkCreateOptionsScheme } from './Schemes/AssignedWorkCreateOpt
 import { AssignedWorkSolveOptionsScheme } from './Schemes/AssignedWorkSolveOptionsScheme'
 import { AssignedWorkCheckOptionsScheme } from './Schemes/AssignedWorkCheckOptionsScheme'
 import { AssignedWorkSaveOptionsScheme } from './Schemes/AssignedWorkSaveOptionsScheme'
+import { AssignedWorkAnswer } from './Data/Relations/AssignedWorkAnswer'
+import { AssignedWorkAnswerScheme } from './Schemes/AssignedWorkAnswerScheme'
+import { AssignedWorkComment } from './Data/Relations/AssignedWorkComment'
+import { AssignedWorkCommentScheme } from './Schemes/AssignedWorkCommentScheme'
 
 @ErrorConverter()
 export class AssignedWorkValidator extends Validator {
@@ -31,5 +35,13 @@ export class AssignedWorkValidator extends Validator {
 
   public parseSave(data: unknown): SaveOptions {
     return this.parse<SaveOptions>(data, AssignedWorkSaveOptionsScheme)
+  }
+
+  public parseAnswer(data: unknown): AssignedWorkAnswer {
+    return this.parse<AssignedWorkAnswer>(data, AssignedWorkAnswerScheme)
+  }
+
+  public parseComment(data: unknown): AssignedWorkComment {
+    return this.parse<AssignedWorkComment>(data, AssignedWorkCommentScheme)
   }
 }

@@ -37,6 +37,7 @@ import { NotificationService } from '@modules/Notifications/Services/Notificatio
 import { CantDeleteMadeWorkError } from '../Errors/CantDeleteMadeWorkError'
 import { isAutomaticallyCheckable } from '../Utils/Task'
 import { workAlreadyChecked, workAlreadyMade } from '../Utils/AssignedWork'
+import { AssignedWorkAnswer } from '../Data/Relations/AssignedWorkAnswer'
 
 export class AssignedWorkService {
   private readonly taskService: TaskService
@@ -561,6 +562,74 @@ export class AssignedWorkService {
     foundWork.comments = saveOptions.comments || foundWork.comments || []
 
     await this.assignedWorkRepository.update(foundWork)
+  }
+
+  public async saveAnswer(
+    assignedWorkId: AssignedWork['id'],
+    answer: AssignedWorkAnswer,
+    userId: User['id']
+  ): Promise<AssignedWorkAnswer['id']> {
+    const foundWork = await this.getAssignedWork(assignedWorkId)
+
+    if (foundWork.studentId !== userId) {
+      throw new UnauthorizedError()
+    }
+
+    if (workAlreadyMade(foundWork)) {
+      throw new WorkAlreadySolvedError()
+    }
+
+    if (foundWork.solveStatus !== 'in-progress') {
+      foundWork.solveStatus = 'in-progress'
+      await this.assignedWorkRepository.update(foundWork)
+    }
+
+    if (answer.id) {
+      await this.answerRepository.update(answer)
+      return answer.id
+    }
+
+    answer.assignedWork = { id: foundWork.id } as AssignedWork
+
+    const createdAnswer = await this.answerRepository.create(answer)
+
+    return createdAnswer.id
+  }
+
+  public async saveComment(
+    assignedWorkId: AssignedWork['id'],
+    comment: AssignedWorkComment,
+    userId: User['id']
+  ): Promise<AssignedWorkComment['id']> {
+    const foundWork = await this.getAssignedWork(assignedWorkId)
+
+    if (!foundWork.mentors!.some((mentor) => mentor.id === userId)) {
+      throw new UnauthorizedError()
+    }
+
+    if (!workAlreadyMade(foundWork)) {
+      throw new WorkIsNotSolvedYetError()
+    }
+
+    if (workAlreadyChecked(foundWork)) {
+      throw new WorkAlreadyCheckedError()
+    }
+
+    if (foundWork.checkStatus !== 'in-progress') {
+      foundWork.checkStatus = 'in-progress'
+      await this.assignedWorkRepository.update(foundWork)
+    }
+
+    if (comment.id) {
+      await this.commentRepository.update(comment)
+      return comment.id
+    }
+
+    comment.assignedWork = { id: foundWork.id } as AssignedWork
+
+    const createdComment = await this.commentRepository.create(comment)
+
+    return createdComment.id
   }
 
   public async archiveWork(id: AssignedWork['id'], role: User['role']) {

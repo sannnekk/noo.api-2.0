@@ -38,7 +38,7 @@ export class StatisticsService {
 
     switch (user.role) {
       case 'teacher':
-        return this.getTeacherStatistics(user.id, from, to)
+        return this.getTeacherStatistics(user.id, from, to, type)
       case 'mentor':
         return this.getMentorStatistics(user.id, from, to, type)
       case 'student':
@@ -52,12 +52,19 @@ export class StatisticsService {
   private async getTeacherStatistics(
     teacherId: string,
     from: Date,
-    to: Date
+    to: Date,
+    type?: Work['type']
   ): Promise<Statistics> {
     const userRepositoryQueryBuilder = this.userRepository.queryBuilder('user')
 
     const assignedWorkRepositoryQueryBuilder =
       this.assignedWorkRepository.queryBuilder('assigned_work')
+
+    if (type) {
+      assignedWorkRepositoryQueryBuilder
+        .leftJoin('assigned_work.work', 'work')
+        .andWhere('work.type = :type', { type })
+    }
 
     const usersCount = await userRepositoryQueryBuilder.clone().getCount()
 
@@ -167,6 +174,32 @@ export class StatisticsService {
       (e) => e.date.toISOString().split('T')[0],
       (e) => parseInt(e.count)
     )
+
+    /* const worksSolvedTOdayEvery15Minutes =
+      await assignedWorkRepositoryQueryBuilder
+        .select([
+          'DATEPART(HOUR, assignedWork.solvedAt) AS hour',
+          '(DATEPART(MINUTE, assignedWork.solvedAt) / 15) * 15 AS minuteInterval',
+          'COUNT(*) AS solvedCount',
+        ])
+        .where('CAST(assignedWork.solvedAt AS DATE) = :date', {
+          date: to.toISOString().split('T')[0],
+        })
+        .groupBy('DATEPART(HOUR, assignedWork.solvedAt)')
+        .addGroupBy('(DATEPART(MINUTE, assignedWork.solvedAt) / 15) * 15')
+        .orderBy('hour')
+        .addOrderBy('minuteInterval')
+        .getRawMany() */
+
+    /* const worksSolvedTOdayEvery15MinutesPlot = this.plotService.generatePlot<
+      (typeof worksSolvedTOdayEvery15Minutes)[0]
+    >(
+      'Сдано работ по времени за последний день выбранного периода',
+      worksSolvedTOdayEvery15Minutes,
+      'secondary',
+      (e) => e.date.toISOString().split('T')[1],
+      (e) => parseInt(e.count)
+    ) */
 
     return {
       sections: [

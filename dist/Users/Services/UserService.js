@@ -15,6 +15,7 @@ import { CantChangeRoleError } from '../Errors/CantChangeRoleError.js';
 import { UnauthorizedError } from '../../Core/Errors/UnauthorizedError.js';
 import { TransferAssignedWorkService } from '../../AssignedWorks/Services/TransferAssignedWorkService.js';
 import { NotificationService } from '../../Notifications/Services/NotificationService.js';
+import { CourseAssignmentRepository } from '../../Courses/Data/CourseAssignmentRepository.js';
 export class UserService {
     userRepository;
     emailService;
@@ -23,6 +24,7 @@ export class UserService {
     subjectRepository;
     transferAssignedWorkService;
     notificationService;
+    courseAssignmentRepository;
     constructor() {
         this.userRepository = new UserRepository();
         this.emailService = new EmailService();
@@ -31,6 +33,7 @@ export class UserService {
         this.subjectRepository = new SubjectRepository();
         this.transferAssignedWorkService = new TransferAssignedWorkService();
         this.notificationService = new NotificationService();
+        this.courseAssignmentRepository = new CourseAssignmentRepository();
     }
     async assignMentor(studentId, mentorId, subjectId) {
         const student = await this.userRepository.findOne({
@@ -186,12 +189,18 @@ export class UserService {
         if (user.role !== 'student') {
             throw new CantChangeRoleError();
         }
-        // reset user's relations
-        user.courses = [];
-        user.courseAssignments = [];
-        user.mentorAssignmentsAsMentor = [];
-        user.mentorAssignmentsAsStudent = [];
-        user.snippets = [];
+        const mentorAssignment = await this.mentorAssignmentRepository.findOne({
+            student: { id: user.id },
+        });
+        if (mentorAssignment) {
+            throw new CantChangeRoleError('Нельзя изменить роль ученика, у которого есть куратор. Сначала открепите куратора.');
+        }
+        const courseAssignment = await this.courseAssignmentRepository.findOne({
+            student: { id: user.id },
+        });
+        if (courseAssignment) {
+            throw new CantChangeRoleError('Нельзя изменить роль ученика, который засписан хотя бы на один курс. Сначала открепите ученика со всех курсов.');
+        }
         user.role = role;
         await this.userRepository.update(user);
         await this.sessionService.deleteSessionsForUser(user.id);
@@ -283,6 +292,8 @@ export class UserService {
         if (!(await Hash.compare(password, user.password))) {
             throw new UnauthorizedError('Неверный пароль.');
         }
+        await this.mentorAssignmentRepository.deleteFromStudent(user.id);
+        await this.courseAssignmentRepository.deleteFromStudent(user.id);
         // remove everything except works
         user.name = 'Deleted User';
         user.username = user.slug = `deleted-${Math.random()

@@ -16,6 +16,6 @@ export interface Statistics {
         percentage?: number
       }[]
     }[]
-    plots: Plot[]
+    plots: (Plot | Plot[])[]
   }[]
 }

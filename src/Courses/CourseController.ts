@@ -99,6 +99,28 @@ export class CourseController {
     }
   }
 
+  @Patch('/material/:materialId/react/:reaction')
+  public async react(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.student(context)
+      const materialId = this.courseValidator.parseId(context.params.materialId)
+      const reaction = this.courseValidator.parseReaction(
+        context.params.reaction
+      )
+
+      await this.courseService.toggleReaction(
+        materialId,
+        context.credentials.userId,
+        reaction
+      )
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error)
+    }
+  }
+
   @Get('/:slug')
   public async getBySlug(context: Context): Promise<ApiResponse> {
     try {
@@ -107,6 +129,7 @@ export class CourseController {
 
       const course = await this.courseService.getBySlug(
         courseSlug,
+        context.credentials!.userId,
         context.credentials!.role
       )
 

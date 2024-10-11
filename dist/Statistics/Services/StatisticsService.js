@@ -25,7 +25,7 @@ export class StatisticsService {
         }
         switch (user.role) {
             case 'teacher':
-                return this.getTeacherStatistics(user.id, from, to);
+                return this.getTeacherStatistics(user.id, from, to, type);
             case 'mentor':
                 return this.getMentorStatistics(user.id, from, to, type);
             case 'student':
@@ -35,9 +35,14 @@ export class StatisticsService {
                 throw new WrongRoleError('У администраторов нет статистики');
         }
     }
-    async getTeacherStatistics(teacherId, from, to) {
+    async getTeacherStatistics(teacherId, from, to, type) {
         const userRepositoryQueryBuilder = this.userRepository.queryBuilder('user');
         const assignedWorkRepositoryQueryBuilder = this.assignedWorkRepository.queryBuilder('assigned_work');
+        if (type) {
+            assignedWorkRepositoryQueryBuilder
+                .leftJoin('assigned_work.work', 'work')
+                .andWhere('work.type = :type', { type });
+        }
         const usersCount = await userRepositoryQueryBuilder.clone().getCount();
         const usersOnlineCount = await this.sessionService.getOnlineUsersCount();
         const studentOnlineCount = await this.sessionService.getOnlineUsersCount({
@@ -109,6 +114,30 @@ export class StatisticsService {
             .orderBy('date', 'ASC')
             .getRawMany()).map((item) => ({ date: new Date(item.date), count: item.count }));
         const worksSolvedPerDayPlot = this.plotService.generatePlot('Сдано работ в день', worksSolvedPerDay, 'secondary', (e) => e.date.toISOString().split('T')[0], (e) => parseInt(e.count));
+        /* const worksSolvedTOdayEvery15Minutes =
+          await assignedWorkRepositoryQueryBuilder
+            .select([
+              'DATEPART(HOUR, assignedWork.solvedAt) AS hour',
+              '(DATEPART(MINUTE, assignedWork.solvedAt) / 15) * 15 AS minuteInterval',
+              'COUNT(*) AS solvedCount',
+            ])
+            .where('CAST(assignedWork.solvedAt AS DATE) = :date', {
+              date: to.toISOString().split('T')[0],
+            })
+            .groupBy('DATEPART(HOUR, assignedWork.solvedAt)')
+            .addGroupBy('(DATEPART(MINUTE, assignedWork.solvedAt) / 15) * 15')
+            .orderBy('hour')
+            .addOrderBy('minuteInterval')
+            .getRawMany() */
+        /* const worksSolvedTOdayEvery15MinutesPlot = this.plotService.generatePlot<
+          (typeof worksSolvedTOdayEvery15Minutes)[0]
+        >(
+          'Сдано работ по времени за последний день выбранного периода',
+          worksSolvedTOdayEvery15Minutes,
+          'secondary',
+          (e) => e.date.toISOString().split('T')[1],
+          (e) => parseInt(e.count)
+        ) */
         return {
             sections: [
                 {
