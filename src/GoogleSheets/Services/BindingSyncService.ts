@@ -221,8 +221,10 @@ export class BindingSyncService {
         } as any
       case 'courseId':
         return {
-          coursesAsStudent: {
-            id: selector.value,
+          courseAssignments: {
+            course: {
+              id: selector.value,
+            },
           },
         } as any
       case 'role':
