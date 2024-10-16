@@ -23,4 +23,5 @@ export interface Notification extends BaseModel {
   link: string | null
   status: 'read' | 'unread'
   type: NotificationType
+  isBanner: boolean
 }

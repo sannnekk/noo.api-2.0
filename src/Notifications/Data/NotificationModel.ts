@@ -66,4 +66,11 @@ export class NotificationModel extends Model implements Notification {
     type: 'varchar',
   })
   type!: NotificationType
+
+  @Column({
+    name: 'is_banner',
+    type: 'boolean',
+    default: false,
+  })
+  isBanner!: boolean
 }

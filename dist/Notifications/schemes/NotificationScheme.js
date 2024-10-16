@@ -5,4 +5,5 @@ export const NotificationScheme = z.object({
     message: z.string().nullable(),
     link: z.string().nullable(),
     type: NotificationTypeScheme,
+    isBanner: z.boolean().default(false),
 });

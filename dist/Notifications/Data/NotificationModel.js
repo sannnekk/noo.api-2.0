@@ -30,6 +30,7 @@ let NotificationModel = class NotificationModel extends Model {
     link;
     status;
     type;
+    isBanner;
 };
 __decorate([
     ManyToOne(() => UserModel, (user) => user.notifications, {
@@ -83,6 +84,14 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], NotificationModel.prototype, "type", void 0);
+__decorate([
+    Column({
+        name: 'is_banner',
+        type: 'boolean',
+        default: false,
+    }),
+    __metadata("design:type", Boolean)
+], NotificationModel.prototype, "isBanner", void 0);
 NotificationModel = __decorate([
     Entity('notification'),
     __metadata("design:paramtypes", [Object])

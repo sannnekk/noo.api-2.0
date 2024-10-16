@@ -5,6 +5,7 @@ import { CoreDataSource } from './Core/Data/DataSource.js';
 import { injectControllers, setContextClass, } from 'express-controller-decorator';
 import { Context } from './Core/Request/Context.js';
 import { config } from './config.js';
+import { log } from './Core/Logs/Logger.js';
 // import modules
 import './Auth/AuthController.js';
 import './Users/UserController.js';
@@ -24,7 +25,6 @@ import './Subjects/SubjectController.js';
 import './Snippets/SnippetsController.js';
 import './FAQ/FAQController.js';
 import './Notifications/NotificationController.js';
-import { log } from './Core/Logs/Logger.js';
 log('info', 'Container created', 'A new container created');
 await CoreDataSource.initialize();
 const app = express();

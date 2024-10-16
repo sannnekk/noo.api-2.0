@@ -1,5 +1,26 @@
 [
 	{
+		"version": "3.2.3",
+		"date": "2024-10-15",
+		"authors": [
+			"sannnekk"
+		],
+		"changes": [
+			{
+				"type": "feat",
+				"description": "Добавлены баннеры"
+			},
+			{
+				"type": "fix",
+				"description": "Исправлен логотип на странице входа"
+			},
+			{
+				"type": "fix",
+				"description": "Много мелких исправлений и доработок"
+			}
+		]
+	},
+	{
 		"version": "3.2.2",
 		"date": "2024-10-10",
 		"authors": [

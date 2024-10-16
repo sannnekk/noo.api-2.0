@@ -8,6 +8,7 @@ import {
 } from 'express-controller-decorator'
 import { Context } from '@modules/Core/Request/Context'
 import { config } from './config'
+import { log } from './Core/Logs/Logger'
 
 // import modules
 import '@modules/Auth/AuthController'
@@ -28,7 +29,6 @@ import '@modules/Subjects/SubjectController'
 import '@modules/Snippets/SnippetsController'
 import '@modules/FAQ/FAQController'
 import '@modules/Notifications/NotificationController'
-import { log } from './Core/Logs/Logger'
 
 log('info', 'Container created', 'A new container created')
 
