@@ -9,6 +9,7 @@ import { PollAnswer } from '@modules/Polls/Data/Relations/PollAnswer'
 import { BlogPostModel } from '@modules/Blog/Data/BlogPostModel'
 import { UserAvatarModel } from '@modules/Users/Data/Relations/UserAvatarModel'
 import { config } from '@modules/config'
+import { UserSettingsModel } from '@modules/UserSettings/Data/UserSettingsModel'
 
 @Entity('media', {
   orderBy: {
@@ -82,4 +83,7 @@ export class MediaModel extends Model implements Media {
     onDelete: 'SET NULL',
   })
   avatar?: UserAvatarModel
+
+  @OneToOne(() => UserSettingsModel, (settings) => settings.backgroundImage)
+  userSettings?: UserSettingsModel
 }

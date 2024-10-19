@@ -31,6 +31,7 @@ import { NotificationModel } from '@modules/Notifications/Data/NotificationModel
 import { CourseAssignmentModel } from '@modules/Courses/Data/Relations/CourseAssignmentModel'
 //import { EventModel } from '@modules/Event/Data/EventModel'
 import { CourseMaterialReactionModel } from '@modules/Courses/Data/Relations/CourseMaterialReactionModel'
+import { UserSettingsModel } from '@modules/UserSettings/Data/UserSettingsModel'
 
 export const CoreDataSource = new DataSource({
   type: 'mysql',
@@ -50,6 +51,7 @@ export const CoreDataSource = new DataSource({
     MediaModel,
     UserModel,
     UserAvatarModel,
+    UserSettingsModel,
     MentorAssignmentModel,
     CourseAssignmentModel,
     CourseModel,

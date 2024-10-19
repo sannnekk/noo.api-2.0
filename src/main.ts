@@ -29,6 +29,7 @@ import '@modules/Subjects/SubjectController'
 import '@modules/Snippets/SnippetsController'
 import '@modules/FAQ/FAQController'
 import '@modules/Notifications/NotificationController'
+import '@modules/UserSettings/UserSettingsController'
 
 log('info', 'Container created', 'A new container created')
 

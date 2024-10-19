@@ -35,10 +35,10 @@ import { config } from '@modules/config'
 import { NotificationModel } from '@modules/Notifications/Data/NotificationModel'
 import type { CourseAssignment } from '@modules/Courses/Data/Relations/CourseAssignment'
 import { CourseAssignmentModel } from '@modules/Courses/Data/Relations/CourseAssignmentModel'
-//import { EventModel } from '@modules/Event/Data/EventModel'
-//import type { Event } from '@modules/Event/Data/Event'
 import type { CourseMaterialReaction } from '@modules/Courses/Data/Relations/CourseMaterialReaction'
 import { CourseMaterialReactionModel } from '@modules/Courses/Data/Relations/CourseMaterialReactionModel'
+import { UserSettingsModel } from '../../UserSettings/Data/UserSettingsModel'
+import type { UserSettings } from '../../UserSettings/Data/UserSettings'
 
 @Entity('user')
 export class UserModel extends SearchableModel implements User {
@@ -167,8 +167,8 @@ export class UserModel extends SearchableModel implements User {
   @JoinColumn()
   avatar!: UserAvatar | null
 
-  //@OneToMany(() => EventModel, (event) => event.user)
-  //events?: Event[]
+  @OneToOne(() => UserSettingsModel, (settings) => settings.user)
+  settings?: UserSettings
 
   @Column({
     name: 'telegram_id',

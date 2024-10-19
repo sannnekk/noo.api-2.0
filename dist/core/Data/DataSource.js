@@ -30,6 +30,7 @@ import { NotificationModel } from '../../Notifications/Data/NotificationModel.js
 import { CourseAssignmentModel } from '../../Courses/Data/Relations/CourseAssignmentModel.js';
 //import { EventModel } from '@modules/Event/Data/EventModel'
 import { CourseMaterialReactionModel } from '../../Courses/Data/Relations/CourseMaterialReactionModel.js';
+import { UserSettingsModel } from '../../UserSettings/Data/UserSettingsModel.js';
 export const CoreDataSource = new DataSource({
     type: 'mysql',
     host: process.env.DB_HOST,
@@ -48,6 +49,7 @@ export const CoreDataSource = new DataSource({
         MediaModel,
         UserModel,
         UserAvatarModel,
+        UserSettingsModel,
         MentorAssignmentModel,
         CourseAssignmentModel,
         CourseModel,

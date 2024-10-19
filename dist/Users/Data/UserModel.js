@@ -23,6 +23,7 @@ import { config } from '../../config.js';
 import { NotificationModel } from '../../Notifications/Data/NotificationModel.js';
 import { CourseAssignmentModel } from '../../Courses/Data/Relations/CourseAssignmentModel.js';
 import { CourseMaterialReactionModel } from '../../Courses/Data/Relations/CourseMaterialReactionModel.js';
+import { UserSettingsModel } from '../../UserSettings/Data/UserSettingsModel.js';
 let UserModel = class UserModel extends SearchableModel {
     constructor(data) {
         super();
@@ -58,8 +59,7 @@ let UserModel = class UserModel extends SearchableModel {
     sessions;
     snippets;
     avatar;
-    //@OneToMany(() => EventModel, (event) => event.user)
-    //events?: Event[]
+    settings;
     telegramId;
     telegramUsername;
     telegramNotificationsEnabled;
@@ -231,6 +231,10 @@ __decorate([
     JoinColumn(),
     __metadata("design:type", Object)
 ], UserModel.prototype, "avatar", void 0);
+__decorate([
+    OneToOne(() => UserSettingsModel, (settings) => settings.user),
+    __metadata("design:type", Object)
+], UserModel.prototype, "settings", void 0);
 __decorate([
     Column({
         name: 'telegram_id',

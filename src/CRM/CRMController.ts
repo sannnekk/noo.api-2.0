@@ -3,6 +3,7 @@ import { Context } from '@modules/Core/Request/Context'
 import { ApiResponse } from '@modules/Core/Response/ApiResponse'
 import { DealsService } from './Services/DealsService'
 import CrmAsserts from './Security/CrmAsserts'
+import { log } from '@modules/Core/Logs/Logger'
 //import { log } from '@modules/Core/Logs/Logger'
 
 @Controller('/crm')
@@ -18,7 +19,7 @@ export class CRMController {
     try {
       CrmAsserts.hasSecret(context)
 
-      //log('crm', 'Заявка на создание', context.body as any)
+      log('crm', 'Заявка на создание', context.body as any)
 
       //await this.dealsService.create('mock', 'abracadabra')
 
@@ -34,7 +35,7 @@ export class CRMController {
       CrmAsserts.hasSecret(context)
 
       //log('debug', 'Canceling deal')
-      //log('crm', 'Заявка на отмену', context.body as any)
+      log('crm', 'Заявка на отмену', context.body as any)
 
       //await this.dealsService.remove('mock')
 

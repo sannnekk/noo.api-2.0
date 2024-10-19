@@ -13,12 +13,15 @@ import { Controller, Delete, Get, Patch } from 'express-controller-decorator';
 import { ApiResponse } from '../Core/Response/ApiResponse.js';
 import { UserValidator } from './UserValidator.js';
 import { UserService } from './Services/UserService.js';
+import { UserSettingsService } from '../UserSettings/Services/UserSettingsService.js';
 let UserController = class UserController {
     userValidator;
     userService;
+    userSettingsService;
     constructor() {
         this.userValidator = new UserValidator();
         this.userService = new UserService();
+        this.userSettingsService = new UserSettingsService();
     }
     async getByUsername(context) {
         try {

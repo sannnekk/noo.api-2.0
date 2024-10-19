@@ -25,6 +25,7 @@ import './Subjects/SubjectController.js';
 import './Snippets/SnippetsController.js';
 import './FAQ/FAQController.js';
 import './Notifications/NotificationController.js';
+import './UserSettings/UserSettingsController.js';
 log('info', 'Container created', 'A new container created');
 await CoreDataSource.initialize();
 const app = express();

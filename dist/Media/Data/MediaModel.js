@@ -15,6 +15,7 @@ import { PollAnswerModel } from '../../Polls/Data/Relations/PollAnswerModel.js';
 import { BlogPostModel } from '../../Blog/Data/BlogPostModel.js';
 import { UserAvatarModel } from '../../Users/Data/Relations/UserAvatarModel.js';
 import { config } from '../../config.js';
+import { UserSettingsModel } from '../../UserSettings/Data/UserSettingsModel.js';
 let MediaModel = class MediaModel extends Model {
     constructor(data) {
         super();
@@ -31,6 +32,7 @@ let MediaModel = class MediaModel extends Model {
     pollAnswer;
     blogPost;
     avatar;
+    userSettings;
 };
 __decorate([
     Column({
@@ -96,6 +98,10 @@ __decorate([
     }),
     __metadata("design:type", UserAvatarModel)
 ], MediaModel.prototype, "avatar", void 0);
+__decorate([
+    OneToOne(() => UserSettingsModel, (settings) => settings.backgroundImage),
+    __metadata("design:type", UserSettingsModel)
+], MediaModel.prototype, "userSettings", void 0);
 MediaModel = __decorate([
     Entity('media', {
         orderBy: {

@@ -66,10 +66,10 @@ async function telegramLog(
       ? `<b>Message: ${id}</b>\n<pre expandable>${data}</pre>`
       : `<b>Error Id: ${id}</b>\nLevel: ${levelEmoji}\n\n<pre expandable>${data}</pre>`
 
-  await send(chatId, message, token)
-
   if (level === 'crm' && eleonorChatId) {
     await send(eleonorChatId, message, token)
+  } else if (level !== 'crm') {
+    await send(chatId, message, token)
   }
 }
 

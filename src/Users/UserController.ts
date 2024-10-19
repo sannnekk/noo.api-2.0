@@ -4,6 +4,7 @@ import { Controller, Delete, Get, Patch } from 'express-controller-decorator'
 import { ApiResponse } from '@modules/Core/Response/ApiResponse'
 import { UserValidator } from './UserValidator'
 import { UserService } from './Services/UserService'
+import { UserSettingsService } from '../UserSettings/Services/UserSettingsService'
 
 @Controller('/user')
 export class UserController {
@@ -11,9 +12,12 @@ export class UserController {
 
   private readonly userService: UserService
 
+  private readonly userSettingsService: UserSettingsService
+
   constructor() {
     this.userValidator = new UserValidator()
     this.userService = new UserService()
+    this.userSettingsService = new UserSettingsService()
   }
 
   @Get('/:username')
