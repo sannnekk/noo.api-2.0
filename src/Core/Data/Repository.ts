@@ -52,6 +52,15 @@ type FindOneOptions = {
   relationLoadStrategy?: 'query' | 'join'
 }
 
+type FindAllOptions = {
+  /**
+   * Load relations using query builder instead of join
+   *
+   * @default 'join'
+   */
+  joinStrategy?: 'query' | 'join'
+}
+
 /**
  * Generic repository class to use for all repositories
  */
@@ -242,16 +251,19 @@ export abstract class Repository<T extends BaseModel> {
    * @param conditions The conditions to find the entity with (ActiveRecord style)
    * @param relations The relations to load with the entity
    * @param sort The sort options to use
+   * @param options The find all options
    */
   async findAll(
     conditions?: FindOptionsWhere<T> | FindOptionsWhere<T>[],
     relations?: Readonly<RelationsType<T>>,
-    sort?: TypeORM.FindOptionsOrder<T>
+    sort?: TypeORM.FindOptionsOrder<T>,
+    options?: FindAllOptions
   ): Promise<T[]> {
     return this.repository.find({
       relations: (relations as string[]) || undefined,
       where: conditions,
       order: sort,
+      relationLoadStrategy: options?.joinStrategy || 'join',
     }) as Promise<unknown> as Promise<T[]>
   }
 

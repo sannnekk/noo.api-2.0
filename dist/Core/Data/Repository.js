@@ -163,12 +163,14 @@ export class Repository {
      * @param conditions The conditions to find the entity with (ActiveRecord style)
      * @param relations The relations to load with the entity
      * @param sort The sort options to use
+     * @param options The find all options
      */
-    async findAll(conditions, relations, sort) {
+    async findAll(conditions, relations, sort, options) {
         return this.repository.find({
             relations: relations || undefined,
             where: conditions,
             order: sort,
+            relationLoadStrategy: options?.joinStrategy || 'join',
         });
     }
     /**

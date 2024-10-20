@@ -16,6 +16,7 @@ export interface CourseMaterial {
   chapter?: CourseChapter
   work: Work | null
   workId?: string
+  //isWorkAvailable: boolean
   workSolveDeadline: Date | null
   workCheckDeadline: Date | null
   files: Media[]
@@ -23,6 +24,7 @@ export interface CourseMaterial {
   poll?: Poll
   pollId?: Poll['id']
   myReaction?: string
+  //activateAt: Date | null
   createdAt: Date
   updatedAt: Date
 }

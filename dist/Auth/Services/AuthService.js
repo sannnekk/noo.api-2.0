@@ -3,7 +3,6 @@ import * as JWT from '../../Core/Security/jwt.js';
 import { UnauthenticatedError } from '../../Core/Errors/UnauthenticatedError.js';
 import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
 import { AlreadyExistError } from '../../Core/Errors/AlreadyExistError.js';
-import { UnknownError } from '../../Core/Errors/UnknownError.js';
 import { EmailService } from '../../Core/Email/EmailService.js';
 import { InvalidVerificationTokenError } from '../Errors/InvalidVerificationTokenError.js';
 import { SessionService } from '../../Sessions/Services/SessionService.js';
@@ -23,15 +22,7 @@ export class AuthService {
     }
     async create(user) {
         user.password = await Hash.hash(user.password);
-        try {
-            await this.userRepository.create(user);
-        }
-        catch (error) {
-            if (error?.code === '23505') {
-                throw new AlreadyExistError();
-            }
-            throw new UnknownError();
-        }
+        await this.userRepository.create(user);
     }
     async register(registerDTO) {
         // every user is a student at the moment of registration
@@ -50,7 +41,6 @@ export class AuthService {
         if (existingEmail) {
             throw new AlreadyExistError('Пользователь с таким email уже существует.');
         }
-        //await this.userRepository.setRandomMentor(user)
         await this.create(user);
         await this.emailService.sendVerificationEmail(user.email, user.username, user.name, user.verificationToken);
         await this.notificationService.generateAndSend('welcome', user.id);

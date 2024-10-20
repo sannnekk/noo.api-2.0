@@ -3,7 +3,6 @@ import * as JWT from '@modules/Core/Security/jwt'
 import { UnauthenticatedError } from '@modules/Core/Errors/UnauthenticatedError'
 import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
 import { AlreadyExistError } from '@modules/Core/Errors/AlreadyExistError'
-import { UnknownError } from '@modules/Core/Errors/UnknownError'
 import { EmailService } from '@modules/Core/Email/EmailService'
 import { LoginDTO } from '../DTO/LoginDTO'
 import { InvalidVerificationTokenError } from '../Errors/InvalidVerificationTokenError'
@@ -34,15 +33,7 @@ export class AuthService {
   public async create(user: User): Promise<void> {
     user.password = await Hash.hash(user.password!)
 
-    try {
-      await this.userRepository.create(user)
-    } catch (error: any) {
-      if (error?.code === '23505') {
-        throw new AlreadyExistError()
-      }
-
-      throw new UnknownError()
-    }
+    await this.userRepository.create(user)
   }
 
   public async register(registerDTO: RegisterDTO): Promise<void> {
@@ -67,8 +58,6 @@ export class AuthService {
     if (existingEmail) {
       throw new AlreadyExistError('Пользователь с таким email уже существует.')
     }
-
-    //await this.userRepository.setRandomMentor(user)
 
     await this.create(user)
 

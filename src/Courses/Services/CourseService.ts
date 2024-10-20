@@ -114,6 +114,9 @@ export class CourseService {
         materials: {
           order: 'ASC',
         },
+      },
+      {
+        joinStrategy: 'query',
       }
     )
 

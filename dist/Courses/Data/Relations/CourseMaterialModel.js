@@ -36,8 +36,20 @@ let CourseMaterialModel = class CourseMaterialModel extends Model {
     content;
     workSolveDeadline;
     workCheckDeadline;
+    /* @Column({
+      name: 'is_work_available',
+      type: 'boolean',
+      default: true,
+    })
+    isWorkAvailable!: boolean */
     order;
     isActive;
+    /* @Column({
+      name: 'activate_at',
+      type: 'timestamp',
+      nullable: true,
+    })
+    activateAt!: Date | null */
     chapter;
     chapterId;
     work;

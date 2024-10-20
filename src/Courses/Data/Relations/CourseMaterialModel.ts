@@ -80,6 +80,13 @@ export class CourseMaterialModel extends Model implements CourseMaterial {
   })
   workCheckDeadline!: Date | null
 
+  /* @Column({
+    name: 'is_work_available',
+    type: 'boolean',
+    default: true,
+  })
+  isWorkAvailable!: boolean */
+
   @Column({
     name: 'order',
     type: 'int',
@@ -93,6 +100,13 @@ export class CourseMaterialModel extends Model implements CourseMaterial {
     default: false,
   })
   isActive!: boolean
+
+  /* @Column({
+    name: 'activate_at',
+    type: 'timestamp',
+    nullable: true,
+  })
+  activateAt!: Date | null */
 
   @ManyToOne(
     () => CourseChapterModel,

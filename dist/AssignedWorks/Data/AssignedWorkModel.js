@@ -24,9 +24,9 @@ let AssignedWorkModel = class AssignedWorkModel extends SearchableModel {
             if (!data.slug) {
                 this.slug = this.sluggify();
             }
-            if (data.mentors) {
-                this.mentors = data.mentors.map((mentor) => new UserModel(mentor));
-            }
+            /* if (data.mentors) {
+              this.mentors = data.mentors.map((mentor) => new UserModel(mentor))
+            } */
             if (data.answers) {
                 this.answers = data.answers.map((answer) => new AssignedWorkAnswerModel(answer));
             }

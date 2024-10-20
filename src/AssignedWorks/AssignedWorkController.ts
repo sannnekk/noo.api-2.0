@@ -223,6 +223,7 @@ export class AssignedWorkController {
     try {
       await Asserts.isAuthenticated(context)
       Asserts.mentorOrStudent(context)
+
       const workId = this.assignedWorkValidator.parseId(context.params.id)
       const saveOptions = this.assignedWorkValidator.parseSave(context.body)
 

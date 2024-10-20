@@ -75,6 +75,8 @@ export class CourseService {
             materials: {
                 order: 'ASC',
             },
+        }, {
+            joinStrategy: 'query',
         });
         if (chapters.length === 0) {
             throw new CourseIsEmptyError();
