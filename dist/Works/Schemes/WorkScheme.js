@@ -7,7 +7,7 @@ export const WorkScheme = z.object({
     name: z
         .string()
         .min(1, 'Нет названия работы')
-        .max(100, 'Название работы слишком длинное, максимум 100 символов разрешено'),
+        .max(200, 'Название работы слишком длинное, максимум 100 символов разрешено'),
     type: WorkTypeScheme,
     description: z.string().optional(),
     tasks: z.array(TaskScheme),
