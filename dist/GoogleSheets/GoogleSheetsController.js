@@ -29,7 +29,7 @@ let GoogleSheetsController = class GoogleSheetsController {
             return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async createBinding(context) {
@@ -41,7 +41,7 @@ let GoogleSheetsController = class GoogleSheetsController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async triggerBinding(context) {
@@ -53,7 +53,7 @@ let GoogleSheetsController = class GoogleSheetsController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async switchOnOffBinding(context) {
@@ -65,7 +65,7 @@ let GoogleSheetsController = class GoogleSheetsController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async deleteBinding(context) {
@@ -77,7 +77,7 @@ let GoogleSheetsController = class GoogleSheetsController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
 };

@@ -29,7 +29,7 @@ let AuthController = class AuthController {
             return new ApiResponse({ data: payload });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async register(context) {
@@ -39,7 +39,7 @@ let AuthController = class AuthController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async checkUsername(context) {
@@ -49,7 +49,7 @@ let AuthController = class AuthController {
             return new ApiResponse({ data: { exists } });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async resendVerification(context) {
@@ -59,7 +59,7 @@ let AuthController = class AuthController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async verify(context) {
@@ -69,7 +69,7 @@ let AuthController = class AuthController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async verifyEmailChange(context) {
@@ -79,7 +79,7 @@ let AuthController = class AuthController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async forgotPassword(context) {
@@ -89,7 +89,7 @@ let AuthController = class AuthController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
 };

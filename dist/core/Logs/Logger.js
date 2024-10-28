@@ -1,9 +1,10 @@
+import logConsole from './ConsoleLogger.js';
 import logFile from './FileLogger.js';
 import logTelegram from './TelegramLogger.js';
-export function log(level, id, data) {
+export function log(level, id, data, context) {
     if (process.env.LOG_MODE === 'console') {
         // eslint-disable-next-line no-console
-        console.log(data);
+        logConsole(level, id, data, context);
         return;
     }
     if (process.env.LOG_MODE === 'file') {
@@ -11,7 +12,7 @@ export function log(level, id, data) {
         return;
     }
     if (process.env.LOG_MODE === 'telegram') {
-        logTelegram(id, level, data);
+        logTelegram(id, level, data, context);
         return;
     }
 }

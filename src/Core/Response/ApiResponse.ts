@@ -4,6 +4,7 @@ import { InternalError } from '../Errors/InternalError'
 import type { RequestMeta } from './RequestMeta'
 import { AppError } from '../Errors/AppError'
 import { log } from '../Logs/Logger'
+import { Context } from '../Request/Context'
 
 export interface Response {
   data: any
@@ -14,17 +15,23 @@ export interface Response {
 export class ApiResponse extends ControllerResponse {
   /*
    * constructor
+   *
+   * @param {null | undefined | Response | Error} body - response body
+   * @param {Context | undefined} context - request context (only useable for error reposrting)
    */
-  constructor(body?: null | undefined | Response | Error) {
+  constructor(body?: null | undefined | Response | Error, context?: Context) {
     super()
 
-    this.init(body)
+    this.init(body, context)
   }
 
   /*
    * init
    */
-  private init(payload: null | undefined | Response | Error) {
+  private init(
+    payload: null | undefined | Response | Error,
+    context?: Context
+  ) {
     if (payload === null || payload === undefined) {
       this.status = StatusCodes.NO_CONTENT
       this.body = undefined
@@ -43,7 +50,7 @@ export class ApiResponse extends ControllerResponse {
             errorId,
         }
 
-        return log('error', errorId, payload)
+        return log('error', errorId, payload, context)
       }
 
       const { status, message } = this.getErrorData(payload)

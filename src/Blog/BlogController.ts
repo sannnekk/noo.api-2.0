@@ -38,7 +38,7 @@ export class BlogController {
         meta,
       })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -55,7 +55,7 @@ export class BlogController {
 
       return new ApiResponse({ data: post })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -74,7 +74,7 @@ export class BlogController {
 
       return new ApiResponse({ data: newCounts })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -92,7 +92,7 @@ export class BlogController {
 
       return new ApiResponse({ data: createdPost })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -108,7 +108,7 @@ export class BlogController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -123,7 +123,7 @@ export class BlogController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 }

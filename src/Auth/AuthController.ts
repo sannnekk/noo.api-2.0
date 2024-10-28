@@ -28,7 +28,7 @@ export class AuthController {
 
       return new ApiResponse({ data: payload })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -40,7 +40,7 @@ export class AuthController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -53,7 +53,7 @@ export class AuthController {
 
       return new ApiResponse({ data: { exists } })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -67,7 +67,7 @@ export class AuthController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -83,7 +83,7 @@ export class AuthController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -100,7 +100,7 @@ export class AuthController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -115,7 +115,7 @@ export class AuthController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 }

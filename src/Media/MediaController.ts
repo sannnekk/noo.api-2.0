@@ -28,7 +28,7 @@ export class MediaController {
 
       return new ApiResponse({ data: mediaFiles })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 }

@@ -38,7 +38,7 @@ export class NotificationsController {
 
       return new ApiResponse({ data: entities, meta })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -53,7 +53,7 @@ export class NotificationsController {
 
       return new ApiResponse({ data: count })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -68,7 +68,7 @@ export class NotificationsController {
 
       return new ApiResponse({ data: count })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -81,7 +81,7 @@ export class NotificationsController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -100,7 +100,7 @@ export class NotificationsController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -116,7 +116,7 @@ export class NotificationsController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 }

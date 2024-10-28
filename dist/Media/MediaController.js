@@ -29,7 +29,7 @@ let MediaController = class MediaController {
             return new ApiResponse({ data: mediaFiles });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
 };

@@ -34,7 +34,7 @@ export class SnippetsController {
 
       return new ApiResponse({ data: snippets })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -53,7 +53,7 @@ export class SnippetsController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -74,7 +74,7 @@ export class SnippetsController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -90,7 +90,7 @@ export class SnippetsController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 }

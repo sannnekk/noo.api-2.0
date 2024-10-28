@@ -6,15 +6,18 @@ import { log } from '../Logs/Logger.js';
 export class ApiResponse extends ControllerResponse {
     /*
      * constructor
+     *
+     * @param {null | undefined | Response | Error} body - response body
+     * @param {Context | undefined} context - request context (only useable for error reposrting)
      */
-    constructor(body) {
+    constructor(body, context) {
         super();
-        this.init(body);
+        this.init(body, context);
     }
     /*
      * init
      */
-    init(payload) {
+    init(payload, context) {
         if (payload === null || payload === undefined) {
             this.status = StatusCodes.NO_CONTENT;
             this.body = undefined;
@@ -28,7 +31,7 @@ export class ApiResponse extends ControllerResponse {
                     error: 'Системная ошибка. Пожалуйста, сообщите об этом в поддержку. Передайте в поддержку следующий идентификатор ошибки: ' +
                         errorId,
                 };
-                return log('error', errorId, payload);
+                return log('error', errorId, payload, context);
             }
             const { status, message } = this.getErrorData(payload);
             this.status = status;

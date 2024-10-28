@@ -27,7 +27,7 @@ let SessionController = class SessionController {
             return new ApiResponse({ data: sessions });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async deleteCurrentSession(context) {
@@ -37,7 +37,7 @@ let SessionController = class SessionController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async deleteSession(context) {
@@ -48,7 +48,7 @@ let SessionController = class SessionController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
 };

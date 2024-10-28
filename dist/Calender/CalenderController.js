@@ -28,7 +28,7 @@ let CalenderController = class CalenderController {
             return new ApiResponse({ data: calenderEvent });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async getCalenderEvents(context) {
@@ -39,7 +39,7 @@ let CalenderController = class CalenderController {
             return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async deleteCalenderEvent(context) {
@@ -50,7 +50,7 @@ let CalenderController = class CalenderController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
 };

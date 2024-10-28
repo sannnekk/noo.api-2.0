@@ -29,7 +29,7 @@ let FAQController = class FAQController {
             return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async getArticle(context) {
@@ -40,7 +40,7 @@ let FAQController = class FAQController {
             return new ApiResponse({ data: article });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async getCategoryTree(context) {
@@ -50,7 +50,7 @@ let FAQController = class FAQController {
             return new ApiResponse({ data: categories });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async getTreeWithArticles(context) {
@@ -60,7 +60,7 @@ let FAQController = class FAQController {
             return new ApiResponse({ data: categories });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async searchCategories(context) {
@@ -72,7 +72,7 @@ let FAQController = class FAQController {
             return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async createArticle(context) {
@@ -84,7 +84,7 @@ let FAQController = class FAQController {
             return new ApiResponse({ data: faq });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async createCategory(context) {
@@ -96,7 +96,7 @@ let FAQController = class FAQController {
             return new ApiResponse({ data: category });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async updateFAQ(context) {
@@ -109,7 +109,7 @@ let FAQController = class FAQController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async updateCategory(context) {
@@ -122,7 +122,7 @@ let FAQController = class FAQController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async deleteFAQ(context) {
@@ -134,7 +134,7 @@ let FAQController = class FAQController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async deleteCategory(context) {
@@ -146,7 +146,7 @@ let FAQController = class FAQController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
 };

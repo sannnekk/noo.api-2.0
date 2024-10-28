@@ -28,7 +28,7 @@ let SubjectController = class SubjectController {
             return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async createSubject(context) {
@@ -40,7 +40,7 @@ let SubjectController = class SubjectController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async updateSubject(context) {
@@ -53,7 +53,7 @@ let SubjectController = class SubjectController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async deleteSubject(context) {
@@ -65,7 +65,7 @@ let SubjectController = class SubjectController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
 };

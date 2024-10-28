@@ -34,7 +34,7 @@ export class SubjectController {
 
       return new ApiResponse({ data: entities, meta })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -50,7 +50,7 @@ export class SubjectController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -67,7 +67,7 @@ export class SubjectController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -83,7 +83,7 @@ export class SubjectController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 }

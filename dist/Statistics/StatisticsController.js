@@ -29,7 +29,7 @@ let StatisticsController = class StatisticsController {
             return new ApiResponse({ data: statistics });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
 };

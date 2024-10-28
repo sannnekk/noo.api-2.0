@@ -27,7 +27,7 @@ let PlatformController = class PlatformController {
             return new ApiResponse({ data: result });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async changelog(context) {
@@ -38,7 +38,7 @@ let PlatformController = class PlatformController {
             return new ApiResponse({ data: changelog });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async changelogOfVersion(context) {
@@ -50,7 +50,7 @@ let PlatformController = class PlatformController {
             return new ApiResponse({ data: changelog });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async healthcheck(context) {
@@ -61,7 +61,7 @@ let PlatformController = class PlatformController {
             return new ApiResponse({ data: result });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async heapdump(context) {
@@ -76,7 +76,7 @@ let PlatformController = class PlatformController {
             });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
 };

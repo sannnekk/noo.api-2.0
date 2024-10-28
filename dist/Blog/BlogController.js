@@ -31,7 +31,7 @@ let BlogController = class BlogController {
             });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async getPost(context) {
@@ -42,7 +42,7 @@ let BlogController = class BlogController {
             return new ApiResponse({ data: post });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async reactToPost(context) {
@@ -54,7 +54,7 @@ let BlogController = class BlogController {
             return new ApiResponse({ data: newCounts });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async createPost(context) {
@@ -66,7 +66,7 @@ let BlogController = class BlogController {
             return new ApiResponse({ data: createdPost });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async updatePost(context) {
@@ -79,7 +79,7 @@ let BlogController = class BlogController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async deletePost(context) {
@@ -91,7 +91,7 @@ let BlogController = class BlogController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
 };

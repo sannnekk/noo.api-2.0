@@ -27,7 +27,7 @@ let CRMController = class CRMController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async onDealrefund(context) {
@@ -39,7 +39,7 @@ let CRMController = class CRMController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
 };

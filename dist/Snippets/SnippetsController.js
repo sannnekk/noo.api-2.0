@@ -29,7 +29,7 @@ let SnippetsController = class SnippetsController {
             return new ApiResponse({ data: snippets });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async createSnippet(context) {
@@ -41,7 +41,7 @@ let SnippetsController = class SnippetsController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async updateSnippet(context) {
@@ -54,7 +54,7 @@ let SnippetsController = class SnippetsController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async deleteSnippet(context) {
@@ -66,7 +66,7 @@ let SnippetsController = class SnippetsController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
 };

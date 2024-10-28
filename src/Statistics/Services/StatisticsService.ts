@@ -10,7 +10,7 @@ import { AssignedWorkRepository } from '../../AssignedWorks/Data/AssignedWorkRep
 import { StatisticsOptions } from '../DTO/StatisticsOptions'
 import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
 import { SessionService } from '@modules/Sessions/Services/SessionService'
-import type { DatePrecision } from '@modules/Core/Utils/date'
+import Dates, { DatePrecision } from '@modules/Core/Utils/date'
 
 export class StatisticsService {
   private readonly assignedWorkRepository: AssignedWorkRepository
@@ -139,7 +139,10 @@ export class StatisticsService {
         .where(this.getDateRange('user.created_at', from, to))
         .groupBy('date')
         .getRawMany()
-    ).map((item) => ({ date: new Date(item.date), count: item.count }))
+    ).map((item) => ({
+      date: Dates.format(item.date, 'YYYY-MM-DD'),
+      count: item.count,
+    }))
 
     const newUsersPerDayPlot = this.plotService.generatePlot<
       (typeof newUsersPerDay)[0]
@@ -147,7 +150,7 @@ export class StatisticsService {
       'Новые пользователи в день',
       newUsersPerDay,
       'secondary',
-      (e) => e.date.toISOString().split('T')[0],
+      (e) => e.date,
       (e) => parseInt(e.count)
     )
 
@@ -163,7 +166,10 @@ export class StatisticsService {
         .groupBy('date')
         .orderBy('date', 'ASC')
         .getRawMany()
-    ).map((item) => ({ date: new Date(item.date), count: item.count }))
+    ).map((item) => ({
+      date: Dates.format(item.date, 'YYYY-MM-DD'),
+      count: item.count,
+    }))
 
     const worksSolvedPerDayPlot = this.plotService.generatePlot<
       (typeof worksSolvedPerDay)[0]
@@ -171,35 +177,9 @@ export class StatisticsService {
       'Сдано работ в день',
       worksSolvedPerDay,
       'secondary',
-      (e) => e.date.toISOString().split('T')[0],
+      (e) => e.date,
       (e) => parseInt(e.count)
     )
-
-    /* const worksSolvedTOdayEvery15Minutes =
-      await assignedWorkRepositoryQueryBuilder
-        .select([
-          'DATEPART(HOUR, assignedWork.solvedAt) AS hour',
-          '(DATEPART(MINUTE, assignedWork.solvedAt) / 15) * 15 AS minuteInterval',
-          'COUNT(*) AS solvedCount',
-        ])
-        .where('CAST(assignedWork.solvedAt AS DATE) = :date', {
-          date: to.toISOString().split('T')[0],
-        })
-        .groupBy('DATEPART(HOUR, assignedWork.solvedAt)')
-        .addGroupBy('(DATEPART(MINUTE, assignedWork.solvedAt) / 15) * 15')
-        .orderBy('hour')
-        .addOrderBy('minuteInterval')
-        .getRawMany() */
-
-    /* const worksSolvedTOdayEvery15MinutesPlot = this.plotService.generatePlot<
-      (typeof worksSolvedTOdayEvery15Minutes)[0]
-    >(
-      'Сдано работ по времени за последний день выбранного периода',
-      worksSolvedTOdayEvery15Minutes,
-      'secondary',
-      (e) => e.date.toISOString().split('T')[1],
-      (e) => parseInt(e.count)
-    ) */
 
     return {
       sections: [

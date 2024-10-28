@@ -38,7 +38,7 @@ export class AssignedWorkController {
 
       return new ApiResponse({ data: entities, meta })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -60,7 +60,7 @@ export class AssignedWorkController {
 
       return new ApiResponse({ data: entities, meta })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -85,7 +85,7 @@ export class AssignedWorkController {
 
       return new ApiResponse({ data: work })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -104,7 +104,7 @@ export class AssignedWorkController {
 
       return new ApiResponse({ data: progress })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -118,7 +118,7 @@ export class AssignedWorkController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -138,7 +138,7 @@ export class AssignedWorkController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -158,7 +158,7 @@ export class AssignedWorkController {
 
       return new ApiResponse({ data: { link } })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -178,7 +178,7 @@ export class AssignedWorkController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -198,7 +198,7 @@ export class AssignedWorkController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -214,7 +214,7 @@ export class AssignedWorkController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -235,7 +235,7 @@ export class AssignedWorkController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -258,7 +258,7 @@ export class AssignedWorkController {
 
       return new ApiResponse({ data: answerId })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -281,7 +281,7 @@ export class AssignedWorkController {
 
       return new ApiResponse({ data: commentId })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -299,7 +299,7 @@ export class AssignedWorkController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -317,7 +317,7 @@ export class AssignedWorkController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -339,7 +339,7 @@ export class AssignedWorkController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -357,7 +357,7 @@ export class AssignedWorkController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -376,7 +376,7 @@ export class AssignedWorkController {
 
       return new ApiResponse({ data: newDeadlines })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -394,7 +394,7 @@ export class AssignedWorkController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -413,7 +413,7 @@ export class AssignedWorkController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 }

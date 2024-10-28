@@ -28,7 +28,7 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async getFromUser(context) {
@@ -41,7 +41,7 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async getOne(context) {
@@ -58,7 +58,7 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse({ data: work });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async getProgressByWorkId(context) {
@@ -70,7 +70,7 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse({ data: progress });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async create(context) {
@@ -81,7 +81,7 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async remake(context) {
@@ -94,7 +94,7 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async getOrCreate(context) {
@@ -106,7 +106,7 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse({ data: { link } });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async solve(context) {
@@ -119,7 +119,7 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async check(context) {
@@ -132,7 +132,7 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async rechekAutomatically(context) {
@@ -144,7 +144,7 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async save(context) {
@@ -157,7 +157,7 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async saveAnswer(context) {
@@ -170,7 +170,7 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse({ data: answerId });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async saveComment(context) {
@@ -183,7 +183,7 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse({ data: commentId });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async archive(context) {
@@ -195,7 +195,7 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async unarchive(context) {
@@ -207,7 +207,7 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async transfer(context) {
@@ -220,7 +220,7 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async replaceMentor(context) {
@@ -233,7 +233,7 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async shiftDeadline(context) {
@@ -245,7 +245,7 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse({ data: newDeadlines });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async sendToRevision(context) {
@@ -257,7 +257,7 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async delete(context) {
@@ -269,7 +269,7 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
 };

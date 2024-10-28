@@ -59,6 +59,23 @@ function addDays(date: Date, days: number): Date {
   return date
 }
 
+function format(date: Date, formatStr: string): string {
+  const year = date.getFullYear()
+  const month = ('0' + (date.getMonth() + 1)).slice(-2)
+  const day = ('0' + date.getDate()).slice(-2)
+  const hours = ('0' + date.getHours()).slice(-2)
+  const minutes = ('0' + date.getMinutes()).slice(-2)
+  const seconds = ('0' + date.getSeconds()).slice(-2)
+
+  return formatStr
+    .replace('YYYY', year.toString())
+    .replace('MM', month)
+    .replace('DD', day)
+    .replace('HH', hours)
+    .replace('mm', minutes)
+    .replace('ss', seconds)
+}
+
 export default {
   toISOString,
   fromISOString,
@@ -69,4 +86,5 @@ export default {
   now,
   addDays,
   isInLast,
+  format,
 }

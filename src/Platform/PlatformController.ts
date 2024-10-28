@@ -25,7 +25,7 @@ export class PlatformController {
 
       return new ApiResponse({ data: result })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -39,7 +39,7 @@ export class PlatformController {
 
       return new ApiResponse({ data: changelog })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -57,7 +57,7 @@ export class PlatformController {
 
       return new ApiResponse({ data: changelog })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -71,7 +71,7 @@ export class PlatformController {
 
       return new ApiResponse({ data: result })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -89,7 +89,7 @@ export class PlatformController {
         },
       })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 }

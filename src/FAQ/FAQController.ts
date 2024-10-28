@@ -37,7 +37,7 @@ export class FAQController {
 
       return new ApiResponse({ data: entities, meta })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -55,7 +55,7 @@ export class FAQController {
 
       return new ApiResponse({ data: article })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -68,7 +68,7 @@ export class FAQController {
 
       return new ApiResponse({ data: categories })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -81,7 +81,7 @@ export class FAQController {
 
       return new ApiResponse({ data: categories })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -98,7 +98,7 @@ export class FAQController {
 
       return new ApiResponse({ data: entities, meta })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -114,7 +114,7 @@ export class FAQController {
 
       return new ApiResponse({ data: faq })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -130,7 +130,7 @@ export class FAQController {
 
       return new ApiResponse({ data: category })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -147,7 +147,7 @@ export class FAQController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -164,7 +164,7 @@ export class FAQController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -180,7 +180,7 @@ export class FAQController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -196,7 +196,7 @@ export class FAQController {
 
       return new ApiResponse()
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 }

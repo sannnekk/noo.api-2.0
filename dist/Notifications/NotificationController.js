@@ -28,7 +28,7 @@ let NotificationsController = class NotificationsController {
             return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async getUnread(context) {
@@ -38,7 +38,7 @@ let NotificationsController = class NotificationsController {
             return new ApiResponse({ data: count });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async getUnreadCount(context) {
@@ -48,7 +48,7 @@ let NotificationsController = class NotificationsController {
             return new ApiResponse({ data: count });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async markAllAsRead(context) {
@@ -58,7 +58,7 @@ let NotificationsController = class NotificationsController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async create(context) {
@@ -69,7 +69,7 @@ let NotificationsController = class NotificationsController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async delete(context) {
@@ -81,7 +81,7 @@ let NotificationsController = class NotificationsController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
 };

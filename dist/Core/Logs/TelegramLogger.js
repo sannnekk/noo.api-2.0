@@ -1,5 +1,42 @@
 import { send } from '../Utils/telegram.js';
-async function telegramLog(id, level, data) {
+function prepareMessage(level, id, data, context) {
+    if (level === 'crm') {
+        return `<b>Message: ${id}</b>\n<pre expandable>${data}</pre>`;
+    }
+    let levelEmoji = '';
+    switch (level) {
+        case 'error':
+            levelEmoji = '❌';
+            break;
+        case 'debug':
+            levelEmoji = '🐛';
+            break;
+        case 'info':
+            levelEmoji = '📃';
+            break;
+        case 'warning':
+            levelEmoji = '⚠️';
+            break;
+    }
+    let message = `<b>Error Id: ${id}</b>\n`;
+    message += `Level: ${levelEmoji}\n`;
+    if (context) {
+        if (context.method) {
+            message += `Method: <i>${context?.method}</i>\n`;
+        }
+        if (context.path) {
+            message += `Route: <i>${context?.path}</i>\n`;
+        }
+        if (context.credentials) {
+            message += `User: <i>${context?.credentials?.username}</i>\n`;
+            message += `User role: <i>${context?.credentials?.role}</i>\n`;
+        }
+    }
+    message += '\n';
+    message += `<pre expandable>${data}</pre>`;
+    return message;
+}
+async function telegramLog(id, level, data, context) {
     const token = process.env.LOG_TELEGRAM_BOT_TOKEN;
     if (!token) {
         return;
@@ -22,21 +59,6 @@ async function telegramLog(id, level, data) {
     else {
         data = String(data);
     }
-    let levelEmoji = '';
-    switch (level) {
-        case 'error':
-            levelEmoji = '❌';
-            break;
-        case 'debug':
-            levelEmoji = '🐛';
-            break;
-        case 'info':
-            levelEmoji = '📃';
-            break;
-        case 'warning':
-            levelEmoji = '⚠️';
-            break;
-    }
     if (data.length > 3750) {
         data = data.slice(0, 3750);
     }
@@ -46,9 +68,7 @@ async function telegramLog(id, level, data) {
         .replaceAll('&', '&amp;')
         .replaceAll('"', '&quot;')
         .replaceAll('(', '(');
-    const message = level === 'crm'
-        ? `<b>Message: ${id}</b>\n<pre expandable>${data}</pre>`
-        : `<b>Error Id: ${id}</b>\nLevel: ${levelEmoji}\n\n<pre expandable>${data}</pre>`;
+    const message = prepareMessage(level, id, data, context);
     if (level === 'crm' && eleonorChatId) {
         await send(eleonorChatId, message, token);
     }

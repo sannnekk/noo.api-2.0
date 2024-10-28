@@ -27,7 +27,7 @@ let UserController = class UserController {
             return new ApiResponse({ data: userSettings });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async update(context) {
@@ -38,7 +38,7 @@ let UserController = class UserController {
             return new ApiResponse({ data: userSettings });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
 };

@@ -4,6 +4,7 @@ import { SessionOptions } from '../SessionsOptions'
 import type { Session } from './Session'
 import type { User } from '@modules/Users/Data/User'
 import type { FindOptionsWhere } from 'typeorm'
+import Dates from '@modules/Core/Utils/date'
 
 export class SessionRepository extends Repository<Session> {
   constructor() {
@@ -16,9 +17,10 @@ export class SessionRepository extends Repository<Session> {
     const query = this.queryBuilder()
       .distinctOn(['userId'])
       .where('last_request_at >= :datetime', {
-        datetime: new Date(
-          Date.now() - SessionOptions.onlineThreshold
-        ).toISOString(),
+        datetime: Dates.format(
+          new Date(Date.now() - SessionOptions.onlineThreshold),
+          'YYYY-MM-DD HH:mm:ss'
+        ),
       })
 
     if (condition) {

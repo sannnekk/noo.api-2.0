@@ -31,7 +31,7 @@ let UserController = class UserController {
             return new ApiResponse({ data: user });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async verifyManual(context) {
@@ -43,7 +43,7 @@ let UserController = class UserController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async getMentors(context) {
@@ -55,7 +55,7 @@ let UserController = class UserController {
             return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async getTeachers(context) {
@@ -67,7 +67,7 @@ let UserController = class UserController {
             return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async getStudents(context) {
@@ -79,7 +79,7 @@ let UserController = class UserController {
             return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async getMyStudents(context) {
@@ -92,7 +92,7 @@ let UserController = class UserController {
             return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async getUsers(context) {
@@ -104,7 +104,7 @@ let UserController = class UserController {
             return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async update(context) {
@@ -119,7 +119,7 @@ let UserController = class UserController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async updatePassword(context) {
@@ -134,7 +134,7 @@ let UserController = class UserController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async updateRole(context) {
@@ -147,7 +147,7 @@ let UserController = class UserController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async updateTelegram(context) {
@@ -162,7 +162,7 @@ let UserController = class UserController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async updateEmail(context) {
@@ -177,7 +177,7 @@ let UserController = class UserController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async block(context) {
@@ -189,7 +189,7 @@ let UserController = class UserController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async unblock(context) {
@@ -201,7 +201,7 @@ let UserController = class UserController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async assignMentor(context) {
@@ -215,7 +215,7 @@ let UserController = class UserController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async unassignMentor(context) {
@@ -228,7 +228,7 @@ let UserController = class UserController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async delete(context) {
@@ -243,7 +243,7 @@ let UserController = class UserController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
 };

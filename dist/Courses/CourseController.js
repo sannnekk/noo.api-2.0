@@ -29,7 +29,7 @@ let CourseController = class CourseController {
             return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async getStudentCourses(context) {
@@ -45,7 +45,7 @@ let CourseController = class CourseController {
             return new ApiResponse({ data: courseAssignments, meta });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async archive(context) {
@@ -57,7 +57,7 @@ let CourseController = class CourseController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async unarchive(context) {
@@ -69,7 +69,7 @@ let CourseController = class CourseController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async react(context) {
@@ -82,7 +82,7 @@ let CourseController = class CourseController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async getBySlug(context) {
@@ -93,7 +93,7 @@ let CourseController = class CourseController {
             return new ApiResponse({ data: course });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async getAssignedWork(context) {
@@ -105,7 +105,7 @@ let CourseController = class CourseController {
             return new ApiResponse({ data: assignedWork });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async create(context) {
@@ -117,7 +117,7 @@ let CourseController = class CourseController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async createChapter(context) {
@@ -130,7 +130,7 @@ let CourseController = class CourseController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async update(context) {
@@ -143,7 +143,7 @@ let CourseController = class CourseController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async assignWorkToMaterial(context) {
@@ -157,7 +157,7 @@ let CourseController = class CourseController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async unassignWorkFromMaterial(context) {
@@ -169,7 +169,7 @@ let CourseController = class CourseController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async getStudentList(context) {
@@ -182,7 +182,7 @@ let CourseController = class CourseController {
             return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async addStudents(context) {
@@ -195,7 +195,7 @@ let CourseController = class CourseController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async removeStudents(context) {
@@ -208,7 +208,7 @@ let CourseController = class CourseController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async addStudentsViaEmails(context) {
@@ -221,7 +221,7 @@ let CourseController = class CourseController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async removeStudentsViaEmails(context) {
@@ -234,7 +234,7 @@ let CourseController = class CourseController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async delete(context) {
@@ -246,7 +246,7 @@ let CourseController = class CourseController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
 };

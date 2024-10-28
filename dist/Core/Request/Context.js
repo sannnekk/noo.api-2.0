@@ -5,6 +5,8 @@ import { MediaHandler } from './MediaHandler.js';
 import { parseUserAgent } from '../Utils/userAgent.js';
 import { SessionService } from '../../Sessions/Services/SessionService.js';
 export class Context {
+    method = 'UNKNOWN';
+    path = '/';
     params;
     body;
     credentials;
@@ -19,6 +21,8 @@ export class Context {
         }
         this.userRepository = new UserRepository();
         this.sessionService = new SessionService();
+        this.method = req.method;
+        this.path = req.path;
         this.body = req.body;
         this.params = req.params;
         this.query = req.query;

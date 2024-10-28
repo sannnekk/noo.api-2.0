@@ -29,7 +29,7 @@ let PollController = class PollController {
             return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async getQuestions(context) {
@@ -41,7 +41,7 @@ let PollController = class PollController {
             return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async getPoll(context) {
@@ -52,7 +52,7 @@ let PollController = class PollController {
             return new ApiResponse({ data: poll });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async getPollInfo(context) {
@@ -63,7 +63,7 @@ let PollController = class PollController {
             return new ApiResponse({ data: poll });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async searchWhoVoted(context) {
@@ -75,7 +75,7 @@ let PollController = class PollController {
             return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async searchWhoVotedUnregistered(context) {
@@ -87,7 +87,7 @@ let PollController = class PollController {
             return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async getAnswers(context) {
@@ -99,7 +99,7 @@ let PollController = class PollController {
             return new ApiResponse({ data: answers });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async editAnswer(context) {
@@ -112,7 +112,7 @@ let PollController = class PollController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async saveAnswers(context) {
@@ -124,7 +124,7 @@ let PollController = class PollController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
 };

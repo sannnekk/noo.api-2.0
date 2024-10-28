@@ -27,7 +27,7 @@ export class UserController {
 
       return new ApiResponse({ data: userSettings })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 
@@ -45,7 +45,7 @@ export class UserController {
 
       return new ApiResponse({ data: userSettings })
     } catch (error: any) {
-      return new ApiResponse(error)
+      return new ApiResponse(error, context)
     }
   }
 }

@@ -29,7 +29,7 @@ let WorkController = class WorkController {
             return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async getWorkBySlug(context) {
@@ -40,7 +40,7 @@ let WorkController = class WorkController {
             return new ApiResponse({ data: work });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async getWorkRelatedMaterials(context) {
@@ -52,7 +52,7 @@ let WorkController = class WorkController {
             return new ApiResponse({ data: entities, meta });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async createWork(context) {
@@ -64,7 +64,7 @@ let WorkController = class WorkController {
             return new ApiResponse({ data: work });
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async copyWork(context) {
@@ -76,7 +76,7 @@ let WorkController = class WorkController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async updateWork(context) {
@@ -89,7 +89,7 @@ let WorkController = class WorkController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
     async deleteWork(context) {
@@ -101,7 +101,7 @@ let WorkController = class WorkController {
             return new ApiResponse();
         }
         catch (error) {
-            return new ApiResponse(error);
+            return new ApiResponse(error, context);
         }
     }
 };
