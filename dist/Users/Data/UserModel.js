@@ -169,7 +169,7 @@ __decorate([
     __metadata("design:type", Array)
 ], UserModel.prototype, "mentorAssignmentsAsStudent", void 0);
 __decorate([
-    OneToMany(() => CourseModel, (course) => course.author),
+    ManyToMany(() => CourseModel, (course) => course.authors),
     __metadata("design:type", Array)
 ], UserModel.prototype, "courses", void 0);
 __decorate([

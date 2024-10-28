@@ -52,7 +52,7 @@ export class CourseService {
   }
 
   public async get(pagination?: Pagination) {
-    return this.courseRepository.search(undefined, pagination, ['author'])
+    return this.courseRepository.search(undefined, pagination)
   }
 
   public async getStudentCourseAssignments(
@@ -75,7 +75,14 @@ export class CourseService {
     userId: User['id'],
     role: User['role']
   ): Promise<Course> {
-    const course = await this.courseRepository.findOne({ slug }, ['author'])
+    const course = await this.courseRepository.findOne(
+      { slug },
+      ['authors', 'authors.avatar'],
+      undefined,
+      {
+        relationLoadStrategy: 'query',
+      }
+    )
 
     if (!course) {
       throw new NotFoundError('Курс не найден')
@@ -360,7 +367,7 @@ export class CourseService {
 
   public async create(
     courseDTO: CourseCreationDTO,
-    authorId: Course['authorId']
+    authorId: User['id']
   ): Promise<void> {
     const author = await this.userRepository.findOne({ id: authorId })
 
@@ -369,6 +376,8 @@ export class CourseService {
     }
 
     const course = new CourseModel(courseDTO)
+
+    course.authors = [author]
 
     try {
       await this.courseRepository.create(course)

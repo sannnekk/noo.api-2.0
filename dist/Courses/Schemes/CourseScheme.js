@@ -18,11 +18,11 @@ export const CourseScheme = z.object({
         .optional(),
     images: z.array(MediaScheme),
     chapters: z.array(ChapterScheme),
-    author: z
-        .object({
+    authors: z
+        .array(z.object({
         id: z.string().ulid(),
-    })
-        .nullable()
+    }))
+        .max(10, { message: 'Количество авторов не может превышать 10' })
         .optional(),
     subject: z.object({
         id: z.string().ulid(),

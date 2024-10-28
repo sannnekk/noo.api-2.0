@@ -36,20 +36,10 @@ let CourseMaterialModel = class CourseMaterialModel extends Model {
     content;
     workSolveDeadline;
     workCheckDeadline;
-    /* @Column({
-      name: 'is_work_available',
-      type: 'boolean',
-      default: true,
-    })
-    isWorkAvailable!: boolean */
+    isWorkAvailable;
     order;
     isActive;
-    /* @Column({
-      name: 'activate_at',
-      type: 'timestamp',
-      nullable: true,
-    })
-    activateAt!: Date | null */
+    activateAt;
     chapter;
     chapterId;
     work;
@@ -114,6 +104,14 @@ __decorate([
 ], CourseMaterialModel.prototype, "workCheckDeadline", void 0);
 __decorate([
     Column({
+        name: 'is_work_available',
+        type: 'boolean',
+        default: true,
+    }),
+    __metadata("design:type", Boolean)
+], CourseMaterialModel.prototype, "isWorkAvailable", void 0);
+__decorate([
+    Column({
         name: 'order',
         type: 'int',
         default: 0,
@@ -128,6 +126,14 @@ __decorate([
     }),
     __metadata("design:type", Boolean)
 ], CourseMaterialModel.prototype, "isActive", void 0);
+__decorate([
+    Column({
+        name: 'activate_at',
+        type: 'timestamp',
+        nullable: true,
+    }),
+    __metadata("design:type", Object)
+], CourseMaterialModel.prototype, "activateAt", void 0);
 __decorate([
     ManyToOne(() => CourseChapterModel, (chapter) => chapter.materials, {
         onDelete: 'CASCADE',

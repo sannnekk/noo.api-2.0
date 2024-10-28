@@ -118,7 +118,7 @@ export class UserModel extends SearchableModel implements User {
   @OneToMany(() => MentorAssignmentModel, (assignment) => assignment.student)
   mentorAssignmentsAsStudent?: MentorAssignmentModel[]
 
-  @OneToMany(() => CourseModel, (course) => course.author)
+  @ManyToMany(() => CourseModel, (course) => course.authors)
   courses?: Course[]
 
   @OneToMany(() => CourseAssignmentModel, (assignment) => assignment.student)

@@ -1,16 +1,15 @@
-import { BaseModel } from '@modules/Core/Data/Model'
-import { User } from '@modules/Users/Data/User'
-import { Media } from '@modules/Media/Data/Media'
-import { CourseChapter } from './Relations/CourseChapter'
-import { Subject } from '@modules/Subjects/Data/Subject'
-import { CourseAssignment } from './Relations/CourseAssignment'
+import type { BaseModel } from '@modules/Core/Data/Model'
+import type { User } from '@modules/Users/Data/User'
+import type { Media } from '@modules/Media/Data/Media'
+import type { CourseChapter } from './Relations/CourseChapter'
+import type { Subject } from '@modules/Subjects/Data/Subject'
+import type { CourseAssignment } from './Relations/CourseAssignment'
 
 export interface Course extends BaseModel {
   slug: string
   name: string
   images: Media[]
-  author: User
-  authorId: User['id']
+  authors: User[]
   description: string
   chapters?: CourseChapter[]
   subject: Subject

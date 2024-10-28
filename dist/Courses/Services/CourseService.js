@@ -35,7 +35,7 @@ export class CourseService {
         this.workRepository = new WorkRepository();
     }
     async get(pagination) {
-        return this.courseRepository.search(undefined, pagination, ['author']);
+        return this.courseRepository.search(undefined, pagination);
     }
     async getStudentCourseAssignments(studentId, pagination) {
         return this.courseAssignmentRepository.search({
@@ -45,7 +45,9 @@ export class CourseService {
         }, pagination, ['course', 'course.images', 'assigner']);
     }
     async getBySlug(slug, userId, role) {
-        const course = await this.courseRepository.findOne({ slug }, ['author']);
+        const course = await this.courseRepository.findOne({ slug }, ['authors', 'authors.avatar'], undefined, {
+            relationLoadStrategy: 'query',
+        });
         if (!course) {
             throw new NotFoundError('Курс не найден');
         }
@@ -236,6 +238,7 @@ export class CourseService {
             throw new NotFoundError('Пользователь не найден');
         }
         const course = new CourseModel(courseDTO);
+        course.authors = [author];
         try {
             await this.courseRepository.create(course);
         }

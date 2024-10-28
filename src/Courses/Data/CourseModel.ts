@@ -6,6 +6,8 @@ import {
   Brackets,
   Column,
   Entity,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   RelationId,
@@ -74,11 +76,9 @@ export class CourseModel extends SearchableModel implements Course {
   })
   name!: string
 
-  @ManyToOne(() => UserModel, (user) => user.courses)
-  author!: User
-
-  @RelationId((course: CourseModel) => course.author)
-  authorId!: User['id']
+  @ManyToMany(() => UserModel, (user) => user.courses)
+  @JoinTable()
+  authors!: User[]
 
   @OneToMany(() => CourseAssignmentModel, (assignment) => assignment.course)
   studentAssignments?: CourseAssignment[]

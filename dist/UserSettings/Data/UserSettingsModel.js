@@ -8,7 +8,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { Model } from '../../Core/Data/Model.js';
-import { Entity, JoinColumn, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { MediaModel } from '../../Media/Data/MediaModel.js';
 import { UserModel } from '../../Users/Data/UserModel.js';
 let UserSettingsModel = class UserSettingsModel extends Model {
@@ -23,6 +23,7 @@ let UserSettingsModel = class UserSettingsModel extends Model {
     }
     user;
     backgroundImage;
+    fontSize;
 };
 __decorate([
     OneToOne(() => UserModel, (user) => user.settings),
@@ -37,6 +38,15 @@ __decorate([
     JoinColumn(),
     __metadata("design:type", Object)
 ], UserSettingsModel.prototype, "backgroundImage", void 0);
+__decorate([
+    Column({
+        name: 'font_size',
+        type: 'enum',
+        enum: ['small', 'medium', 'large'],
+        default: 'medium',
+    }),
+    __metadata("design:type", Object)
+], UserSettingsModel.prototype, "fontSize", void 0);
 UserSettingsModel = __decorate([
     Entity('user_settings'),
     __metadata("design:paramtypes", [Object])

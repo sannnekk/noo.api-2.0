@@ -28,8 +28,8 @@ export const MaterialScheme = z.object({
     })
     .nullable()
     .optional(),
-  //isWorkAvailable: z.boolean().default(true),
+  isWorkAvailable: z.boolean().default(true),
   workSolveDeadline: z.date().nullable().optional(),
   workCheckDeadline: z.date().nullable().optional(),
-  //activateAt: z.date().nullable().optional(),
+  activateAt: z.date().nullable().optional(),
 })

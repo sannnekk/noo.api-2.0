@@ -10,7 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 import * as Transliteration from '../../Core/Utils/transliteration.js';
 import * as ULID from '../../Core/Data/Ulid.js';
 import { UserModel } from '../../Users/Data/UserModel.js';
-import { Brackets, Column, Entity, ManyToOne, OneToMany, RelationId, } from 'typeorm';
+import { Brackets, Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, RelationId, } from 'typeorm';
 import { MediaModel } from '../../Media/Data/MediaModel.js';
 import { CourseChapterModel } from './Relations/CourseChapterModel.js';
 import { SearchableModel } from '../../Core/Data/SearchableModel.js';
@@ -38,8 +38,7 @@ let CourseModel = class CourseModel extends SearchableModel {
     }
     slug;
     name;
-    author;
-    authorId;
+    authors;
     studentAssignments;
     description;
     chapters;
@@ -80,13 +79,10 @@ __decorate([
     __metadata("design:type", String)
 ], CourseModel.prototype, "name", void 0);
 __decorate([
-    ManyToOne(() => UserModel, (user) => user.courses),
-    __metadata("design:type", Object)
-], CourseModel.prototype, "author", void 0);
-__decorate([
-    RelationId((course) => course.author),
-    __metadata("design:type", Object)
-], CourseModel.prototype, "authorId", void 0);
+    ManyToMany(() => UserModel, (user) => user.courses),
+    JoinTable(),
+    __metadata("design:type", Array)
+], CourseModel.prototype, "authors", void 0);
 __decorate([
     OneToMany(() => CourseAssignmentModel, (assignment) => assignment.course),
     __metadata("design:type", Array)
