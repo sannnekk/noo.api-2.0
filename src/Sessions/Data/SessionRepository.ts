@@ -15,7 +15,7 @@ export class SessionRepository extends Repository<Session> {
     condition?: FindOptionsWhere<Session>
   ): Promise<number> {
     const query = this.queryBuilder()
-      .select('COUNT(DISTINCT "userId")', 'count')
+      .select('COUNT(userId)', 'count')
       .where('last_request_at >= :datetime', {
         datetime: Dates.format(
           new Date(Date.now() - SessionOptions.onlineThreshold),
@@ -38,7 +38,7 @@ export class SessionRepository extends Repository<Session> {
     condition?: FindOptionsWhere<Session>
   ): Promise<number> {
     const query = this.queryBuilder()
-      .select('COUNT(DISTINCT "userId")', 'count')
+      .select('COUNT(DISTINCT userId)', 'count')
       .where('last_request_at >= :datetime', {
         datetime: Dates.format(
           new Date(Date.now() - SessionOptions.activeThreshold),

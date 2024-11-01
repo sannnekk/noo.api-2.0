@@ -8,7 +8,7 @@ export class SessionRepository extends Repository {
     }
     async countOnlineUsers(condition) {
         const query = this.queryBuilder()
-            .select('COUNT(DISTINCT "userId")', 'count')
+            .select('COUNT(userId)', 'count')
             .where('last_request_at >= :datetime', {
             datetime: Dates.format(new Date(Date.now() - SessionOptions.onlineThreshold), 'YYYY-MM-DD HH:mm:ss'),
         });
@@ -22,7 +22,7 @@ export class SessionRepository extends Repository {
     }
     async countActiveUsers(condition) {
         const query = this.queryBuilder()
-            .select('COUNT(DISTINCT "userId")', 'count')
+            .select('COUNT(DISTINCT userId)', 'count')
             .where('last_request_at >= :datetime', {
             datetime: Dates.format(new Date(Date.now() - SessionOptions.activeThreshold), 'YYYY-MM-DD HH:mm:ss'),
         });
