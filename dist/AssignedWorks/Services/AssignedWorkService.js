@@ -314,8 +314,8 @@ export class AssignedWorkService {
             foundWork.mentorComment = checkOptions.mentorComment;
         }
         await this.assignedWorkRepository.update(foundWork);
-        await this.calenderService.createWorkCheckedEvent(foundWork);
         foundWork.work = work;
+        await this.calenderService.createWorkCheckedEvent(foundWork);
         await this.notificationService.generateAndSend('assigned-work.work-checked-for-student', foundWork.student.id, { assignedWork: foundWork });
         for (const mentor of foundWork.mentors) {
             await this.notificationService.generateAndSend('assigned-work.work-checked-for-mentor', mentor.id, { assignedWork: foundWork });

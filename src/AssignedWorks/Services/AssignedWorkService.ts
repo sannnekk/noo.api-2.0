@@ -492,9 +492,10 @@ export class AssignedWorkService {
     }
 
     await this.assignedWorkRepository.update(foundWork)
-    await this.calenderService.createWorkCheckedEvent(foundWork)
 
     foundWork.work = work
+
+    await this.calenderService.createWorkCheckedEvent(foundWork)
 
     await this.notificationService.generateAndSend(
       'assigned-work.work-checked-for-student',
