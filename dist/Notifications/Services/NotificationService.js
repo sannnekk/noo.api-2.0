@@ -30,6 +30,9 @@ export class NotificationService {
     async markAllAsRead(userId) {
         return this.notificationRepository.markAllAsRead(userId);
     }
+    async markAsRead(id, userId) {
+        return this.notificationRepository.markAsRead(id, userId);
+    }
     async create(notification, sendOptions) {
         const notifications = await this.prepareNotifications(notification, sendOptions);
         const savedNotifications = await this.notificationRepository.createMany(notifications);

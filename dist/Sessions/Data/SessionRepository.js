@@ -19,6 +19,19 @@ export class SessionRepository extends Repository {
         }
         return query.getCount();
     }
+    async countActiveUsers(condition) {
+        const query = this.queryBuilder()
+            .distinctOn(['userId'])
+            .where('last_request_at >= :datetime', {
+            datetime: Dates.format(new Date(Date.now() - SessionOptions.activeThreshold), 'YYYY-MM-DD HH:mm:ss'),
+        });
+        if (condition) {
+            query.setFindOptions({
+                where: condition,
+            });
+        }
+        return query.getCount();
+    }
     async findLast(userId) {
         return this.queryBuilder()
             .where('userId = :userId', { userId })

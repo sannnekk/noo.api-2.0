@@ -74,6 +74,10 @@ export class NotificationService {
     return this.notificationRepository.markAllAsRead(userId)
   }
 
+  public async markAsRead(id: string, userId: User['id']) {
+    return this.notificationRepository.markAsRead(id, userId)
+  }
+
   public async create(
     notification: Notification,
     sendOptions: NotificationSendOptions

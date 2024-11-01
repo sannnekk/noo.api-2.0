@@ -55,6 +55,9 @@ export class SessionService {
     async getOnlineUsersCount(condition) {
         return this.sessionRepository.countOnlineUsers(condition);
     }
+    async getActiveUsersCount(condition) {
+        return this.sessionRepository.countActiveUsers(condition);
+    }
     async getOnlineStatus(userId) {
         // find last session for user
         const session = await this.sessionRepository.findLast(userId);

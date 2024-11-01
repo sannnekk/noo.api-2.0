@@ -15,6 +15,18 @@ export class NotificationRepository extends Repository<Notification> {
       .getCount()
   }
 
+  public async markAsRead(
+    id: Notification['id'],
+    userId: User['id']
+  ): Promise<void> {
+    await this.queryBuilder('notification')
+      .update(NotificationModel)
+      .set({ status: 'read' })
+      .where('notification.id = :id', { id })
+      .andWhere('notification.userId = :userId', { userId })
+      .execute()
+  }
+
   public async markAllAsRead(userId: User['id']): Promise<void> {
     await this.queryBuilder('notification')
       .update(NotificationModel)

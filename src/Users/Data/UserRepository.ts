@@ -10,6 +10,22 @@ export class UserRepository extends Repository<User> {
     super(UserModel)
   }
 
+  public async usernameExists(username: string): Promise<boolean> {
+    return this.repository.exists({
+      where: {
+        username,
+      } as any,
+    })
+  }
+
+  public async emailExists(email: string): Promise<boolean> {
+    return this.repository.exists({
+      where: {
+        email,
+      } as any,
+    })
+  }
+
   public async getIdsFromEmails(
     emails: string[],
     condition?: Partial<User>

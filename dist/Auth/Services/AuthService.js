@@ -29,21 +29,17 @@ export class AuthService {
         const user = new UserModel(registerDTO);
         user.role = 'student';
         user.verificationToken = await Hash.hash(Math.random().toString());
-        const existingUsername = await this.userRepository.findOne({
-            username: user.username,
-        });
-        if (existingUsername) {
+        const usernameExists = await this.userRepository.usernameExists(user.username);
+        if (usernameExists) {
             throw new AlreadyExistError('Этот никнейм уже занят.');
         }
-        const existingEmail = await this.userRepository.findOne({
-            email: user.email,
-        });
-        if (existingEmail) {
+        const emailExists = await this.userRepository.emailExists(user.email);
+        if (emailExists) {
             throw new AlreadyExistError('Пользователь с таким email уже существует.');
         }
         await this.create(user);
-        await this.emailService.sendVerificationEmail(user.email, user.username, user.name, user.verificationToken);
         await this.notificationService.generateAndSend('welcome', user.id);
+        await this.emailService.sendVerificationEmail(user.email, user.username, user.name, user.verificationToken);
     }
     async checkUsername(username) {
         const user = await this.userRepository.findOne({ username });

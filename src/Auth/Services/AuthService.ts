@@ -43,23 +43,23 @@ export class AuthService {
     user.role = 'student'
     user.verificationToken = await Hash.hash(Math.random().toString())
 
-    const existingUsername = await this.userRepository.findOne({
-      username: user.username,
-    })
+    const usernameExists = await this.userRepository.usernameExists(
+      user.username
+    )
 
-    if (existingUsername) {
+    if (usernameExists) {
       throw new AlreadyExistError('Этот никнейм уже занят.')
     }
 
-    const existingEmail = await this.userRepository.findOne({
-      email: user.email,
-    })
+    const emailExists = await this.userRepository.emailExists(user.email)
 
-    if (existingEmail) {
+    if (emailExists) {
       throw new AlreadyExistError('Пользователь с таким email уже существует.')
     }
 
     await this.create(user)
+
+    await this.notificationService.generateAndSend('welcome', user.id)
 
     await this.emailService.sendVerificationEmail(
       user.email,
@@ -67,7 +67,6 @@ export class AuthService {
       user.name,
       user.verificationToken
     )
-    await this.notificationService.generateAndSend('welcome', user.id)
   }
 
   public async checkUsername(username: string): Promise<boolean> {

@@ -32,6 +32,27 @@ export class SessionRepository extends Repository<Session> {
     return query.getCount()
   }
 
+  public async countActiveUsers(
+    condition?: FindOptionsWhere<Session>
+  ): Promise<number> {
+    const query = this.queryBuilder()
+      .distinctOn(['userId'])
+      .where('last_request_at >= :datetime', {
+        datetime: Dates.format(
+          new Date(Date.now() - SessionOptions.activeThreshold),
+          'YYYY-MM-DD HH:mm:ss'
+        ),
+      })
+
+    if (condition) {
+      query.setFindOptions({
+        where: condition,
+      })
+    }
+
+    return query.getCount()
+  }
+
   public async findLast(userId: User['id']): Promise<Session | null> {
     return this.queryBuilder()
       .where('userId = :userId', { userId })

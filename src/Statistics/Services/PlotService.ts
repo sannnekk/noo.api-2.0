@@ -1,4 +1,5 @@
-import { Plot } from '../Data/Plot'
+import { Plot } from '../Types/Plot'
+import Dates from '@modules/Core/Utils/date'
 
 export class PlotService {
   public generatePlot<T>(
@@ -9,22 +10,24 @@ export class PlotService {
     valFunc: (e: T) => number,
     annotationFunc?: (e: T) => string
   ): Plot {
+    const data = items.map((item) => {
+      let key = keyFunc(item)
+
+      if (key instanceof Date) {
+        key = Dates.format(key, 'YYYY-MM-DD')
+      }
+
+      return {
+        key,
+        value: valFunc(item),
+        annotation: annotationFunc ? annotationFunc(item) : undefined,
+      }
+    })
+
     return {
       name,
       color,
-      data: items.map((item) => {
-        let key = keyFunc(item)
-
-        if (key instanceof Date) {
-          key = `${key.getDate()}.${key.getMonth() + 1}.${key.getFullYear()}`
-        }
-
-        return {
-          key,
-          value: valFunc(item),
-          annotation: annotationFunc ? annotationFunc(item) : undefined,
-        }
-      }),
+      data,
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Plot } from '../Data/Plot'
+import { Plot } from '../Types/Plot'
 
 export interface Statistics {
   sections: {

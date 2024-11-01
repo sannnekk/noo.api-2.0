@@ -55,6 +55,13 @@ export class StatisticsService {
         const teacherOnlineCount = await this.sessionService.getOnlineUsersCount({
             user: { role: 'teacher' },
         });
+        const usersActiveCount = await this.sessionService.getActiveUsersCount();
+        const studentActiveCount = await this.sessionService.getActiveUsersCount({
+            user: { role: 'student' },
+        });
+        const mentorActiveCount = await this.sessionService.getActiveUsersCount({
+            user: { role: 'mentor' },
+        });
         const studentsCount = await userRepositoryQueryBuilder
             .clone()
             .where('user.role = :role', { role: 'student' })
@@ -162,6 +169,21 @@ export class StatisticsService {
                                 {
                                     name: 'Учеников',
                                     value: studentOnlineCount,
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Активных пользователей',
+                            description: 'Количество пользователей, зашедших на платформу за последнюю неделю',
+                            value: usersActiveCount,
+                            subEntries: [
+                                {
+                                    name: 'Кураторов',
+                                    value: mentorActiveCount,
+                                },
+                                {
+                                    name: 'Учеников',
+                                    value: studentActiveCount,
                                 },
                             ],
                         },

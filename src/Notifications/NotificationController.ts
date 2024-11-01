@@ -72,6 +72,22 @@ export class NotificationsController {
     }
   }
 
+  @Patch('/:id/mark-as-read')
+  public async markAsRead(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+
+      const id = this.notificationValidator.parseId(context.params.id)
+      const userId = context.credentials!.userId
+
+      await this.notificationService.markAsRead(id, userId)
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
   @Patch('/mark-all-as-read')
   public async markAllAsRead(context: Context): Promise<ApiResponse> {
     try {

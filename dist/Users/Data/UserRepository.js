@@ -4,6 +4,20 @@ export class UserRepository extends Repository {
     constructor() {
         super(UserModel);
     }
+    async usernameExists(username) {
+        return this.repository.exists({
+            where: {
+                username,
+            },
+        });
+    }
+    async emailExists(email) {
+        return this.repository.exists({
+            where: {
+                email,
+            },
+        });
+    }
     async getIdsFromEmails(emails, condition) {
         const query = await this.queryBuilder('user')
             .select('user.id')

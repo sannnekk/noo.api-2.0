@@ -264,6 +264,7 @@ export class AssignedWorkService {
             foundWork.checkStatus = 'checked-automatically';
             foundWork.checkedAt = Dates.now();
             foundWork.score = this.getScore(foundWork.comments);
+            foundWork.maxScore = this.getMaxScore(work.tasks, foundWork.excludedTaskIds);
         }
         await this.assignedWorkRepository.update(foundWork);
         await this.calenderService.createWorkMadeEvent({ ...foundWork, work });
@@ -276,7 +277,6 @@ export class AssignedWorkService {
     }
     async checkWork(assignedWorkId, checkOptions, checkerId) {
         const foundWork = await this.getAssignedWork(assignedWorkId, [
-            'work',
             'mentors',
             'student',
         ]);
@@ -292,6 +292,12 @@ export class AssignedWorkService {
         if (!workAlreadyMade(foundWork)) {
             throw new WorkIsNotSolvedYetError();
         }
+        const work = await this.workRepository.findOne({ id: foundWork.workId }, [
+            'tasks',
+        ]);
+        if (!work) {
+            throw new NotFoundError('Работа не найдена');
+        }
         if (foundWork.checkDeadlineAt &&
             Dates.isInPast(foundWork.checkDeadlineAt)) {
             foundWork.checkStatus = 'checked-after-deadline';
@@ -303,11 +309,13 @@ export class AssignedWorkService {
         foundWork.comments = checkOptions.comments || [];
         foundWork.checkedAt = Dates.now();
         foundWork.score = this.getScore(foundWork.comments);
+        foundWork.maxScore = this.getMaxScore(work.tasks, foundWork.excludedTaskIds);
         if (checkOptions.mentorComment) {
             foundWork.mentorComment = checkOptions.mentorComment;
         }
         await this.assignedWorkRepository.update(foundWork);
         await this.calenderService.createWorkCheckedEvent(foundWork);
+        foundWork.work = work;
         await this.notificationService.generateAndSend('assigned-work.work-checked-for-student', foundWork.student.id, { assignedWork: foundWork });
         for (const mentor of foundWork.mentors) {
             await this.notificationService.generateAndSend('assigned-work.work-checked-for-mentor', mentor.id, { assignedWork: foundWork });

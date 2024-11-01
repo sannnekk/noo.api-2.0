@@ -3,9 +3,13 @@ import { UserModel } from '../../Users/Data/UserModel.js';
 export class NotificationGenerator {
     welcomeNotification() {
         return new NotificationModel({
-            title: 'Добро пожаловать!',
-            message: 'Мы рады видеть вас на НОО.Платформе!',
+            title: 'Добро пожаловать на НОО.Платформе!',
+            message: `
+        Курсы откроются Вам в течение 12 часов после регистрации и выбора преподавателя через телеграм-бота. Подробнее об этом <a href="/help/article-01J9QDZNCM1KC6RPHB0KAVPB3F">здесь</a>.
+
+        Для того чтобы получить доступ к работам, Вам необходимо выбрать себе кураторов по всем приобретенным предметам. Это можно сделать на <a href="/blog">странице опросов</a>`,
             type: 'welcome',
+            isBanner: true,
         });
     }
     emailVerifiedNotification() {

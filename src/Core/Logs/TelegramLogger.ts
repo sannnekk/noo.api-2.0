@@ -73,9 +73,7 @@ async function telegramLog(
     return
   }
 
-  if (data instanceof Error) {
-    data = data.stack ? data.message + '\n' + data.stack : data.message
-  } else if (typeof data === 'object') {
+  if (typeof data === 'object') {
     let result = JSON.stringify(data, null, 2)
 
     if (result.length > 3750) {

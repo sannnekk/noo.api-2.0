@@ -51,6 +51,18 @@ let NotificationsController = class NotificationsController {
             return new ApiResponse(error, context);
         }
     }
+    async markAsRead(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            const id = this.notificationValidator.parseId(context.params.id);
+            const userId = context.credentials.userId;
+            await this.notificationService.markAsRead(id, userId);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error, context);
+        }
+    }
     async markAllAsRead(context) {
         try {
             await Asserts.isAuthenticated(context);
@@ -103,6 +115,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], NotificationsController.prototype, "getUnreadCount", null);
+__decorate([
+    Patch('/:id/mark-as-read'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], NotificationsController.prototype, "markAsRead", null);
 __decorate([
     Patch('/mark-all-as-read'),
     __metadata("design:type", Function),

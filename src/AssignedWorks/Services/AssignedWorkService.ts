@@ -409,6 +409,10 @@ export class AssignedWorkService {
       foundWork.checkStatus = 'checked-automatically'
       foundWork.checkedAt = Dates.now()
       foundWork.score = this.getScore(foundWork.comments)
+      foundWork.maxScore = this.getMaxScore(
+        work.tasks,
+        foundWork.excludedTaskIds
+      )
     }
 
     await this.assignedWorkRepository.update(foundWork)
@@ -438,7 +442,6 @@ export class AssignedWorkService {
     checkerId: User['id']
   ) {
     const foundWork = await this.getAssignedWork(assignedWorkId, [
-      'work',
       'mentors',
       'student',
     ])
@@ -461,6 +464,14 @@ export class AssignedWorkService {
       throw new WorkIsNotSolvedYetError()
     }
 
+    const work = await this.workRepository.findOne({ id: foundWork.workId }, [
+      'tasks',
+    ])
+
+    if (!work) {
+      throw new NotFoundError('Работа не найдена')
+    }
+
     if (
       foundWork.checkDeadlineAt &&
       Dates.isInPast(foundWork.checkDeadlineAt)
@@ -474,6 +485,7 @@ export class AssignedWorkService {
     foundWork.comments = checkOptions.comments || []
     foundWork.checkedAt = Dates.now()
     foundWork.score = this.getScore(foundWork.comments)
+    foundWork.maxScore = this.getMaxScore(work.tasks, foundWork.excludedTaskIds)
 
     if (checkOptions.mentorComment) {
       foundWork.mentorComment = checkOptions.mentorComment
@@ -481,6 +493,8 @@ export class AssignedWorkService {
 
     await this.assignedWorkRepository.update(foundWork)
     await this.calenderService.createWorkCheckedEvent(foundWork)
+
+    foundWork.work = work
 
     await this.notificationService.generateAndSend(
       'assigned-work.work-checked-for-student',

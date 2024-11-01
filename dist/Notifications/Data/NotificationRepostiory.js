@@ -10,6 +10,14 @@ export class NotificationRepository extends Repository {
             .andWhere('notification.status = :status', { status: 'unread' })
             .getCount();
     }
+    async markAsRead(id, userId) {
+        await this.queryBuilder('notification')
+            .update(NotificationModel)
+            .set({ status: 'read' })
+            .where('notification.id = :id', { id })
+            .andWhere('notification.userId = :userId', { userId })
+            .execute();
+    }
     async markAllAsRead(userId) {
         await this.queryBuilder('notification')
             .update(NotificationModel)

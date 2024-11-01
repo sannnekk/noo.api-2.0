@@ -92,6 +92,12 @@ export class SessionService {
     return this.sessionRepository.countOnlineUsers(condition)
   }
 
+  public async getActiveUsersCount(
+    condition?: FindOptionsWhere<Session>
+  ): Promise<number> {
+    return this.sessionRepository.countActiveUsers(condition)
+  }
+
   public async getOnlineStatus(userId: User['id']): Promise<OnlineStatus> {
     // find last session for user
     const session = await this.sessionRepository.findLast(userId)
