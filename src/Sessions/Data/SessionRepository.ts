@@ -15,7 +15,7 @@ export class SessionRepository extends Repository<Session> {
     condition?: FindOptionsWhere<Session>
   ): Promise<number> {
     const query = this.queryBuilder()
-      .distinctOn(['userId'])
+      .select('COUNT(DISTINCT "userId")', 'count')
       .where('last_request_at >= :datetime', {
         datetime: Dates.format(
           new Date(Date.now() - SessionOptions.onlineThreshold),
@@ -29,14 +29,16 @@ export class SessionRepository extends Repository<Session> {
       })
     }
 
-    return query.getCount()
+    const count = await query.getRawOne()
+
+    return parseInt(count.count, 10)
   }
 
   public async countActiveUsers(
     condition?: FindOptionsWhere<Session>
   ): Promise<number> {
     const query = this.queryBuilder()
-      .distinctOn(['userId'])
+      .select('COUNT(DISTINCT "userId")', 'count')
       .where('last_request_at >= :datetime', {
         datetime: Dates.format(
           new Date(Date.now() - SessionOptions.activeThreshold),
@@ -50,7 +52,9 @@ export class SessionRepository extends Repository<Session> {
       })
     }
 
-    return query.getCount()
+    const count = await query.getRawOne()
+
+    return parseInt(count.count, 10)
   }
 
   public async findLast(userId: User['id']): Promise<Session | null> {
