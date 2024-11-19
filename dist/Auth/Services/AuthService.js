@@ -42,8 +42,7 @@ export class AuthService {
         await this.emailService.sendVerificationEmail(user.email, user.username, user.name, user.verificationToken);
     }
     async checkUsername(username) {
-        const user = await this.userRepository.findOne({ username });
-        return user !== null;
+        return this.userRepository.usernameExists(username);
     }
     async verify(username, token) {
         const user = await this.userRepository.findOne({

@@ -14,6 +14,7 @@ import { AssignedWorkAnswer } from './Data/Relations/AssignedWorkAnswer'
 import { AssignedWorkAnswerScheme } from './Schemes/AssignedWorkAnswerScheme'
 import { AssignedWorkComment } from './Data/Relations/AssignedWorkComment'
 import { AssignedWorkCommentScheme } from './Schemes/AssignedWorkCommentScheme'
+import { z } from 'zod'
 
 @ErrorConverter()
 export class AssignedWorkValidator extends Validator {
@@ -43,5 +44,12 @@ export class AssignedWorkValidator extends Validator {
 
   public parseComment(data: unknown): AssignedWorkComment {
     return this.parse<AssignedWorkComment>(data, AssignedWorkCommentScheme)
+  }
+
+  public parseBulkFavouriteTasksRemove(data: unknown): { ids: string[] } {
+    return this.parse<{ ids: string[] }>(
+      data,
+      z.object({ ids: z.array(z.string().ulid()) })
+    )
   }
 }

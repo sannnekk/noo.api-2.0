@@ -10,15 +10,19 @@ import { Context } from '@modules/Core/Request/Context'
 import { ApiResponse } from '@modules/Core/Response/ApiResponse'
 import { AssignedWorkService } from './Services/AssignedWorkService'
 import { AssignedWorkValidator } from './AssignedWorkValidator'
+import { FavouriteTaskService } from './Services/FavouriteTaskService'
 
 @Controller('/assigned-work')
 export class AssignedWorkController {
+  private readonly favouriteTaskService: FavouriteTaskService
+
   private readonly assignedWorkService: AssignedWorkService
 
   private readonly assignedWorkValidator: AssignedWorkValidator
 
   constructor() {
     this.assignedWorkService = new AssignedWorkService()
+    this.favouriteTaskService = new FavouriteTaskService()
     this.assignedWorkValidator = new AssignedWorkValidator()
   }
 
@@ -280,6 +284,110 @@ export class AssignedWorkController {
       )
 
       return new ApiResponse({ data: commentId })
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
+  @Get('/task/favourites/:subjectId/:count?')
+  public async getFavourites(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.student(context)
+
+      const subjectId = this.assignedWorkValidator.parseId(
+        context.params.subjectId
+      )
+      const count = this.assignedWorkValidator.parseInt(context.params.count)
+
+      const { entities, meta } =
+        await this.favouriteTaskService.getFavouriteTasks(
+          context.credentials.userId,
+          subjectId,
+          count
+        )
+
+      return new ApiResponse({ data: entities, meta })
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
+  @Get('/task/:taskId/is-favourite')
+  public async isFavourite(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.student(context)
+
+      const taskId = this.assignedWorkValidator.parseId(context.params.taskId)
+
+      const isFavourite = await this.favouriteTaskService.isTaskFavourite(
+        context.credentials.userId,
+        taskId
+      )
+
+      return new ApiResponse({ data: isFavourite })
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
+  @Post('/task/:taskId/add-to-favourites')
+  public async addToFavourites(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.student(context)
+
+      const taskId = this.assignedWorkValidator.parseId(context.params.taskId)
+
+      await this.favouriteTaskService.addTaskToFavourites(
+        context.credentials.userId,
+        taskId
+      )
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
+  @Delete('/task/:taskId/remove-from-favourites')
+  public async removeFromFavourites(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.student(context)
+
+      const taskId = this.assignedWorkValidator.parseId(context.params.taskId)
+
+      await this.favouriteTaskService.removeFavouriteTask(
+        context.credentials.userId,
+        taskId
+      )
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
+  @Post('/task/bulk/favourites/remove')
+  public async bulkRemoveFromFavourites(
+    context: Context
+  ): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.student(context)
+
+      const payload = this.assignedWorkValidator.parseBulkFavouriteTasksRemove(
+        context.body
+      )
+
+      await this.favouriteTaskService.bulkRemoveFavouriteTasks(
+        context.credentials.userId,
+        payload.ids
+      )
+
+      return new ApiResponse()
     } catch (error: any) {
       return new ApiResponse(error, context)
     }

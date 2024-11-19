@@ -13,6 +13,7 @@ import { AssignedWorkCheckOptionsScheme } from './Schemes/AssignedWorkCheckOptio
 import { AssignedWorkSaveOptionsScheme } from './Schemes/AssignedWorkSaveOptionsScheme.js';
 import { AssignedWorkAnswerScheme } from './Schemes/AssignedWorkAnswerScheme.js';
 import { AssignedWorkCommentScheme } from './Schemes/AssignedWorkCommentScheme.js';
+import { z } from 'zod';
 let AssignedWorkValidator = class AssignedWorkValidator extends Validator {
     parseRemake(body) {
         return this.parse(body, AssignedWorkRemakeOptionsScheme);
@@ -34,6 +35,9 @@ let AssignedWorkValidator = class AssignedWorkValidator extends Validator {
     }
     parseComment(data) {
         return this.parse(data, AssignedWorkCommentScheme);
+    }
+    parseBulkFavouriteTasksRemove(data) {
+        return this.parse(data, z.object({ ids: z.array(z.string().ulid()) }));
     }
 };
 AssignedWorkValidator = __decorate([

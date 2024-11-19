@@ -72,6 +72,10 @@ export abstract class Validator {
     return this.parse<string>(value, z.string())
   }
 
+  public parseInt(value: unknown): number {
+    return this.parse<number>(parseInt(value as string), z.number().int())
+  }
+
   public parseNonemptyString(value: unknown): string {
     return this.parse<string>(value, z.string().min(1))
   }

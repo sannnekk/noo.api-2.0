@@ -38,7 +38,8 @@ let WorkModel = class WorkModel extends SearchableModel {
     description;
     materials;
     tasks;
-    taskIds;
+    //@RelationId((work: WorkModel) => work.tasks)
+    //taskIds!: string[]
     assignedWorks;
     subject;
     subjectId;
@@ -100,10 +101,6 @@ __decorate([
     }),
     __metadata("design:type", Array)
 ], WorkModel.prototype, "tasks", void 0);
-__decorate([
-    RelationId((work) => work.tasks),
-    __metadata("design:type", Array)
-], WorkModel.prototype, "taskIds", void 0);
 __decorate([
     OneToMany(() => AssignedWorkModel, (assignedWork) => assignedWork.work),
     __metadata("design:type", Array)

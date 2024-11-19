@@ -5,7 +5,6 @@ import {
   ManyToMany,
   OneToMany,
   OneToOne,
-  RelationId,
   SelectQueryBuilder,
 } from 'typeorm'
 import { BlogPostModel } from '@modules/Blog/Data/BlogPostModel'
@@ -51,9 +50,6 @@ export class PollModel extends SearchableModel implements Poll {
   @ManyToMany(() => UserModel, (user) => user.votedPolls)
   @JoinTable()
   votedUsers!: User[]
-
-  @RelationId((poll: PollModel) => poll.votedUsers)
-  votedUserIds?: User['id'][]
 
   @Column({
     name: 'voted_count',

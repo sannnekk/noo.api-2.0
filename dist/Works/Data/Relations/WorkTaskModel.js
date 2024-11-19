@@ -14,6 +14,7 @@ import { AssignedWorkAnswerModel } from '../../../AssignedWorks/Data/Relations/A
 import { AssignedWorkCommentModel } from '../../../AssignedWorks/Data/Relations/AssignedWorkCommentModel.js';
 import { WorkModel } from '../WorkModel.js';
 import { config } from '../../../config.js';
+import { FavouriteTaskModel } from '../../../AssignedWorks/Data/Relations/FavouriteTaskModel.js';
 let WorkTaskModel = class WorkTaskModel extends Model {
     constructor(data) {
         super();
@@ -38,6 +39,7 @@ let WorkTaskModel = class WorkTaskModel extends Model {
     isAnswerVisibleBeforeCheck;
     assignedWorkAnswers;
     assignedWorkComments;
+    favourites;
     sluggify() {
         return ULID.generate();
     }
@@ -100,7 +102,7 @@ __decorate([
         charset: config.database.charsets.withEmoji,
         collation: config.database.collations.withEmoji,
     }),
-    __metadata("design:type", Object)
+    __metadata("design:type", String)
 ], WorkTaskModel.prototype, "rightAnswer", void 0);
 __decorate([
     Column({
@@ -125,7 +127,7 @@ __decorate([
         enum: ['type1', 'type2', 'type3', 'type4'],
         nullable: true,
     }),
-    __metadata("design:type", Object)
+    __metadata("design:type", String)
 ], WorkTaskModel.prototype, "checkingStrategy", void 0);
 __decorate([
     Column({
@@ -137,12 +139,18 @@ __decorate([
 ], WorkTaskModel.prototype, "isAnswerVisibleBeforeCheck", void 0);
 __decorate([
     OneToMany(() => AssignedWorkAnswerModel, (answer) => answer.task),
-    __metadata("design:type", Object)
+    __metadata("design:type", Array)
 ], WorkTaskModel.prototype, "assignedWorkAnswers", void 0);
 __decorate([
     OneToMany(() => AssignedWorkCommentModel, (comment) => comment.task),
-    __metadata("design:type", Object)
+    __metadata("design:type", Array)
 ], WorkTaskModel.prototype, "assignedWorkComments", void 0);
+__decorate([
+    OneToMany(() => FavouriteTaskModel, (favourite) => favourite.task, {
+        orphanedRowAction: 'delete',
+    }),
+    __metadata("design:type", Array)
+], WorkTaskModel.prototype, "favourites", void 0);
 WorkTaskModel = __decorate([
     Entity('work_task', {
         orderBy: {

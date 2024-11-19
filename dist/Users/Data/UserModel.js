@@ -7,23 +7,24 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Brackets, Column, Entity, JoinColumn, ManyToMany, OneToMany, OneToOne, } from 'typeorm';
-import { CourseModel } from '../../Courses/Data/CourseModel.js';
 import { AssignedWorkModel } from '../../AssignedWorks/Data/AssignedWorkModel.js';
+import { FavouriteTaskModel } from '../../AssignedWorks/Data/Relations/FavouriteTaskModel.js';
 import { BlogPostModel } from '../../Blog/Data/BlogPostModel.js';
 import { BlogPostReactionModel } from '../../Blog/Data/Relations/BlogPostReactionModel.js';
-import { PollAnswerModel } from '../../Polls/Data/Relations/PollAnswerModel.js';
-import { PollModel } from '../../Polls/Data/PollModel.js';
-import { SessionModel } from '../../Sessions/Data/SessionModel.js';
-import { UserAvatarModel } from './Relations/UserAvatarModel.js';
-import { SearchableModel } from '../../Core/Data/SearchableModel.js';
-import { MentorAssignmentModel } from './Relations/MentorAssignmentModel.js';
-import { SnippetModel } from '../../Snippets/Data/SnippetModel.js';
 import { config } from '../../config.js';
-import { NotificationModel } from '../../Notifications/Data/NotificationModel.js';
+import { SearchableModel } from '../../Core/Data/SearchableModel.js';
+import { CourseModel } from '../../Courses/Data/CourseModel.js';
 import { CourseAssignmentModel } from '../../Courses/Data/Relations/CourseAssignmentModel.js';
 import { CourseMaterialReactionModel } from '../../Courses/Data/Relations/CourseMaterialReactionModel.js';
+import { NotificationModel } from '../../Notifications/Data/NotificationModel.js';
+import { PollModel } from '../../Polls/Data/PollModel.js';
+import { PollAnswerModel } from '../../Polls/Data/Relations/PollAnswerModel.js';
+import { SessionModel } from '../../Sessions/Data/SessionModel.js';
+import { SnippetModel } from '../../Snippets/Data/SnippetModel.js';
+import { Brackets, Column, Entity, JoinColumn, ManyToMany, OneToMany, OneToOne, } from 'typeorm';
 import { UserSettingsModel } from '../../UserSettings/Data/UserSettingsModel.js';
+import { MentorAssignmentModel } from './Relations/MentorAssignmentModel.js';
+import { UserAvatarModel } from './Relations/UserAvatarModel.js';
 let UserModel = class UserModel extends SearchableModel {
     constructor(data) {
         super();
@@ -59,6 +60,7 @@ let UserModel = class UserModel extends SearchableModel {
     sessions;
     snippets;
     avatar;
+    favouriteTasks;
     settings;
     telegramId;
     telegramUsername;
@@ -231,6 +233,10 @@ __decorate([
     JoinColumn(),
     __metadata("design:type", Object)
 ], UserModel.prototype, "avatar", void 0);
+__decorate([
+    OneToMany(() => FavouriteTaskModel, (favourite) => favourite.user),
+    __metadata("design:type", Array)
+], UserModel.prototype, "favouriteTasks", void 0);
 __decorate([
     OneToOne(() => UserSettingsModel, (settings) => settings.user),
     __metadata("design:type", Object)

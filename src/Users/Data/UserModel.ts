@@ -1,3 +1,30 @@
+import type { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
+import { AssignedWorkModel } from '@modules/AssignedWorks/Data/AssignedWorkModel'
+import type { FavouriteTask } from '@modules/AssignedWorks/Data/Relations/FavouriteTask'
+import { FavouriteTaskModel } from '@modules/AssignedWorks/Data/Relations/FavouriteTaskModel'
+import type { BlogPost } from '@modules/Blog/Data/BlogPost'
+import { BlogPostModel } from '@modules/Blog/Data/BlogPostModel'
+import type { BlogPostReaction } from '@modules/Blog/Data/Relations/BlogPostReaction'
+import { BlogPostReactionModel } from '@modules/Blog/Data/Relations/BlogPostReactionModel'
+import { config } from '@modules/config'
+import { BaseModel } from '@modules/Core/Data/Model'
+import { SearchableModel } from '@modules/Core/Data/SearchableModel'
+import type { UserRolesType } from '@modules/Core/Security/roles'
+import type { Course } from '@modules/Courses/Data/Course'
+import { CourseModel } from '@modules/Courses/Data/CourseModel'
+import type { CourseAssignment } from '@modules/Courses/Data/Relations/CourseAssignment'
+import { CourseAssignmentModel } from '@modules/Courses/Data/Relations/CourseAssignmentModel'
+import type { CourseMaterialReaction } from '@modules/Courses/Data/Relations/CourseMaterialReaction'
+import { CourseMaterialReactionModel } from '@modules/Courses/Data/Relations/CourseMaterialReactionModel'
+import { NotificationModel } from '@modules/Notifications/Data/NotificationModel'
+import type { Poll } from '@modules/Polls/Data/Poll'
+import { PollModel } from '@modules/Polls/Data/PollModel'
+import type { PollAnswer } from '@modules/Polls/Data/Relations/PollAnswer'
+import { PollAnswerModel } from '@modules/Polls/Data/Relations/PollAnswerModel'
+import type { Session } from '@modules/Sessions/Data/Session'
+import { SessionModel } from '@modules/Sessions/Data/SessionModel'
+import type { Snippet } from '@modules/Snippets/Data/Snippet'
+import { SnippetModel } from '@modules/Snippets/Data/SnippetModel'
 import {
   Brackets,
   Column,
@@ -8,37 +35,12 @@ import {
   OneToOne,
   SelectQueryBuilder,
 } from 'typeorm'
-import type { UserRolesType } from '@modules/Core/Security/roles'
-import { CourseModel } from '@modules/Courses/Data/CourseModel'
-import type { Course } from '@modules/Courses/Data/Course'
-import type { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
-import { AssignedWorkModel } from '@modules/AssignedWorks/Data/AssignedWorkModel'
-import { BlogPostModel } from '@modules/Blog/Data/BlogPostModel'
-import { BlogPostReactionModel } from '@modules/Blog/Data/Relations/BlogPostReactionModel'
-import type { BlogPostReaction } from '@modules/Blog/Data/Relations/BlogPostReaction'
-import type { BlogPost } from '@modules/Blog/Data/BlogPost'
-import { PollAnswerModel } from '@modules/Polls/Data/Relations/PollAnswerModel'
-import type { PollAnswer } from '@modules/Polls/Data/Relations/PollAnswer'
-import { PollModel } from '@modules/Polls/Data/PollModel'
-import type { Poll } from '@modules/Polls/Data/Poll'
-import type { User } from './User'
-import { SessionModel } from '@modules/Sessions/Data/SessionModel'
-import type { Session } from '@modules/Sessions/Data/Session'
+import type { UserSettings } from '../../UserSettings/Data/UserSettings'
+import { UserSettingsModel } from '../../UserSettings/Data/UserSettingsModel'
+import { MentorAssignmentModel } from './Relations/MentorAssignmentModel'
 import type { UserAvatar } from './Relations/UserAvatar'
 import { UserAvatarModel } from './Relations/UserAvatarModel'
-import { SearchableModel } from '@modules/Core/Data/SearchableModel'
-import { BaseModel } from '@modules/Core/Data/Model'
-import { MentorAssignmentModel } from './Relations/MentorAssignmentModel'
-import { SnippetModel } from '@modules/Snippets/Data/SnippetModel'
-import type { Snippet } from '@modules/Snippets/Data/Snippet'
-import { config } from '@modules/config'
-import { NotificationModel } from '@modules/Notifications/Data/NotificationModel'
-import type { CourseAssignment } from '@modules/Courses/Data/Relations/CourseAssignment'
-import { CourseAssignmentModel } from '@modules/Courses/Data/Relations/CourseAssignmentModel'
-import type { CourseMaterialReaction } from '@modules/Courses/Data/Relations/CourseMaterialReaction'
-import { CourseMaterialReactionModel } from '@modules/Courses/Data/Relations/CourseMaterialReactionModel'
-import { UserSettingsModel } from '../../UserSettings/Data/UserSettingsModel'
-import type { UserSettings } from '../../UserSettings/Data/UserSettings'
+import type { User } from './User'
 
 @Entity('user')
 export class UserModel extends SearchableModel implements User {
@@ -166,6 +168,9 @@ export class UserModel extends SearchableModel implements User {
   })
   @JoinColumn()
   avatar!: UserAvatar | null
+
+  @OneToMany(() => FavouriteTaskModel, (favourite) => favourite.user)
+  favouriteTasks?: FavouriteTask[]
 
   @OneToOne(() => UserSettingsModel, (settings) => settings.user)
   settings?: UserSettings

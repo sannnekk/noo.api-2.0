@@ -44,6 +44,9 @@ let Validator = class Validator {
     parseString(value) {
         return this.parse(value, z.string());
     }
+    parseInt(value) {
+        return this.parse(parseInt(value), z.number().int());
+    }
     parseNonemptyString(value) {
         return this.parse(value, z.string().min(1));
     }

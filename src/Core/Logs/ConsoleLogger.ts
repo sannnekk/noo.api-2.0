@@ -11,6 +11,13 @@ function logConsole(level: LogLevel, id: string, data: any, context?: Context) {
     data,
   }
 
+  if (data instanceof Error) {
+    logData.data = {
+      message: data.message,
+      stack: data.stack,
+    }
+  }
+
   const datetime = Dates.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
 
   // eslint-disable-next-line no-console

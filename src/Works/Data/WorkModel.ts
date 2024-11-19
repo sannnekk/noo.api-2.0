@@ -87,8 +87,8 @@ export class WorkModel extends SearchableModel implements Work {
   })
   tasks!: WorkTask[]
 
-  @RelationId((work: WorkModel) => work.tasks)
-  taskIds!: string[]
+  //@RelationId((work: WorkModel) => work.tasks)
+  //taskIds!: string[]
 
   @OneToMany(() => AssignedWorkModel, (assignedWork) => assignedWork.work)
   assignedWorks!: AssignedWork[]

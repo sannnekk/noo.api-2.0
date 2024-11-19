@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Column, Entity, JoinTable, ManyToMany, OneToMany, OneToOne, RelationId, } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, OneToMany, OneToOne, } from 'typeorm';
 import { BlogPostModel } from '../../Blog/Data/BlogPostModel.js';
 import { UserModel } from '../../Users/Data/UserModel.js';
 import { PollQuestionModel } from './Relations/PollQuestionModel.js';
@@ -28,7 +28,6 @@ let PollModel = class PollModel extends SearchableModel {
     materials;
     questions;
     votedUsers;
-    votedUserIds;
     votedCount;
     title;
     description;
@@ -61,10 +60,6 @@ __decorate([
     JoinTable(),
     __metadata("design:type", Array)
 ], PollModel.prototype, "votedUsers", void 0);
-__decorate([
-    RelationId((poll) => poll.votedUsers),
-    __metadata("design:type", Array)
-], PollModel.prototype, "votedUserIds", void 0);
 __decorate([
     Column({
         name: 'voted_count',

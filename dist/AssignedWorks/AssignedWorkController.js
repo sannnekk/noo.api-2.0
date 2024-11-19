@@ -13,11 +13,14 @@ import { Context } from '../Core/Request/Context.js';
 import { ApiResponse } from '../Core/Response/ApiResponse.js';
 import { AssignedWorkService } from './Services/AssignedWorkService.js';
 import { AssignedWorkValidator } from './AssignedWorkValidator.js';
+import { FavouriteTaskService } from './Services/FavouriteTaskService.js';
 let AssignedWorkController = class AssignedWorkController {
+    favouriteTaskService;
     assignedWorkService;
     assignedWorkValidator;
     constructor() {
         this.assignedWorkService = new AssignedWorkService();
+        this.favouriteTaskService = new FavouriteTaskService();
         this.assignedWorkValidator = new AssignedWorkValidator();
     }
     async get(context) {
@@ -181,6 +184,67 @@ let AssignedWorkController = class AssignedWorkController {
             const comment = this.assignedWorkValidator.parseComment(context.body);
             const commentId = await this.assignedWorkService.saveComment(assignedWorkId, comment, context.credentials.userId);
             return new ApiResponse({ data: commentId });
+        }
+        catch (error) {
+            return new ApiResponse(error, context);
+        }
+    }
+    async getFavourites(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.student(context);
+            const subjectId = this.assignedWorkValidator.parseId(context.params.subjectId);
+            const count = this.assignedWorkValidator.parseInt(context.params.count);
+            const { entities, meta } = await this.favouriteTaskService.getFavouriteTasks(context.credentials.userId, subjectId, count);
+            return new ApiResponse({ data: entities, meta });
+        }
+        catch (error) {
+            return new ApiResponse(error, context);
+        }
+    }
+    async isFavourite(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.student(context);
+            const taskId = this.assignedWorkValidator.parseId(context.params.taskId);
+            const isFavourite = await this.favouriteTaskService.isTaskFavourite(context.credentials.userId, taskId);
+            return new ApiResponse({ data: isFavourite });
+        }
+        catch (error) {
+            return new ApiResponse(error, context);
+        }
+    }
+    async addToFavourites(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.student(context);
+            const taskId = this.assignedWorkValidator.parseId(context.params.taskId);
+            await this.favouriteTaskService.addTaskToFavourites(context.credentials.userId, taskId);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error, context);
+        }
+    }
+    async removeFromFavourites(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.student(context);
+            const taskId = this.assignedWorkValidator.parseId(context.params.taskId);
+            await this.favouriteTaskService.removeFavouriteTask(context.credentials.userId, taskId);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error, context);
+        }
+    }
+    async bulkRemoveFromFavourites(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.student(context);
+            const payload = this.assignedWorkValidator.parseBulkFavouriteTasksRemove(context.body);
+            await this.favouriteTaskService.bulkRemoveFavouriteTasks(context.credentials.userId, payload.ids);
+            return new ApiResponse();
         }
         catch (error) {
             return new ApiResponse(error, context);
@@ -351,6 +415,36 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], AssignedWorkController.prototype, "saveComment", null);
+__decorate([
+    Get('/task/favourites/:subjectId/:count?'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], AssignedWorkController.prototype, "getFavourites", null);
+__decorate([
+    Get('/task/:taskId/is-favourite'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], AssignedWorkController.prototype, "isFavourite", null);
+__decorate([
+    Post('/task/:taskId/add-to-favourites'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], AssignedWorkController.prototype, "addToFavourites", null);
+__decorate([
+    Delete('/task/:taskId/remove-from-favourites'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], AssignedWorkController.prototype, "removeFromFavourites", null);
+__decorate([
+    Post('/task/bulk/favourites/remove'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], AssignedWorkController.prototype, "bulkRemoveFromFavourites", null);
 __decorate([
     Patch('/:id/archive'),
     __metadata("design:type", Function),

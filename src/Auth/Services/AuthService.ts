@@ -70,9 +70,7 @@ export class AuthService {
   }
 
   public async checkUsername(username: string): Promise<boolean> {
-    const user = await this.userRepository.findOne({ username })
-
-    return user !== null
+    return this.userRepository.usernameExists(username)
   }
 
   public async verify(username: string, token: string): Promise<void> {

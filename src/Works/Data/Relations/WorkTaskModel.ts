@@ -10,6 +10,7 @@ import { WorkModel } from '../WorkModel'
 import { Work } from '../Work'
 import { WorkTask } from './WorkTask'
 import { config } from '@modules/config'
+import { FavouriteTaskModel } from '@modules/AssignedWorks/Data/Relations/FavouriteTaskModel'
 
 @Entity('work_task', {
   orderBy: {
@@ -79,21 +80,21 @@ export class WorkTaskModel extends Model implements WorkTask {
     charset: config.database.charsets.withEmoji,
     collation: config.database.collations.withEmoji,
   })
-  rightAnswer?: string | undefined
+  rightAnswer?: string
 
   @Column({
     name: 'solve_hint',
     type: 'json',
     nullable: true,
   })
-  solveHint?: DeltaContentType | undefined
+  solveHint?: DeltaContentType
 
   @Column({
     name: 'check_hint',
     type: 'json',
     nullable: true,
   })
-  checkHint?: DeltaContentType | undefined
+  checkHint?: DeltaContentType
 
   @Column({
     name: 'checking_strategy',
@@ -101,7 +102,7 @@ export class WorkTaskModel extends Model implements WorkTask {
     enum: ['type1', 'type2', 'type3', 'type4'],
     nullable: true,
   })
-  checkingStrategy?: 'type1' | 'type2' | 'type3' | 'type4' | undefined
+  checkingStrategy?: 'type1' | 'type2' | 'type3' | 'type4'
 
   @Column({
     name: 'is_answer_visible_before_check',
@@ -111,10 +112,15 @@ export class WorkTaskModel extends Model implements WorkTask {
   isAnswerVisibleBeforeCheck!: boolean
 
   @OneToMany(() => AssignedWorkAnswerModel, (answer) => answer.task)
-  assignedWorkAnswers?: AssignedWorkAnswer[] | undefined
+  assignedWorkAnswers?: AssignedWorkAnswer[]
 
   @OneToMany(() => AssignedWorkCommentModel, (comment) => comment.task)
-  assignedWorkComments?: AssignedWorkComment[] | undefined
+  assignedWorkComments?: AssignedWorkComment[]
+
+  @OneToMany(() => FavouriteTaskModel, (favourite) => favourite.task, {
+    orphanedRowAction: 'delete',
+  })
+  favourites?: FavouriteTaskModel[]
 
   private sluggify(): string {
     return ULID.generate()

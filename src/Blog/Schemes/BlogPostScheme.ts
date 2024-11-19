@@ -13,5 +13,5 @@ export const BlogPostScheme = z.object({
   content: DeltaScheme.optional(),
   tags: BlogPostTagsScheme.optional(),
   files: z.array(MediaScheme).optional(),
-  poll: PollScheme,
+  poll: PollScheme.nullable().optional(),
 })

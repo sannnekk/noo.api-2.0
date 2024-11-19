@@ -31,6 +31,7 @@ import { CourseAssignmentModel } from '../../Courses/Data/Relations/CourseAssign
 //import { EventModel } from '@modules/Event/Data/EventModel'
 import { CourseMaterialReactionModel } from '../../Courses/Data/Relations/CourseMaterialReactionModel.js';
 import { UserSettingsModel } from '../../UserSettings/Data/UserSettingsModel.js';
+import { FavouriteTaskModel } from '../../AssignedWorks/Data/Relations/FavouriteTaskModel.js';
 export const CoreDataSource = new DataSource({
     type: 'mysql',
     host: process.env.DB_HOST,
@@ -72,6 +73,7 @@ export const CoreDataSource = new DataSource({
         GoogleSheetsBindingModel,
         SnippetModel,
         NotificationModel,
+        FavouriteTaskModel,
         //EventModel,
     ],
     subscribers: [],

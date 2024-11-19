@@ -5,18 +5,18 @@ export class UserRepository extends Repository {
         super(UserModel);
     }
     async usernameExists(username) {
-        return this.repository.exists({
+        return !!(await this.repository.findOne({
             where: {
                 username,
             },
-        });
+        }));
     }
     async emailExists(email) {
-        return this.repository.exists({
+        return !!(await this.repository.findOne({
             where: {
                 email,
             },
-        });
+        }));
     }
     async getIdsFromEmails(emails, condition) {
         const query = await this.queryBuilder('user')

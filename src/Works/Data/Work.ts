@@ -15,6 +15,5 @@ export interface Work extends BaseModel {
   materialId?: CourseMaterial['id']
   materials?: CourseMaterial[]
   tasks: WorkTask[]
-  taskIds: WorkTask['id'][]
   assignedWorks: AssignedWork[]
 }

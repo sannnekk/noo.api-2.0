@@ -11,19 +11,19 @@ export class UserRepository extends Repository<User> {
   }
 
   public async usernameExists(username: string): Promise<boolean> {
-    return this.repository.exists({
+    return !!(await this.repository.findOne({
       where: {
         username,
       } as any,
-    })
+    }))
   }
 
   public async emailExists(email: string): Promise<boolean> {
-    return this.repository.exists({
+    return !!(await this.repository.findOne({
       where: {
         email,
       } as any,
-    })
+    }))
   }
 
   public async getIdsFromEmails(
