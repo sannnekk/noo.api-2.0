@@ -80,17 +80,6 @@ export class FavouriteTaskService {
       throw new AlreadyExistError('Задание уже добавлено в избранное')
     }
 
-    const existingComment = await this.commentRepository.findOne({
-      task: {
-        id: taskId,
-      },
-      assignedWork: {
-        student: {
-          id: userId,
-        },
-      },
-    })
-
     return this.favouriteTaskRepository.create({
       user: {
         id: userId,
@@ -99,7 +88,7 @@ export class FavouriteTaskService {
         id: taskId,
       } as WorkTask,
       answer: null,
-      comment: existingComment,
+      comment: null,
     } as FavouriteTask)
   }
 
