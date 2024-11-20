@@ -153,7 +153,6 @@ let AssignedWorkController = class AssignedWorkController {
     async save(context) {
         try {
             await Asserts.isAuthenticated(context);
-            Asserts.mentorOrStudent(context);
             const workId = this.assignedWorkValidator.parseId(context.params.id);
             const saveOptions = this.assignedWorkValidator.parseSave(context.body);
             await this.assignedWorkService.saveProgress(workId, saveOptions, context.credentials.role);

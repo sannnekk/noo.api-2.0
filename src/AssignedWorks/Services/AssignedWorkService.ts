@@ -571,6 +571,9 @@ export class AssignedWorkService {
 
       foundWork.checkStatus = 'in-progress'
       foundWork.mentorComment = saveOptions.mentorComment || null
+    } else {
+      foundWork.answers = saveOptions.answers
+      return this.assignedWorkRepository.update(foundWork)
     }
 
     foundWork.answers = saveOptions.answers

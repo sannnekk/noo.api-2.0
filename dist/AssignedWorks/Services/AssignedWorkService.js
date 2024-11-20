@@ -362,6 +362,10 @@ export class AssignedWorkService {
             foundWork.checkStatus = 'in-progress';
             foundWork.mentorComment = saveOptions.mentorComment || null;
         }
+        else {
+            foundWork.answers = saveOptions.answers;
+            return this.assignedWorkRepository.update(foundWork);
+        }
         foundWork.answers = saveOptions.answers;
         foundWork.comments = saveOptions.comments || foundWork.comments || [];
         await this.assignedWorkRepository.update(foundWork);

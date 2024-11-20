@@ -226,7 +226,6 @@ export class AssignedWorkController {
   public async save(context: Context): Promise<ApiResponse> {
     try {
       await Asserts.isAuthenticated(context)
-      Asserts.mentorOrStudent(context)
 
       const workId = this.assignedWorkValidator.parseId(context.params.id)
       const saveOptions = this.assignedWorkValidator.parseSave(context.body)
@@ -234,7 +233,7 @@ export class AssignedWorkController {
       await this.assignedWorkService.saveProgress(
         workId,
         saveOptions,
-        context.credentials.role
+        context.credentials!.role
       )
 
       return new ApiResponse()
