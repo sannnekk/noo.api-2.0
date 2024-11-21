@@ -573,6 +573,11 @@ export class AssignedWorkService {
       foundWork.mentorComment = saveOptions.mentorComment || null
     } else {
       foundWork.answers = saveOptions.answers
+
+      if (saveOptions.studentComment) {
+        foundWork.studentComment = saveOptions.studentComment
+      }
+
       return this.assignedWorkRepository.update(foundWork)
     }
 

@@ -364,6 +364,9 @@ export class AssignedWorkService {
         }
         else {
             foundWork.answers = saveOptions.answers;
+            if (saveOptions.studentComment) {
+                foundWork.studentComment = saveOptions.studentComment;
+            }
             return this.assignedWorkRepository.update(foundWork);
         }
         foundWork.answers = saveOptions.answers;
