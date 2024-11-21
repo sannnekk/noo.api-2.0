@@ -33,25 +33,41 @@ const attributesSchema = z
     //background: z.string().optional(),
   })
   .optional()
+  // allow only css var for color and remove it if it is not a var
+  .transform((data) => {
+    if (data?.color && !data.color.startsWith('var(--')) {
+      const { color, ...rest } = data
+      return rest
+    }
+
+    return data
+  })
 
 export const DeltaScheme = z.object({
   ops: z.array(
     z.object({
       insert: z.union([
         z.string(), // Text insert
-        z.object({
-          image: z
-            .string()
-            .max(
-              IMAGE_URL_MAX_LENGTH,
-              'Одно из изображений прикреплено с ошибкой. Воспользуйтесь кнопкой "Прикрепить изображение"'
-            )
-            .optional(),
-          video: z
-            .string()
-            .url('Ссылка на видео прикреплена неверно')
-            .optional(),
-        }),
+        z
+          .object({
+            image: z
+              .string()
+              .max(
+                IMAGE_URL_MAX_LENGTH,
+                'Одно из изображений прикреплено с ошибкой. Воспользуйтесь кнопкой "Прикрепить изображение"'
+              )
+              .optional(),
+            //video: z.string().url('Ссылка на видео недействительна').optional(),
+            video: z.any().optional(),
+          })
+          .transform((insert) => {
+            if (typeof insert.video !== 'string') {
+              // Remove 'video' prop if it's a boolean
+              const { video, ...rest } = insert
+              return Object.keys(rest).length > 0 ? rest : undefined
+            }
+            return insert
+          }),
       ]),
       attributes: attributesSchema,
     })
