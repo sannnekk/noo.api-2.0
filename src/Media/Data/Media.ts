@@ -4,5 +4,5 @@ export interface Media extends BaseModel {
   name?: string
   src: string
   mimeType: 'image/jpeg' | 'image/png' | 'application/pdf'
-  order: number
+  order?: number
 }

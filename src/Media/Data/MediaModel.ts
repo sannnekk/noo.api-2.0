@@ -55,7 +55,7 @@ export class MediaModel extends Model implements Media {
     type: 'int',
     default: 0,
   })
-  order!: number
+  order?: number
 
   @ManyToOne(
     () => CourseMaterialModel,

@@ -274,4 +274,21 @@ export class Pagination {
 
     return `${fullAlias}.${column}`
   }
+
+  public toQuery(): Record<string, string> {
+    return {
+      page: this.page.toString(),
+      limit: this.limit.toString(),
+      sort: this.sort,
+      order: this.order,
+      search: this.search,
+      ...Object.entries(this.filters).reduce(
+        (acc, [key, value]) => ({
+          ...acc,
+          [key]: value.toString(),
+        }),
+        {}
+      ),
+    }
+  }
 }
