@@ -29,10 +29,11 @@ import { config } from '@modules/config'
 import { FAQCategoryModel } from '@modules/FAQ/Data/Relations/FAQCategoryModel'
 import { NotificationModel } from '@modules/Notifications/Data/NotificationModel'
 import { CourseAssignmentModel } from '@modules/Courses/Data/Relations/CourseAssignmentModel'
-//import { EventModel } from '@modules/Event/Data/EventModel'
 import { CourseMaterialReactionModel } from '@modules/Courses/Data/Relations/CourseMaterialReactionModel'
 import { UserSettingsModel } from '@modules/UserSettings/Data/UserSettingsModel'
 import { FavouriteTaskModel } from '@modules/AssignedWorks/Data/Relations/FavouriteTaskModel'
+import { VideoModel } from '@modules/Video/Data/VideoModel'
+import { VideoChapterModel } from '@modules/Video/Data/Relations/VideoChapterModel'
 
 export const CoreDataSource = new DataSource({
   type: 'mysql',
@@ -76,7 +77,8 @@ export const CoreDataSource = new DataSource({
     SnippetModel,
     NotificationModel,
     FavouriteTaskModel,
-    //EventModel,
+    VideoModel,
+    VideoChapterModel,
   ],
   subscribers: [],
   migrations: [],

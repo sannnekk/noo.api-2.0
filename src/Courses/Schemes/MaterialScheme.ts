@@ -1,5 +1,6 @@
 import { DeltaScheme } from '@modules/Core/Schemas/DeltaScheme'
 import { MediaScheme } from '@modules/Media/Schemes/MediaScheme'
+import { VideoScheme } from '@modules/Video/Schemes/VideoScheme'
 import { z } from 'zod'
 
 export const MaterialScheme = z.object({
@@ -28,6 +29,7 @@ export const MaterialScheme = z.object({
     })
     .nullable()
     .optional(),
+  videos: z.array(VideoScheme),
   isWorkAvailable: z.boolean().default(true),
   workSolveDeadline: z.date().nullable().optional(),
   workCheckDeadline: z.date().nullable().optional(),

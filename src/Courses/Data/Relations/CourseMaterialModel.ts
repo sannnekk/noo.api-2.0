@@ -13,6 +13,7 @@ import { PollModel } from '@modules/Polls/Data/PollModel'
 import type { Poll } from '@modules/Polls/Data/Poll'
 import { CourseMaterialReactionModel } from './CourseMaterialReactionModel'
 import type { CourseMaterialReaction } from './CourseMaterialReaction'
+import { VideoModel } from '@modules/Video/Data/VideoModel'
 
 @Entity('course_material', {
   orderBy: {
@@ -138,6 +139,9 @@ export class CourseMaterialModel extends Model implements CourseMaterial {
     cascade: true,
   })
   files!: MediaModel[]
+
+  @OneToMany(() => VideoModel, (video) => video.courseMaterial)
+  videos!: VideoModel[]
 
   @OneToMany(() => CourseMaterialReactionModel, (reaction) => reaction.material)
   reactions!: CourseMaterialReaction[]

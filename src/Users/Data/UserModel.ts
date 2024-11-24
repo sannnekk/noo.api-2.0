@@ -41,6 +41,8 @@ import { MentorAssignmentModel } from './Relations/MentorAssignmentModel'
 import type { UserAvatar } from './Relations/UserAvatar'
 import { UserAvatarModel } from './Relations/UserAvatarModel'
 import type { User } from './User'
+import { VideoModel } from '@modules/Video/Data/VideoModel'
+import type { Video } from '@modules/Video/Data/Video'
 
 @Entity('user')
 export class UserModel extends SearchableModel implements User {
@@ -148,7 +150,10 @@ export class UserModel extends SearchableModel implements User {
   pollAnswers?: PollAnswer[]
 
   @ManyToMany(() => PollModel, (poll) => poll.votedUsers)
-  votedPolls!: Poll[]
+  votedPolls?: Poll[]
+
+  @OneToMany(() => VideoModel, (video) => video.uploadedBy)
+  uploadedVideos?: Video[]
 
   @OneToMany(() => NotificationModel, (notification) => notification.user)
   notifications?: Notification[]

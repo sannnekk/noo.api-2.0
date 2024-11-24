@@ -3,13 +3,19 @@ import { Model } from '@modules/Core/Data/Model'
 import { CourseMaterialModel } from '@modules/Courses/Data/Relations/CourseMaterialModel'
 import { CourseModel } from '@modules/Courses/Data/CourseModel'
 import { PollAnswerModel } from '@modules/Polls/Data/Relations/PollAnswerModel'
-import { Media } from './Media'
-import { BlogPost } from '@modules/Blog/Data/BlogPost'
-import { PollAnswer } from '@modules/Polls/Data/Relations/PollAnswer'
+import type { Media } from './Media'
+import type { BlogPost } from '@modules/Blog/Data/BlogPost'
+import type { PollAnswer } from '@modules/Polls/Data/Relations/PollAnswer'
 import { BlogPostModel } from '@modules/Blog/Data/BlogPostModel'
 import { UserAvatarModel } from '@modules/Users/Data/Relations/UserAvatarModel'
 import { config } from '@modules/config'
 import { UserSettingsModel } from '@modules/UserSettings/Data/UserSettingsModel'
+import { VideoModel } from '@modules/Video/Data/VideoModel'
+import type { Video } from '@modules/Video/Data/Video'
+import type { CourseMaterial } from '@modules/Courses/Data/Relations/CourseMaterial'
+import type { Course } from '@modules/Courses/Data/Course'
+import type { UserAvatar } from '@modules/Users/Data/Relations/UserAvatar'
+import type { UserSettings } from '@modules/UserSettings/Data/UserSettings'
 
 @Entity('media', {
   orderBy: {
@@ -62,12 +68,12 @@ export class MediaModel extends Model implements Media {
     (courseMaterial) => courseMaterial.files,
     { onDelete: 'CASCADE' }
   )
-  courseMaterial!: CourseMaterialModel
+  courseMaterial!: CourseMaterial
 
   @ManyToOne(() => CourseModel, (course) => course.images, {
     onDelete: 'CASCADE',
   })
-  course?: CourseModel
+  course?: Course
 
   @ManyToOne(() => PollAnswerModel, (answer) => answer.files, {
     onDelete: 'SET NULL',
@@ -82,8 +88,11 @@ export class MediaModel extends Model implements Media {
   @OneToOne(() => UserAvatarModel, (avatar) => avatar.media, {
     onDelete: 'SET NULL',
   })
-  avatar?: UserAvatarModel
+  avatar?: UserAvatar
 
   @OneToOne(() => UserSettingsModel, (settings) => settings.backgroundImage)
-  userSettings?: UserSettingsModel
+  userSettings?: UserSettings
+
+  @OneToOne(() => VideoModel, (video) => video.thumbnail)
+  videoAsThumbnail?: Video
 }
