@@ -18,4 +18,6 @@ export interface Video extends BaseModel {
   uploadedBy: User
   uploadUrl: string | null
   publishedAt: Date
+  accessType: 'everyone' | 'courseId' | 'mentorId' | 'role'
+  accessValue: string | null
 }

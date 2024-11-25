@@ -17,7 +17,11 @@ export const VideoScheme = z.object({
   thumbnail: MediaScheme.nullable(),
   sizeInBytes: z.number().int().min(0),
   serviceType: z.literal('yandex'),
+  state: z.enum(['not-uploaded', 'uploaded', 'uploading', 'failed']),
+  uniqueIdentifier: z.string().min(1),
   length: z.number().int().min(0),
   chapters: z.array(VideoChapterScheme),
   publishedAt: z.date().nullable(),
+  accessType: z.enum(['everyone', 'courseId', 'mentorId', 'role']),
+  accessValue: z.string().nullable(),
 })

@@ -1,13 +1,15 @@
-import { Model } from '@modules/Core/Data/Model'
+import { BaseModel } from '@modules/Core/Data/Model'
 import { Video } from './Video'
 import { VideoChapterModel } from './Relations/VideoChapterModel'
 import {
+  Brackets,
   Column,
   Entity,
   JoinColumn,
   ManyToOne,
   OneToMany,
   OneToOne,
+  SelectQueryBuilder,
 } from 'typeorm'
 import { DeltaContentType } from '@modules/Core/Data/DeltaContentType'
 import { User } from '@modules/Users/Data/User'
@@ -16,9 +18,10 @@ import { Media } from '@modules/Media/Data/Media'
 import { UserModel } from '@modules/Users/Data/UserModel'
 import { MediaModel } from '@modules/Media/Data/MediaModel'
 import { CourseMaterialModel } from '@modules/Courses/Data/Relations/CourseMaterialModel'
+import { SearchableModel } from '@modules/Core/Data/SearchableModel'
 
 @Entity('video')
-export class VideoModel extends Model implements Video {
+export class VideoModel extends SearchableModel implements Video {
   public constructor(data?: Partial<Video>) {
     super()
 
@@ -46,7 +49,7 @@ export class VideoModel extends Model implements Video {
 
   @Column({
     name: 'description',
-    type: 'text',
+    type: 'json',
     nullable: true,
     default: null,
   })
@@ -109,6 +112,22 @@ export class VideoModel extends Model implements Video {
   })
   sizeInBytes!: number
 
+  @Column({
+    name: 'access_type',
+    type: 'varchar',
+    length: 255,
+  })
+  accessType!: Video['accessType']
+
+  @Column({
+    name: 'access_value',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+    default: null,
+  })
+  accessValue!: string | null
+
   @OneToMany(() => VideoChapterModel, (chapter) => chapter.video)
   chapters!: VideoChapter[]
 
@@ -124,4 +143,22 @@ export class VideoModel extends Model implements Video {
     (courseMaterial) => courseMaterial.videos
   )
   courseMaterial!: CourseMaterialModel
+
+  public addSearchToQuery(
+    query: SelectQueryBuilder<BaseModel>,
+    needle: string
+  ): string[] {
+    query.andWhere(
+      new Brackets((qb) => {
+        qb.where('LOWER(video__uploadedBy.name) LIKE LOWER(:needle)', {
+          needle: `%${needle}%`,
+        })
+        qb.orWhere('LOWER(video.title) LIKE LOWER(:needle)', {
+          needle: `%${needle}%`,
+        })
+      })
+    )
+
+    return ['uploadedBy']
+  }
 }

@@ -30,6 +30,7 @@ import '@modules/Snippets/SnippetsController'
 import '@modules/FAQ/FAQController'
 import '@modules/Notifications/NotificationController'
 import '@modules/UserSettings/UserSettingsController'
+import '@modules/Video/VideoController'
 
 log('info', 'Container created', 'A new container created')
 

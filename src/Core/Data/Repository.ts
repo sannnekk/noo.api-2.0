@@ -480,7 +480,7 @@ export abstract class Repository<T extends BaseModel> {
    * @param query Instance of the query builder
    * @param pagination Pagination object
    */
-  private addPagination(
+  protected addPagination(
     query: TypeORM.SelectQueryBuilder<T>,
     pagination: Pagination
   ): void {
@@ -505,7 +505,7 @@ export abstract class Repository<T extends BaseModel> {
    * @param query Instance of the query builder
    * @param conditions The conditions to find the entity with (ActiveRecord style)
    */
-  private addConditions(
+  protected addConditions(
     query: SelectQueryBuilder<T>,
     conditions?: FindOptionsWhere<T> | FindOptionsWhere<T>[]
   ) {
