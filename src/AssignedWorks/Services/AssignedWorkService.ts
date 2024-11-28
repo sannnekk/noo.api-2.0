@@ -38,6 +38,7 @@ import { CantDeleteMadeWorkError } from '../Errors/CantDeleteMadeWorkError'
 import { isAutomaticallyCheckable } from '../Utils/Task'
 import { workAlreadyChecked, workAlreadyMade } from '../Utils/AssignedWork'
 import { AssignedWorkAnswer } from '../Data/Relations/AssignedWorkAnswer'
+import { WorkIsNotCheckedYetError } from '../Errors/WorkIsNotCheckedYetError'
 
 export class AssignedWorkService {
   private readonly taskService: TaskService
@@ -860,6 +861,34 @@ export class AssignedWorkService {
     work.solvedAt = null
 
     await this.assignedWorkRepository.update(work)
+  }
+
+  public async sendToRecheck(
+    assignedWorkId: AssignedWork['id'],
+    userId: User['id'],
+    userRole: User['role']
+  ) {
+    const foundWork = await this.getAssignedWork(assignedWorkId, ['mentors'])
+
+    if (!foundWork) {
+      throw new NotFoundError()
+    }
+
+    if (
+      userRole === 'mentor' &&
+      !foundWork.mentors!.some((mentor) => mentor.id === userId)
+    ) {
+      throw new UnauthorizedError()
+    }
+
+    if (!workAlreadyChecked(foundWork)) {
+      throw new WorkIsNotCheckedYetError()
+    }
+
+    foundWork.checkStatus = 'in-progress'
+    foundWork.checkedAt = null
+
+    await this.assignedWorkRepository.update(foundWork)
   }
 
   public async deleteWork(

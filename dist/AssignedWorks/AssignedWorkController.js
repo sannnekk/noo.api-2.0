@@ -178,7 +178,7 @@ let AssignedWorkController = class AssignedWorkController {
     async saveComment(context) {
         try {
             await Asserts.isAuthenticated(context);
-            Asserts.mentor(context);
+            Asserts.notStudent(context);
             const assignedWorkId = this.assignedWorkValidator.parseId(context.params.id);
             const comment = this.assignedWorkValidator.parseComment(context.body);
             const commentId = await this.assignedWorkService.saveComment(assignedWorkId, comment, context.credentials.userId);
@@ -317,6 +317,18 @@ let AssignedWorkController = class AssignedWorkController {
             Asserts.mentor(context);
             const workId = this.assignedWorkValidator.parseId(context.params.id);
             await this.assignedWorkService.sendToRevision(workId, context.credentials.userId);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error, context);
+        }
+    }
+    async sendToRecheck(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.notStudent(context);
+            const assignedWorkId = this.assignedWorkValidator.parseId(context.params.id);
+            await this.assignedWorkService.sendToRecheck(assignedWorkId, context.credentials.userId, context.credentials.role);
             return new ApiResponse();
         }
         catch (error) {
@@ -480,6 +492,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], AssignedWorkController.prototype, "sendToRevision", null);
+__decorate([
+    Patch('/:id/send-to-recheck'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], AssignedWorkController.prototype, "sendToRecheck", null);
 __decorate([
     Delete('/:id'),
     __metadata("design:type", Function),

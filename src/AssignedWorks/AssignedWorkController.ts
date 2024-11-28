@@ -269,7 +269,7 @@ export class AssignedWorkController {
   public async saveComment(context: Context): Promise<ApiResponse> {
     try {
       await Asserts.isAuthenticated(context)
-      Asserts.mentor(context)
+      Asserts.notStudent(context)
 
       const assignedWorkId = this.assignedWorkValidator.parseId(
         context.params.id
@@ -497,6 +497,28 @@ export class AssignedWorkController {
       await this.assignedWorkService.sendToRevision(
         workId,
         context.credentials.userId
+      )
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
+  @Patch('/:id/send-to-recheck')
+  public async sendToRecheck(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.notStudent(context)
+
+      const assignedWorkId = this.assignedWorkValidator.parseId(
+        context.params.id
+      )
+
+      await this.assignedWorkService.sendToRecheck(
+        assignedWorkId,
+        context.credentials.userId,
+        context.credentials.role
       )
 
       return new ApiResponse()

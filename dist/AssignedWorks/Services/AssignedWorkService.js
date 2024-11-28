@@ -24,6 +24,7 @@ import { NotificationService } from '../../Notifications/Services/NotificationSe
 import { CantDeleteMadeWorkError } from '../Errors/CantDeleteMadeWorkError.js';
 import { isAutomaticallyCheckable } from '../Utils/Task.js';
 import { workAlreadyChecked, workAlreadyMade } from '../Utils/AssignedWork.js';
+import { WorkIsNotCheckedYetError } from '../Errors/WorkIsNotCheckedYetError.js';
 export class AssignedWorkService {
     taskService;
     assignedWorkRepository;
@@ -554,6 +555,22 @@ export class AssignedWorkService {
         work.solveStatus = 'in-progress';
         work.solvedAt = null;
         await this.assignedWorkRepository.update(work);
+    }
+    async sendToRecheck(assignedWorkId, userId, userRole) {
+        const foundWork = await this.getAssignedWork(assignedWorkId, ['mentors']);
+        if (!foundWork) {
+            throw new NotFoundError();
+        }
+        if (userRole === 'mentor' &&
+            !foundWork.mentors.some((mentor) => mentor.id === userId)) {
+            throw new UnauthorizedError();
+        }
+        if (!workAlreadyChecked(foundWork)) {
+            throw new WorkIsNotCheckedYetError();
+        }
+        foundWork.checkStatus = 'in-progress';
+        foundWork.checkedAt = null;
+        await this.assignedWorkRepository.update(foundWork);
     }
     async deleteWork(id, userId, userRole) {
         const foundWork = await this.assignedWorkRepository.findOne({ id }, [
