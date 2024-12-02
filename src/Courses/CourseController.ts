@@ -37,6 +37,25 @@ export class CourseController {
     }
   }
 
+  @Get('/own')
+  public async getMyCourses(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.teacher(context)
+
+      const pagination = this.courseValidator.parsePagination(context.query)
+
+      const { entities, meta } = await this.courseService.getOwn(
+        pagination,
+        context.credentials!.userId
+      )
+
+      return new ApiResponse({ data: entities, meta })
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
   @Get('/student/:studentId?')
   public async getStudentCourses(context: Context): Promise<ApiResponse> {
     try {

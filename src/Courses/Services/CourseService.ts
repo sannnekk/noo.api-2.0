@@ -51,8 +51,19 @@ export class CourseService {
     this.workRepository = new WorkRepository()
   }
 
-  public async get(pagination?: Pagination) {
+  public async get(pagination: Pagination) {
     return this.courseRepository.search(undefined, pagination)
+  }
+
+  public async getOwn(pagination: Pagination, userId: User['id']) {
+    return this.courseRepository.search(
+      {
+        authors: {
+          id: userId,
+        },
+      },
+      pagination
+    )
   }
 
   public async getStudentCourseAssignments(

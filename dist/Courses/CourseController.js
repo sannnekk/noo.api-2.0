@@ -32,6 +32,18 @@ let CourseController = class CourseController {
             return new ApiResponse(error, context);
         }
     }
+    async getMyCourses(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.teacher(context);
+            const pagination = this.courseValidator.parsePagination(context.query);
+            const { entities, meta } = await this.courseService.getOwn(pagination, context.credentials.userId);
+            return new ApiResponse({ data: entities, meta });
+        }
+        catch (error) {
+            return new ApiResponse(error, context);
+        }
+    }
     async getStudentCourses(context) {
         try {
             await Asserts.isAuthenticated(context);
@@ -256,6 +268,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "get", null);
+__decorate([
+    Get('/own'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "getMyCourses", null);
 __decorate([
     Get('/student/:studentId?'),
     __metadata("design:type", Function),

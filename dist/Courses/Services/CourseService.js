@@ -37,6 +37,13 @@ export class CourseService {
     async get(pagination) {
         return this.courseRepository.search(undefined, pagination);
     }
+    async getOwn(pagination, userId) {
+        return this.courseRepository.search({
+            authors: {
+                id: userId,
+            },
+        }, pagination);
+    }
     async getStudentCourseAssignments(studentId, pagination) {
         return this.courseAssignmentRepository.search({
             student: {
