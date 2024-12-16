@@ -6,15 +6,24 @@ import { WorkModel } from '../Data/WorkModel'
 import { WorkDTO } from '../DTO/WorkDTO'
 import { Subject } from '@modules/Subjects/Data/Subject'
 import { CourseMaterialRepository } from '@modules/Courses/Data/CourseMaterialRepository'
+import { WorkStatisticsDTO } from '../DTO/WorkStatisticsDTO'
+import { WorkTaskRepository } from '../Data/WorkTaskRepository'
+import { AssignedWorkRepository } from '@modules/AssignedWorks/Data/AssignedWorkRepository'
 
 export class WorkService {
   private readonly workRepository: WorkRepository
+
+  private readonly workTaskRepository: WorkTaskRepository
+
+  private readonly assignedWorkRepository: AssignedWorkRepository
 
   private readonly courseMaterialRepository: CourseMaterialRepository
 
   constructor() {
     this.workRepository = new WorkRepository()
     this.courseMaterialRepository = new CourseMaterialRepository()
+    this.assignedWorkRepository = new AssignedWorkRepository()
+    this.workTaskRepository = new WorkTaskRepository()
   }
 
   public async getWorks(pagination?: Pagination) {
@@ -45,6 +54,32 @@ export class WorkService {
     }
 
     return work
+  }
+
+  public async getWorkStatistics(id: Work['id']): Promise<WorkStatisticsDTO> {
+    const hardestTaskIds = await this.workTaskRepository.getHardestTaskIds(
+      id,
+      3
+    )
+
+    const averageWorkScore =
+      await this.assignedWorkRepository.getAverageWorkScore(id)
+
+    const medianWorkScore =
+      await this.assignedWorkRepository.getMedianWorkScore(id)
+
+    const workSolveCount =
+      await this.assignedWorkRepository.getWorkSolveCount(id)
+
+    const work = await this.getWorkById(id)
+
+    return {
+      hardestTaskIds,
+      averageWorkScore,
+      medianWorkScore,
+      workSolveCount,
+      work,
+    }
   }
 
   public async getWorkRelatedMaterials(

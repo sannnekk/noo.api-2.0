@@ -43,6 +43,18 @@ let WorkController = class WorkController {
             return new ApiResponse(error, context);
         }
     }
+    async getWorkStatistics(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.teacher(context);
+            const workSlug = this.workValidator.parseId(context.params.id);
+            const workStatistics = await this.workService.getWorkStatistics(workSlug);
+            return new ApiResponse({ data: workStatistics });
+        }
+        catch (error) {
+            return new ApiResponse(error, context);
+        }
+    }
     async getWorkRelatedMaterials(context) {
         try {
             await Asserts.isAuthenticated(context);
@@ -117,6 +129,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], WorkController.prototype, "getWorkBySlug", null);
+__decorate([
+    Get('/:id/statistics'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], WorkController.prototype, "getWorkStatistics", null);
 __decorate([
     Get('/:id/related-materials'),
     __metadata("design:type", Function),

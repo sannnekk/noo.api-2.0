@@ -53,6 +53,22 @@ export class WorkController {
     }
   }
 
+  @Get('/:id/statistics')
+  public async getWorkStatistics(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.teacher(context)
+
+      const workSlug = this.workValidator.parseId(context.params.id)
+
+      const workStatistics = await this.workService.getWorkStatistics(workSlug)
+
+      return new ApiResponse({ data: workStatistics })
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
   @Get('/:id/related-materials')
   public async getWorkRelatedMaterials(context: Context): Promise<ApiResponse> {
     try {

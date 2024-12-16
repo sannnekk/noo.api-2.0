@@ -1,5 +1,6 @@
 import { Repository } from '../../Core/Data/Repository.js';
 import { AssignedWorkModel } from './AssignedWorkModel.js';
+import { medianValue } from '../Utils/Math.js';
 export class AssignedWorkRepository extends Repository {
     constructor() {
         super(AssignedWorkModel);
@@ -30,5 +31,30 @@ export class AssignedWorkRepository extends Repository {
             userId: mentorId,
         })))
             .execute();
+    }
+    async getWorkSolveCount(id) {
+        const result = await this.queryBuilder('assigned_work')
+            .select('COUNT(id)', 'count')
+            .where('workId = :id', { id })
+            .andWhere('solved_at IS NOT NULL')
+            .getRawOne();
+        return parseInt(result.count);
+    }
+    async getAverageWorkScore(id) {
+        const result = await this.queryBuilder('assigned_work')
+            .select('COALESCE(AVG(score), 0)', 'avgScore')
+            .where('workId = :id', { id })
+            .andWhere('score IS NOT NULL')
+            .getRawOne();
+        return parseFloat(result.avgScore);
+    }
+    async getMedianWorkScore(id) {
+        const results = (await this.queryBuilder('assigned_work')
+            .select('score', 'score')
+            .where('workId = :id', { id })
+            .andWhere('score IS NOT NULL')
+            .getRawMany());
+        const scores = results.map((item) => parseFloat(item.score)) || [];
+        return medianValue(scores);
     }
 }

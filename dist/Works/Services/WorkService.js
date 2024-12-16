@@ -3,12 +3,18 @@ import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
 import { WorkRepository } from '../Data/WorkRepository.js';
 import { WorkModel } from '../Data/WorkModel.js';
 import { CourseMaterialRepository } from '../../Courses/Data/CourseMaterialRepository.js';
+import { WorkTaskRepository } from '../Data/WorkTaskRepository.js';
+import { AssignedWorkRepository } from '../../AssignedWorks/Data/AssignedWorkRepository.js';
 export class WorkService {
     workRepository;
+    workTaskRepository;
+    assignedWorkRepository;
     courseMaterialRepository;
     constructor() {
         this.workRepository = new WorkRepository();
         this.courseMaterialRepository = new CourseMaterialRepository();
+        this.assignedWorkRepository = new AssignedWorkRepository();
+        this.workTaskRepository = new WorkTaskRepository();
     }
     async getWorks(pagination) {
         pagination = new Pagination().assign(pagination);
@@ -31,6 +37,20 @@ export class WorkService {
             throw new NotFoundError();
         }
         return work;
+    }
+    async getWorkStatistics(id) {
+        const hardestTaskIds = await this.workTaskRepository.getHardestTaskIds(id, 3);
+        const averageWorkScore = await this.assignedWorkRepository.getAverageWorkScore(id);
+        const medianWorkScore = await this.assignedWorkRepository.getMedianWorkScore(id);
+        const workSolveCount = await this.assignedWorkRepository.getWorkSolveCount(id);
+        const work = await this.getWorkById(id);
+        return {
+            hardestTaskIds,
+            averageWorkScore,
+            medianWorkScore,
+            workSolveCount,
+            work,
+        };
     }
     async getWorkRelatedMaterials(id, pagination) {
         const work = await this.workRepository.findOne({ id });
