@@ -42,6 +42,20 @@ export function mentorOrStudent(
   }
 }
 
+export function mentorOrStudentOrAssistant(
+  context: Context
+): asserts context is Context & {
+  credentials: JWTPayload & { role: 'mentor' | 'student' | 'assistant' }
+} {
+  if (
+    context.credentials?.role !== 'mentor' &&
+    context.credentials?.role !== 'student' &&
+    context.credentials?.role !== 'assistant'
+  ) {
+    throw new WrongRoleError()
+  }
+}
+
 export function teacher(context: Context): asserts context is Context & {
   credentials: JWTPayload & { role: 'teacher' }
 } {
@@ -64,6 +78,20 @@ export function teacherOrAdmin(context: Context): asserts context is Context & {
   if (
     context.credentials?.role !== 'teacher' &&
     context.credentials?.role !== 'admin'
+  ) {
+    throw new WrongRoleError()
+  }
+}
+
+export function teacherOrAdminOrAssistant(
+  context: Context
+): asserts context is Context & {
+  credentials: JWTPayload & { role: 'teacher' | 'admin' | 'assistant' }
+} {
+  if (
+    context.credentials?.role !== 'teacher' &&
+    context.credentials?.role !== 'admin' &&
+    context.credentials?.role !== 'assistant'
   ) {
     throw new WrongRoleError()
   }

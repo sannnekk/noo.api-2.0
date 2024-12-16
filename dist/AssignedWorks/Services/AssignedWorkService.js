@@ -425,7 +425,7 @@ export class AssignedWorkService {
         if (role === 'student') {
             foundWork.isArchivedByStudent = true;
         }
-        else if (role === 'mentor') {
+        else if (role === 'mentor' || role === 'assistant') {
             foundWork.isArchivedByMentors = true;
         }
         await this.assignedWorkRepository.update(foundWork);
@@ -438,7 +438,7 @@ export class AssignedWorkService {
         if (role === 'student') {
             foundWork.isArchivedByStudent = false;
         }
-        else if (role === 'mentor') {
+        else if (role === 'mentor' || role === 'assistant') {
             foundWork.isArchivedByMentors = false;
         }
         await this.assignedWorkRepository.update(foundWork);

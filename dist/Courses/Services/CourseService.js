@@ -70,7 +70,7 @@ export class CourseService {
         let condition = {
             course: { id: course.id },
         };
-        if (role === 'student' || role === 'mentor') {
+        if (role === 'student' || role === 'mentor' || role === 'assistant') {
             condition = {
                 ...condition,
                 isActive: true,

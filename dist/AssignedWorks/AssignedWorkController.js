@@ -252,7 +252,7 @@ let AssignedWorkController = class AssignedWorkController {
     async archive(context) {
         try {
             await Asserts.isAuthenticated(context);
-            Asserts.mentorOrStudent(context);
+            Asserts.mentorOrStudentOrAssistant(context);
             const workId = this.assignedWorkValidator.parseId(context.params.id);
             await this.assignedWorkService.archiveWork(workId, context.credentials.role);
             return new ApiResponse();
@@ -264,7 +264,7 @@ let AssignedWorkController = class AssignedWorkController {
     async unarchive(context) {
         try {
             await Asserts.isAuthenticated(context);
-            Asserts.mentorOrStudent(context);
+            Asserts.mentorOrStudentOrAssistant(context);
             const workId = this.assignedWorkValidator.parseId(context.params.id);
             await this.assignedWorkService.unarchiveWork(workId, context.credentials.role);
             return new ApiResponse();
@@ -289,7 +289,7 @@ let AssignedWorkController = class AssignedWorkController {
     async replaceMentor(context) {
         try {
             await Asserts.isAuthenticated(context);
-            Asserts.teacherOrAdmin(context);
+            Asserts.teacherOrAdminOrAssistant(context);
             const workId = this.assignedWorkValidator.parseId(context.params.workId);
             const mentorId = this.assignedWorkValidator.parseId(context.params.mentorId);
             await this.assignedWorkService.replaceMentor(workId, mentorId);

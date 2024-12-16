@@ -51,6 +51,7 @@ export class AssignedWorkController {
     try {
       await Asserts.isAuthenticated(context)
       Asserts.notStudent(context)
+
       const userId = this.assignedWorkValidator.parseId(context.params.userId)
       const pagination = this.assignedWorkValidator.parsePagination(
         context.query
@@ -396,7 +397,8 @@ export class AssignedWorkController {
   public async archive(context: Context): Promise<ApiResponse> {
     try {
       await Asserts.isAuthenticated(context)
-      Asserts.mentorOrStudent(context)
+      Asserts.mentorOrStudentOrAssistant(context)
+
       const workId = this.assignedWorkValidator.parseId(context.params.id)
 
       await this.assignedWorkService.archiveWork(
@@ -414,7 +416,7 @@ export class AssignedWorkController {
   public async unarchive(context: Context): Promise<ApiResponse> {
     try {
       await Asserts.isAuthenticated(context)
-      Asserts.mentorOrStudent(context)
+      Asserts.mentorOrStudentOrAssistant(context)
       const workId = this.assignedWorkValidator.parseId(context.params.id)
 
       await this.assignedWorkService.unarchiveWork(
@@ -433,6 +435,7 @@ export class AssignedWorkController {
     try {
       await Asserts.isAuthenticated(context)
       Asserts.mentor(context)
+
       const workId = this.assignedWorkValidator.parseId(context.params.workId)
       const mentorId = this.assignedWorkValidator.parseId(
         context.params.mentorId
@@ -454,7 +457,8 @@ export class AssignedWorkController {
   public async replaceMentor(context: Context): Promise<ApiResponse> {
     try {
       await Asserts.isAuthenticated(context)
-      Asserts.teacherOrAdmin(context)
+      Asserts.teacherOrAdminOrAssistant(context)
+
       const workId = this.assignedWorkValidator.parseId(context.params.workId)
       const mentorId = this.assignedWorkValidator.parseId(
         context.params.mentorId

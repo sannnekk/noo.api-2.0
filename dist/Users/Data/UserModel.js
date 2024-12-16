@@ -99,6 +99,8 @@ let UserModel = class UserModel extends SearchableModel {
                 return 'Преподаватель';
             case 'admin':
                 return 'Администратор';
+            case 'assistant':
+                return 'Ассистент';
         }
     }
 };
@@ -126,7 +128,13 @@ __decorate([
     Column({
         name: 'role',
         type: 'enum',
-        enum: ['student', 'mentor', 'teacher', 'admin'],
+        enum: [
+            'student',
+            'mentor',
+            'teacher',
+            'admin',
+            'assistant',
+        ],
         default: 'student',
         charset: config.database.charsets.default,
         collation: config.database.collations.default,

@@ -32,8 +32,9 @@ export class StatisticsService {
             case 'student':
                 return this.getStudentStatistics(user.id, from, to, type);
             case 'admin':
+            case 'assistant':
             default:
-                throw new WrongRoleError('У администраторов нет статистики');
+                throw new WrongRoleError('У администраторов и ассистентов нет статистики');
         }
     }
     async getTeacherStatistics(teacherId, from, to, type) {

@@ -81,7 +81,13 @@ export class UserModel extends SearchableModel implements User {
   @Column({
     name: 'role',
     type: 'enum',
-    enum: ['student', 'mentor', 'teacher', 'admin'] as UserRolesType,
+    enum: [
+      'student',
+      'mentor',
+      'teacher',
+      'admin',
+      'assistant',
+    ] as UserRolesType,
     default: 'student',
     charset: config.database.charsets.default,
     collation: config.database.collations.default,
@@ -272,6 +278,8 @@ export class UserModel extends SearchableModel implements User {
         return 'Преподаватель'
       case 'admin':
         return 'Администратор'
+      case 'assistant':
+        return 'Ассистент'
     }
   }
 }

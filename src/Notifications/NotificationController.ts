@@ -105,6 +105,7 @@ export class NotificationsController {
   public async create(context: Context): Promise<ApiResponse> {
     try {
       await Asserts.isAuthenticated(context)
+      Asserts.teacherOrAdmin(context)
 
       const notificationCreationDTO =
         this.notificationValidator.parseNotificationCreation(context.body)
