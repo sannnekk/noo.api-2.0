@@ -209,6 +209,13 @@ export class AssignedWorkModel extends SearchableModel implements AssignedWork {
   isArchivedByStudent!: boolean
 
   @Column({
+    name: 'is_archived_by_assistants',
+    type: 'boolean',
+    default: false,
+  })
+  isArchivedByAssistants!: boolean
+
+  @Column({
     name: 'is_new_attempt',
     type: 'boolean',
     default: false,

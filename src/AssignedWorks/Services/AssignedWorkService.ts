@@ -665,8 +665,10 @@ export class AssignedWorkService {
 
     if (role === 'student') {
       foundWork.isArchivedByStudent = true
-    } else if (role === 'mentor' || role === 'assistant') {
+    } else if (role === 'mentor') {
       foundWork.isArchivedByMentors = true
+    } else if (role === 'assistant') {
+      foundWork.isArchivedByAssistants = true
     }
 
     await this.assignedWorkRepository.update(foundWork)
@@ -681,8 +683,10 @@ export class AssignedWorkService {
 
     if (role === 'student') {
       foundWork.isArchivedByStudent = false
-    } else if (role === 'mentor' || role === 'assistant') {
+    } else if (role === 'mentor') {
       foundWork.isArchivedByMentors = false
+    } else if (role === 'assistant') {
+      foundWork.isArchivedByAssistants = false
     }
 
     await this.assignedWorkRepository.update(foundWork)
