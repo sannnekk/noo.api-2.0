@@ -77,7 +77,7 @@ export class CourseService {
         },
       },
       pagination,
-      ['course', 'course.images', 'assigner']
+      ['course', 'course.images', 'assigner', 'course.subject']
     )
   }
 
@@ -86,17 +86,43 @@ export class CourseService {
     userId: User['id'],
     role: User['role']
   ): Promise<Course> {
+    const condition: FindOptionsWhere<Course> =
+      role === 'teacher'
+        ? { slug }
+        : {
+            slug,
+            chapters: {
+              isActive: true,
+              materials: {
+                isActive: true,
+              },
+            },
+          }
+
     const course = await this.courseRepository.findOne(
-      { slug },
-      ['authors', 'authors.avatar'],
-      undefined,
+      condition,
+      [
+        'chapters',
+        'chapters.materials',
+        'chapters.materials.work',
+        'chapters.materials.files',
+      ],
       {
-        relationLoadStrategy: 'query',
+        chapters: {
+          order: 'ASC',
+          materials: {
+            order: 'ASC',
+          },
+        },
       }
     )
 
     if (!course) {
       throw new NotFoundError('Курс не найден')
+    }
+
+    if ((course.chapters || []).length === 0) {
+      throw new CourseIsEmptyError()
     }
 
     if (role === 'student') {
@@ -110,39 +136,7 @@ export class CourseService {
       }
     }
 
-    let condition: FindOptionsWhere<CourseChapter> = {
-      course: { id: course.id },
-    }
-
-    if (role === 'student' || role === 'mentor' || role === 'assistant') {
-      condition = {
-        ...condition,
-        isActive: true,
-        materials: {
-          isActive: true,
-        },
-      }
-    }
-
-    const chapters = await this.chapterRepository.findAll(
-      condition,
-      ['materials', 'materials.files', 'materials.work', 'materials.poll'],
-      {
-        order: 'ASC',
-        materials: {
-          order: 'ASC',
-        },
-      },
-      {
-        joinStrategy: 'query',
-      }
-    )
-
-    if (chapters.length === 0) {
-      throw new CourseIsEmptyError()
-    }
-
-    course.chapters = chapters
+    course.authors = await this.getCourseAuthors(course.id)
 
     if (role === 'teacher' || role === 'admin') {
       course.studentCount = await this.courseAssignmentRepository.count({
@@ -155,6 +149,10 @@ export class CourseService {
     }
 
     return course
+  }
+
+  public async getCourseAuthors(courseId: Course['id']) {
+    return this.courseRepository.getAuthors(courseId)
   }
 
   public async getStudentListWithAssignments(

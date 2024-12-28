@@ -14,5 +14,6 @@ export const TaskScheme = z.object({
   solveHint: DeltaScheme.nullable().optional(),
   checkHint: DeltaScheme.nullable().optional(),
   checkingStrategy: CheckingStrategyScheme.nullable().optional(),
-  isAnswerVisibleBeforeCheck: z.boolean(),
+  isAnswerVisibleBeforeCheck: z.boolean().default(false),
+  isCheckOneByOneEnabled: z.boolean().default(false),
 })

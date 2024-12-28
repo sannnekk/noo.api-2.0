@@ -46,12 +46,31 @@ export class StatisticsService {
                 .andWhere('work.type = :type', { type });
         }
         const usersCount = await userRepositoryQueryBuilder.clone().getCount();
+        const studentsCount = await userRepositoryQueryBuilder
+            .clone()
+            .where('user.role = :role', { role: 'student' })
+            .getCount();
+        const mentorsCount = await userRepositoryQueryBuilder
+            .clone()
+            .where('user.role = :role', { role: 'mentor' })
+            .getCount();
+        const assistantCount = await userRepositoryQueryBuilder
+            .clone()
+            .where('user.role = :role', { role: 'assistant' })
+            .getCount();
+        const teachersCount = await userRepositoryQueryBuilder
+            .clone()
+            .where('user.role = :role', { role: 'teacher' })
+            .getCount();
         const usersOnlineCount = await this.sessionService.getOnlineUsersCount();
         const studentOnlineCount = await this.sessionService.getOnlineUsersCount({
             user: { role: 'student' },
         });
         const mentorOnlineCount = await this.sessionService.getOnlineUsersCount({
             user: { role: 'mentor' },
+        });
+        const assistantOnlineCount = await this.sessionService.getOnlineUsersCount({
+            user: { role: 'assistant' },
         });
         const teacherOnlineCount = await this.sessionService.getOnlineUsersCount({
             user: { role: 'teacher' },
@@ -63,18 +82,6 @@ export class StatisticsService {
         const mentorActiveCount = await this.sessionService.getActiveUsersCount({
             user: { role: 'mentor' },
         });
-        const studentsCount = await userRepositoryQueryBuilder
-            .clone()
-            .where('user.role = :role', { role: 'student' })
-            .getCount();
-        const mentorsCount = await userRepositoryQueryBuilder
-            .clone()
-            .where('user.role = :role', { role: 'mentor' })
-            .getCount();
-        const teachersCount = await userRepositoryQueryBuilder
-            .clone()
-            .where('user.role = :role', { role: 'teacher' })
-            .getCount();
         const totalAssignedWorks = await assignedWorkRepositoryQueryBuilder
             .clone()
             .getCount();
@@ -145,6 +152,10 @@ export class StatisticsService {
                                     value: teachersCount,
                                 },
                                 {
+                                    name: 'Ассистентов',
+                                    value: assistantCount,
+                                },
+                                {
                                     name: 'Кураторов',
                                     value: mentorsCount,
                                 },
@@ -162,6 +173,10 @@ export class StatisticsService {
                                 {
                                     name: 'Учителей',
                                     value: teacherOnlineCount,
+                                },
+                                {
+                                    name: 'Ассистентов',
+                                    value: assistantOnlineCount,
                                 },
                                 {
                                     name: 'Кураторов',

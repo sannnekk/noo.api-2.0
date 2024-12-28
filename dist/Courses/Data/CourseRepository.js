@@ -4,4 +4,7 @@ export class CourseRepository extends Repository {
     constructor() {
         super(CourseModel);
     }
+    async getAuthors(courseId) {
+        return this.queryBuilder().relation('authors').of(courseId).loadMany();
+    }
 }
