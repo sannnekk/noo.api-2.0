@@ -27,4 +27,13 @@ export class WorkTaskRepository extends Repository<WorkTask> {
       .limit(count)
       .getRawMany()
   }
+
+  public async getWorkMaxScore(workId: Work['id']): Promise<number> {
+    const result = (await this.queryBuilder('work_task')
+      .select('SUM(work_task.highest_score)', 'maxScore')
+      .where('workId = :workId', { workId })
+      .getRawOne()) as { maxScore: string }
+
+    return parseInt(result.maxScore) === 0 ? 1 : parseInt(result.maxScore)
+  }
 }

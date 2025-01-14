@@ -5,6 +5,7 @@ import { WorkModel } from '../Data/WorkModel.js';
 import { CourseMaterialRepository } from '../../Courses/Data/CourseMaterialRepository.js';
 import { WorkTaskRepository } from '../Data/WorkTaskRepository.js';
 import { AssignedWorkRepository } from '../../AssignedWorks/Data/AssignedWorkRepository.js';
+import { round } from '../../Core/Utils/math.js';
 export class WorkService {
     workRepository;
     workTaskRepository;
@@ -39,15 +40,24 @@ export class WorkService {
         return work;
     }
     async getWorkStatistics(id) {
+        const work = await this.getWorkById(id);
+        const maxScore = await this.workTaskRepository.getWorkMaxScore(work.id);
         const hardestTaskIds = await this.workTaskRepository.getHardestTaskIds(id, 3);
         const averageWorkScore = await this.assignedWorkRepository.getAverageWorkScore(id);
+        const averageWorkScorePercentage = (averageWorkScore / maxScore) * 100;
         const medianWorkScore = await this.assignedWorkRepository.getMedianWorkScore(id);
-        const workSolveCount = await this.assignedWorkRepository.getWorkSolveCount(id);
-        const work = await this.getWorkById(id);
+        const medianWorkScorePercentage = (medianWorkScore / maxScore) * 100;
+        const workSolveCount = await this.assignedWorkRepository.getWorkSolveCount(id, false);
         return {
             hardestTaskIds,
-            averageWorkScore,
-            medianWorkScore,
+            averageWorkScore: {
+                absolute: round(averageWorkScore, 2),
+                percentage: round(averageWorkScorePercentage, 2),
+            },
+            medianWorkScore: {
+                absolute: round(medianWorkScore, 2),
+                percentage: round(medianWorkScorePercentage, 2),
+            },
             workSolveCount,
             work,
         };

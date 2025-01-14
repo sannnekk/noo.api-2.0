@@ -9,6 +9,7 @@ import { CourseMaterialRepository } from '@modules/Courses/Data/CourseMaterialRe
 import { WorkStatisticsDTO } from '../DTO/WorkStatisticsDTO'
 import { WorkTaskRepository } from '../Data/WorkTaskRepository'
 import { AssignedWorkRepository } from '@modules/AssignedWorks/Data/AssignedWorkRepository'
+import { round } from '@modules/Core/Utils/math'
 
 export class WorkService {
   private readonly workRepository: WorkRepository
@@ -57,6 +58,10 @@ export class WorkService {
   }
 
   public async getWorkStatistics(id: Work['id']): Promise<WorkStatisticsDTO> {
+    const work = await this.getWorkById(id)
+
+    const maxScore = await this.workTaskRepository.getWorkMaxScore(work.id)
+
     const hardestTaskIds = await this.workTaskRepository.getHardestTaskIds(
       id,
       3
@@ -65,18 +70,28 @@ export class WorkService {
     const averageWorkScore =
       await this.assignedWorkRepository.getAverageWorkScore(id)
 
+    const averageWorkScorePercentage = (averageWorkScore / maxScore) * 100
+
     const medianWorkScore =
       await this.assignedWorkRepository.getMedianWorkScore(id)
 
-    const workSolveCount =
-      await this.assignedWorkRepository.getWorkSolveCount(id)
+    const medianWorkScorePercentage = (medianWorkScore / maxScore) * 100
 
-    const work = await this.getWorkById(id)
+    const workSolveCount = await this.assignedWorkRepository.getWorkSolveCount(
+      id,
+      false
+    )
 
     return {
       hardestTaskIds,
-      averageWorkScore,
-      medianWorkScore,
+      averageWorkScore: {
+        absolute: round(averageWorkScore, 2),
+        percentage: round(averageWorkScorePercentage, 2),
+      },
+      medianWorkScore: {
+        absolute: round(medianWorkScore, 2),
+        percentage: round(medianWorkScorePercentage, 2),
+      },
       workSolveCount,
       work,
     }

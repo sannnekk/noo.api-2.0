@@ -32,12 +32,15 @@ export class AssignedWorkRepository extends Repository {
         })))
             .execute();
     }
-    async getWorkSolveCount(id) {
-        const result = await this.queryBuilder('assigned_work')
+    async getWorkSolveCount(id, includeNewAttempts = true) {
+        const qb = this.queryBuilder('assigned_work')
             .select('COUNT(id)', 'count')
             .where('workId = :id', { id })
-            .andWhere('solved_at IS NOT NULL')
-            .getRawOne();
+            .andWhere('solved_at IS NOT NULL');
+        if (!includeNewAttempts) {
+            qb.andWhere('is_new_attempt = 0');
+        }
+        const result = await qb.getRawOne();
         return parseInt(result.count);
     }
     async getAverageWorkScore(id) {

@@ -235,6 +235,24 @@ export class UserController {
     }
   }
 
+  @Patch('/:id/cancel-email-change')
+  async cancelEmailChange(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      const id = this.userValidator.parseId(context.params.id)
+
+      if (!['teacher', 'admin'].includes(context.credentials!.role)) {
+        Asserts.isAuthorized(context, id)
+      }
+
+      await this.userService.cancelEmailUpdate(id)
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
   @Patch('/:id/block')
   async block(context: Context): Promise<ApiResponse> {
     try {

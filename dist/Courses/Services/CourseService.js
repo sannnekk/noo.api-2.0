@@ -73,6 +73,9 @@ export class CourseService {
                 order: 'ASC',
                 materials: {
                     order: 'ASC',
+                    files: {
+                        order: 'ASC',
+                    },
                 },
             },
         });

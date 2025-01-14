@@ -180,6 +180,20 @@ let UserController = class UserController {
             return new ApiResponse(error, context);
         }
     }
+    async cancelEmailChange(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            const id = this.userValidator.parseId(context.params.id);
+            if (!['teacher', 'admin'].includes(context.credentials.role)) {
+                Asserts.isAuthorized(context, id);
+            }
+            await this.userService.cancelEmailUpdate(id);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error, context);
+        }
+    }
     async block(context) {
         try {
             await Asserts.isAuthenticated(context);
@@ -319,6 +333,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "updateEmail", null);
+__decorate([
+    Patch('/:id/cancel-email-change'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "cancelEmailChange", null);
 __decorate([
     Patch('/:id/block'),
     __metadata("design:type", Function),

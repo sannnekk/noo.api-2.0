@@ -47,12 +47,20 @@ export class AssignedWorkRepository extends Repository<AssignedWork> {
       .execute()
   }
 
-  public async getWorkSolveCount(id: string): Promise<number> {
-    const result = await this.queryBuilder('assigned_work')
+  public async getWorkSolveCount(
+    id: string,
+    includeNewAttempts = true
+  ): Promise<number> {
+    const qb = this.queryBuilder('assigned_work')
       .select('COUNT(id)', 'count')
       .where('workId = :id', { id })
       .andWhere('solved_at IS NOT NULL')
-      .getRawOne()
+
+    if (!includeNewAttempts) {
+      qb.andWhere('is_new_attempt = 0')
+    }
+
+    const result = await qb.getRawOne()
 
     return parseInt(result.count)
   }
