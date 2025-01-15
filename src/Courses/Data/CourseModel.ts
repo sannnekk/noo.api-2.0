@@ -80,6 +80,10 @@ export class CourseModel extends SearchableModel implements Course {
   @JoinTable()
   authors!: User[]
 
+  @ManyToMany(() => UserModel, (user) => user.editedCourses)
+  @JoinTable()
+  editors!: User[]
+
   @OneToMany(() => CourseAssignmentModel, (assignment) => assignment.course)
   studentAssignments?: CourseAssignment[]
 

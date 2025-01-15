@@ -39,7 +39,7 @@ export class CourseService {
     }
     async getOwn(pagination, userId) {
         return this.courseRepository.search({
-            authors: {
+            editors: {
                 id: userId,
             },
         }, pagination);
@@ -99,6 +99,7 @@ export class CourseService {
             course.studentCount = await this.courseAssignmentRepository.count({
                 course: { id: course.id },
             });
+            course.editors = await this.courseRepository.getEditors(course.id);
         }
         if (role === 'student') {
             await this.addMyReactionToMaterials(course, userId);

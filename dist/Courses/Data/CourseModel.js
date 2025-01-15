@@ -39,6 +39,7 @@ let CourseModel = class CourseModel extends SearchableModel {
     slug;
     name;
     authors;
+    editors;
     studentAssignments;
     description;
     chapters;
@@ -83,6 +84,11 @@ __decorate([
     JoinTable(),
     __metadata("design:type", Array)
 ], CourseModel.prototype, "authors", void 0);
+__decorate([
+    ManyToMany(() => UserModel, (user) => user.editedCourses),
+    JoinTable(),
+    __metadata("design:type", Array)
+], CourseModel.prototype, "editors", void 0);
 __decorate([
     OneToMany(() => CourseAssignmentModel, (assignment) => assignment.course),
     __metadata("design:type", Array)

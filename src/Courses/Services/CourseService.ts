@@ -58,7 +58,7 @@ export class CourseService {
   public async getOwn(pagination: Pagination, userId: User['id']) {
     return this.courseRepository.search(
       {
-        authors: {
+        editors: {
           id: userId,
         },
       },
@@ -145,6 +145,8 @@ export class CourseService {
       course.studentCount = await this.courseAssignmentRepository.count({
         course: { id: course.id },
       })
+
+      course.editors = await this.courseRepository.getEditors(course.id)
     }
 
     if (role === 'student') {

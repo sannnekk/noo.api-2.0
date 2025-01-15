@@ -47,6 +47,7 @@ let UserModel = class UserModel extends SearchableModel {
     mentorAssignmentsAsMentor;
     mentorAssignmentsAsStudent;
     courses;
+    editedCourses;
     courseAssignments;
     courseAssignmentsAsAssigner;
     assignedWorksAsMentor;
@@ -182,6 +183,10 @@ __decorate([
     ManyToMany(() => CourseModel, (course) => course.authors),
     __metadata("design:type", Array)
 ], UserModel.prototype, "courses", void 0);
+__decorate([
+    ManyToMany(() => CourseModel, (course) => course.editors),
+    __metadata("design:type", Array)
+], UserModel.prototype, "editedCourses", void 0);
 __decorate([
     OneToMany(() => CourseAssignmentModel, (assignment) => assignment.student),
     __metadata("design:type", Array)

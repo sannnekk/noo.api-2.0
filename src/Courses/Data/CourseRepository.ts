@@ -11,4 +11,8 @@ export class CourseRepository extends Repository<Course> {
   public async getAuthors(courseId: string): Promise<User[]> {
     return this.queryBuilder().relation('authors').of(courseId).loadMany()
   }
+
+  public async getEditors(courseId: string): Promise<User[]> {
+    return this.queryBuilder().relation('editors').of(courseId).loadMany()
+  }
 }

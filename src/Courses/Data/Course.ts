@@ -10,6 +10,7 @@ export interface Course extends BaseModel {
   name: string
   images: Media[]
   authors: User[]
+  editors: User[]
   description: string
   chapters?: CourseChapter[]
   subject: Subject
