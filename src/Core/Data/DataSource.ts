@@ -34,6 +34,7 @@ import { UserSettingsModel } from '@modules/UserSettings/Data/UserSettingsModel'
 import { FavouriteTaskModel } from '@modules/AssignedWorks/Data/Relations/FavouriteTaskModel'
 import { VideoModel } from '@modules/Video/Data/VideoModel'
 import { VideoChapterModel } from '@modules/Video/Data/Relations/VideoChapterModel'
+import { VideoCommentModel } from '@modules/Video/Data/Relations/VIdeoCommentModel'
 
 export const CoreDataSource = new DataSource({
   type: 'mysql',
@@ -79,6 +80,7 @@ export const CoreDataSource = new DataSource({
     FavouriteTaskModel,
     VideoModel,
     VideoChapterModel,
+    VideoCommentModel,
   ],
   subscribers: [],
   migrations: [],

@@ -11,14 +11,16 @@ import {
   OneToOne,
   SelectQueryBuilder,
 } from 'typeorm'
-import { DeltaContentType } from '@modules/Core/Data/DeltaContentType'
-import { User } from '@modules/Users/Data/User'
-import { VideoChapter } from './Relations/VideoChapter'
-import { Media } from '@modules/Media/Data/Media'
+import type { DeltaContentType } from '@modules/Core/Data/DeltaContentType'
+import type { User } from '@modules/Users/Data/User'
+import type { VideoChapter } from './Relations/VideoChapter'
+import type { Media } from '@modules/Media/Data/Media'
+import type { VideoComment } from './Relations/VideoComment'
 import { UserModel } from '@modules/Users/Data/UserModel'
 import { MediaModel } from '@modules/Media/Data/MediaModel'
 import { CourseMaterialModel } from '@modules/Courses/Data/Relations/CourseMaterialModel'
 import { SearchableModel } from '@modules/Core/Data/SearchableModel'
+import { VideoCommentModel } from './Relations/VIdeoCommentModel'
 
 @Entity('video')
 export class VideoModel extends SearchableModel implements Video {
@@ -130,6 +132,9 @@ export class VideoModel extends SearchableModel implements Video {
 
   @OneToMany(() => VideoChapterModel, (chapter) => chapter.video)
   chapters!: VideoChapter[]
+
+  @OneToMany(() => VideoCommentModel, (comment) => comment.video)
+  comments!: VideoComment[]
 
   @ManyToOne(() => UserModel, (user) => user.uploadedVideos)
   uploadedBy!: User

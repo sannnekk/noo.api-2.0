@@ -43,6 +43,8 @@ import { UserAvatarModel } from './Relations/UserAvatarModel'
 import type { User } from './User'
 import { VideoModel } from '@modules/Video/Data/VideoModel'
 import type { Video } from '@modules/Video/Data/Video'
+import { VideoCommentModel } from '@modules/Video/Data/Relations/VIdeoCommentModel'
+import { VideoComment } from '@modules/Video/Data/Relations/VideoComment'
 
 @Entity('user')
 export class UserModel extends SearchableModel implements User {
@@ -179,6 +181,9 @@ export class UserModel extends SearchableModel implements User {
 
   @OneToOne(() => UserSettingsModel, (settings) => settings.user)
   settings?: UserSettings
+
+  @OneToMany(() => VideoCommentModel, (comment) => comment.user)
+  videoComments?: VideoComment[]
 
   @Column({
     name: 'telegram_id',

@@ -3,6 +3,7 @@ import { BaseModel } from '@modules/Core/Data/Model'
 import { Media } from '@modules/Media/Data/Media'
 import { User } from '@modules/Users/Data/User'
 import { VideoChapter } from './Relations/VideoChapter'
+import { VideoComment } from './Relations/VideoComment'
 
 export interface Video extends BaseModel {
   title: string
@@ -13,8 +14,9 @@ export interface Video extends BaseModel {
   serviceType: 'yandex'
   state: 'not-uploaded' | 'uploaded' | 'uploading' | 'failed'
   uniqueIdentifier: string
-  length: number
+  duration: number
   chapters: VideoChapter[]
+  comments: VideoComment[]
   uploadedBy: User
   uploadUrl: string | null
   publishedAt: Date
