@@ -1,11 +1,12 @@
 import { Pagination } from '@modules/Core/Data/Pagination'
 import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
 import { WorkRepository } from '../Data/WorkRepository'
-import { Work } from '../Data/Work'
+import type { Work } from '../Data/Work'
 import { WorkModel } from '../Data/WorkModel'
-import { WorkDTO } from '../DTO/WorkDTO'
-import { Subject } from '@modules/Subjects/Data/Subject'
+import type { WorkDTO } from '../DTO/WorkDTO'
+import type { Subject } from '@modules/Subjects/Data/Subject'
 import { CourseMaterialRepository } from '@modules/Courses/Data/CourseMaterialRepository'
+import type { WorkTask } from '../Data/Relations/WorkTask'
 
 export class WorkService {
   private readonly workRepository: WorkRepository
@@ -101,7 +102,8 @@ export class WorkService {
           rightAnswer: task.rightAnswer,
           solveHint: task.solveHint,
           checkHint: task.checkHint,
-        }) as unknown as Work['tasks'][0]
+          isAnswerVisibleBeforeCheck: task.isAnswerVisibleBeforeCheck,
+        }) as WorkTask
     )
 
     this.workRepository.create(newWork)

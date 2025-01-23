@@ -64,7 +64,7 @@ export class VideoController {
 
       const video = this.videoValidator.parseVideo(context.body)
 
-      const uploadUrl = this.videoService.createVideo(
+      const uploadUrl = await this.videoService.createVideo(
         video,
         context.credentials.userId,
         context.credentials.role
@@ -80,7 +80,7 @@ export class VideoController {
   public async finishUpload(context: Context): Promise<ApiResponse> {
     try {
       await Asserts.isAuthenticated(context)
-      Asserts.teacher(context)
+      Asserts.notStudent(context)
 
       const videoId = this.videoValidator.parseId(context.params.id)
 
@@ -109,6 +109,44 @@ export class VideoController {
       )
 
       return new ApiResponse({ data: video })
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
+  @Post('/:id/comment')
+  public async addComment(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+
+      const videoId = this.videoValidator.parseId(context.params.id)
+      const comment = this.videoValidator.parseComment(context.body)
+
+      await this.videoService.addComment(
+        videoId,
+        comment,
+        context.credentials!.userId
+      )
+
+      return new ApiResponse({ data: comment })
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
+  @Delete('/comment/:commentId')
+  public async deleteComment(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+
+      const commentId = this.videoValidator.parseId(context.params.commentId)
+
+      await this.videoService.deleteComment(
+        commentId,
+        context.credentials!.userId
+      )
+
+      return new ApiResponse()
     } catch (error: any) {
       return new ApiResponse(error, context)
     }
