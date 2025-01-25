@@ -374,15 +374,15 @@ export class AssignedWorkService {
         foundWork.comments = saveOptions.comments || foundWork.comments || [];
         await this.assignedWorkRepository.update(foundWork);
     }
-    async saveAnswer(assignedWorkId, answer, userId) {
+    async saveAnswer(assignedWorkId, answer, userId, userRole) {
         const foundWork = await this.getAssignedWork(assignedWorkId);
-        if (foundWork.studentId !== userId) {
+        if (foundWork.studentId !== userId && userRole === 'student') {
             throw new UnauthorizedError();
         }
-        if (workAlreadyMade(foundWork)) {
+        if (workAlreadyMade(foundWork) && userRole === 'student') {
             throw new WorkAlreadySolvedError();
         }
-        if (foundWork.solveStatus !== 'in-progress') {
+        if (foundWork.solveStatus !== 'in-progress' && userRole === 'student') {
             foundWork.solveStatus = 'in-progress';
             await this.assignedWorkRepository.update(foundWork);
         }
@@ -416,6 +416,23 @@ export class AssignedWorkService {
         comment.assignedWork = { id: foundWork.id };
         const createdComment = await this.commentRepository.create(comment);
         return createdComment.id;
+    }
+    async saveWorkComments(assignedWorkId, data, userId, userRole) {
+        const foundWork = await this.getAssignedWork(assignedWorkId);
+        if (userRole === 'student' && foundWork.studentId !== userId) {
+            throw new UnauthorizedError();
+        }
+        if (userRole === 'mentor' &&
+            !foundWork.mentors.some((mentor) => mentor.id === userId)) {
+            throw new UnauthorizedError();
+        }
+        if (userRole === 'mentor') {
+            foundWork.mentorComment = data.mentorComment;
+        }
+        else if (userRole === 'student') {
+            foundWork.studentComment = data.studentComment;
+        }
+        await this.assignedWorkRepository.update(foundWork);
     }
     async archiveWork(id, role) {
         const foundWork = await this.getAssignedWork(id);

@@ -243,11 +243,35 @@ export class AssignedWorkController {
     }
   }
 
+  @Patch('/:id/save-work-comments')
+  public async saveWorkComments(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.mentorOrStudent(context)
+
+      const workId = this.assignedWorkValidator.parseId(context.params.id)
+      const comments = this.assignedWorkValidator.parseWorkComments(
+        context.body
+      )
+
+      await this.assignedWorkService.saveWorkComments(
+        workId,
+        comments,
+        context.credentials.userId,
+        context.credentials.role
+      )
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
   @Patch('/:id/save-answer')
   public async saveAnswer(context: Context): Promise<ApiResponse> {
     try {
       await Asserts.isAuthenticated(context)
-      Asserts.student(context)
+      Asserts.mentorOrStudentOrAssistant(context)
 
       const assignedWorkId = this.assignedWorkValidator.parseId(
         context.params.id
@@ -257,7 +281,8 @@ export class AssignedWorkController {
       const answerId = await this.assignedWorkService.saveAnswer(
         assignedWorkId,
         answer,
-        context.credentials.userId
+        context.credentials.userId,
+        context.credentials.role
       )
 
       return new ApiResponse({ data: answerId })

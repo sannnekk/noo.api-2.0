@@ -591,19 +591,20 @@ export class AssignedWorkService {
   public async saveAnswer(
     assignedWorkId: AssignedWork['id'],
     answer: AssignedWorkAnswer,
-    userId: User['id']
+    userId: User['id'],
+    userRole: User['role']
   ): Promise<AssignedWorkAnswer['id']> {
     const foundWork = await this.getAssignedWork(assignedWorkId)
 
-    if (foundWork.studentId !== userId) {
+    if (foundWork.studentId !== userId && userRole === 'student') {
       throw new UnauthorizedError()
     }
 
-    if (workAlreadyMade(foundWork)) {
+    if (workAlreadyMade(foundWork) && userRole === 'student') {
       throw new WorkAlreadySolvedError()
     }
 
-    if (foundWork.solveStatus !== 'in-progress') {
+    if (foundWork.solveStatus !== 'in-progress' && userRole === 'student') {
       foundWork.solveStatus = 'in-progress'
       await this.assignedWorkRepository.update(foundWork)
     }
@@ -654,6 +655,37 @@ export class AssignedWorkService {
     const createdComment = await this.commentRepository.create(comment)
 
     return createdComment.id
+  }
+
+  public async saveWorkComments(
+    assignedWorkId: AssignedWork['id'],
+    data: {
+      studentComment: AssignedWork['studentComment']
+      mentorComment: AssignedWork['mentorComment']
+    },
+    userId: User['id'],
+    userRole: User['role']
+  ) {
+    const foundWork = await this.getAssignedWork(assignedWorkId)
+
+    if (userRole === 'student' && foundWork.studentId !== userId) {
+      throw new UnauthorizedError()
+    }
+
+    if (
+      userRole === 'mentor' &&
+      !foundWork.mentors!.some((mentor) => mentor.id === userId)
+    ) {
+      throw new UnauthorizedError()
+    }
+
+    if (userRole === 'mentor') {
+      foundWork.mentorComment = data.mentorComment
+    } else if (userRole === 'student') {
+      foundWork.studentComment = data.studentComment
+    }
+
+    await this.assignedWorkRepository.update(foundWork)
   }
 
   public async archiveWork(id: AssignedWork['id'], role: User['role']) {

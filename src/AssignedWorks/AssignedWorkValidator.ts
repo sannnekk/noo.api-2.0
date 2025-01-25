@@ -15,6 +15,8 @@ import { AssignedWorkAnswerScheme } from './Schemes/AssignedWorkAnswerScheme'
 import { AssignedWorkComment } from './Data/Relations/AssignedWorkComment'
 import { AssignedWorkCommentScheme } from './Schemes/AssignedWorkCommentScheme'
 import { z } from 'zod'
+import { AssignedWork } from './Data/AssignedWork'
+import { DeltaScheme } from '@modules/Core/Schemas/DeltaScheme'
 
 @ErrorConverter()
 export class AssignedWorkValidator extends Validator {
@@ -44,6 +46,22 @@ export class AssignedWorkValidator extends Validator {
 
   public parseComment(data: unknown): AssignedWorkComment {
     return this.parse<AssignedWorkComment>(data, AssignedWorkCommentScheme)
+  }
+
+  public parseWorkComments(data: unknown): {
+    studentComment: AssignedWork['studentComment']
+    mentorComment: AssignedWork['mentorComment']
+  } {
+    return this.parse<{
+      studentComment: AssignedWork['studentComment']
+      mentorComment: AssignedWork['mentorComment']
+    }>(
+      data,
+      z.object({
+        studentComment: DeltaScheme.nullable().optional(),
+        mentorComment: DeltaScheme.nullable().optional(),
+      })
+    )
   }
 
   public parseBulkFavouriteTasksRemove(data: unknown): { ids: string[] } {

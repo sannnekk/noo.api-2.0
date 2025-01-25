@@ -14,6 +14,7 @@ import { AssignedWorkSaveOptionsScheme } from './Schemes/AssignedWorkSaveOptions
 import { AssignedWorkAnswerScheme } from './Schemes/AssignedWorkAnswerScheme.js';
 import { AssignedWorkCommentScheme } from './Schemes/AssignedWorkCommentScheme.js';
 import { z } from 'zod';
+import { DeltaScheme } from '../Core/Schemas/DeltaScheme.js';
 let AssignedWorkValidator = class AssignedWorkValidator extends Validator {
     parseRemake(body) {
         return this.parse(body, AssignedWorkRemakeOptionsScheme);
@@ -35,6 +36,12 @@ let AssignedWorkValidator = class AssignedWorkValidator extends Validator {
     }
     parseComment(data) {
         return this.parse(data, AssignedWorkCommentScheme);
+    }
+    parseWorkComments(data) {
+        return this.parse(data, z.object({
+            studentComment: DeltaScheme.nullable().optional(),
+            mentorComment: DeltaScheme.nullable().optional(),
+        }));
     }
     parseBulkFavouriteTasksRemove(data) {
         return this.parse(data, z.object({ ids: z.array(z.string().ulid()) }));

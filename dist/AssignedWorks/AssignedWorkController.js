@@ -162,13 +162,26 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse(error, context);
         }
     }
+    async saveWorkComments(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.mentorOrStudent(context);
+            const workId = this.assignedWorkValidator.parseId(context.params.id);
+            const comments = this.assignedWorkValidator.parseWorkComments(context.body);
+            await this.assignedWorkService.saveWorkComments(workId, comments, context.credentials.userId, context.credentials.role);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error, context);
+        }
+    }
     async saveAnswer(context) {
         try {
             await Asserts.isAuthenticated(context);
-            Asserts.student(context);
+            Asserts.mentorOrStudentOrAssistant(context);
             const assignedWorkId = this.assignedWorkValidator.parseId(context.params.id);
             const answer = this.assignedWorkValidator.parseAnswer(context.body);
-            const answerId = await this.assignedWorkService.saveAnswer(assignedWorkId, answer, context.credentials.userId);
+            const answerId = await this.assignedWorkService.saveAnswer(assignedWorkId, answer, context.credentials.userId, context.credentials.role);
             return new ApiResponse({ data: answerId });
         }
         catch (error) {
@@ -414,6 +427,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], AssignedWorkController.prototype, "save", null);
+__decorate([
+    Patch('/:id/save-work-comments'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], AssignedWorkController.prototype, "saveWorkComments", null);
 __decorate([
     Patch('/:id/save-answer'),
     __metadata("design:type", Function),

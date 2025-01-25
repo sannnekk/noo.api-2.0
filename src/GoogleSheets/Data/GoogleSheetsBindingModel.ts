@@ -111,7 +111,7 @@ export class GoogleSheetsBindingModel
     query: SelectQueryBuilder<BaseModel>,
     needle: string
   ): string[] {
-    query.andWhere('LOWER(google_docs_binding.name) LIKE LOWER(:needle)', {
+    query.andWhere('LOWER(google_sheets_binding.name) LIKE LOWER(:needle)', {
       needle: `%${needle}%`,
     })
 

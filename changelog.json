@@ -1,5 +1,18 @@
 [
 	{
+		"version": "3.4.7",
+		"date": "2025-01-24",
+		"authors": [
+			"sannnekk"
+		],
+		"changes": [
+			{
+				"type": "impr",
+				"description": "Обновленный алгоритм автосохранения"
+			}
+		]
+	},
+	{
 		"version": "3.4.6",
 		"date": "2025-01-16",
 		"authors": [
