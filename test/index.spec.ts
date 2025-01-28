@@ -8,10 +8,38 @@ import type { RequestTest } from '../src/Core/Test/RequestTest'
 // module tests
 import AssignedWorkModuleTests from '../src/AssignedWorks/Tests'
 import AuthModuleTests from '../src/Auth/Tests'
+import PlatformModuleTests from '../src/Platform/Tests'
+import CalenderModuleTests from '../src/Calender/Tests'
+import CoursesModuleTests from '../src/Courses/Tests'
+import FAQModuleTests from '../src/FAQ/Tests'
+import GoogleSheetsModuleTests from '../src/GoogleSheets/Tests'
+import NotificationsModuleTests from '../src/Notifications/Tests'
+import PollsModuleTests from '../src/Polls/Tests'
+import SessionsModuleTests from '../src/Sessions/Tests'
+import SnippetsModuleTests from '../src/Snippets/Tests'
+import StatisticsModuleTests from '../src/Statistics/Tests'
+import SubjectsModuleTests from '../src/Subjects/Tests'
+import UsersModuleTests from '../src/Users/Tests'
+import UserSettingsModuleTests from '../src/UserSettings/Tests'
+import WorksModuleTests from '../src/Works/Tests'
 
 const tests: Record<string, RequestTest[]> = {
   'AssignedWorks module': AssignedWorkModuleTests,
   'Auth module': AuthModuleTests,
+  'Platform module': PlatformModuleTests,
+  'Calender module': CalenderModuleTests, 
+  'Courses module': CoursesModuleTests,
+  'FAQ module': FAQModuleTests,
+  'GoogleSheets module': GoogleSheetsModuleTests,
+  'Notifications module': NotificationsModuleTests,
+  'Polls module': PollsModuleTests,
+  'Sessions module': SessionsModuleTests,
+  'Snippets module': SnippetsModuleTests,
+  'Statistics module': StatisticsModuleTests,
+  'Subjects module': SubjectsModuleTests,
+  'Users module': UsersModuleTests,
+  'UserSettings module': UserSettingsModuleTests,
+  'Works module': WorksModuleTests
 }
 
 for (const [moduleName, moduleTests] of Object.entries(tests)) {

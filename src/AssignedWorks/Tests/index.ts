@@ -6,7 +6,7 @@ import { StatusCodes } from 'http-status-codes'
 
 const tests: RequestTest[] = [
   {
-    name: 'Get paginated list of assigned works',
+    name: 'Get paginated list of assigned work',
     route: '/assigned-work',
     method: 'GET',
     authAs: 'admin',
