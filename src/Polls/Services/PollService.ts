@@ -14,10 +14,10 @@ import { InvalidAuthTypeError } from '../Errors/InvalidAuthTypeError'
 import { PollAuthService } from './PollAuthService'
 import { z } from 'zod'
 import * as TypeORM from 'typeorm'
-import { PollQuestion } from '../Data/Relations/PollQuestion'
 import { PollQuestionRepository } from '../Data/PollQuestionRepository'
-import { UnknownError } from '@modules/Core/Errors/UnknownError'
 import { NotificationService } from '@modules/Notifications/Services/NotificationService'
+import { PollModel } from '../Data/PollModel'
+import { PollAlreadyEndedError } from '../Errors/PollAlreadyEndedError'
 
 export class PollService {
   private readonly pollRepository: PollRepository
@@ -42,35 +42,47 @@ export class PollService {
   }
 
   public async getPolls(pagination: Pagination) {
-    pagination = new Pagination().assign(pagination)
+    return this.pollRepository.search(undefined, pagination)
+  }
 
-    const relations = [] as (keyof Poll)[]
-    const conditions = {} as Partial<Poll>
+  public async getMyPolls(userId: User['id'], pagination: Pagination) {
+    const myPollIds = await this.pollAnswerRepository.getMyPollIds(userId)
 
-    return this.pollRepository.search(conditions as any, pagination, relations)
+    return this.pollRepository.search(
+      {
+        id: TypeORM.In(myPollIds),
+      },
+      pagination
+    )
+  }
+
+  public async createPoll(poll: Poll) {
+    return this.pollRepository.create(poll)
+  }
+
+  public async updatePoll(id: Poll['id'], data: Partial<Poll>) {
+    const poll = await this.pollRepository.findOne({ id })
+
+    if (!poll) {
+      throw new NotFoundError('Опрос не найден')
+    }
+
+    const updatedPoll = new PollModel({ ...poll, ...data, id })
+
+    await this.pollRepository.update(updatedPoll)
   }
 
   public async searchQuestions(pagination: Pagination, pollId?: Poll['id']) {
-    pagination = new Pagination().assign(pagination)
-
-    const relations = ['poll'] as any as (keyof PollQuestion)[]
-
-    const conditions: Partial<PollQuestion> = {
-      poll: {
-        post: {
-          id: TypeORM.Not(TypeORM.IsNull()) as any,
-        } as any,
-      } as any,
-    }
-
-    if (pollId) {
-      conditions.poll!.id = pollId
-    }
-
     return this.pollQuestionRepository.search(
-      conditions as any,
+      pollId
+        ? {
+            poll: {
+              id: pollId,
+            },
+          }
+        : undefined,
       pagination,
-      relations
+      ['poll']
     )
   }
 
@@ -111,27 +123,16 @@ export class PollService {
       throw new UnauthorizedError()
     }
 
-    pagination = new Pagination().assign(pagination)
-
-    const relations = [] as (keyof User)[]
-    const conditions = {
-      votedPolls: {
-        id: pollId,
-      } as unknown as Poll[],
-    }
-
-    /* return {
-      entities: [],
-      meta: {
-        total: 0,
-        relations: [],
+    return this.userRepository.search(
+      {
+        votedPolls: {
+          id: pollId,
+        },
       },
-    } */
-
-    return this.userRepository.search(conditions as any, pagination, relations)
+      pagination
+    )
   }
 
-  // !!! TEST THIS
   public async searchWhoVotedUnregistered(
     userRole: User['role'],
     pollId: Poll['id'],
@@ -141,24 +142,18 @@ export class PollService {
       throw new UnauthorizedError()
     }
 
-    pagination = new Pagination().assign(pagination)
-
-    const relations: (keyof PollAnswer)[] = []
-    const groupBy: keyof PollAnswer = 'userAuthData'
-    const conditions = {
-      userAuthType: TypeORM.Not('api'),
-      question: {
-        poll: {
-          id: pollId,
+    return this.pollAnswerRepository.search(
+      {
+        userAuthType: TypeORM.Not('api'),
+        question: {
+          poll: {
+            id: pollId,
+          },
         },
       },
-    } as unknown as Partial<PollAnswer>
-
-    const { entities, meta } = await this.pollAnswerRepository.search(
-      conditions as any,
       pagination,
-      relations,
-      groupBy,
+      undefined,
+      'userAuthData',
       {
         useEagerRelations: false,
         select: [
@@ -183,45 +178,42 @@ export class PollService {
         ],
       }
     )
-
-    return { entities, meta }
   }
 
   public async getAnswers(
+    userId: User['id'],
     userRole: User['role'],
     pollId: Poll['id'],
     idOrTelegramUsername: User['id'] | string
   ) {
+    const isRegistered = z
+      .string()
+      .ulid()
+      .safeParse(idOrTelegramUsername).success
+
     if (!(await this.canSeeResults(userRole, pollId))) {
-      throw new UnauthorizedError()
+      if (idOrTelegramUsername !== userId) {
+        throw new UnauthorizedError()
+      }
     }
 
-    const relations = [] as (keyof PollAnswer)[]
-    const conditions = {
+    const conditions: TypeORM.FindOptionsWhere<PollAnswer> = {
       question: {
         poll: {
           id: pollId,
         },
       },
-      userAuthIdentifier: TypeORM.ILike(`%${idOrTelegramUsername}%`),
     }
 
-    if (z.string().ulid().safeParse(idOrTelegramUsername).success) {
-      // @ts-expect-error TypeORM doesn't support union types
+    if (isRegistered) {
       conditions.user = {
         id: idOrTelegramUsername,
       }
-      // @ts-expect-error TypeORM doesn't support union types
-      delete conditions.userAuthIdentifier
+    } else {
+      conditions.userAuthIdentifier = TypeORM.ILike(`%${idOrTelegramUsername}%`)
     }
 
-    const { entities: answers } = await this.pollAnswerRepository.search(
-      conditions as any,
-      new Pagination(1, 250),
-      relations
-    )
-
-    return answers
+    return this.pollAnswerRepository.findAll(conditions)
   }
 
   public async saveAnswers(
@@ -234,7 +226,16 @@ export class PollService {
       throw new CantVoteInPollError()
     }
 
-    if (userId && (await this.userAlreadyVoted(userId, pollId))) {
+    const isRegistered = !!userId
+
+    if (isRegistered && (await this.userAlreadyVoted(userId, pollId))) {
+      throw new AlreadyVotedError()
+    }
+
+    if (
+      !isRegistered &&
+      (await this.unregisteredUserAlreadyVoted(answers, pollId))
+    ) {
       throw new AlreadyVotedError()
     }
 
@@ -246,19 +247,18 @@ export class PollService {
       throw new NotFoundError()
     }
 
-    // TODO: add user more efficient
-    if (userId) {
-      poll.votedUsers!.push({ id: userId } as User)
-    } else {
-      this.answersHaveValidAuth(answers)
+    if (poll.isStopped) {
+      throw new PollAlreadyEndedError()
     }
 
-    poll.votedCount += 1
+    if (!isRegistered) {
+      this.answersHaveValidAuth(answers)
+    }
 
     const answerModels = answers.map((answer) => {
       let data = { ...answer }
 
-      if (userId) {
+      if (isRegistered) {
         data = { ...data, user: { id: userId } as User }
       } else {
         data = {
@@ -274,17 +274,17 @@ export class PollService {
       return new PollAnswerModel(data)
     })
 
-    this.pollRepository.update(poll)
-    try {
-      this.pollAnswerRepository.createMany(answerModels)
+    poll.votedCount += 1
 
-      if (userId) {
-        this.notificationService.generateAndSend('poll.poll-answered', userId, {
-          poll,
-        })
-      }
-    } catch (error) {
-      throw new UnknownError('Не удалось сохранить ответы')
+    this.pollRepository.update(poll)
+    this.pollAnswerRepository.createMany(answerModels)
+
+    if (isRegistered) {
+      this.pollRepository.addVotedUser(poll.id, userId)
+
+      this.notificationService.generateAndSend('poll.poll-answered', userId, {
+        poll,
+      })
     }
   }
 
@@ -303,6 +303,16 @@ export class PollService {
     await this.pollAnswerRepository.update(newAnswer)
   }
 
+  public async deletePoll(id: Poll['id']): Promise<void> {
+    const poll = await this.pollRepository.findOne({ id })
+
+    if (!poll) {
+      throw new NotFoundError('Опрос не найден')
+    }
+
+    await this.pollRepository.delete(poll.id)
+  }
+
   private async userAlreadyVoted(
     userId: User['id'],
     pollId: Poll['id']
@@ -316,6 +326,32 @@ export class PollService {
       user: {
         id: userId,
       },
+    })
+
+    return existingAnswer !== null
+  }
+
+  private async unregisteredUserAlreadyVoted(
+    answers: PollAnswer[],
+    pollId: Poll['id']
+  ): Promise<boolean> {
+    if (answers.length === 0) {
+      return true
+    }
+
+    const answer = answers[0]
+    const authIdentifier = this.removeEmojisAndNonUTF8(
+      (answer.userAuthData!.username ||
+        '_telegram_id_' + answer.userAuthData!.id) as string
+    )
+
+    const existingAnswer = await this.pollAnswerRepository.findOne({
+      question: {
+        poll: {
+          id: pollId,
+        },
+      },
+      userAuthIdentifier: authIdentifier,
     })
 
     return existingAnswer !== null

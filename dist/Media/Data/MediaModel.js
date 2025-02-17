@@ -16,6 +16,7 @@ import { BlogPostModel } from '../../Blog/Data/BlogPostModel.js';
 import { UserAvatarModel } from '../../Users/Data/Relations/UserAvatarModel.js';
 import { config } from '../../config.js';
 import { UserSettingsModel } from '../../UserSettings/Data/UserSettingsModel.js';
+import { VideoModel } from '../../Video/Data/VideoModel.js';
 let MediaModel = class MediaModel extends Model {
     constructor(data) {
         super();
@@ -33,6 +34,7 @@ let MediaModel = class MediaModel extends Model {
     blogPost;
     avatar;
     userSettings;
+    videoAsThumbnail;
 };
 __decorate([
     Column({
@@ -72,13 +74,13 @@ __decorate([
 ], MediaModel.prototype, "order", void 0);
 __decorate([
     ManyToOne(() => CourseMaterialModel, (courseMaterial) => courseMaterial.files, { onDelete: 'CASCADE' }),
-    __metadata("design:type", CourseMaterialModel)
+    __metadata("design:type", Object)
 ], MediaModel.prototype, "courseMaterial", void 0);
 __decorate([
     ManyToOne(() => CourseModel, (course) => course.images, {
         onDelete: 'CASCADE',
     }),
-    __metadata("design:type", CourseModel)
+    __metadata("design:type", Object)
 ], MediaModel.prototype, "course", void 0);
 __decorate([
     ManyToOne(() => PollAnswerModel, (answer) => answer.files, {
@@ -96,12 +98,16 @@ __decorate([
     OneToOne(() => UserAvatarModel, (avatar) => avatar.media, {
         onDelete: 'SET NULL',
     }),
-    __metadata("design:type", UserAvatarModel)
+    __metadata("design:type", Object)
 ], MediaModel.prototype, "avatar", void 0);
 __decorate([
     OneToOne(() => UserSettingsModel, (settings) => settings.backgroundImage),
-    __metadata("design:type", UserSettingsModel)
+    __metadata("design:type", Object)
 ], MediaModel.prototype, "userSettings", void 0);
+__decorate([
+    OneToOne(() => VideoModel, (video) => video.thumbnail),
+    __metadata("design:type", Object)
+], MediaModel.prototype, "videoAsThumbnail", void 0);
 MediaModel = __decorate([
     Entity('media', {
         orderBy: {

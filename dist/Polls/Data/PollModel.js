@@ -14,6 +14,7 @@ import { PollQuestionModel } from './Relations/PollQuestionModel.js';
 import { SearchableModel } from '../../Core/Data/SearchableModel.js';
 import { config } from '../../config.js';
 import { CourseMaterialModel } from '../../Courses/Data/Relations/CourseMaterialModel.js';
+import Dates from '../../Core/Utils/date.js';
 let PollModel = class PollModel extends SearchableModel {
     constructor(data) {
         super();
@@ -22,6 +23,7 @@ let PollModel = class PollModel extends SearchableModel {
             if (data.questions) {
                 this.questions = data.questions.map((question) => new PollQuestionModel(question));
             }
+            this.isStopped = Dates.isInPast(this.stopAt);
         }
     }
     post;
@@ -37,7 +39,9 @@ let PollModel = class PollModel extends SearchableModel {
     stopAt;
     isStopped;
     addSearchToQuery(query, needle) {
-        query.andWhere('poll.title LIKE :needle', { needle: `%${needle}%` });
+        query.andWhere('LOWER(poll.title) LIKE LOWER(:needle)', {
+            needle: `%${needle}%`,
+        });
         return [];
     }
 };

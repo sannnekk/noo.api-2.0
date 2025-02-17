@@ -28,10 +28,12 @@ import { config } from '../../config.js';
 import { FAQCategoryModel } from '../../FAQ/Data/Relations/FAQCategoryModel.js';
 import { NotificationModel } from '../../Notifications/Data/NotificationModel.js';
 import { CourseAssignmentModel } from '../../Courses/Data/Relations/CourseAssignmentModel.js';
-//import { EventModel } from '@modules/Event/Data/EventModel'
 import { CourseMaterialReactionModel } from '../../Courses/Data/Relations/CourseMaterialReactionModel.js';
 import { UserSettingsModel } from '../../UserSettings/Data/UserSettingsModel.js';
 import { FavouriteTaskModel } from '../../AssignedWorks/Data/Relations/FavouriteTaskModel.js';
+import { VideoModel } from '../../Video/Data/VideoModel.js';
+import { VideoChapterModel } from '../../Video/Data/Relations/VideoChapterModel.js';
+import { VideoCommentModel } from '../../Video/Data/Relations/VideoCommentModel.js';
 export const CoreDataSource = new DataSource({
     type: 'mysql',
     host: process.env.DB_HOST,
@@ -74,7 +76,9 @@ export const CoreDataSource = new DataSource({
         SnippetModel,
         NotificationModel,
         FavouriteTaskModel,
-        //EventModel,
+        VideoModel,
+        VideoChapterModel,
+        VideoCommentModel,
     ],
     subscribers: [],
     migrations: [],

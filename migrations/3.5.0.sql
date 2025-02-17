@@ -42,7 +42,8 @@ CREATE TABLE
       `videoId` varchar(255) CHARACTER
     SET
       utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-      PRIMARY KEY (`id`)
+      PRIMARY KEY (`id`),
+      CONSTRAINT `FK_1ascklnaco59sipld` FOREIGN KEY (`videoId`) REFERENCES `video` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
   ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
 
 CREATE TABLE

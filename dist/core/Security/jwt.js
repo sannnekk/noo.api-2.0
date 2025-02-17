@@ -19,3 +19,6 @@ export function create(payload) {
         expiresIn: process.env.JWT_EXPIRES_IN,
     });
 }
+export function createRaw(payload, key, options) {
+    return jwtlib.sign(payload, key, options);
+}

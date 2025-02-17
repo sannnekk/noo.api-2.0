@@ -1,5 +1,30 @@
 [
 	{
+		"version": "3.5.0",
+		"date": "2025-02-17",
+		"authors": [
+			"sannnekk"
+		],
+		"changes": [
+			{
+				"type": "feat",
+				"description": "BEta тест НОО.Tube"
+			},
+			{
+				"type": "feat",
+				"description": "Теперь можно смотреть свои прохождения опросов"
+			},
+			{
+				"type": "impr",
+				"description": "Блог вырезан из НОО.Платформы"
+			},
+			{
+				"type": "impr",
+				"description": "Можно редактировать опрос после создания, улучшение дизайна"
+			}
+		]
+	},
+	{
 		"version": "3.4.7",
 		"date": "2025-01-24",
 		"authors": [

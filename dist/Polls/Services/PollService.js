@@ -1,5 +1,4 @@
 import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
-import { Pagination } from '../../Core/Data/Pagination.js';
 import { UnauthorizedError } from '../../Core/Errors/UnauthorizedError.js';
 import { UserRepository } from '../../Users/Data/UserRepository.js';
 import { PollRepository } from '../Data/PollRepository.js';
@@ -12,8 +11,9 @@ import { PollAuthService } from './PollAuthService.js';
 import { z } from 'zod';
 import * as TypeORM from 'typeorm';
 import { PollQuestionRepository } from '../Data/PollQuestionRepository.js';
-import { UnknownError } from '../../Core/Errors/UnknownError.js';
 import { NotificationService } from '../../Notifications/Services/NotificationService.js';
+import { PollModel } from '../Data/PollModel.js';
+import { PollAlreadyEndedError } from '../Errors/PollAlreadyEndedError.js';
 export class PollService {
     pollRepository;
     pollAnswerRepository;
@@ -30,25 +30,33 @@ export class PollService {
         this.notificationService = new NotificationService();
     }
     async getPolls(pagination) {
-        pagination = new Pagination().assign(pagination);
-        const relations = [];
-        const conditions = {};
-        return this.pollRepository.search(conditions, pagination, relations);
+        return this.pollRepository.search(undefined, pagination);
+    }
+    async getMyPolls(userId, pagination) {
+        const myPollIds = await this.pollAnswerRepository.getMyPollIds(userId);
+        return this.pollRepository.search({
+            id: TypeORM.In(myPollIds),
+        }, pagination);
+    }
+    async createPoll(poll) {
+        return this.pollRepository.create(poll);
+    }
+    async updatePoll(id, data) {
+        const poll = await this.pollRepository.findOne({ id });
+        if (!poll) {
+            throw new NotFoundError('Опрос не найден');
+        }
+        const updatedPoll = new PollModel({ ...poll, ...data, id });
+        await this.pollRepository.update(updatedPoll);
     }
     async searchQuestions(pagination, pollId) {
-        pagination = new Pagination().assign(pagination);
-        const relations = ['poll'];
-        const conditions = {
-            poll: {
-                post: {
-                    id: TypeORM.Not(TypeORM.IsNull()),
+        return this.pollQuestionRepository.search(pollId
+            ? {
+                poll: {
+                    id: pollId,
                 },
-            },
-        };
-        if (pollId) {
-            conditions.poll.id = pollId;
-        }
-        return this.pollQuestionRepository.search(conditions, pagination, relations);
+            }
+            : undefined, pagination, ['poll']);
     }
     async getPollById(id, userId) {
         const poll = await this.pollRepository.findOne({ id }, ['questions'], {
@@ -75,39 +83,24 @@ export class PollService {
         if (!(await this.canSeeResults(userRole, pollId))) {
             throw new UnauthorizedError();
         }
-        pagination = new Pagination().assign(pagination);
-        const relations = [];
-        const conditions = {
+        return this.userRepository.search({
             votedPolls: {
                 id: pollId,
             },
-        };
-        /* return {
-          entities: [],
-          meta: {
-            total: 0,
-            relations: [],
-          },
-        } */
-        return this.userRepository.search(conditions, pagination, relations);
+        }, pagination);
     }
-    // !!! TEST THIS
     async searchWhoVotedUnregistered(userRole, pollId, pagination) {
         if (!(await this.canSeeResults(userRole, pollId))) {
             throw new UnauthorizedError();
         }
-        pagination = new Pagination().assign(pagination);
-        const relations = [];
-        const groupBy = 'userAuthData';
-        const conditions = {
+        return this.pollAnswerRepository.search({
             userAuthType: TypeORM.Not('api'),
             question: {
                 poll: {
                     id: pollId,
                 },
             },
-        };
-        const { entities, meta } = await this.pollAnswerRepository.search(conditions, pagination, relations, groupBy, {
+        }, pagination, undefined, 'userAuthData', {
             useEagerRelations: false,
             select: [
                 ['user_auth_identifier', ' identifier'],
@@ -130,37 +123,44 @@ export class PollService {
                 ],
             ],
         });
-        return { entities, meta };
     }
-    async getAnswers(userRole, pollId, idOrTelegramUsername) {
+    async getAnswers(userId, userRole, pollId, idOrTelegramUsername) {
+        const isRegistered = z
+            .string()
+            .ulid()
+            .safeParse(idOrTelegramUsername).success;
         if (!(await this.canSeeResults(userRole, pollId))) {
-            throw new UnauthorizedError();
+            if (idOrTelegramUsername !== userId) {
+                throw new UnauthorizedError();
+            }
         }
-        const relations = [];
         const conditions = {
             question: {
                 poll: {
                     id: pollId,
                 },
             },
-            userAuthIdentifier: TypeORM.ILike(`%${idOrTelegramUsername}%`),
         };
-        if (z.string().ulid().safeParse(idOrTelegramUsername).success) {
-            // @ts-expect-error TypeORM doesn't support union types
+        if (isRegistered) {
             conditions.user = {
                 id: idOrTelegramUsername,
             };
-            // @ts-expect-error TypeORM doesn't support union types
-            delete conditions.userAuthIdentifier;
         }
-        const { entities: answers } = await this.pollAnswerRepository.search(conditions, new Pagination(1, 250), relations);
-        return answers;
+        else {
+            conditions.userAuthIdentifier = TypeORM.ILike(`%${idOrTelegramUsername}%`);
+        }
+        return this.pollAnswerRepository.findAll(conditions);
     }
     async saveAnswers(userId, userRole, pollId, answers) {
         if (!(await this.canVote(userRole, pollId))) {
             throw new CantVoteInPollError();
         }
-        if (userId && (await this.userAlreadyVoted(userId, pollId))) {
+        const isRegistered = !!userId;
+        if (isRegistered && (await this.userAlreadyVoted(userId, pollId))) {
+            throw new AlreadyVotedError();
+        }
+        if (!isRegistered &&
+            (await this.unregisteredUserAlreadyVoted(answers, pollId))) {
             throw new AlreadyVotedError();
         }
         const poll = await this.pollRepository.findOne({ id: pollId }, [
@@ -169,17 +169,15 @@ export class PollService {
         if (!poll) {
             throw new NotFoundError();
         }
-        // TODO: add user more efficient
-        if (userId) {
-            poll.votedUsers.push({ id: userId });
+        if (poll.isStopped) {
+            throw new PollAlreadyEndedError();
         }
-        else {
+        if (!isRegistered) {
             this.answersHaveValidAuth(answers);
         }
-        poll.votedCount += 1;
         const answerModels = answers.map((answer) => {
             let data = { ...answer };
-            if (userId) {
+            if (isRegistered) {
                 data = { ...data, user: { id: userId } };
             }
             else {
@@ -192,17 +190,14 @@ export class PollService {
             }
             return new PollAnswerModel(data);
         });
+        poll.votedCount += 1;
         this.pollRepository.update(poll);
-        try {
-            this.pollAnswerRepository.createMany(answerModels);
-            if (userId) {
-                this.notificationService.generateAndSend('poll.poll-answered', userId, {
-                    poll,
-                });
-            }
-        }
-        catch (error) {
-            throw new UnknownError('Не удалось сохранить ответы');
+        this.pollAnswerRepository.createMany(answerModels);
+        if (isRegistered) {
+            this.pollRepository.addVotedUser(poll.id, userId);
+            this.notificationService.generateAndSend('poll.poll-answered', userId, {
+                poll,
+            });
         }
     }
     async editAnswer(id, data) {
@@ -212,6 +207,13 @@ export class PollService {
         }
         const newAnswer = new PollAnswerModel({ ...answer, ...data, id });
         await this.pollAnswerRepository.update(newAnswer);
+    }
+    async deletePoll(id) {
+        const poll = await this.pollRepository.findOne({ id });
+        if (!poll) {
+            throw new NotFoundError('Опрос не найден');
+        }
+        await this.pollRepository.delete(poll.id);
     }
     async userAlreadyVoted(userId, pollId) {
         const existingAnswer = await this.pollAnswerRepository.findOne({
@@ -223,6 +225,23 @@ export class PollService {
             user: {
                 id: userId,
             },
+        });
+        return existingAnswer !== null;
+    }
+    async unregisteredUserAlreadyVoted(answers, pollId) {
+        if (answers.length === 0) {
+            return true;
+        }
+        const answer = answers[0];
+        const authIdentifier = this.removeEmojisAndNonUTF8((answer.userAuthData.username ||
+            '_telegram_id_' + answer.userAuthData.id));
+        const existingAnswer = await this.pollAnswerRepository.findOne({
+            question: {
+                poll: {
+                    id: pollId,
+                },
+            },
+            userAuthIdentifier: authIdentifier,
         });
         return existingAnswer !== null;
     }

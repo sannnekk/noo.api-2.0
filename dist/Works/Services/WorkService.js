@@ -100,6 +100,7 @@ export class WorkService {
             rightAnswer: task.rightAnswer,
             solveHint: task.solveHint,
             checkHint: task.checkHint,
+            isAnswerVisibleBeforeCheck: task.isAnswerVisibleBeforeCheck,
         }));
         this.workRepository.create(newWork);
     }

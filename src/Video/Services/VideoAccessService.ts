@@ -30,7 +30,6 @@ export class VideoAccessService {
       ]
     }
 
-    // @ts-expect-error the role is in another branch
     if (userRole === 'assistant') {
       return [
         { accessType: 'everyone', accessValue: null },
@@ -39,7 +38,6 @@ export class VideoAccessService {
     }
 
     // role is student
-
     const selectors: VideoAccessSelector[] = [
       { accessType: 'everyone', accessValue: null },
       { accessType: 'role', accessValue: 'student' },
@@ -107,7 +105,6 @@ export class VideoAccessService {
       return isOwnVideo || isForMentors
     }
 
-    // @ts-expect-error the role is in another branch
     if (userRole === 'assistant') {
       const isForAssistants =
         video.accessType === 'role' && video.accessValue === 'assistant'

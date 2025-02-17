@@ -4,4 +4,10 @@ export class PollRepository extends Repository {
     constructor() {
         super(PollModel);
     }
+    async addVotedUser(pollId, userId) {
+        await this.queryBuilder()
+            .relation(PollModel, 'votedUsers')
+            .of(pollId)
+            .add(userId);
+    }
 }

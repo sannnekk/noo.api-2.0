@@ -25,6 +25,8 @@ import { Brackets, Column, Entity, JoinColumn, ManyToMany, OneToMany, OneToOne, 
 import { UserSettingsModel } from '../../UserSettings/Data/UserSettingsModel.js';
 import { MentorAssignmentModel } from './Relations/MentorAssignmentModel.js';
 import { UserAvatarModel } from './Relations/UserAvatarModel.js';
+import { VideoModel } from '../../Video/Data/VideoModel.js';
+import { VideoCommentModel } from '../../Video/Data/Relations/VideoCommentModel.js';
 let UserModel = class UserModel extends SearchableModel {
     constructor(data) {
         super();
@@ -57,12 +59,14 @@ let UserModel = class UserModel extends SearchableModel {
     materialReactions;
     pollAnswers;
     votedPolls;
+    uploadedVideos;
     notifications;
     sessions;
     snippets;
     avatar;
     favouriteTasks;
     settings;
+    videoComments;
     telegramId;
     telegramUsername;
     telegramNotificationsEnabled;
@@ -224,6 +228,10 @@ __decorate([
     __metadata("design:type", Array)
 ], UserModel.prototype, "votedPolls", void 0);
 __decorate([
+    OneToMany(() => VideoModel, (video) => video.uploadedBy),
+    __metadata("design:type", Array)
+], UserModel.prototype, "uploadedVideos", void 0);
+__decorate([
     OneToMany(() => NotificationModel, (notification) => notification.user),
     __metadata("design:type", Array)
 ], UserModel.prototype, "notifications", void 0);
@@ -254,6 +262,10 @@ __decorate([
     OneToOne(() => UserSettingsModel, (settings) => settings.user),
     __metadata("design:type", Object)
 ], UserModel.prototype, "settings", void 0);
+__decorate([
+    OneToMany(() => VideoCommentModel, (comment) => comment.user),
+    __metadata("design:type", Array)
+], UserModel.prototype, "videoComments", void 0);
 __decorate([
     Column({
         name: 'telegram_id',

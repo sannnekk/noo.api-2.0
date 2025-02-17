@@ -17,6 +17,7 @@ import { CourseChapterModel } from './CourseChapterModel.js';
 import { config } from '../../../config.js';
 import { PollModel } from '../../../Polls/Data/PollModel.js';
 import { CourseMaterialReactionModel } from './CourseMaterialReactionModel.js';
+import { VideoModel } from '../../../Video/Data/VideoModel.js';
 let CourseMaterialModel = class CourseMaterialModel extends Model {
     constructor(data) {
         super();
@@ -47,6 +48,7 @@ let CourseMaterialModel = class CourseMaterialModel extends Model {
     poll;
     pollId;
     files;
+    videos;
     reactions;
     sluggify(text) {
         return `${ULID.generate()}-${Transliteration.sluggify(text)}`;
@@ -168,6 +170,10 @@ __decorate([
     }),
     __metadata("design:type", Array)
 ], CourseMaterialModel.prototype, "files", void 0);
+__decorate([
+    OneToMany(() => VideoModel, (video) => video.courseMaterial),
+    __metadata("design:type", Array)
+], CourseMaterialModel.prototype, "videos", void 0);
 __decorate([
     OneToMany(() => CourseMaterialReactionModel, (reaction) => reaction.material),
     __metadata("design:type", Array)

@@ -26,6 +26,7 @@ import './Snippets/SnippetsController.js';
 import './FAQ/FAQController.js';
 import './Notifications/NotificationController.js';
 import './UserSettings/UserSettingsController.js';
+import './Video/VideoController.js';
 log('info', 'Container created', 'A new container created');
 await CoreDataSource.initialize();
 const app = express();

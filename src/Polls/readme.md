@@ -9,6 +9,5 @@ Polls and votes.
 
 ### Known problems
 
-- This module needs refactoring
 - THe telegram auth payload is not being validated
 - Tables in the database have latin_swedish charset because of a mistake in a migration. THis should be corrected

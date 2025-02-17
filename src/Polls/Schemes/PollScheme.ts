@@ -3,11 +3,19 @@ import { PollVisibilityOptionsScheme } from './PollVisibilityOptionsScheme'
 import { PollQuestionScheme } from './PollQuestionScheme'
 
 export const PollScheme = z.object({
-  title: z.string(),
-  description: z.string().optional(),
+  id: z.string().ulid().optional().nullable(),
+  title: z
+    .string()
+    .min(2, { message: 'Название опроса не может быть менее 2 символов' })
+    .max(150, { message: 'Название опроса не может быть более 150 символов' }),
+  description: z
+    .string()
+    .max(500, {
+      message: 'Описание опроса не может быть более 500 символов',
+    })
+    .optional(),
   requireAuth: z.boolean(),
   stopAt: z.date(),
-  isStopped: z.boolean(),
   canSeeResults: z.array(PollVisibilityOptionsScheme),
   canVote: z.array(PollVisibilityOptionsScheme),
   questions: z.array(PollQuestionScheme),

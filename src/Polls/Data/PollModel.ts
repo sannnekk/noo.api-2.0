@@ -19,6 +19,7 @@ import { BaseModel } from '@modules/Core/Data/Model'
 import { config } from '@modules/config'
 import { CourseMaterialModel } from '@modules/Courses/Data/Relations/CourseMaterialModel'
 import { CourseMaterial } from '@modules/Courses/Data/Relations/CourseMaterial'
+import Dates from '@modules/Core/Utils/date'
 
 @Entity('poll')
 export class PollModel extends SearchableModel implements Poll {
@@ -33,6 +34,8 @@ export class PollModel extends SearchableModel implements Poll {
           (question) => new PollQuestionModel(question)
         )
       }
+
+      this.isStopped = Dates.isInPast(this.stopAt)
     }
   }
 
@@ -116,7 +119,9 @@ export class PollModel extends SearchableModel implements Poll {
     query: SelectQueryBuilder<BaseModel>,
     needle: string
   ): string[] {
-    query.andWhere('poll.title LIKE :needle', { needle: `%${needle}%` })
+    query.andWhere('LOWER(poll.title) LIKE LOWER(:needle)', {
+      needle: `%${needle}%`,
+    })
 
     return []
   }

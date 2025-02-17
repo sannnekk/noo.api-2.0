@@ -27,6 +27,12 @@ export const MaterialScheme = z.object({
     })
         .nullable()
         .optional(),
+    videos: z
+        .array(z.object({
+        id: z.string().ulid(),
+    }))
+        .optional()
+        .default([]),
     isWorkAvailable: z.boolean().default(true),
     workSolveDeadline: z.date().nullable().optional(),
     workCheckDeadline: z.date().nullable().optional(),

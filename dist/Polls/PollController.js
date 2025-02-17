@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Controller, Get, Patch, Post, } from 'express-controller-decorator';
+import { Controller, Delete, Get, Patch, Post, } from 'express-controller-decorator';
 import { Context } from '../Core/Request/Context.js';
 import { ApiResponse } from '../Core/Response/ApiResponse.js';
 import * as Asserts from '../Core/Security/asserts.js';
@@ -32,6 +32,18 @@ let PollController = class PollController {
             return new ApiResponse(error, context);
         }
     }
+    async getMyPolls(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.mentorOrStudent(context);
+            const pagination = this.pollValidator.parsePagination(context.query);
+            const { entities, meta } = await this.pollService.getMyPolls(context.credentials.userId, pagination);
+            return new ApiResponse({ data: entities, meta });
+        }
+        catch (error) {
+            return new ApiResponse(error, context);
+        }
+    }
     async getQuestions(context) {
         try {
             await Asserts.isAuthenticated(context);
@@ -50,6 +62,31 @@ let PollController = class PollController {
             const id = this.pollValidator.parseId(context.params.id);
             const poll = await this.pollService.getPollById(id, context.credentials?.userId);
             return new ApiResponse({ data: poll });
+        }
+        catch (error) {
+            return new ApiResponse(error, context);
+        }
+    }
+    async createPoll(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.teacherOrAdmin(context);
+            const poll = this.pollValidator.parsePoll(context.body);
+            const createdPoll = await this.pollService.createPoll(poll);
+            return new ApiResponse({ data: createdPoll });
+        }
+        catch (error) {
+            return new ApiResponse(error, context);
+        }
+    }
+    async editPoll(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.teacherOrAdmin(context);
+            const id = this.pollValidator.parseId(context.params.id);
+            const poll = this.pollValidator.parsePoll(context.body);
+            await this.pollService.updatePoll(id, poll);
+            return new ApiResponse();
         }
         catch (error) {
             return new ApiResponse(error, context);
@@ -95,7 +132,7 @@ let PollController = class PollController {
             await Asserts.isAuthenticated(context);
             const pollId = this.pollValidator.parseId(context.params.pollId);
             const userIdOrTelegramUsername = this.pollValidator.parseIdOrTelegramUsername(context.params.userId);
-            const answers = await this.pollService.getAnswers(context.credentials.role, pollId, userIdOrTelegramUsername);
+            const answers = await this.pollService.getAnswers(context.credentials.userId, context.credentials.role, pollId, userIdOrTelegramUsername);
             return new ApiResponse({ data: answers });
         }
         catch (error) {
@@ -127,6 +164,18 @@ let PollController = class PollController {
             return new ApiResponse(error, context);
         }
     }
+    async deletePoll(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.teacherOrAdmin(context);
+            const id = this.pollValidator.parseId(context.params.id);
+            await this.pollService.deletePoll(id);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error, context);
+        }
+    }
 };
 __decorate([
     Get('/'),
@@ -134,6 +183,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], PollController.prototype, "getPolls", null);
+__decorate([
+    Get('/my'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], PollController.prototype, "getMyPolls", null);
 __decorate([
     Get('/question'),
     __metadata("design:type", Function),
@@ -146,6 +201,18 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], PollController.prototype, "getPoll", null);
+__decorate([
+    Post('/'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], PollController.prototype, "createPoll", null);
+__decorate([
+    Patch('/:id'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], PollController.prototype, "editPoll", null);
 __decorate([
     Get('/:id/info'),
     __metadata("design:type", Function),
@@ -182,6 +249,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], PollController.prototype, "saveAnswers", null);
+__decorate([
+    Delete('/:id'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], PollController.prototype, "deletePoll", null);
 PollController = __decorate([
     Controller('/poll'),
     __metadata("design:paramtypes", [])
