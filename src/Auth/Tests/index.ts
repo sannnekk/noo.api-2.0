@@ -210,7 +210,7 @@ const tests: RequestTest[] = [
     route: `/user/${successfullUsername}/verify-manual`, // use the username variable here
     method: 'PATCH',
     authAs: 'admin',
-    expectedStatus: StatusCodes.OK,
+    expectedStatus: StatusCodes.NO_CONTENT,
     responseSchema: EmptyResponseScheme,
   },
   {
