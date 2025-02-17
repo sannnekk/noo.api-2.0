@@ -43,7 +43,7 @@ import { UserAvatarModel } from './Relations/UserAvatarModel'
 import type { User } from './User'
 import { VideoModel } from '@modules/Video/Data/VideoModel'
 import type { Video } from '@modules/Video/Data/Video'
-import { VideoCommentModel } from '@modules/Video/Data/Relations/VIdeoCommentModel'
+import { VideoCommentModel } from '@modules/Video/Data/Relations/VideoCommentModel'
 import { VideoComment } from '@modules/Video/Data/Relations/VideoComment'
 
 @Entity('user')

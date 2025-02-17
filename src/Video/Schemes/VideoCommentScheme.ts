@@ -8,6 +8,16 @@ export const VideoCommentScheme = z.object({
       message: 'Комментарий не может быть пустым',
     })
     .max(250, {
-      message: 'Комментарий не может быть больше 250 символов',
+      message: 'Комментарий не может иметь более 250 символов',
     }),
+  user: z
+    .object({
+      id: z.string().ulid(),
+    })
+    .optional(),
+  video: z
+    .object({
+      id: z.string().ulid(),
+    })
+    .optional(),
 })

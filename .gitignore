@@ -7,3 +7,4 @@ test.sh
 *.heapsnapshot
 uploads/*
 /logs
+temp_keys_yc.json

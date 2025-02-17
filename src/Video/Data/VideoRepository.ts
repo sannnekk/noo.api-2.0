@@ -18,18 +18,33 @@ export class VideoRepository extends Repository<Video> {
     total: number
     relations: string[]
   }> {
+    const queryPagination = new Pagination().assign(pagination)
     const query = this.queryBuilder('video')
+    const instance = new VideoModel()
 
-    this.addPagination(query, pagination)
+    if (selectors.length > 0) {
+      const accessConditionBrackets = new Brackets((qb) => {
+        for (const [index, selector] of selectors.entries()) {
+          this.addAccessSelector(qb, selector, index)
+        }
+      })
 
-    const accessConditionBrackets = new Brackets((qb) => {
-      for (const selector of selectors) {
-        this.addAccessSelector(qb, selector)
-      }
-    })
+      query.where(accessConditionBrackets)
+    }
 
-    query.andWhere(accessConditionBrackets)
+    query.andWhere('video.state = :state', { state: 'published' })
+
+    const searchRelations = instance.addSearchToQuery(
+      query,
+      queryPagination.searchQuery
+    )
+    this.addRelations(query, searchRelations)
+    this.addPagination(query, queryPagination)
+
     query.leftJoinAndSelect('video.thumbnail', 'thumbnail')
+    query.leftJoinAndSelect('video.uploadedBy', 'uploadedBy')
+    query.leftJoinAndSelect('uploadedBy.avatar', 'avatar')
+    query.leftJoinAndSelect('avatar.media', 'media')
 
     const [entities, total] = await query.getManyAndCount()
 
@@ -42,22 +57,19 @@ export class VideoRepository extends Repository<Video> {
 
   private addAccessSelector(
     query: WhereExpressionBuilder,
-    selector: VideoAccessSelector
+    selector: VideoAccessSelector,
+    postfix: number = 0
   ): void {
     switch (selector.accessType) {
       case 'everyone':
-        query.orWhere('video.access_type = :accessType', {
-          accessType: 'everyone',
-        })
+        query.orWhere("video.access_type = 'everyone'")
         break
       case 'role':
         query.orWhere(
           new Brackets((qb) => {
-            qb.andWhere('video.access_type = :accessType', {
-              accessType: 'role',
-            })
-            qb.andWhere('video.access_role = :accessRole', {
-              accessRole: selector.accessValue,
+            qb.where("video.access_type = 'role'")
+            qb.andWhere(`video.access_value = :role${postfix}`, {
+              [`role${postfix}`]: selector.accessValue,
             })
           })
         )
@@ -65,11 +77,9 @@ export class VideoRepository extends Repository<Video> {
       case 'mentorId':
         query.orWhere(
           new Brackets((qb) => {
-            qb.andWhere('video.access_type = :accessType', {
-              accessType: 'mentorId',
-            })
-            qb.andWhere('video.access_value = :accessValue', {
-              accessValue: selector.accessValue,
+            qb.where("video.access_type = 'mentorId'")
+            qb.andWhere(`video.access_value = :mentorId${postfix}`, {
+              [`mentorId${postfix}`]: selector.accessValue,
             })
           })
         )
@@ -77,11 +87,9 @@ export class VideoRepository extends Repository<Video> {
       case 'courseId':
         query.orWhere(
           new Brackets((qb) => {
-            qb.andWhere('video.access_type = :accessType', {
-              accessType: 'courseId',
-            })
-            qb.andWhere('video.access_value = :accessValue', {
-              accessValue: selector.accessValue,
+            qb.where("video.access_type = 'courseId'")
+            qb.andWhere(`video.access_value = :courseId${postfix}`, {
+              [`courseId${postfix}`]: selector.accessValue,
             })
           })
         )

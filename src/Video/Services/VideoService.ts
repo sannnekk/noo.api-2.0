@@ -6,25 +6,24 @@ import { YandexVideoUploadBus } from './UploadBuses/YandexVideoUploadBus'
 import { User } from '@modules/Users/Data/User'
 import { VideoAlreadyUploadedError } from '../Errors/VideoAlreadyUploadedError'
 import { Pagination } from '@modules/Core/Data/Pagination'
-import { UserRepository } from '@modules/Users/Data/UserRepository'
-import { VideoAccessSelector } from '../Types/VideoAccessSelector'
-import { CourseAssignmentRepository } from '@modules/Courses/Data/CourseAssignmentRepository'
+import { UnauthorizedError } from '@modules/Core/Errors/UnauthorizedError'
+import { VideoAccessService } from './VideoAccessService'
 
 export class VideoService {
   private readonly videoRepository: VideoRepository
 
+  private readonly videoAccessService: VideoAccessService
+
   private readonly videoUploadBus: VideoUploadBus
-
-  private readonly userRepository: UserRepository
-
-  private readonly courseAssignmentRepository: CourseAssignmentRepository
 
   public constructor() {
     this.videoRepository = new VideoRepository()
-    this.userRepository = new UserRepository()
-    this.courseAssignmentRepository = new CourseAssignmentRepository()
+    this.videoAccessService = new VideoAccessService()
     this.videoUploadBus = new YandexVideoUploadBus({
       serviceAccountKey: process.env.YANDEX_CLOUD_VIDEO_SERVICE_ACCOUNT_KEY!,
+      serviceAccountKeyId:
+        process.env.YANDEX_CLOUD_VIDEO_SERVICE_ACCOUNT_KEY_ID!,
+      serviceAccountId: process.env.YANDEX_CLOUD_VIDEO_SERVICE_ACCOUNT_ID!,
       channelId: process.env.YANDEX_CLOUD_CHANNEL_ID!,
     })
   }
@@ -38,16 +37,38 @@ export class VideoService {
     total: number
     relations: string[]
   }> {
-    const selector = await this.getVideoSelectorFromUser(userId, userRole)
+    const selector = await this.videoAccessService.getVideoSelectorFromUser(
+      userId,
+      userRole
+    )
 
     return this.videoRepository.getVideos(selector, pagination)
   }
 
-  public async getVideo(id: string): Promise<Video> {
-    const video = await this.videoRepository.findOne({ id })
+  public async getVideo(
+    id: string,
+    userId: User['id'],
+    userRole: User['role']
+  ): Promise<Video> {
+    const video = await this.videoRepository.findOne({ id }, [
+      'thumbnail',
+      'uploadedBy',
+      'uploadedBy.avatar.media',
+    ])
 
-    if (!video) {
+    if (
+      !video ||
+      !(await this.videoAccessService.canGetVideo(video, userId, userRole))
+    ) {
       throw new NotFoundError('Видео не найдено')
+    }
+
+    if (video.duration === 0) {
+      video.duration = await this.videoUploadBus.getVideoDuration(
+        video.uniqueIdentifier
+      )
+
+      await this.videoRepository.update(video)
     }
 
     return video
@@ -57,7 +78,7 @@ export class VideoService {
     video: Video,
     userId: User['id'],
     userRole: User['role']
-  ): Promise<string> {
+  ) {
     const data = await this.videoUploadBus.getUploadUrl(video)
 
     video.uniqueIdentifier = data.uniqueIdentifier
@@ -72,15 +93,29 @@ export class VideoService {
       video.accessValue = userId
     }
 
-    await this.videoRepository.create(video)
+    if (!video.publishedAt) {
+      video.publishedAt = new Date()
+    }
 
-    return data.uploadUrl
+    const savedVideo = await this.videoRepository.create(video)
+
+    return {
+      uploadUrl: data.uploadUrl,
+      id: savedVideo.id,
+    }
   }
 
-  public async finishUpload(id: string): Promise<void> {
+  public async finishUpload(
+    id: string,
+    userId: User['id'],
+    userRole: User['role']
+  ): Promise<void> {
     const video = await this.videoRepository.findOne({ id })
 
-    if (!video) {
+    if (
+      !video ||
+      !this.videoAccessService.canEditVideo(video, userId, userRole)
+    ) {
       throw new NotFoundError('Видео не найдено')
     }
 
@@ -90,6 +125,32 @@ export class VideoService {
 
     video.state = 'uploaded'
     video.uploadUrl = null
+    video.duration = await this.videoUploadBus.getVideoDuration(
+      video.uniqueIdentifier
+    )
+
+    await this.videoRepository.update(video)
+  }
+
+  public async publishVideo(
+    id: string,
+    userId: User['id'],
+    userRole: User['role']
+  ): Promise<void> {
+    const video = await this.videoRepository.findOne({ id })
+
+    if (
+      !video ||
+      !this.videoAccessService.canEditVideo(video, userId, userRole)
+    ) {
+      throw new NotFoundError('Видео не найдено')
+    }
+
+    if (video.state !== 'uploaded') {
+      throw new Error('Видео еще не загружено и не может быть опубликовано')
+    }
+
+    video.state = 'published'
     video.publishedAt = video.publishedAt || new Date()
 
     await this.videoRepository.update(video)
@@ -110,6 +171,14 @@ export class VideoService {
       throw new NotFoundError('Видео не найдено')
     }
 
+    if (!this.videoAccessService.canEditVideo(currentVideo, userId, userRole)) {
+      throw new UnauthorizedError('Недостаточно прав для редактирования видео')
+    }
+
+    if (currentVideo.state !== 'published') {
+      throw new Error('Видео не опубликовано и не может быть изменено')
+    }
+
     currentVideo.title = video.title || currentVideo.title
     currentVideo.description = video.description || currentVideo.description
 
@@ -121,67 +190,23 @@ export class VideoService {
     await this.videoRepository.update(currentVideo)
   }
 
-  public async deleteVideo(id: string, userId: User['id']): Promise<void> {
+  public async deleteVideo(
+    id: string,
+    userId: User['id'],
+    userRole: User['role']
+  ): Promise<void> {
     const video = await this.videoRepository.findOne({
       id,
-      uploadedBy: { id: userId },
     })
 
-    if (!video) {
+    if (
+      !video ||
+      !this.videoAccessService.canDeleteVideo(video, userId, userRole)
+    ) {
       throw new NotFoundError('Видео не найдено')
     }
 
-    await this.videoUploadBus.deleteVideo(video.url)
     await this.videoRepository.delete(id)
-  }
-
-  private async getVideoSelectorFromUser(
-    userId: User['id'],
-    userRole: User['role']
-  ): Promise<VideoAccessSelector[]> {
-    if (userRole === 'teacher' || userRole === 'admin') {
-      return []
-    }
-
-    if (userRole === 'mentor') {
-      return [
-        { accessType: 'mentorId', accessValue: userId },
-        { accessType: 'everyone', accessValue: null },
-        { accessType: 'role', accessValue: 'mentor' },
-      ]
-    }
-
-    const selectors: VideoAccessSelector[] = [
-      { accessType: 'everyone', accessValue: null },
-      { accessType: 'role', accessValue: 'student' },
-    ]
-
-    const mentor = await this.userRepository.findOne({ id: userId })
-
-    if (mentor) {
-      selectors.push({ accessType: 'mentorId', accessValue: mentor.id })
-    }
-
-    const courseAssignments = await this.courseAssignmentRepository.findAll({
-      student: { id: userId },
-    })
-
-    if (courseAssignments.length > 0) {
-      const courseIds = courseAssignments.map(
-        (assignment) => assignment.courseId
-      )
-
-      selectors.push(
-        ...courseIds.map(
-          (courseId) =>
-            ({
-              accessType: 'courseId',
-              accessValue: courseId,
-            }) as const
-        )
-      )
-    }
-
-    return selectors
+    await this.videoUploadBus.deleteVideo(video.uniqueIdentifier)
   }
 }

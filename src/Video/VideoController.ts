@@ -10,15 +10,19 @@ import {
 import * as Asserts from '@modules/Core/Security/asserts'
 import { VideoService } from './Services/VideoService'
 import { VideoValidator } from './VideoValidator'
+import { VideoCommentService } from './Services/VideoCommentService'
 
 @Controller('/video')
 export class VideoController {
   private readonly videoService: VideoService
 
+  private readonly videoCommentService: VideoCommentService
+
   private readonly videoValidator: VideoValidator
 
   public constructor() {
     this.videoService = new VideoService()
+    this.videoCommentService = new VideoCommentService()
     this.videoValidator = new VideoValidator()
   }
 
@@ -48,7 +52,11 @@ export class VideoController {
 
       const videoId = this.videoValidator.parseId(context.params.id)
 
-      const video = await this.videoService.getVideo(videoId)
+      const video = await this.videoService.getVideo(
+        videoId,
+        context.credentials!.userId,
+        context.credentials!.role
+      )
 
       return new ApiResponse({ data: video })
     } catch (error: any) {
@@ -64,13 +72,13 @@ export class VideoController {
 
       const video = this.videoValidator.parseVideo(context.body)
 
-      const uploadUrl = await this.videoService.createVideo(
+      const { id, uploadUrl } = await this.videoService.createVideo(
         video,
         context.credentials.userId,
         context.credentials.role
       )
 
-      return new ApiResponse({ data: { uploadUrl } })
+      return new ApiResponse({ data: { uploadUrl, id } })
     } catch (error: any) {
       return new ApiResponse(error, context)
     }
@@ -84,7 +92,31 @@ export class VideoController {
 
       const videoId = this.videoValidator.parseId(context.params.id)
 
-      await this.videoService.finishUpload(videoId)
+      await this.videoService.finishUpload(
+        videoId,
+        context.credentials.userId,
+        context.credentials.role
+      )
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
+  @Post('/:id/publish')
+  public async publishVideo(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.notStudent(context)
+
+      const videoId = this.videoValidator.parseId(context.params.id)
+
+      await this.videoService.publishVideo(
+        videoId,
+        context.credentials.userId,
+        context.credentials.role
+      )
 
       return new ApiResponse()
     } catch (error: any) {
@@ -114,21 +146,64 @@ export class VideoController {
     }
   }
 
-  @Post('/:id/comment')
+  @Get('/:videoId/comment')
+  public async getComments(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+
+      const videoId = this.videoValidator.parseId(context.params.videoId)
+      const pagination = this.videoValidator.parsePagination(context.query)
+
+      const { entities: comments, meta } =
+        await this.videoCommentService.getComments(
+          videoId,
+          context.credentials!.userId,
+          context.credentials!.role,
+          pagination
+        )
+
+      return new ApiResponse({ data: comments, meta })
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
+  @Post('/:videoId/comment')
   public async addComment(context: Context): Promise<ApiResponse> {
     try {
       await Asserts.isAuthenticated(context)
 
-      const videoId = this.videoValidator.parseId(context.params.id)
+      const videoId = this.videoValidator.parseId(context.params.videoId)
       const comment = this.videoValidator.parseComment(context.body)
 
-      await this.videoService.addComment(
+      await this.videoCommentService.addComment(
         videoId,
-        comment,
-        context.credentials!.userId
+        context.credentials!.userId,
+        context.credentials!.role,
+        comment
       )
 
       return new ApiResponse({ data: comment })
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
+  @Patch('/comment/:commentId')
+  public async updateComment(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+
+      const commentId = this.videoValidator.parseId(context.params.commentId)
+      const comment = this.videoValidator.parseComment(context.body)
+
+      await this.videoCommentService.updateComment(
+        context.credentials!.userId,
+        commentId,
+        comment
+      )
+
+      return new ApiResponse()
     } catch (error: any) {
       return new ApiResponse(error, context)
     }
@@ -141,9 +216,10 @@ export class VideoController {
 
       const commentId = this.videoValidator.parseId(context.params.commentId)
 
-      await this.videoService.deleteComment(
+      await this.videoCommentService.deleteComment(
         commentId,
-        context.credentials!.userId
+        context.credentials!.userId,
+        context.credentials!.role
       )
 
       return new ApiResponse()
@@ -160,7 +236,11 @@ export class VideoController {
 
       const videoId = this.videoValidator.parseId(context.params.id)
 
-      await this.videoService.deleteVideo(videoId, context.credentials.userId)
+      await this.videoService.deleteVideo(
+        videoId,
+        context.credentials.userId,
+        context.credentials.role
+      )
 
       return new ApiResponse()
     } catch (error: any) {

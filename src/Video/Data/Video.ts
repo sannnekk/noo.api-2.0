@@ -12,7 +12,7 @@ export interface Video extends BaseModel {
   url: string | null
   sizeInBytes: number
   serviceType: 'yandex'
-  state: 'not-uploaded' | 'uploaded' | 'uploading' | 'failed'
+  state: 'not-uploaded' | 'uploaded' | 'uploading' | 'failed' | 'published'
   uniqueIdentifier: string
   duration: number
   chapters: VideoChapter[]

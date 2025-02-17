@@ -20,7 +20,7 @@ import { UserModel } from '@modules/Users/Data/UserModel'
 import { MediaModel } from '@modules/Media/Data/MediaModel'
 import { CourseMaterialModel } from '@modules/Courses/Data/Relations/CourseMaterialModel'
 import { SearchableModel } from '@modules/Core/Data/SearchableModel'
-import { VideoCommentModel } from './Relations/VIdeoCommentModel'
+import { VideoCommentModel } from './Relations/VideoCommentModel'
 
 @Entity('video')
 export class VideoModel extends SearchableModel implements Video {
@@ -81,10 +81,10 @@ export class VideoModel extends SearchableModel implements Video {
   uniqueIdentifier!: string
 
   @Column({
-    name: 'length',
+    name: 'duration',
     type: 'int',
   })
-  length!: number
+  duration!: number
 
   @Column({
     name: 'state',
@@ -139,7 +139,10 @@ export class VideoModel extends SearchableModel implements Video {
   @ManyToOne(() => UserModel, (user) => user.uploadedVideos)
   uploadedBy!: User
 
-  @OneToOne(() => MediaModel, (media) => media.videoAsThumbnail)
+  @OneToOne(() => MediaModel, (media) => media.videoAsThumbnail, {
+    eager: true,
+    cascade: true,
+  })
   @JoinColumn()
   thumbnail!: Media
 

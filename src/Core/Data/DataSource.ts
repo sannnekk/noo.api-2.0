@@ -34,7 +34,7 @@ import { UserSettingsModel } from '@modules/UserSettings/Data/UserSettingsModel'
 import { FavouriteTaskModel } from '@modules/AssignedWorks/Data/Relations/FavouriteTaskModel'
 import { VideoModel } from '@modules/Video/Data/VideoModel'
 import { VideoChapterModel } from '@modules/Video/Data/Relations/VideoChapterModel'
-import { VideoCommentModel } from '@modules/Video/Data/Relations/VIdeoCommentModel'
+import { VideoCommentModel } from '@modules/Video/Data/Relations/VideoCommentModel'
 
 export const CoreDataSource = new DataSource({
   type: 'mysql',

@@ -442,7 +442,7 @@ export abstract class Repository<T extends BaseModel> {
    * @param query Instance of the query builder
    * @param relations The relations to load with the entity
    */
-  private addRelations(
+  protected addRelations(
     query: SelectQueryBuilder<T>,
     relations: (string | keyof T)[] = []
   ): void {

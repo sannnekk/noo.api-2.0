@@ -36,3 +36,11 @@ export function create(payload: JWTPayload): JWT {
     expiresIn: process.env.JWT_EXPIRES_IN,
   })
 }
+
+export function createRaw(
+  payload: Record<string, any>,
+  key: string,
+  options: jwtlib.SignOptions
+): JWT {
+  return jwtlib.sign(payload, key, options)
+}

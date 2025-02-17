@@ -6,5 +6,6 @@ export interface VideoUploadBus {
     uploadUrl: string
     url: string
   }>
+  getVideoDuration(uniqueIdentifier: string): Promise<number>
   deleteVideo(videoId: Video['url']): Promise<void>
 }
