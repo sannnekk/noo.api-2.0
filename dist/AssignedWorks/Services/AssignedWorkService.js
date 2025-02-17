@@ -24,6 +24,7 @@ import { NotificationService } from '../../Notifications/Services/NotificationSe
 import { CantDeleteMadeWorkError } from '../Errors/CantDeleteMadeWorkError.js';
 import { isAutomaticallyCheckable } from '../Utils/Task.js';
 import { workAlreadyChecked, workAlreadyMade } from '../Utils/AssignedWork.js';
+import { WorkIsNotCheckedYetError } from '../Errors/WorkIsNotCheckedYetError.js';
 export class AssignedWorkService {
     taskService;
     assignedWorkRepository;
@@ -373,15 +374,15 @@ export class AssignedWorkService {
         foundWork.comments = saveOptions.comments || foundWork.comments || [];
         await this.assignedWorkRepository.update(foundWork);
     }
-    async saveAnswer(assignedWorkId, answer, userId) {
+    async saveAnswer(assignedWorkId, answer, userId, userRole) {
         const foundWork = await this.getAssignedWork(assignedWorkId);
-        if (foundWork.studentId !== userId) {
+        if (foundWork.studentId !== userId && userRole === 'student') {
             throw new UnauthorizedError();
         }
-        if (workAlreadyMade(foundWork)) {
+        if (workAlreadyMade(foundWork) && userRole === 'student') {
             throw new WorkAlreadySolvedError();
         }
-        if (foundWork.solveStatus !== 'in-progress') {
+        if (foundWork.solveStatus !== 'in-progress' && userRole === 'student') {
             foundWork.solveStatus = 'in-progress';
             await this.assignedWorkRepository.update(foundWork);
         }
@@ -416,6 +417,23 @@ export class AssignedWorkService {
         const createdComment = await this.commentRepository.create(comment);
         return createdComment.id;
     }
+    async saveWorkComments(assignedWorkId, data, userId, userRole) {
+        const foundWork = await this.getAssignedWork(assignedWorkId);
+        if (userRole === 'student' && foundWork.studentId !== userId) {
+            throw new UnauthorizedError();
+        }
+        if (userRole === 'mentor' &&
+            !foundWork.mentors.some((mentor) => mentor.id === userId)) {
+            throw new UnauthorizedError();
+        }
+        if (userRole === 'mentor') {
+            foundWork.mentorComment = data.mentorComment;
+        }
+        else if (userRole === 'student') {
+            foundWork.studentComment = data.studentComment;
+        }
+        await this.assignedWorkRepository.update(foundWork);
+    }
     async archiveWork(id, role) {
         const foundWork = await this.getAssignedWork(id);
         if (!foundWork) {
@@ -426,6 +444,9 @@ export class AssignedWorkService {
         }
         else if (role === 'mentor') {
             foundWork.isArchivedByMentors = true;
+        }
+        else if (role === 'assistant') {
+            foundWork.isArchivedByAssistants = true;
         }
         await this.assignedWorkRepository.update(foundWork);
     }
@@ -439,6 +460,9 @@ export class AssignedWorkService {
         }
         else if (role === 'mentor') {
             foundWork.isArchivedByMentors = false;
+        }
+        else if (role === 'assistant') {
+            foundWork.isArchivedByAssistants = false;
         }
         await this.assignedWorkRepository.update(foundWork);
     }
@@ -554,6 +578,22 @@ export class AssignedWorkService {
         work.solveStatus = 'in-progress';
         work.solvedAt = null;
         await this.assignedWorkRepository.update(work);
+    }
+    async sendToRecheck(assignedWorkId, userId, userRole) {
+        const foundWork = await this.getAssignedWork(assignedWorkId, ['mentors']);
+        if (!foundWork) {
+            throw new NotFoundError();
+        }
+        if (userRole === 'mentor' &&
+            !foundWork.mentors.some((mentor) => mentor.id === userId)) {
+            throw new UnauthorizedError();
+        }
+        if (!workAlreadyChecked(foundWork)) {
+            throw new WorkIsNotCheckedYetError();
+        }
+        foundWork.checkStatus = 'in-progress';
+        foundWork.checkedAt = null;
+        await this.assignedWorkRepository.update(foundWork);
     }
     async deleteWork(id, userId, userRole) {
         const foundWork = await this.assignedWorkRepository.findOne({ id }, [

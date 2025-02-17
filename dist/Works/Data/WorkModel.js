@@ -34,12 +34,10 @@ let WorkModel = class WorkModel extends SearchableModel {
     }
     slug;
     name;
-    type = 'test';
+    type;
     description;
     materials;
     tasks;
-    //@RelationId((work: WorkModel) => work.tasks)
-    //taskIds!: string[]
     assignedWorks;
     subject;
     subjectId;

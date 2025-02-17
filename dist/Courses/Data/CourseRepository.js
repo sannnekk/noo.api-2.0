@@ -4,4 +4,10 @@ export class CourseRepository extends Repository {
     constructor() {
         super(CourseModel);
     }
+    async getAuthors(courseId) {
+        return this.queryBuilder().relation('authors').of(courseId).loadMany();
+    }
+    async getEditors(courseId) {
+        return this.queryBuilder().relation('editors').of(courseId).loadMany();
+    }
 }

@@ -37,6 +37,7 @@ let WorkTaskModel = class WorkTaskModel extends Model {
     checkHint;
     checkingStrategy;
     isAnswerVisibleBeforeCheck;
+    isCheckOneByOneEnabled;
     assignedWorkAnswers;
     assignedWorkComments;
     favourites;
@@ -137,6 +138,14 @@ __decorate([
     }),
     __metadata("design:type", Boolean)
 ], WorkTaskModel.prototype, "isAnswerVisibleBeforeCheck", void 0);
+__decorate([
+    Column({
+        name: 'is_check_one_by_one_enabled',
+        type: 'boolean',
+        default: false,
+    }),
+    __metadata("design:type", Boolean)
+], WorkTaskModel.prototype, "isCheckOneByOneEnabled", void 0);
 __decorate([
     OneToMany(() => AssignedWorkAnswerModel, (answer) => answer.task),
     __metadata("design:type", Array)

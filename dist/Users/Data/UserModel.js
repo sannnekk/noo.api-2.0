@@ -47,6 +47,7 @@ let UserModel = class UserModel extends SearchableModel {
     mentorAssignmentsAsMentor;
     mentorAssignmentsAsStudent;
     courses;
+    editedCourses;
     courseAssignments;
     courseAssignmentsAsAssigner;
     assignedWorksAsMentor;
@@ -99,6 +100,8 @@ let UserModel = class UserModel extends SearchableModel {
                 return 'Преподаватель';
             case 'admin':
                 return 'Администратор';
+            case 'assistant':
+                return 'Ассистент';
         }
     }
 };
@@ -126,7 +129,13 @@ __decorate([
     Column({
         name: 'role',
         type: 'enum',
-        enum: ['student', 'mentor', 'teacher', 'admin'],
+        enum: [
+            'student',
+            'mentor',
+            'teacher',
+            'admin',
+            'assistant',
+        ],
         default: 'student',
         charset: config.database.charsets.default,
         collation: config.database.collations.default,
@@ -174,6 +183,10 @@ __decorate([
     ManyToMany(() => CourseModel, (course) => course.authors),
     __metadata("design:type", Array)
 ], UserModel.prototype, "courses", void 0);
+__decorate([
+    ManyToMany(() => CourseModel, (course) => course.editors),
+    __metadata("design:type", Array)
+], UserModel.prototype, "editedCourses", void 0);
 __decorate([
     OneToMany(() => CourseAssignmentModel, (assignment) => assignment.student),
     __metadata("design:type", Array)

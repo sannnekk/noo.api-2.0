@@ -261,6 +261,14 @@ export class UserService {
         await this.emailService.sendEmailChangeConfirmation(user.name, newEmail, user.username, emailChangeToken);
         await this.userRepository.update(user);
     }
+    async cancelEmailUpdate(id) {
+        const user = await this.userRepository.findOne({ id });
+        if (!user) {
+            throw new NotFoundError('Пользователь не найден.');
+        }
+        user.newEmail = null;
+        await this.userRepository.update(user);
+    }
     async verifyManual(username) {
         const user = await this.userRepository.findOne({ username });
         if (!user) {

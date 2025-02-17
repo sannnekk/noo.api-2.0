@@ -3,12 +3,19 @@ import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
 import { WorkRepository } from '../Data/WorkRepository.js';
 import { WorkModel } from '../Data/WorkModel.js';
 import { CourseMaterialRepository } from '../../Courses/Data/CourseMaterialRepository.js';
+import { WorkTaskRepository } from '../Data/WorkTaskRepository.js';
+import { AssignedWorkRepository } from '../../AssignedWorks/Data/AssignedWorkRepository.js';
+import { round } from '../../Core/Utils/math.js';
 export class WorkService {
     workRepository;
+    workTaskRepository;
+    assignedWorkRepository;
     courseMaterialRepository;
     constructor() {
         this.workRepository = new WorkRepository();
         this.courseMaterialRepository = new CourseMaterialRepository();
+        this.assignedWorkRepository = new AssignedWorkRepository();
+        this.workTaskRepository = new WorkTaskRepository();
     }
     async getWorks(pagination) {
         pagination = new Pagination().assign(pagination);
@@ -31,6 +38,29 @@ export class WorkService {
             throw new NotFoundError();
         }
         return work;
+    }
+    async getWorkStatistics(id) {
+        const work = await this.getWorkById(id);
+        const maxScore = await this.workTaskRepository.getWorkMaxScore(work.id);
+        const hardestTaskIds = await this.workTaskRepository.getHardestTaskIds(id, 3);
+        const averageWorkScore = await this.assignedWorkRepository.getAverageWorkScore(id);
+        const averageWorkScorePercentage = (averageWorkScore / maxScore) * 100;
+        const medianWorkScore = await this.assignedWorkRepository.getMedianWorkScore(id);
+        const medianWorkScorePercentage = (medianWorkScore / maxScore) * 100;
+        const workSolveCount = await this.assignedWorkRepository.getWorkSolveCount(id, false);
+        return {
+            hardestTaskIds,
+            averageWorkScore: {
+                absolute: round(averageWorkScore, 2),
+                percentage: round(averageWorkScorePercentage, 2),
+            },
+            medianWorkScore: {
+                absolute: round(medianWorkScore, 2),
+                percentage: round(medianWorkScorePercentage, 2),
+            },
+            workSolveCount,
+            work,
+        };
     }
     async getWorkRelatedMaterials(id, pagination) {
         const work = await this.workRepository.findOne({ id });

@@ -37,19 +37,53 @@ export class CourseService {
     async get(pagination) {
         return this.courseRepository.search(undefined, pagination);
     }
+    async getOwn(pagination, userId) {
+        return this.courseRepository.search({
+            editors: {
+                id: userId,
+            },
+        }, pagination);
+    }
     async getStudentCourseAssignments(studentId, pagination) {
         return this.courseAssignmentRepository.search({
             student: {
                 id: studentId,
             },
-        }, pagination, ['course', 'course.images', 'assigner']);
+        }, pagination, ['course', 'course.images', 'assigner', 'course.subject']);
     }
     async getBySlug(slug, userId, role) {
-        const course = await this.courseRepository.findOne({ slug }, ['authors', 'authors.avatar'], undefined, {
-            relationLoadStrategy: 'query',
+        const condition = role === 'teacher'
+            ? { slug }
+            : {
+                slug,
+                chapters: {
+                    isActive: true,
+                    materials: {
+                        isActive: true,
+                    },
+                },
+            };
+        const course = await this.courseRepository.findOne(condition, [
+            'chapters',
+            'chapters.materials',
+            'chapters.materials.work',
+            'chapters.materials.files',
+        ], {
+            chapters: {
+                order: 'ASC',
+                materials: {
+                    order: 'ASC',
+                    files: {
+                        order: 'ASC',
+                    },
+                },
+            },
         });
         if (!course) {
             throw new NotFoundError('Курс не найден');
+        }
+        if ((course.chapters || []).length === 0) {
+            throw new CourseIsEmptyError();
         }
         if (role === 'student') {
             const courseAssignment = await this.courseAssignmentRepository.findOne({
@@ -60,39 +94,20 @@ export class CourseService {
                 throw new UnauthorizedError('Вы не записаны на этот курс');
             }
         }
-        let condition = {
-            course: { id: course.id },
-        };
-        if (role === 'student' || role === 'mentor') {
-            condition = {
-                ...condition,
-                isActive: true,
-                materials: {
-                    isActive: true,
-                },
-            };
-        }
-        const chapters = await this.chapterRepository.findAll(condition, ['materials', 'materials.files', 'materials.work', 'materials.poll'], {
-            order: 'ASC',
-            materials: {
-                order: 'ASC',
-            },
-        }, {
-            joinStrategy: 'query',
-        });
-        if (chapters.length === 0) {
-            throw new CourseIsEmptyError();
-        }
-        course.chapters = chapters;
+        course.authors = await this.getCourseAuthors(course.id);
         if (role === 'teacher' || role === 'admin') {
             course.studentCount = await this.courseAssignmentRepository.count({
                 course: { id: course.id },
             });
+            course.editors = await this.courseRepository.getEditors(course.id);
         }
         if (role === 'student') {
             await this.addMyReactionToMaterials(course, userId);
         }
         return course;
+    }
+    async getCourseAuthors(courseId) {
+        return this.courseRepository.getAuthors(courseId);
     }
     async getStudentListWithAssignments(courseId, pagination) {
         return this.userRepository.getStudentsWithAssignments(courseId, pagination);

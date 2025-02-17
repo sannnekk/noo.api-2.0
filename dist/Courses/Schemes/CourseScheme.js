@@ -24,6 +24,12 @@ export const CourseScheme = z.object({
     }))
         .max(10, { message: 'Количество авторов не может превышать 10' })
         .optional(),
+    editors: z
+        .array(z.object({
+        id: z.string().ulid(),
+    }))
+        .max(10, { message: 'Количество редакторов не может превышать 10' })
+        .optional(),
     subject: z.object({
         id: z.string().ulid(),
     }, { message: 'Предмет не указан' }),

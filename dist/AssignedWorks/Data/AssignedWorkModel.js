@@ -57,6 +57,7 @@ let AssignedWorkModel = class AssignedWorkModel extends SearchableModel {
     maxScore;
     isArchivedByMentors;
     isArchivedByStudent;
+    isArchivedByAssistants;
     isNewAttempt;
     studentComment;
     mentorComment;
@@ -280,6 +281,14 @@ __decorate([
     }),
     __metadata("design:type", Boolean)
 ], AssignedWorkModel.prototype, "isArchivedByStudent", void 0);
+__decorate([
+    Column({
+        name: 'is_archived_by_assistants',
+        type: 'boolean',
+        default: false,
+    }),
+    __metadata("design:type", Boolean)
+], AssignedWorkModel.prototype, "isArchivedByAssistants", void 0);
 __decorate([
     Column({
         name: 'is_new_attempt',

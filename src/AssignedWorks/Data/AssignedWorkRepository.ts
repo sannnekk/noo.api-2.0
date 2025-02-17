@@ -1,6 +1,7 @@
 import { Repository } from '@modules/Core/Data/Repository'
 import { AssignedWork } from './AssignedWork'
 import { AssignedWorkModel } from './AssignedWorkModel'
+import { medianValue } from '../Utils/Math'
 
 export class AssignedWorkRepository extends Repository<AssignedWork> {
   constructor() {
@@ -44,5 +45,45 @@ export class AssignedWorkRepository extends Repository<AssignedWork> {
         }))
       )
       .execute()
+  }
+
+  public async getWorkSolveCount(
+    id: string,
+    includeNewAttempts = true
+  ): Promise<number> {
+    const qb = this.queryBuilder('assigned_work')
+      .select('COUNT(id)', 'count')
+      .where('workId = :id', { id })
+      .andWhere('solved_at IS NOT NULL')
+
+    if (!includeNewAttempts) {
+      qb.andWhere('is_new_attempt = 0')
+    }
+
+    const result = await qb.getRawOne()
+
+    return parseInt(result.count)
+  }
+
+  public async getAverageWorkScore(id: string): Promise<number> {
+    const result = await this.queryBuilder('assigned_work')
+      .select('COALESCE(AVG(score), 0)', 'avgScore')
+      .where('workId = :id', { id })
+      .andWhere('score IS NOT NULL')
+      .getRawOne()
+
+    return parseFloat(result.avgScore)
+  }
+
+  public async getMedianWorkScore(id: string): Promise<number> {
+    const results = (await this.queryBuilder('assigned_work')
+      .select('score', 'score')
+      .where('workId = :id', { id })
+      .andWhere('score IS NOT NULL')
+      .getRawMany()) as { score: string }[]
+
+    const scores = results.map((item) => parseFloat(item.score)) || []
+
+    return medianValue(scores)
   }
 }

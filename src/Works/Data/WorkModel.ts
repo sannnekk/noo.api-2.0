@@ -69,7 +69,7 @@ export class WorkModel extends SearchableModel implements Work {
     enum: ['trial-work', 'phrase', 'mini-test', 'test', 'second-part'],
     default: 'test',
   })
-  type: 'trial-work' | 'phrase' | 'mini-test' | 'test' | 'second-part' = 'test'
+  type!: 'trial-work' | 'phrase' | 'mini-test' | 'test' | 'second-part'
 
   @Column({
     name: 'description',
@@ -86,9 +86,6 @@ export class WorkModel extends SearchableModel implements Work {
     cascade: true,
   })
   tasks!: WorkTask[]
-
-  //@RelationId((work: WorkModel) => work.tasks)
-  //taskIds!: string[]
 
   @OneToMany(() => AssignedWorkModel, (assignedWork) => assignedWork.work)
   assignedWorks!: AssignedWork[]

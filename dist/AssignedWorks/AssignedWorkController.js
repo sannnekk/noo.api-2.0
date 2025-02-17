@@ -162,13 +162,26 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse(error, context);
         }
     }
+    async saveWorkComments(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.mentorOrStudent(context);
+            const workId = this.assignedWorkValidator.parseId(context.params.id);
+            const comments = this.assignedWorkValidator.parseWorkComments(context.body);
+            await this.assignedWorkService.saveWorkComments(workId, comments, context.credentials.userId, context.credentials.role);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error, context);
+        }
+    }
     async saveAnswer(context) {
         try {
             await Asserts.isAuthenticated(context);
-            Asserts.student(context);
+            Asserts.mentorOrStudentOrAssistant(context);
             const assignedWorkId = this.assignedWorkValidator.parseId(context.params.id);
             const answer = this.assignedWorkValidator.parseAnswer(context.body);
-            const answerId = await this.assignedWorkService.saveAnswer(assignedWorkId, answer, context.credentials.userId);
+            const answerId = await this.assignedWorkService.saveAnswer(assignedWorkId, answer, context.credentials.userId, context.credentials.role);
             return new ApiResponse({ data: answerId });
         }
         catch (error) {
@@ -178,7 +191,7 @@ let AssignedWorkController = class AssignedWorkController {
     async saveComment(context) {
         try {
             await Asserts.isAuthenticated(context);
-            Asserts.mentor(context);
+            Asserts.notStudent(context);
             const assignedWorkId = this.assignedWorkValidator.parseId(context.params.id);
             const comment = this.assignedWorkValidator.parseComment(context.body);
             const commentId = await this.assignedWorkService.saveComment(assignedWorkId, comment, context.credentials.userId);
@@ -252,7 +265,7 @@ let AssignedWorkController = class AssignedWorkController {
     async archive(context) {
         try {
             await Asserts.isAuthenticated(context);
-            Asserts.mentorOrStudent(context);
+            Asserts.mentorOrStudentOrAssistant(context);
             const workId = this.assignedWorkValidator.parseId(context.params.id);
             await this.assignedWorkService.archiveWork(workId, context.credentials.role);
             return new ApiResponse();
@@ -264,7 +277,7 @@ let AssignedWorkController = class AssignedWorkController {
     async unarchive(context) {
         try {
             await Asserts.isAuthenticated(context);
-            Asserts.mentorOrStudent(context);
+            Asserts.mentorOrStudentOrAssistant(context);
             const workId = this.assignedWorkValidator.parseId(context.params.id);
             await this.assignedWorkService.unarchiveWork(workId, context.credentials.role);
             return new ApiResponse();
@@ -289,7 +302,7 @@ let AssignedWorkController = class AssignedWorkController {
     async replaceMentor(context) {
         try {
             await Asserts.isAuthenticated(context);
-            Asserts.teacherOrAdmin(context);
+            Asserts.teacherOrAdminOrAssistant(context);
             const workId = this.assignedWorkValidator.parseId(context.params.workId);
             const mentorId = this.assignedWorkValidator.parseId(context.params.mentorId);
             await this.assignedWorkService.replaceMentor(workId, mentorId);
@@ -317,6 +330,18 @@ let AssignedWorkController = class AssignedWorkController {
             Asserts.mentor(context);
             const workId = this.assignedWorkValidator.parseId(context.params.id);
             await this.assignedWorkService.sendToRevision(workId, context.credentials.userId);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error, context);
+        }
+    }
+    async sendToRecheck(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.notStudent(context);
+            const assignedWorkId = this.assignedWorkValidator.parseId(context.params.id);
+            await this.assignedWorkService.sendToRecheck(assignedWorkId, context.credentials.userId, context.credentials.role);
             return new ApiResponse();
         }
         catch (error) {
@@ -403,6 +428,12 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AssignedWorkController.prototype, "save", null);
 __decorate([
+    Patch('/:id/save-work-comments'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], AssignedWorkController.prototype, "saveWorkComments", null);
+__decorate([
     Patch('/:id/save-answer'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Context]),
@@ -480,6 +511,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], AssignedWorkController.prototype, "sendToRevision", null);
+__decorate([
+    Patch('/:id/send-to-recheck'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], AssignedWorkController.prototype, "sendToRecheck", null);
 __decorate([
     Delete('/:id'),
     __metadata("design:type", Function),

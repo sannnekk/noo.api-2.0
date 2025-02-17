@@ -7,15 +7,25 @@ import type { WorkDTO } from '../DTO/WorkDTO'
 import type { Subject } from '@modules/Subjects/Data/Subject'
 import { CourseMaterialRepository } from '@modules/Courses/Data/CourseMaterialRepository'
 import type { WorkTask } from '../Data/Relations/WorkTask'
+import { WorkStatisticsDTO } from '../DTO/WorkStatisticsDTO'
+import { WorkTaskRepository } from '../Data/WorkTaskRepository'
+import { AssignedWorkRepository } from '@modules/AssignedWorks/Data/AssignedWorkRepository'
+import { round } from '@modules/Core/Utils/math'
 
 export class WorkService {
   private readonly workRepository: WorkRepository
+
+  private readonly workTaskRepository: WorkTaskRepository
+
+  private readonly assignedWorkRepository: AssignedWorkRepository
 
   private readonly courseMaterialRepository: CourseMaterialRepository
 
   constructor() {
     this.workRepository = new WorkRepository()
     this.courseMaterialRepository = new CourseMaterialRepository()
+    this.assignedWorkRepository = new AssignedWorkRepository()
+    this.workTaskRepository = new WorkTaskRepository()
   }
 
   public async getWorks(pagination?: Pagination) {
@@ -46,6 +56,46 @@ export class WorkService {
     }
 
     return work
+  }
+
+  public async getWorkStatistics(id: Work['id']): Promise<WorkStatisticsDTO> {
+    const work = await this.getWorkById(id)
+
+    const maxScore = await this.workTaskRepository.getWorkMaxScore(work.id)
+
+    const hardestTaskIds = await this.workTaskRepository.getHardestTaskIds(
+      id,
+      3
+    )
+
+    const averageWorkScore =
+      await this.assignedWorkRepository.getAverageWorkScore(id)
+
+    const averageWorkScorePercentage = (averageWorkScore / maxScore) * 100
+
+    const medianWorkScore =
+      await this.assignedWorkRepository.getMedianWorkScore(id)
+
+    const medianWorkScorePercentage = (medianWorkScore / maxScore) * 100
+
+    const workSolveCount = await this.assignedWorkRepository.getWorkSolveCount(
+      id,
+      false
+    )
+
+    return {
+      hardestTaskIds,
+      averageWorkScore: {
+        absolute: round(averageWorkScore, 2),
+        percentage: round(averageWorkScorePercentage, 2),
+      },
+      medianWorkScore: {
+        absolute: round(medianWorkScore, 2),
+        percentage: round(medianWorkScorePercentage, 2),
+      },
+      workSolveCount,
+      work,
+    }
   }
 
   public async getWorkRelatedMaterials(

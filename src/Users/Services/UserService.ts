@@ -429,6 +429,18 @@ export class UserService {
     await this.userRepository.update(user)
   }
 
+  public async cancelEmailUpdate(id: User['id']) {
+    const user = await this.userRepository.findOne({ id })
+
+    if (!user) {
+      throw new NotFoundError('Пользователь не найден.')
+    }
+
+    user.newEmail = null
+
+    await this.userRepository.update(user)
+  }
+
   public async verifyManual(username: User['username']): Promise<void> {
     const user = await this.userRepository.findOne({ username })
 

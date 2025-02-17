@@ -51,6 +51,7 @@ export class AssignedWorkController {
     try {
       await Asserts.isAuthenticated(context)
       Asserts.notStudent(context)
+
       const userId = this.assignedWorkValidator.parseId(context.params.userId)
       const pagination = this.assignedWorkValidator.parsePagination(
         context.query
@@ -242,11 +243,35 @@ export class AssignedWorkController {
     }
   }
 
+  @Patch('/:id/save-work-comments')
+  public async saveWorkComments(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.mentorOrStudent(context)
+
+      const workId = this.assignedWorkValidator.parseId(context.params.id)
+      const comments = this.assignedWorkValidator.parseWorkComments(
+        context.body
+      )
+
+      await this.assignedWorkService.saveWorkComments(
+        workId,
+        comments,
+        context.credentials.userId,
+        context.credentials.role
+      )
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
   @Patch('/:id/save-answer')
   public async saveAnswer(context: Context): Promise<ApiResponse> {
     try {
       await Asserts.isAuthenticated(context)
-      Asserts.student(context)
+      Asserts.mentorOrStudentOrAssistant(context)
 
       const assignedWorkId = this.assignedWorkValidator.parseId(
         context.params.id
@@ -256,7 +281,8 @@ export class AssignedWorkController {
       const answerId = await this.assignedWorkService.saveAnswer(
         assignedWorkId,
         answer,
-        context.credentials.userId
+        context.credentials.userId,
+        context.credentials.role
       )
 
       return new ApiResponse({ data: answerId })
@@ -269,7 +295,7 @@ export class AssignedWorkController {
   public async saveComment(context: Context): Promise<ApiResponse> {
     try {
       await Asserts.isAuthenticated(context)
-      Asserts.mentor(context)
+      Asserts.notStudent(context)
 
       const assignedWorkId = this.assignedWorkValidator.parseId(
         context.params.id
@@ -396,7 +422,8 @@ export class AssignedWorkController {
   public async archive(context: Context): Promise<ApiResponse> {
     try {
       await Asserts.isAuthenticated(context)
-      Asserts.mentorOrStudent(context)
+      Asserts.mentorOrStudentOrAssistant(context)
+
       const workId = this.assignedWorkValidator.parseId(context.params.id)
 
       await this.assignedWorkService.archiveWork(
@@ -414,7 +441,7 @@ export class AssignedWorkController {
   public async unarchive(context: Context): Promise<ApiResponse> {
     try {
       await Asserts.isAuthenticated(context)
-      Asserts.mentorOrStudent(context)
+      Asserts.mentorOrStudentOrAssistant(context)
       const workId = this.assignedWorkValidator.parseId(context.params.id)
 
       await this.assignedWorkService.unarchiveWork(
@@ -433,6 +460,7 @@ export class AssignedWorkController {
     try {
       await Asserts.isAuthenticated(context)
       Asserts.mentor(context)
+
       const workId = this.assignedWorkValidator.parseId(context.params.workId)
       const mentorId = this.assignedWorkValidator.parseId(
         context.params.mentorId
@@ -454,7 +482,8 @@ export class AssignedWorkController {
   public async replaceMentor(context: Context): Promise<ApiResponse> {
     try {
       await Asserts.isAuthenticated(context)
-      Asserts.teacherOrAdmin(context)
+      Asserts.teacherOrAdminOrAssistant(context)
+
       const workId = this.assignedWorkValidator.parseId(context.params.workId)
       const mentorId = this.assignedWorkValidator.parseId(
         context.params.mentorId
@@ -497,6 +526,28 @@ export class AssignedWorkController {
       await this.assignedWorkService.sendToRevision(
         workId,
         context.credentials.userId
+      )
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
+  @Patch('/:id/send-to-recheck')
+  public async sendToRecheck(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.notStudent(context)
+
+      const assignedWorkId = this.assignedWorkValidator.parseId(
+        context.params.id
+      )
+
+      await this.assignedWorkService.sendToRecheck(
+        assignedWorkId,
+        context.credentials.userId,
+        context.credentials.role
       )
 
       return new ApiResponse()

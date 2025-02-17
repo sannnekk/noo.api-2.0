@@ -111,6 +111,13 @@ export class WorkTaskModel extends Model implements WorkTask {
   })
   isAnswerVisibleBeforeCheck!: boolean
 
+  @Column({
+    name: 'is_check_one_by_one_enabled',
+    type: 'boolean',
+    default: false,
+  })
+  isCheckOneByOneEnabled!: boolean
+
   @OneToMany(() => AssignedWorkAnswerModel, (answer) => answer.task)
   assignedWorkAnswers?: AssignedWorkAnswer[]
 

@@ -22,6 +22,13 @@ export function mentorOrStudent(context) {
         throw new WrongRoleError();
     }
 }
+export function mentorOrStudentOrAssistant(context) {
+    if (context.credentials?.role !== 'mentor' &&
+        context.credentials?.role !== 'student' &&
+        context.credentials?.role !== 'assistant') {
+        throw new WrongRoleError();
+    }
+}
 export function teacher(context) {
     if (context.credentials?.role !== 'teacher') {
         throw new WrongRoleError();
@@ -35,6 +42,13 @@ export function admin(context) {
 export function teacherOrAdmin(context) {
     if (context.credentials?.role !== 'teacher' &&
         context.credentials?.role !== 'admin') {
+        throw new WrongRoleError();
+    }
+}
+export function teacherOrAdminOrAssistant(context) {
+    if (context.credentials?.role !== 'teacher' &&
+        context.credentials?.role !== 'admin' &&
+        context.credentials?.role !== 'assistant') {
         throw new WrongRoleError();
     }
 }

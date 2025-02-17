@@ -38,6 +38,7 @@ import { CantDeleteMadeWorkError } from '../Errors/CantDeleteMadeWorkError'
 import { isAutomaticallyCheckable } from '../Utils/Task'
 import { workAlreadyChecked, workAlreadyMade } from '../Utils/AssignedWork'
 import { AssignedWorkAnswer } from '../Data/Relations/AssignedWorkAnswer'
+import { WorkIsNotCheckedYetError } from '../Errors/WorkIsNotCheckedYetError'
 
 export class AssignedWorkService {
   private readonly taskService: TaskService
@@ -590,19 +591,20 @@ export class AssignedWorkService {
   public async saveAnswer(
     assignedWorkId: AssignedWork['id'],
     answer: AssignedWorkAnswer,
-    userId: User['id']
+    userId: User['id'],
+    userRole: User['role']
   ): Promise<AssignedWorkAnswer['id']> {
     const foundWork = await this.getAssignedWork(assignedWorkId)
 
-    if (foundWork.studentId !== userId) {
+    if (foundWork.studentId !== userId && userRole === 'student') {
       throw new UnauthorizedError()
     }
 
-    if (workAlreadyMade(foundWork)) {
+    if (workAlreadyMade(foundWork) && userRole === 'student') {
       throw new WorkAlreadySolvedError()
     }
 
-    if (foundWork.solveStatus !== 'in-progress') {
+    if (foundWork.solveStatus !== 'in-progress' && userRole === 'student') {
       foundWork.solveStatus = 'in-progress'
       await this.assignedWorkRepository.update(foundWork)
     }
@@ -655,6 +657,37 @@ export class AssignedWorkService {
     return createdComment.id
   }
 
+  public async saveWorkComments(
+    assignedWorkId: AssignedWork['id'],
+    data: {
+      studentComment: AssignedWork['studentComment']
+      mentorComment: AssignedWork['mentorComment']
+    },
+    userId: User['id'],
+    userRole: User['role']
+  ) {
+    const foundWork = await this.getAssignedWork(assignedWorkId)
+
+    if (userRole === 'student' && foundWork.studentId !== userId) {
+      throw new UnauthorizedError()
+    }
+
+    if (
+      userRole === 'mentor' &&
+      !foundWork.mentors!.some((mentor) => mentor.id === userId)
+    ) {
+      throw new UnauthorizedError()
+    }
+
+    if (userRole === 'mentor') {
+      foundWork.mentorComment = data.mentorComment
+    } else if (userRole === 'student') {
+      foundWork.studentComment = data.studentComment
+    }
+
+    await this.assignedWorkRepository.update(foundWork)
+  }
+
   public async archiveWork(id: AssignedWork['id'], role: User['role']) {
     const foundWork = await this.getAssignedWork(id)
 
@@ -666,6 +699,8 @@ export class AssignedWorkService {
       foundWork.isArchivedByStudent = true
     } else if (role === 'mentor') {
       foundWork.isArchivedByMentors = true
+    } else if (role === 'assistant') {
+      foundWork.isArchivedByAssistants = true
     }
 
     await this.assignedWorkRepository.update(foundWork)
@@ -682,6 +717,8 @@ export class AssignedWorkService {
       foundWork.isArchivedByStudent = false
     } else if (role === 'mentor') {
       foundWork.isArchivedByMentors = false
+    } else if (role === 'assistant') {
+      foundWork.isArchivedByAssistants = false
     }
 
     await this.assignedWorkRepository.update(foundWork)
@@ -860,6 +897,34 @@ export class AssignedWorkService {
     work.solvedAt = null
 
     await this.assignedWorkRepository.update(work)
+  }
+
+  public async sendToRecheck(
+    assignedWorkId: AssignedWork['id'],
+    userId: User['id'],
+    userRole: User['role']
+  ) {
+    const foundWork = await this.getAssignedWork(assignedWorkId, ['mentors'])
+
+    if (!foundWork) {
+      throw new NotFoundError()
+    }
+
+    if (
+      userRole === 'mentor' &&
+      !foundWork.mentors!.some((mentor) => mentor.id === userId)
+    ) {
+      throw new UnauthorizedError()
+    }
+
+    if (!workAlreadyChecked(foundWork)) {
+      throw new WorkIsNotCheckedYetError()
+    }
+
+    foundWork.checkStatus = 'in-progress'
+    foundWork.checkedAt = null
+
+    await this.assignedWorkRepository.update(foundWork)
   }
 
   public async deleteWork(

@@ -76,6 +76,7 @@ let NotificationsController = class NotificationsController {
     async create(context) {
         try {
             await Asserts.isAuthenticated(context);
+            Asserts.teacherOrAdmin(context);
             const notificationCreationDTO = this.notificationValidator.parseNotificationCreation(context.body);
             await this.notificationService.create(notificationCreationDTO.notification, notificationCreationDTO.sendOptions);
             return new ApiResponse();
