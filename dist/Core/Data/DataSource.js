@@ -34,6 +34,8 @@ import { FavouriteTaskModel } from '../../AssignedWorks/Data/Relations/Favourite
 import { VideoModel } from '../../Video/Data/VideoModel.js';
 import { VideoChapterModel } from '../../Video/Data/Relations/VideoChapterModel.js';
 import { VideoCommentModel } from '../../Video/Data/Relations/VideoCommentModel.js';
+import { TableModel } from '../../Tables/Data/TableModel.js';
+import { TableCellModel } from '../../Tables/Data/Relations/TableCellModel.js';
 export const CoreDataSource = new DataSource({
     type: 'mysql',
     host: process.env.DB_HOST,
@@ -79,6 +81,8 @@ export const CoreDataSource = new DataSource({
         VideoModel,
         VideoChapterModel,
         VideoCommentModel,
+        TableModel,
+        TableCellModel,
     ],
     subscribers: [],
     migrations: [],

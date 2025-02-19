@@ -45,6 +45,8 @@ import { VideoModel } from '@modules/Video/Data/VideoModel'
 import type { Video } from '@modules/Video/Data/Video'
 import { VideoCommentModel } from '@modules/Video/Data/Relations/VideoCommentModel'
 import { VideoComment } from '@modules/Video/Data/Relations/VideoComment'
+import { TableModel } from '@modules/Tables/Data/TableModel'
+import { Table } from '@modules/Tables/Data/Table'
 
 @Entity('user')
 export class UserModel extends SearchableModel implements User {
@@ -175,7 +177,10 @@ export class UserModel extends SearchableModel implements User {
   sessions?: Session[]
 
   @OneToMany(() => SnippetModel, (snippet) => snippet.user)
-  snippets!: Snippet[]
+  snippets?: Snippet[]
+
+  @OneToMany(() => TableModel, (table) => table.user)
+  tables?: Table[]
 
   @OneToOne(() => UserAvatarModel, (avatar) => avatar.user, {
     onDelete: 'CASCADE',

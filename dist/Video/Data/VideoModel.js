@@ -178,7 +178,7 @@ __decorate([
 ], VideoModel.prototype, "thumbnail", void 0);
 __decorate([
     ManyToOne(() => CourseMaterialModel, (courseMaterial) => courseMaterial.videos),
-    __metadata("design:type", CourseMaterialModel)
+    __metadata("design:type", Object)
 ], VideoModel.prototype, "courseMaterial", void 0);
 VideoModel = __decorate([
     Entity('video'),

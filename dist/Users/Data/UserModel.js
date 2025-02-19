@@ -27,6 +27,7 @@ import { MentorAssignmentModel } from './Relations/MentorAssignmentModel.js';
 import { UserAvatarModel } from './Relations/UserAvatarModel.js';
 import { VideoModel } from '../../Video/Data/VideoModel.js';
 import { VideoCommentModel } from '../../Video/Data/Relations/VideoCommentModel.js';
+import { TableModel } from '../../Tables/Data/TableModel.js';
 let UserModel = class UserModel extends SearchableModel {
     constructor(data) {
         super();
@@ -63,6 +64,7 @@ let UserModel = class UserModel extends SearchableModel {
     notifications;
     sessions;
     snippets;
+    tables;
     avatar;
     favouriteTasks;
     settings;
@@ -245,6 +247,10 @@ __decorate([
     OneToMany(() => SnippetModel, (snippet) => snippet.user),
     __metadata("design:type", Array)
 ], UserModel.prototype, "snippets", void 0);
+__decorate([
+    OneToMany(() => TableModel, (table) => table.user),
+    __metadata("design:type", Array)
+], UserModel.prototype, "tables", void 0);
 __decorate([
     OneToOne(() => UserAvatarModel, (avatar) => avatar.user, {
         onDelete: 'CASCADE',

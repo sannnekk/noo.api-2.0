@@ -21,6 +21,7 @@ import { MediaModel } from '@modules/Media/Data/MediaModel'
 import { CourseMaterialModel } from '@modules/Courses/Data/Relations/CourseMaterialModel'
 import { SearchableModel } from '@modules/Core/Data/SearchableModel'
 import { VideoCommentModel } from './Relations/VideoCommentModel'
+import { CourseMaterial } from '@modules/Courses/Data/Relations/CourseMaterial'
 
 @Entity('video')
 export class VideoModel extends SearchableModel implements Video {
@@ -150,7 +151,7 @@ export class VideoModel extends SearchableModel implements Video {
     () => CourseMaterialModel,
     (courseMaterial) => courseMaterial.videos
   )
-  courseMaterial!: CourseMaterialModel
+  courseMaterial!: CourseMaterial
 
   public addSearchToQuery(
     query: SelectQueryBuilder<BaseModel>,
