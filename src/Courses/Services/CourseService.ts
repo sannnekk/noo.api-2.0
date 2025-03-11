@@ -2,7 +2,7 @@ import { UserRepository } from '@modules/Users/Data/UserRepository'
 import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
 import { UnknownError } from '@modules/Core/Errors/UnknownError'
 import { Pagination } from '@modules/Core/Data/Pagination'
-import TypeORM, { FindOptionsWhere } from 'typeorm'
+import TypeORM from 'typeorm'
 import { User } from '@modules/Users/Data/User'
 import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
 import { AssignedWorkRepository } from '@modules/AssignedWorks/Data/AssignedWorkRepository'
@@ -19,14 +19,11 @@ import { WorkRepository } from '@modules/Works/Data/WorkRepository'
 import { WorkIsFromAnotherSubjectError } from '../Errors/WorkIsFromAnotherSubjectError'
 import { CourseAssignmentRepository } from '../Data/CourseAssignmentRepository'
 import { CourseAssignmentModel } from '../Data/Relations/CourseAssignmentModel'
-import { CourseChapterRepository } from '../Data/CourseChapterRepository'
 import { CourseMaterialReactionRepository } from '../Data/CourseMaterialReactionRepository'
 import { UnauthorizedError } from '@modules/Core/Errors/UnauthorizedError'
 
 export class CourseService {
   private readonly courseRepository: CourseRepository
-
-  private readonly chapterRepository: CourseChapterRepository
 
   private readonly courseAssignmentRepository: CourseAssignmentRepository
 
@@ -42,7 +39,6 @@ export class CourseService {
 
   constructor() {
     this.courseRepository = new CourseRepository()
-    this.chapterRepository = new CourseChapterRepository()
     this.courseAssignmentRepository = new CourseAssignmentRepository()
     this.userRepository = new UserRepository()
     this.materialRepository = new CourseMaterialRepository()
@@ -86,28 +82,18 @@ export class CourseService {
     userId: User['id'],
     role: User['role']
   ): Promise<Course> {
-    const condition: FindOptionsWhere<Course> =
-      role === 'teacher'
-        ? { slug }
-        : {
-            slug,
-            chapters: {
-              isActive: true,
-              materials: {
-                isActive: true,
-              },
-            },
-          }
-
     const course = await this.courseRepository.findOne(
-      condition,
+      { slug },
       [
         'chapters',
         'chapters.materials',
         'chapters.materials.work',
         'chapters.materials.files',
+        'chapters.chapters.materials',
+        'chapters.chapters.materials.work',
+        'chapters.chapters.materials.files',
       ],
-      {
+      /* {
         chapters: {
           order: 'ASC',
           materials: {
@@ -117,6 +103,10 @@ export class CourseService {
             },
           },
         },
+      }, */
+      undefined,
+      {
+        relationLoadStrategy: 'query',
       }
     )
 

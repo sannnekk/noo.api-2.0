@@ -383,8 +383,7 @@ export class AssignedWorkService {
             throw new WorkAlreadySolvedError();
         }
         if (foundWork.solveStatus !== 'in-progress' && userRole === 'student') {
-            foundWork.solveStatus = 'in-progress';
-            await this.assignedWorkRepository.update(foundWork);
+            await this.assignedWorkRepository.setSolvingInProgress(foundWork.id);
         }
         if (answer.id) {
             await this.answerRepository.update(answer);
@@ -405,10 +404,7 @@ export class AssignedWorkService {
         if (workAlreadyChecked(foundWork)) {
             throw new WorkAlreadyCheckedError();
         }
-        if (foundWork.checkStatus !== 'in-progress') {
-            foundWork.checkStatus = 'in-progress';
-            await this.assignedWorkRepository.update(foundWork);
-        }
+        await this.assignedWorkRepository.setCheckInProgress(foundWork.id);
         if (comment.id) {
             await this.commentRepository.update(comment);
             return comment.id;
@@ -422,9 +418,15 @@ export class AssignedWorkService {
         if (userRole === 'student' && foundWork.studentId !== userId) {
             throw new UnauthorizedError();
         }
+        if (workAlreadyMade(foundWork) && userRole === 'student') {
+            throw new WorkAlreadySolvedError();
+        }
         if (userRole === 'mentor' &&
             !foundWork.mentors.some((mentor) => mentor.id === userId)) {
             throw new UnauthorizedError();
+        }
+        if (workAlreadyChecked(foundWork) && userRole === 'mentor') {
+            throw new WorkAlreadyCheckedError();
         }
         if (userRole === 'mentor') {
             foundWork.mentorComment = data.mentorComment;

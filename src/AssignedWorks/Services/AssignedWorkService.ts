@@ -605,8 +605,7 @@ export class AssignedWorkService {
     }
 
     if (foundWork.solveStatus !== 'in-progress' && userRole === 'student') {
-      foundWork.solveStatus = 'in-progress'
-      await this.assignedWorkRepository.update(foundWork)
+      await this.assignedWorkRepository.setSolvingInProgress(foundWork.id)
     }
 
     if (answer.id) {
@@ -640,10 +639,7 @@ export class AssignedWorkService {
       throw new WorkAlreadyCheckedError()
     }
 
-    if (foundWork.checkStatus !== 'in-progress') {
-      foundWork.checkStatus = 'in-progress'
-      await this.assignedWorkRepository.update(foundWork)
-    }
+    await this.assignedWorkRepository.setCheckInProgress(foundWork.id)
 
     if (comment.id) {
       await this.commentRepository.update(comment)
@@ -672,11 +668,19 @@ export class AssignedWorkService {
       throw new UnauthorizedError()
     }
 
+    if (workAlreadyMade(foundWork) && userRole === 'student') {
+      throw new WorkAlreadySolvedError()
+    }
+
     if (
       userRole === 'mentor' &&
       !foundWork.mentors!.some((mentor) => mentor.id === userId)
     ) {
       throw new UnauthorizedError()
+    }
+
+    if (workAlreadyChecked(foundWork) && userRole === 'mentor') {
+      throw new WorkAlreadyCheckedError()
     }
 
     if (userRole === 'mentor') {

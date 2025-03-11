@@ -95,7 +95,10 @@ export class SessionService {
             isLastRequestMobile: session.isMobile,
         };
     }
-    async updateSession(session, context) {
+    async updateSession(session, context, updateIfThreshold = SessionOptions.updateSessionIfThreshold) {
+        if (date.isInLast(session.lastRequestAt, updateIfThreshold)) {
+            return;
+        }
         session.userAgent = context.info.userAgent;
         session.isMobile = context.info.isMobile;
         session.device = context.info.device || null;

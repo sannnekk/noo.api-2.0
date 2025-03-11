@@ -149,8 +149,13 @@ export class SessionService {
 
   public async updateSession(
     session: Session,
-    context: Context
+    context: Context,
+    updateIfThreshold = SessionOptions.updateSessionIfThreshold
   ): Promise<void> {
+    if (date.isInLast(session.lastRequestAt, updateIfThreshold)) {
+      return
+    }
+
     session.userAgent = context.info.userAgent
     session.isMobile = context.info.isMobile
     session.device = context.info.device || null

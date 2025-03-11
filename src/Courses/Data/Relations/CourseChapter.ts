@@ -8,6 +8,7 @@ export interface CourseChapter {
   slug: string
   courseId?: string
   course?: Course
+  chapters?: CourseChapter[]
   materials?: CourseMaterial[]
   materialIds?: string[]
   order: number

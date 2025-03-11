@@ -86,4 +86,22 @@ export class AssignedWorkRepository extends Repository<AssignedWork> {
 
     return medianValue(scores)
   }
+
+  public async setSolvingInProgress(assignedWorkId: string) {
+    await this.queryBuilder('assigned_work')
+      .update()
+      .set({ solveStatus: 'in-progress' })
+      .where('id = :assignedWorkId', { assignedWorkId })
+      .andWhere('solved_at IS NULL')
+      .execute()
+  }
+
+  public async setCheckInProgress(assignedWorkId: string) {
+    await this.queryBuilder('assigned_work')
+      .update()
+      .set({ checkStatus: 'in-progress' })
+      .where('id = :assignedWorkId', { assignedWorkId })
+      .andWhere('solved_at IS NULL')
+      .execute()
+  }
 }

@@ -11,7 +11,6 @@ export class WorkTaskRepository extends Repository {
             .leftJoin('assigned_work_comment', 'awc', 'work_task.id = awc.taskId')
             .where('work_task.workId = :workId', { workId })
             .andWhere('awc.score IS NOT NULL')
-            .andWhere('awc.score > 0')
             .groupBy('work_task.id')
             .orderBy('avgScore', 'ASC')
             .limit(count)

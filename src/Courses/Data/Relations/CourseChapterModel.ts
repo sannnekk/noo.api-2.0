@@ -25,6 +25,12 @@ export class CourseChapterModel extends Model implements CourseChapter {
     if (data) {
       this.set(data)
 
+      if (data.chapters) {
+        this.chapters = data.chapters.map(
+          (chapter) => new CourseChapterModel(chapter)
+        )
+      }
+
       if (data.materials) {
         this.materials = data.materials.map(
           (material) => new CourseMaterialModel(material)
@@ -74,6 +80,21 @@ export class CourseChapterModel extends Model implements CourseChapter {
 
   @RelationId((chapter: CourseChapterModel) => chapter.course)
   courseId?: Course['id']
+
+  @ManyToOne(
+    () => CourseChapterModel,
+    (chapter: CourseChapter) => chapter.chapters,
+    {
+      onDelete: 'CASCADE',
+    }
+  )
+  parentChapter?: CourseChapter
+
+  @OneToMany(() => CourseChapterModel, (chapter) => chapter.parentChapter, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  chapters?: CourseChapter[]
 
   @OneToMany(
     () => CourseMaterialModel,

@@ -29,6 +29,9 @@ CREATE TABLE
       UNIQUE KEY `REL_1adf3c18a8d7b082ac24430903` (`thumbnailId`)
   ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
 
+ALTER TABLE video ADD COLUMN access_type VARCHAR(255) NOT NULL;
+ALTER TABLE video ADD COLUMN access_value VARCHAR(255) NULL DEFAULT NULL;
+
 CREATE TABLE
   `video_chapter` (
     `id` varchar(255) CHARACTER

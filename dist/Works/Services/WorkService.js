@@ -101,11 +101,12 @@ export class WorkService {
             solveHint: task.solveHint,
             checkHint: task.checkHint,
             isAnswerVisibleBeforeCheck: task.isAnswerVisibleBeforeCheck,
+            isCheckOneByOneEnabled: task.isCheckOneByOneEnabled,
         }));
         this.workRepository.create(newWork);
     }
     async updateWork(id, work) {
-        const foundWork = await this.workRepository.findOne({ id: work.id });
+        const foundWork = await this.workRepository.findOne({ id });
         if (!foundWork) {
             throw new NotFoundError();
         }

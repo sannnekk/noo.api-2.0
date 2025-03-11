@@ -60,4 +60,20 @@ export class AssignedWorkRepository extends Repository {
         const scores = results.map((item) => parseFloat(item.score)) || [];
         return medianValue(scores);
     }
+    async setSolvingInProgress(assignedWorkId) {
+        await this.queryBuilder('assigned_work')
+            .update()
+            .set({ solveStatus: 'in-progress' })
+            .where('id = :assignedWorkId', { assignedWorkId })
+            .andWhere('solved_at IS NULL')
+            .execute();
+    }
+    async setCheckInProgress(assignedWorkId) {
+        await this.queryBuilder('assigned_work')
+            .update()
+            .set({ checkStatus: 'in-progress' })
+            .where('id = :assignedWorkId', { assignedWorkId })
+            .andWhere('solved_at IS NULL')
+            .execute();
+    }
 }

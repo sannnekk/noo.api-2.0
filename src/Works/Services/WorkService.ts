@@ -153,6 +153,7 @@ export class WorkService {
           solveHint: task.solveHint,
           checkHint: task.checkHint,
           isAnswerVisibleBeforeCheck: task.isAnswerVisibleBeforeCheck,
+          isCheckOneByOneEnabled: task.isCheckOneByOneEnabled,
         }) as WorkTask
     )
 
@@ -160,7 +161,7 @@ export class WorkService {
   }
 
   public async updateWork(id: Work['id'], work: WorkDTO) {
-    const foundWork = await this.workRepository.findOne({ id: work.id })
+    const foundWork = await this.workRepository.findOne({ id })
 
     if (!foundWork) {
       throw new NotFoundError()

@@ -12,12 +12,10 @@ import { WorkRepository } from '../../Works/Data/WorkRepository.js';
 import { WorkIsFromAnotherSubjectError } from '../Errors/WorkIsFromAnotherSubjectError.js';
 import { CourseAssignmentRepository } from '../Data/CourseAssignmentRepository.js';
 import { CourseAssignmentModel } from '../Data/Relations/CourseAssignmentModel.js';
-import { CourseChapterRepository } from '../Data/CourseChapterRepository.js';
 import { CourseMaterialReactionRepository } from '../Data/CourseMaterialReactionRepository.js';
 import { UnauthorizedError } from '../../Core/Errors/UnauthorizedError.js';
 export class CourseService {
     courseRepository;
-    chapterRepository;
     courseAssignmentRepository;
     materialRepository;
     materialReactionRepository;
@@ -26,7 +24,6 @@ export class CourseService {
     workRepository;
     constructor() {
         this.courseRepository = new CourseRepository();
-        this.chapterRepository = new CourseChapterRepository();
         this.courseAssignmentRepository = new CourseAssignmentRepository();
         this.userRepository = new UserRepository();
         this.materialRepository = new CourseMaterialRepository();
@@ -52,32 +49,28 @@ export class CourseService {
         }, pagination, ['course', 'course.images', 'assigner', 'course.subject']);
     }
     async getBySlug(slug, userId, role) {
-        const condition = role === 'teacher'
-            ? { slug }
-            : {
-                slug,
-                chapters: {
-                    isActive: true,
-                    materials: {
-                        isActive: true,
-                    },
-                },
-            };
-        const course = await this.courseRepository.findOne(condition, [
+        const course = await this.courseRepository.findOne({ slug }, [
             'chapters',
             'chapters.materials',
             'chapters.materials.work',
             'chapters.materials.files',
-        ], {
-            chapters: {
+            'chapters.chapters.materials',
+            'chapters.chapters.materials.work',
+            'chapters.chapters.materials.files',
+        ], 
+        /* {
+          chapters: {
+            order: 'ASC',
+            materials: {
+              order: 'ASC',
+              files: {
                 order: 'ASC',
-                materials: {
-                    order: 'ASC',
-                    files: {
-                        order: 'ASC',
-                    },
-                },
+              },
             },
+          },
+        }, */
+        undefined, {
+            relationLoadStrategy: 'query',
         });
         if (!course) {
             throw new NotFoundError('Курс не найден');
