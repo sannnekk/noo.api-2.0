@@ -6,6 +6,15 @@ import type { RequestTest } from '@modules/Core/Test/RequestTest'
 const SuccessSchema = z.object({}).passthrough()
 const ErrorSchema = z.object({ error: z.string() }).passthrough()
 
+// Global variable to capture the created work's id.
+let capturedWorkId = ''
+// Define a response schema that captures the created work's id.
+const WorkCreationResponseSchema = z.object({
+  data: z.object({
+    id: z.string().nonempty(),
+  }).passthrough(),
+})
+
 const tests: RequestTest[] = [
   // --------------------------------------------------------------------------
   // 1) GET /work/ => getWorks
@@ -60,7 +69,7 @@ const tests: RequestTest[] = [
   // --------------------------------------------------------------------------
   {
     name: 'Get a specific work by slug as teacher => 200',
-    route: '/work/example-slug',
+    route: '/work/01HRP8ZCKQ3QPB4KN6JEFBM7M2-test-ocenivaniya',
     method: 'GET',
     authAs: 'teacher',
     expectedStatus: StatusCodes.OK,
@@ -68,7 +77,7 @@ const tests: RequestTest[] = [
   },
   {
     name: 'Get a specific work by slug as student => 200',
-    route: '/work/example-slug',
+    route: '/work/01HRP8ZCKQ3QPB4KN6JEFBM7M2-test-ocenivaniya',
     method: 'GET',
     authAs: 'student',
     expectedStatus: StatusCodes.OK,
@@ -76,7 +85,7 @@ const tests: RequestTest[] = [
   },
   {
     name: 'Get a specific work by invalid slug => 400',
-    route: '/work/???',
+    route: '/work/?????',
     method: 'GET',
     authAs: 'admin',
     expectedStatus: StatusCodes.BAD_REQUEST,
@@ -98,7 +107,7 @@ const tests: RequestTest[] = [
   // --------------------------------------------------------------------------
   {
     name: 'Get related materials for a work as admin => 200',
-    route: '/work/123/related-materials',
+    route: '/work/01HRP8ZCKN3CNQ12N0C1CY4J9E/related-materials',
     method: 'GET',
     authAs: 'admin',
     expectedStatus: StatusCodes.OK,
@@ -106,7 +115,7 @@ const tests: RequestTest[] = [
   },
   {
     name: 'Get related materials for a work as student => 200',
-    route: '/work/123/related-materials',
+    route: '/work/01HRP8ZCKN3CNQ12N0C1CY4J9E/related-materials',
     method: 'GET',
     authAs: 'student',
     expectedStatus: StatusCodes.OK,
@@ -142,17 +151,30 @@ const tests: RequestTest[] = [
   //    - Must be teacher => else 403
   //    - parseCreation => 400 if invalid body
   // --------------------------------------------------------------------------
+  
+  
   {
     name: 'Create a new work as teacher => 200',
     route: '/work/',
     method: 'POST',
     authAs: 'teacher',
     body: {
-      title: 'New Work',
+      name: 'New Work',
       description: 'Some description...',
-    }, // valid data
+      type: 'test', 
+      tasks: [],
+      subject: { id: '01J59XHDM8419M0Z45P81CRH62' },
+    },
     expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    responseSchema: WorkCreationResponseSchema,
+    // Capture the id from the response data with an explicit check.
+    onSuccess: (response: any) => {
+      const workId = response.data.id
+      if (!workId) {
+        throw new Error('Work id is empty!')
+      }
+      capturedWorkId = workId
+    },
   },
   {
     name: 'Create a new work with invalid body => 400',
@@ -189,15 +211,15 @@ const tests: RequestTest[] = [
   // --------------------------------------------------------------------------
   {
     name: 'Copy a work as teacher => 200',
-    route: '/work/copy/some-work-slug',
+    route: '/work/copy/01HRP8ZCKQ3QPB4KN6JEFBM7M2-test-ocenivaniya',
     method: 'POST',
     authAs: 'teacher',
-    expectedStatus: StatusCodes.OK,
+    expectedStatus: StatusCodes.NO_CONTENT,
     responseSchema: SuccessSchema,
   },
   {
     name: 'Copy a work with invalid slug => 400',
-    route: '/work/copy/???',
+    route: '/work/copy/??????',
     method: 'POST',
     authAs: 'teacher',
     expectedStatus: StatusCodes.BAD_REQUEST,
@@ -228,11 +250,14 @@ const tests: RequestTest[] = [
   // --------------------------------------------------------------------------
   {
     name: 'Update work as teacher => 200',
-    route: '/work/999',
+    route: '/work/01HRP8ZCKN3CNQ12N0C1CY4J9E',
     method: 'PATCH',
     authAs: 'teacher',
     body: {
-      title: 'Updated Title',
+      name: 'Updated Title',
+      type: 'test',
+      tasks: [],
+      subject: { id: '01ARZ3NDEKTSV4RRFFQ69G5FAV' }
     },
     expectedStatus: StatusCodes.OK,
     responseSchema: SuccessSchema,
@@ -280,11 +305,14 @@ const tests: RequestTest[] = [
   //    - parseId => 400 if invalid
   // --------------------------------------------------------------------------
   {
-    name: 'Delete a work as teacher => 200',
-    route: '/work/999',
+    name: 'Delete a work as teacher => 204',
+    // Define route as a getter so that the capturedWorkId is injected dynamically.
+    get route() {
+      return `/work/${capturedWorkId}`
+    },
     method: 'DELETE',
     authAs: 'teacher',
-    expectedStatus: StatusCodes.OK,
+    expectedStatus: StatusCodes.NO_CONTENT,
     responseSchema: SuccessSchema,
   },
   {

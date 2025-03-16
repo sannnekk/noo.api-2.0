@@ -1,275 +1,241 @@
+import type { RequestTest } from '@modules/Core/Test/RequestTest'
 import { z } from 'zod'
 import { StatusCodes } from 'http-status-codes'
-import type { RequestTest } from '@modules/Core/Test/RequestTest'
+import { CalenderEventVisibilityScheme } from '../Schemes/CalenderEventVisibilityScheme'
+
+// Global variable to capture a created calendar event ID
+let capturedCalendarEventId = ''
+
+// Base valid event payload
+const validEvent = {
+  title: 'Team Meeting',
+  description: 'Monthly sync-up',
+  date: new Date().toISOString(),
+  visibility: 'all',
+}
+
+// Schema for a successful creation response
+const CalendarEventResponseSchema = z.object({
+  data: z.object({
+    id: z.string(),
+    title: z.string(),
+    description: z.string().optional(),
+    date: z.string(),
+    visibility: CalenderEventVisibilityScheme,
+  }),
+  meta: z.any().nullable().optional(),
+})
+
+// Schema for a successful GET response (with pagination)
+const GetCalendarEventsResponseSchema = z.object({
+  data: z.array(z.object({}).passthrough()),
+  meta: z
+    .object({
+      page: z.number().optional(),
+      perPage: z.number().optional(),
+      total: z.number().optional(),
+    })
+    .optional()
+    .nullable(),
+}).passthrough()
 
 const tests: RequestTest[] = [
-  // --------------------------------------------------------------------------
-  // GET /platform/version
-  // --------------------------------------------------------------------------
+  // -------------------------------
+  // POST /calender tests
+  // -------------------------------
   {
-    name: 'Get platform version as authenticated user (admin)',
-    route: '/platform/version',
-    method: 'GET',
-    authAs: 'admin',
-    expectedStatus: StatusCodes.OK,
-    responseSchema: z.object({
-      data: z.object({
-        version: z.string(),
-      }),
-    }),
-  },
-  {
-    name: 'Get platform version as authenticated user (teacher)',
-    route: '/platform/version',
-    method: 'GET',
-    authAs: 'teacher',
-    expectedStatus: StatusCodes.OK,
-    responseSchema: z.object({
-      data: z.object({
-        version: z.string(),
-      }),
-    }),
-  },
-  {
-    name: 'Get platform version as authenticated user (student)',
-    route: '/platform/version',
-    method: 'GET',
+    name: 'Create event with valid payload (authenticated)',
+    route: '/calender',
+    method: 'POST',
+    body: {
+      title: 'Team Meeting',
+      description: 'Monthly sync-up',
+      date: new Date().toISOString(),
+      visibility: 'all',
+    },
     authAs: 'student',
     expectedStatus: StatusCodes.OK,
-    responseSchema: z.object({
-      data: z.object({
-        version: z.string(),
-      }),
-    }),
+    responseSchema: CalendarEventResponseSchema,
+  
+    // The "response" callback now assumes the parameter is already the parsed JSON body
+    response: (data: any) => {
+      // Access `data` directly, instead of `data.body`
+      capturedCalendarEventId = data.data.id
+      console.log('Captured calendar event id:', capturedCalendarEventId)
+    },
   },
   {
-    name: 'Get platform version as unauthenticated user',
-    route: '/platform/version',
-    method: 'GET',
+    name: 'Fail to create event when unauthenticated',
+    route: '/calender',
+    method: 'POST',
+    body: validEvent,
     expectedStatus: StatusCodes.UNAUTHORIZED,
-    responseSchema: z.object({
-      error: z.string().optional(),
-    }),
-  },
-
-  // --------------------------------------------------------------------------
-  // GET /platform/changelog
-  // --------------------------------------------------------------------------
-  {
-    name: 'Get platform changelog as admin',
-    route: '/platform/changelog',
-    method: 'GET',
-    authAs: 'admin',
-    expectedStatus: StatusCodes.OK,
-    responseSchema: z.object({
-      data: z.array(
-        z.object({
-          version: z.string(),
-          changes: z.array(z.string()),
-        })
-      ),
-    }),
+    responseSchema: z.object({ error: z.string() }),
   },
   {
-    name: 'Get platform changelog as teacher',
-    route: '/platform/changelog',
-    method: 'GET',
-    authAs: 'teacher',
-    expectedStatus: StatusCodes.OK,
-    responseSchema: z.object({
-      data: z.array(
-        z.object({
-          version: z.string(),
-          changes: z.array(z.string()),
-        })
-      ),
-    }),
-  },
-  {
-    name: 'Get platform changelog as student',
-    route: '/platform/changelog',
-    method: 'GET',
+    name: 'Fail to create event with missing title',
+    route: '/calender',
+    method: 'POST',
+    body: {
+      description: 'No title provided',
+      date: new Date().toISOString(),
+      visibility: 'all',
+    },
     authAs: 'student',
-    expectedStatus: StatusCodes.FORBIDDEN,
-    responseSchema: z.object({
-      error: z.string(),
-    }),
-  },
-  {
-    name: 'Get platform changelog as unauthenticated user',
-    route: '/platform/changelog',
-    method: 'GET',
-    expectedStatus: StatusCodes.UNAUTHORIZED,
-    responseSchema: z.object({
-      error: z.string().optional(),
-    }),
-  },
-
-  // --------------------------------------------------------------------------
-  // GET /platform/changelog/:version
-  // --------------------------------------------------------------------------
-  {
-    name: 'Get platform changelog for specific version (valid) as admin',
-    route: '/platform/changelog/1.0.0',
-    method: 'GET',
-    authAs: 'admin',
-    expectedStatus: StatusCodes.OK,
-    responseSchema: z.object({
-      data: z.object({
-        version: z.string(),
-        changes: z.array(z.string()),
-      }),
-    }),
-  },
-  {
-    name: 'Get platform changelog for specific version (valid) as teacher',
-    route: '/platform/changelog/1.0.0',
-    method: 'GET',
-    authAs: 'teacher',
-    expectedStatus: StatusCodes.OK,
-    responseSchema: z.object({
-      data: z.object({
-        version: z.string(),
-        changes: z.array(z.string()),
-      }),
-    }),
-  },
-  {
-    name: 'Get platform changelog for invalid version format',
-    route: '/platform/changelog/invalid-version',
-    method: 'GET',
-    authAs: 'teacher',
     expectedStatus: StatusCodes.BAD_REQUEST,
-    responseSchema: z.object({
-      error: z.string(),
-    }),
+    responseSchema: z.object({ error: z.string() }),
   },
   {
-    name: 'Get platform changelog for specific version as student',
-    route: '/platform/changelog/1.0.0',
-    method: 'GET',
+    name: 'Fail to create event with invalid visibility value',
+    route: '/calender',
+    method: 'POST',
+    body: {
+      title: 'Event with invalid visibility',
+      description: 'Visibility not allowed',
+      date: new Date().toISOString(),
+      visibility: 'everyone', // invalid value
+    },
     authAs: 'student',
-    expectedStatus: StatusCodes.FORBIDDEN,
-    responseSchema: z.object({
-      error: z.string(),
-    }),
+    expectedStatus: StatusCodes.BAD_REQUEST,
+    responseSchema: z.object({ error: z.string() }),
   },
   {
-    name: 'Get platform changelog for specific version as unauthenticated user',
-    route: '/platform/changelog/1.0.0',
-    method: 'GET',
-    expectedStatus: StatusCodes.UNAUTHORIZED,
-    responseSchema: z.object({
-      error: z.string().optional(),
-    }),
+    name: 'Fail to create event with title too long',
+    route: '/calender',
+    method: 'POST',
+    body: {
+      title: 'A'.repeat(256), // exceeds length limit
+      description: 'Title length exceeds limit',
+      date: new Date().toISOString(),
+      visibility: 'all',
+    },
+    authAs: 'student',
+    expectedStatus: StatusCodes.BAD_REQUEST,
+    responseSchema: z.object({ error: z.string() }),
+  },
+  {
+    name: 'Fail to create event with missing date field',
+    route: '/calender',
+    method: 'POST',
+    body: {
+      title: 'Event without date',
+      description: 'Date is missing',
+      visibility: 'all',
+    },
+    authAs: 'student',
+    expectedStatus: StatusCodes.BAD_REQUEST,
+    responseSchema: z.object({ error: z.string() }),
   },
 
-  // --------------------------------------------------------------------------
-  // GET /platform/healthcheck
-  // --------------------------------------------------------------------------
+  // -------------------------------
+  // GET /calender tests (with pagination)
+  // -------------------------------
   {
-    name: 'Get platform healthcheck as admin',
-    route: '/platform/healthcheck',
+    name: 'Get calendar events with valid pagination (authenticated)',
+    route: '/calender',
     method: 'GET',
-    authAs: 'admin',
-    expectedStatus: StatusCodes.OK,
-    responseSchema: z.object({
-      data: z.object({
-        status: z.string(),
-        uptime: z.number(),
-        memoryUsage: z.object({
-          rss: z.number(),
-          heapTotal: z.number(),
-          heapUsed: z.number(),
-          external: z.number(),
-        }),
-      }),
-    }),
-  },
-  {
-    name: 'Get platform healthcheck as teacher',
-    route: '/platform/healthcheck',
-    method: 'GET',
+    query: {
+      page: '1',
+      limit: '10',
+      filter: { username: 'teacher' },
+    },
     authAs: 'teacher',
     expectedStatus: StatusCodes.OK,
-    responseSchema: z.object({
-      data: z.object({
-        status: z.string(),
-        uptime: z.number(),
-        memoryUsage: z.object({
-          rss: z.number(),
-          heapTotal: z.number(),
-          heapUsed: z.number(),
-          external: z.number(),
-        }),
-      }),
-    }),
+    responseSchema: GetCalendarEventsResponseSchema,
   },
   {
-    name: 'Get platform healthcheck as student',
-    route: '/platform/healthcheck',
+    name: 'Fail to get calendar events when unauthenticated',
+    route: '/calender',
     method: 'GET',
-    authAs: 'student',
-    expectedStatus: StatusCodes.FORBIDDEN,
-    responseSchema: z.object({
-      error: z.string(),
-    }),
-  },
-  {
-    name: 'Get platform healthcheck as unauthenticated user',
-    route: '/platform/healthcheck',
-    method: 'GET',
+    query: {
+      page: '1',
+      limit: '10',
+      filter: { username: 'student' },
+    },
     expectedStatus: StatusCodes.UNAUTHORIZED,
-    responseSchema: z.object({
-      error: z.string().optional(),
-    }),
+    responseSchema: z.object({ error: z.string() }),
+  },
+  {
+    name: 'Fail to get calendar events with invalid pagination query',
+    route: '/calender',
+    method: 'GET',
+    query: {
+      page: 'abc',
+      limit: 'def',
+      filter: { username: 'student' },
+    },
+    authAs: 'student',
+    expectedStatus: StatusCodes.BAD_REQUEST,
+    responseSchema: z.object({ error: z.string() }),
   },
 
-  // --------------------------------------------------------------------------
-  // GET /platform/heapdump
-  // --------------------------------------------------------------------------
+  // -------------------------------
+  // GET /calender tests (role-based)
+  // -------------------------------
   {
-    name: 'Generate heapdump as admin',
-    route: '/platform/heapdump',
+    name: "Student cannot get another student's calendar events",
+    route: '/calender',
     method: 'GET',
-    authAs: 'admin',
-    expectedStatus: StatusCodes.OK,
-    responseSchema: z.object({
-      data: z.object({
-        path: z.string(),
-      }),
-    }),
-  },
-  {
-    name: 'Generate heapdump as teacher',
-    route: '/platform/heapdump',
-    method: 'GET',
-    authAs: 'teacher',
-    expectedStatus: StatusCodes.OK,
-    responseSchema: z.object({
-      data: z.object({
-        path: z.string(),
-      }),
-    }),
-  },
-  {
-    name: 'Generate heapdump as student',
-    route: '/platform/heapdump',
-    method: 'GET',
+    query: {
+      page: '1',
+      limit: '10',
+      filter: { username: 'otherstudent' },
+    },
     authAs: 'student',
     expectedStatus: StatusCodes.FORBIDDEN,
-    responseSchema: z.object({
-      error: z.string(),
-    }),
+    responseSchema: z.object({ error: z.string() }),
   },
   {
-    name: 'Generate heapdump as unauthenticated user',
-    route: '/platform/heapdump',
+    name: 'Teacher can get student calendar events',
+    route: '/calender',
     method: 'GET',
+    query: {
+      page: '1',
+      limit: '10',
+      filter: { username: 'teacher' },
+    },
+    authAs: 'teacher',
+    expectedStatus: StatusCodes.OK,
+    responseSchema: GetCalendarEventsResponseSchema,
+  },
+
+  // -------------------------------
+  // DELETE /calender tests
+  // -------------------------------
+  {
+    name: 'Delete calendar event successfully (authenticated, owner)',
+    get route() {
+      return `/calender/${capturedCalendarEventId}`
+    },
+    method: 'DELETE',
+    authAs: 'student',
+    expectedStatus: StatusCodes.NO_CONTENT,
+    responseSchema: z.object({}),
+  },
+  {
+    name: 'Fail to delete calendar event when event not found',
+    route: '/calender/01HMC2PA3251RT43WWRYZSHHQ7',
+    method: 'DELETE',
+    authAs: 'student',
+    expectedStatus: StatusCodes.NOT_FOUND,
+    responseSchema: z.object({ error: z.string() }),
+  },
+  {
+    name: 'Fail to delete calendar event when not owner',
+    route: '/calender/01HTJFN4XWFEPW7X3X4NZ7XM3R',
+    method: 'DELETE',
+    authAs: 'student',
+    expectedStatus: StatusCodes.FORBIDDEN,
+    responseSchema: z.object({ error: z.string() }),
+  },
+  {
+    name: 'Fail to delete calendar event when unauthenticated',
+    get route() {
+      return `/calender/01HTJFN4XWFEPW7X3X4NZ7XM3R`
+    },
+    method: 'DELETE',
     expectedStatus: StatusCodes.UNAUTHORIZED,
-    responseSchema: z.object({
-      error: z.string().optional(),
-    }),
+    responseSchema: z.object({ error: z.string() }),
   },
 ]
 

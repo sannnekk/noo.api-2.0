@@ -3,6 +3,7 @@ import { StatusCodes } from 'http-status-codes'
 import type { RequestTest } from '@modules/Core/Test/RequestTest'
 
 // Generic success/error schemas
+let capturedSubjectId: string = '';
 const SuccessSchema = z.object({}).passthrough()
 const ErrorSchema = z.object({ error: z.string() }).passthrough()
 
@@ -36,14 +37,21 @@ const tests: RequestTest[] = [
   //   - parseSubject => 400 if invalid body
   // --------------------------------------------------------------------------
   {
-    name: 'Create subject as admin => 200',
+    name: 'Create subject as admin => 204',
     route: '/subject',
     method: 'POST',
     authAs: 'admin',
-    body: { name: 'New Subject' }, // example valid input
-    expectedStatus: StatusCodes.OK,
+    body: { 
+      name: 'New Subject', 
+      color: '#FFFFFF' // valid color string
+    },
+    expectedStatus: StatusCodes.NO_CONTENT,
     responseSchema: SuccessSchema,
-  },
+    postTest: (response: any) => {
+      capturedSubjectId = response.body.data.id;
+      console.log('Captured Subject ID:', capturedSubjectId);
+    },
+  } as RequestTest & { postTest?: (response: any) => void },
   {
     name: 'Create subject with invalid body => 400',
     route: '/subject',
@@ -77,12 +85,15 @@ const tests: RequestTest[] = [
   //   - parseSubject => 400 if invalid body
   // --------------------------------------------------------------------------
   {
-    name: 'Update subject as admin => 200',
-    route: '/subject/123',
+    name: 'Update subject as admin => 204',
+    route: '/subject/01JP827RKQVZN4GY643R03SHT0',
     method: 'PATCH',
     authAs: 'admin',
-    body: { name: 'Updated Subject' },
-    expectedStatus: StatusCodes.OK,
+    body: { 
+      name: 'Updated Subject',
+      color: '#000000'  // Added valid color as required by the schema
+    },
+    expectedStatus: StatusCodes.NO_CONTENT,
     responseSchema: SuccessSchema,
   },
   {
@@ -126,11 +137,11 @@ const tests: RequestTest[] = [
   //   - parseId => 400 if invalid
   // --------------------------------------------------------------------------
   {
-    name: 'Delete subject as admin => 200',
-    route: '/subject/999',
+    name: 'Delete subject as admin => 204',
+    route: '/subject/01JP8242YA493TV5E005H0D358',
     method: 'DELETE',
     authAs: 'admin',
-    expectedStatus: StatusCodes.OK,
+    expectedStatus: StatusCodes.NO_CONTENT,
     responseSchema: SuccessSchema,
   },
   {

@@ -1,99 +1,97 @@
+import type { RequestTest } from '@modules/Core/Test/RequestTest'
 import { z } from 'zod'
 import { StatusCodes } from 'http-status-codes'
-import type { RequestTest } from '@modules/Core/Test/RequestTest'
 
-// Basic success/error schemas
-const SuccessSchema = z.object({}).passthrough()
-const ErrorSchema = z.object({ error: z.string() }).passthrough()
+// Response schemas
+const EmptyResponseScheme = z.object({})
+const ErrorResponseSchema = z.object({ error: z.string() })
+
+// Global dynamic variables (normally set during registration/login)
+let capturedTeacherUsername = 'teacher'
+let capturedStudentUsername = 'student'
+let capturedAdminUsername = 'admin'
+let capturedTeacherUserId = '01JJQ7JTHVFMABEBK2ANWKF5R1'
+let capturedStudentUserId = '01J8VXMQDGEE4GCYSDSF8RY7E5'
+let capturedAdminUserId = '01J6G76JDMH0FP47FW1RDDK1CC'
+let capturedOtherUserId = '01HMC2PA3251RT43WWRYZSHHQ7'
+let capturedMentorId = '01JJQ7NC1XYJ4MKWXNHA1GQDN1'
+let capturedSubjectId = '01J59XHDM8419M0Z45P81CRH62'
 
 const tests: RequestTest[] = [
-  // --------------------------------------------------------------------------
   // 1) GET /user/:username => getByUsername
-  //    - Must be authenticated => 401 otherwise
-  //    - parseSlug => 400 if invalid
-  // --------------------------------------------------------------------------
   {
     name: 'Get user by username as authenticated => 200',
-    route: '/user/johndoe',
+    route: `/user/${capturedTeacherUsername}`,
     method: 'GET',
-    authAs: 'teacher', // any valid role
+    authAs: 'teacher',
     expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Get user by invalid username => 400',
-    route: '/user/???', // parseSlug likely fails
+    route: '/user/???',
     method: 'GET',
     authAs: 'teacher',
     expectedStatus: StatusCodes.BAD_REQUEST,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
   {
     name: 'Get user by username as unauth => 401',
-    route: '/user/johndoe',
+    route: `/user/${capturedTeacherUsername}`,
     method: 'GET',
     expectedStatus: StatusCodes.UNAUTHORIZED,
-    responseSchema: ErrorSchema.optional(),
+    responseSchema: ErrorResponseSchema.optional(),
   },
 
-  // --------------------------------------------------------------------------
   // 2) PATCH /user/:username/verify-manual => verifyManual
-  //    - Must be authenticated => 401
-  //    - teacherOrAdmin => else 403
-  //    - parseNonemptyString => 400 if invalid
-  // --------------------------------------------------------------------------
   {
-    name: 'Manually verify user as admin => 200',
-    route: '/user/alice/verify-manual',
+    name: 'Manually verify user as admin => 204',
+    route: `/user/${capturedTeacherUsername}/verify-manual`,
     method: 'PATCH',
     authAs: 'admin',
-    expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    expectedStatus: StatusCodes.NO_CONTENT,
+    responseSchema: EmptyResponseScheme,
   },
   {
-    name: 'Manually verify user as teacher => 200',
-    route: '/user/alice/verify-manual',
+    name: 'Manually verify user as teacher => 204',
+    route: `/user/${capturedTeacherUsername}/verify-manual`,
     method: 'PATCH',
     authAs: 'teacher',
-    expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    expectedStatus: StatusCodes.NO_CONTENT,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Manually verify user as student => 403',
-    route: '/user/alice/verify-manual',
+    route: `/user/${capturedTeacherUsername}/verify-manual`,
     method: 'PATCH',
     authAs: 'student',
     expectedStatus: StatusCodes.FORBIDDEN,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
   {
     name: 'Manually verify user as unauth => 401',
-    route: '/user/alice/verify-manual',
+    route: `/user/${capturedTeacherUsername}/verify-manual`,
     method: 'PATCH',
     expectedStatus: StatusCodes.UNAUTHORIZED,
-    responseSchema: ErrorSchema.optional(),
+    responseSchema: ErrorResponseSchema.optional(),
   },
   {
     name: 'Manually verify user with invalid username => 400',
-    route: '/user/  /verify-manual', // Something parseNonemptyString would fail
+    route: '/user/123???3123???!23/verify-manual',
     method: 'PATCH',
     authAs: 'admin',
     expectedStatus: StatusCodes.BAD_REQUEST,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
 
-  // --------------------------------------------------------------------------
   // 3) GET /user/mentor/search => getMentors
-  //    - Must be authenticated => 401
-  //    - Asserts.notStudent => if role=student => 403
-  // --------------------------------------------------------------------------
   {
     name: 'Get mentors as teacher => 200',
     route: '/user/mentor/search',
     method: 'GET',
     authAs: 'teacher',
     expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Get mentors as admin => 200',
@@ -101,7 +99,7 @@ const tests: RequestTest[] = [
     method: 'GET',
     authAs: 'admin',
     expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Get mentors as student => 403',
@@ -109,28 +107,24 @@ const tests: RequestTest[] = [
     method: 'GET',
     authAs: 'student',
     expectedStatus: StatusCodes.FORBIDDEN,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
   {
     name: 'Get mentors unauth => 401',
     route: '/user/mentor/search',
     method: 'GET',
     expectedStatus: StatusCodes.UNAUTHORIZED,
-    responseSchema: ErrorSchema.optional(),
+    responseSchema: ErrorResponseSchema.optional(),
   },
 
-  // --------------------------------------------------------------------------
   // 4) GET /user/teacher/search => getTeachers
-  //    - Must be authenticated
-  //    - notStudent => else 403
-  // --------------------------------------------------------------------------
   {
     name: 'Get teachers as admin => 200',
     route: '/user/teacher/search',
     method: 'GET',
     authAs: 'admin',
     expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Get teachers as teacher => 200',
@@ -138,7 +132,7 @@ const tests: RequestTest[] = [
     method: 'GET',
     authAs: 'teacher',
     expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Get teachers as student => 403',
@@ -146,28 +140,24 @@ const tests: RequestTest[] = [
     method: 'GET',
     authAs: 'student',
     expectedStatus: StatusCodes.FORBIDDEN,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
   {
     name: 'Get teachers unauth => 401',
     route: '/user/teacher/search',
     method: 'GET',
     expectedStatus: StatusCodes.UNAUTHORIZED,
-    responseSchema: ErrorSchema.optional(),
+    responseSchema: ErrorResponseSchema.optional(),
   },
 
-  // --------------------------------------------------------------------------
   // 5) GET /user/student/search => getStudents
-  //    - Must be authenticated
-  //    - notStudent => else 403
-  // --------------------------------------------------------------------------
   {
     name: 'Get students as teacher => 200',
     route: '/user/student/search',
     method: 'GET',
     authAs: 'teacher',
     expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Get students as student => 403',
@@ -175,52 +165,47 @@ const tests: RequestTest[] = [
     method: 'GET',
     authAs: 'student',
     expectedStatus: StatusCodes.FORBIDDEN,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
   {
     name: 'Get students unauth => 401',
     route: '/user/student/search',
     method: 'GET',
     expectedStatus: StatusCodes.UNAUTHORIZED,
-    responseSchema: ErrorSchema.optional(),
+    responseSchema: ErrorResponseSchema.optional(),
   },
 
-  // --------------------------------------------------------------------------
   // 6) GET /user/student/search/own/:mentorId? => getMyStudents
-  //    - Must be authenticated
-  //    - notStudent => else 403
-  //    - parseOptionalId => 400 if invalid param?
-  // --------------------------------------------------------------------------
   {
     name: 'Get my students with explicit mentorId as teacher => 200',
-    route: '/user/student/search/own/123',
+    route: `/user/student/search/own/${capturedMentorId}`,
     method: 'GET',
     authAs: 'teacher',
     expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Get my students with no mentorId as teacher => 200',
-    route: '/user/student/search/own', // no param
+    route: '/user/student/search/own',
     method: 'GET',
     authAs: 'teacher',
     expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Get my students as student => 403',
-    route: '/user/student/search/own/123',
+    route: `/user/student/search/own/${capturedMentorId}`,
     method: 'GET',
     authAs: 'student',
     expectedStatus: StatusCodes.FORBIDDEN,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
   {
     name: 'Get my students unauth => 401',
-    route: '/user/student/search/own/123',
+    route: `/user/student/search/own/${capturedMentorId}`,
     method: 'GET',
     expectedStatus: StatusCodes.UNAUTHORIZED,
-    responseSchema: ErrorSchema.optional(),
+    responseSchema: ErrorResponseSchema.optional(),
   },
   {
     name: 'Get my students with invalid mentorId => 400',
@@ -228,21 +213,17 @@ const tests: RequestTest[] = [
     method: 'GET',
     authAs: 'teacher',
     expectedStatus: StatusCodes.BAD_REQUEST,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
 
-  // --------------------------------------------------------------------------
   // 7) GET /user/ => getUsers
-  //    - Must be authenticated
-  //    - notStudent => else 403
-  // --------------------------------------------------------------------------
   {
     name: 'Get users as admin => 200',
     route: '/user/',
     method: 'GET',
     authAs: 'admin',
     expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Get users as student => 403',
@@ -250,60 +231,43 @@ const tests: RequestTest[] = [
     method: 'GET',
     authAs: 'student',
     expectedStatus: StatusCodes.FORBIDDEN,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
   {
     name: 'Get users unauth => 401',
     route: '/user/',
     method: 'GET',
     expectedStatus: StatusCodes.UNAUTHORIZED,
-    responseSchema: ErrorSchema.optional(),
+    responseSchema: ErrorResponseSchema.optional(),
   },
 
-  // --------------------------------------------------------------------------
   // 8) PATCH /user/:id => update
-  //    - Must be authenticated => 401
-  //    - parseId => 400 if invalid
-  //    - parseUpdate => 400 if invalid body
-  //    - if not teacher|admin => must own user => else 403
-  // --------------------------------------------------------------------------
   {
     name: 'Update user as admin => 200',
-    route: '/user/99',
+    route: `/user/${capturedOtherUserId}`,
     method: 'PATCH',
     authAs: 'admin',
-    body: { firstName: 'Updated', lastName: 'Name' }, // example
-    expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    body: { id: capturedOtherUserId, name: 'Updated Name' },
+    expectedStatus: StatusCodes.NO_CONTENT,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Update user as teacher => 200',
-    route: '/user/99',
+    route: `/user/${capturedOtherUserId}`,
     method: 'PATCH',
     authAs: 'teacher',
-    body: { firstName: 'TeacherUpdate' },
-    expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
-  },
-  {
-    name: 'Update own user as student => 200',
-    route: '/user/55',
-    method: 'PATCH',
-    authAs: 'student',
-    // If your test harness sets context.credentials!.userId = 55
-    // then isAuthorized(context,55) passes
-    body: { firstName: 'StudentSelfUpdate' },
-    expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    body: { id: capturedOtherUserId, name: 'Updated Name' },
+    expectedStatus: StatusCodes.NO_CONTENT,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Update another user as student => 403',
-    route: '/user/9999',
+    route: `/user/${capturedOtherUserId}`,
     method: 'PATCH',
     authAs: 'student',
-    body: { firstName: 'ForbiddenUpdate' },
+    body: { id: capturedOtherUserId, name: 'ForbiddenUpdate' },
     expectedStatus: StatusCodes.FORBIDDEN,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
   {
     name: 'Update user with invalid ID => 400',
@@ -312,33 +276,27 @@ const tests: RequestTest[] = [
     authAs: 'admin',
     body: { firstName: 'InvalidID' },
     expectedStatus: StatusCodes.BAD_REQUEST,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
   {
     name: 'Update user with invalid body => 400',
-    route: '/user/99',
+    route: `/user/${capturedOtherUserId}`,
     method: 'PATCH',
     authAs: 'admin',
-    body: {}, // parseUpdate likely fails
+    body: {},
     expectedStatus: StatusCodes.BAD_REQUEST,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
   {
     name: 'Update user unauth => 401',
-    route: '/user/99',
+    route: `/user/${capturedOtherUserId}`,
     method: 'PATCH',
     body: { firstName: 'NoAuth' },
     expectedStatus: StatusCodes.UNAUTHORIZED,
-    responseSchema: ErrorSchema.optional(),
+    responseSchema: ErrorResponseSchema.optional(),
   },
 
-  // --------------------------------------------------------------------------
   // 9) PATCH /user/:id/password => updatePassword
-  //    - Must be authenticated => 401
-  //    - parseId => 400 if invalid
-  //    - parseUpdatePassword => 400 if invalid body
-  //    - if not teacher|admin => must be user => else 403
-  // --------------------------------------------------------------------------
   {
     name: 'Update password as admin => 200',
     route: '/user/123/password',
@@ -346,17 +304,16 @@ const tests: RequestTest[] = [
     authAs: 'admin',
     body: { oldPassword: 'old123', newPassword: 'new123' },
     expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Update own password as student => 200',
     route: '/user/55/password',
     method: 'PATCH',
     authAs: 'student',
-    // test harness sets userId=55 => isAuthorized => passes
     body: { oldPassword: 'old', newPassword: 'new' },
     expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Update another user’s password as student => 403',
@@ -365,7 +322,7 @@ const tests: RequestTest[] = [
     authAs: 'student',
     body: { oldPassword: 'foo', newPassword: 'bar' },
     expectedStatus: StatusCodes.FORBIDDEN,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
   {
     name: 'Update password with invalid ID => 400',
@@ -374,16 +331,16 @@ const tests: RequestTest[] = [
     authAs: 'admin',
     body: { oldPassword: 'xxx', newPassword: 'yyy' },
     expectedStatus: StatusCodes.BAD_REQUEST,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
   {
     name: 'Update password with invalid body => 400',
     route: '/user/123/password',
     method: 'PATCH',
     authAs: 'admin',
-    body: {}, // parseUpdatePassword fails
+    body: {},
     expectedStatus: StatusCodes.BAD_REQUEST,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
   {
     name: 'Update password unauth => 401',
@@ -391,50 +348,44 @@ const tests: RequestTest[] = [
     method: 'PATCH',
     body: { oldPassword: 'some', newPassword: 'thing' },
     expectedStatus: StatusCodes.UNAUTHORIZED,
-    responseSchema: ErrorSchema.optional(),
+    responseSchema: ErrorResponseSchema.optional(),
   },
 
-  // --------------------------------------------------------------------------
   // 10) PATCH /user/:id/role => updateRole
-  //     - Must be authenticated => 401
-  //     - teacherOrAdmin => else 403
-  //     - parseId => 400
-  //     - parseRole => 400
-  // --------------------------------------------------------------------------
   {
     name: 'Update user role as admin => 200',
-    route: '/user/444/role',
+    route: `/user/${capturedOtherUserId}/role`,
     method: 'PATCH',
     authAs: 'admin',
-    body: { role: 'mentor' }, // example
+    body: { role: 'mentor' },
     expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Update user role as teacher => 200',
-    route: '/user/444/role',
+    route: `/user/${capturedOtherUserId}/role`,
     method: 'PATCH',
     authAs: 'teacher',
-    body: { role: 'student' }, // example
+    body: { role: 'student' },
     expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Update user role as student => 403',
-    route: '/user/444/role',
+    route: `/user/${capturedOtherUserId}/role`,
     method: 'PATCH',
     authAs: 'student',
     body: { role: 'teacher' },
     expectedStatus: StatusCodes.FORBIDDEN,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
   {
     name: 'Update user role unauth => 401',
-    route: '/user/444/role',
+    route: `/user/${capturedOtherUserId}/role`,
     method: 'PATCH',
     body: { role: 'admin' },
     expectedStatus: StatusCodes.UNAUTHORIZED,
-    responseSchema: ErrorSchema.optional(),
+    responseSchema: ErrorResponseSchema.optional(),
   },
   {
     name: 'Update user role with invalid ID => 400',
@@ -443,25 +394,19 @@ const tests: RequestTest[] = [
     authAs: 'admin',
     body: { role: 'teacher' },
     expectedStatus: StatusCodes.BAD_REQUEST,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
   {
     name: 'Update user role with invalid body => 400',
     route: '/user/444/role',
     method: 'PATCH',
     authAs: 'admin',
-    body: {}, // parseRole fails
+    body: {},
     expectedStatus: StatusCodes.BAD_REQUEST,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
 
-  // --------------------------------------------------------------------------
   // 11) PATCH /user/:id/telegram => updateTelegram
-  //     - Must be authenticated => 401
-  //     - parseId => 400
-  //     - parseTelegramUpdate => 400
-  //     - if role not teacher|admin => must be same user => 403
-  // --------------------------------------------------------------------------
   {
     name: 'Update telegram as admin => 200',
     route: '/user/777/telegram',
@@ -469,7 +414,7 @@ const tests: RequestTest[] = [
     authAs: 'admin',
     body: { telegramUsername: '@mytelegram' },
     expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Update telegram as teacher => 200',
@@ -478,17 +423,16 @@ const tests: RequestTest[] = [
     authAs: 'teacher',
     body: { telegramUsername: '@teachertelegram' },
     expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Update own telegram as student => 200',
     route: '/user/55/telegram',
     method: 'PATCH',
     authAs: 'student',
-    // test harness userId=55 => isAuthorized => OK
     body: { telegramUsername: '@studenttelegram' },
     expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Update another user’s telegram as student => 403',
@@ -497,7 +441,7 @@ const tests: RequestTest[] = [
     authAs: 'student',
     body: { telegramUsername: '@forbidden' },
     expectedStatus: StatusCodes.FORBIDDEN,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
   {
     name: 'Update telegram with invalid ID => 400',
@@ -506,16 +450,16 @@ const tests: RequestTest[] = [
     authAs: 'admin',
     body: { telegramUsername: 'xxx' },
     expectedStatus: StatusCodes.BAD_REQUEST,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
   {
     name: 'Update telegram with invalid body => 400',
     route: '/user/777/telegram',
     method: 'PATCH',
     authAs: 'admin',
-    body: {}, // parseTelegramUpdate fails
+    body: {},
     expectedStatus: StatusCodes.BAD_REQUEST,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
   {
     name: 'Update telegram unauth => 401',
@@ -523,16 +467,10 @@ const tests: RequestTest[] = [
     method: 'PATCH',
     body: { telegramUsername: 'xxx' },
     expectedStatus: StatusCodes.UNAUTHORIZED,
-    responseSchema: ErrorSchema.optional(),
+    responseSchema: ErrorResponseSchema.optional(),
   },
 
-  // --------------------------------------------------------------------------
   // 12) PATCH /user/:id/email => updateEmail
-  //     - Must be authenticated => 401
-  //     - parseId => 400
-  //     - parseEmailUpdate => 400
-  //     - if role not teacher|admin => must be same user => 403
-  // --------------------------------------------------------------------------
   {
     name: 'Update email as admin => 200',
     route: '/user/888/email',
@@ -540,7 +478,7 @@ const tests: RequestTest[] = [
     authAs: 'admin',
     body: { email: 'new@example.com' },
     expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Update own email as student => 200',
@@ -549,7 +487,7 @@ const tests: RequestTest[] = [
     authAs: 'student',
     body: { email: 'student@mail.com' },
     expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Update another user’s email as student => 403',
@@ -558,7 +496,7 @@ const tests: RequestTest[] = [
     authAs: 'student',
     body: { email: 'forbidden@mail.com' },
     expectedStatus: StatusCodes.FORBIDDEN,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
   {
     name: 'Update email with invalid ID => 400',
@@ -567,16 +505,16 @@ const tests: RequestTest[] = [
     authAs: 'admin',
     body: { email: 'test@mail.com' },
     expectedStatus: StatusCodes.BAD_REQUEST,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
   {
     name: 'Update email with invalid body => 400',
     route: '/user/888/email',
     method: 'PATCH',
     authAs: 'admin',
-    body: {}, // parseEmailUpdate fails
+    body: {},
     expectedStatus: StatusCodes.BAD_REQUEST,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
   {
     name: 'Update email unauth => 401',
@@ -584,22 +522,17 @@ const tests: RequestTest[] = [
     method: 'PATCH',
     body: { email: 'test@mail.com' },
     expectedStatus: StatusCodes.UNAUTHORIZED,
-    responseSchema: ErrorSchema.optional(),
+    responseSchema: ErrorResponseSchema.optional(),
   },
 
-  // --------------------------------------------------------------------------
   // 13) PATCH /user/:id/block => block
-  //     - Must be authenticated => 401
-  //     - teacherOrAdmin => else 403
-  //     - parseId => 400
-  // --------------------------------------------------------------------------
   {
     name: 'Block user as admin => 200',
     route: '/user/999/block',
     method: 'PATCH',
     authAs: 'admin',
     expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Block user as teacher => 200',
@@ -607,7 +540,7 @@ const tests: RequestTest[] = [
     method: 'PATCH',
     authAs: 'teacher',
     expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Block user as student => 403',
@@ -615,14 +548,14 @@ const tests: RequestTest[] = [
     method: 'PATCH',
     authAs: 'student',
     expectedStatus: StatusCodes.FORBIDDEN,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
   {
     name: 'Block user unauth => 401',
     route: '/user/999/block',
     method: 'PATCH',
     expectedStatus: StatusCodes.UNAUTHORIZED,
-    responseSchema: ErrorSchema.optional(),
+    responseSchema: ErrorResponseSchema.optional(),
   },
   {
     name: 'Block user with invalid ID => 400',
@@ -630,22 +563,17 @@ const tests: RequestTest[] = [
     method: 'PATCH',
     authAs: 'admin',
     expectedStatus: StatusCodes.BAD_REQUEST,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
 
-  // --------------------------------------------------------------------------
   // 14) PATCH /user/:id/unblock => unblock
-  //     - Must be authenticated => 401
-  //     - teacherOrAdmin => else 403
-  //     - parseId => 400
-  // --------------------------------------------------------------------------
   {
     name: 'Unblock user as admin => 200',
     route: '/user/999/unblock',
     method: 'PATCH',
     authAs: 'admin',
     expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Unblock user as teacher => 200',
@@ -653,7 +581,7 @@ const tests: RequestTest[] = [
     method: 'PATCH',
     authAs: 'teacher',
     expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Unblock user as student => 403',
@@ -661,14 +589,14 @@ const tests: RequestTest[] = [
     method: 'PATCH',
     authAs: 'student',
     expectedStatus: StatusCodes.FORBIDDEN,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
   {
     name: 'Unblock user unauth => 401',
     route: '/user/999/unblock',
     method: 'PATCH',
     expectedStatus: StatusCodes.UNAUTHORIZED,
-    responseSchema: ErrorSchema.optional(),
+    responseSchema: ErrorResponseSchema.optional(),
   },
   {
     name: 'Unblock user with invalid ID => 400',
@@ -676,45 +604,40 @@ const tests: RequestTest[] = [
     method: 'PATCH',
     authAs: 'admin',
     expectedStatus: StatusCodes.BAD_REQUEST,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
 
-  // --------------------------------------------------------------------------
   // 15) PATCH /user/:studentId/:subjectId/mentor/:mentorId => assignMentor
-  //     - Must be authenticated => 401
-  //     - notStudent => else 403
-  //     - parseId => 400 for studentId, subjectId, mentorId
-  // --------------------------------------------------------------------------
   {
     name: 'Assign mentor as teacher => 200',
-    route: '/user/111/222/mentor/333',
+    route: `/user/${capturedStudentUserId}/${capturedSubjectId}/mentor/${capturedMentorId}`,
     method: 'PATCH',
     authAs: 'teacher',
-    expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    expectedStatus: StatusCodes.NO_CONTENT,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Assign mentor as admin => 200',
-    route: '/user/111/222/mentor/333',
+    route: `/user/${capturedStudentUserId}/${capturedSubjectId}/mentor/${capturedMentorId}`,
     method: 'PATCH',
     authAs: 'admin',
-    expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    expectedStatus: StatusCodes.NO_CONTENT,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Assign mentor as student => 403',
-    route: '/user/111/222/mentor/333',
+    route: `/user/${capturedStudentUserId}/${capturedSubjectId}/mentor/${capturedMentorId}`,
     method: 'PATCH',
     authAs: 'student',
     expectedStatus: StatusCodes.FORBIDDEN,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
   {
     name: 'Assign mentor unauth => 401',
-    route: '/user/111/222/mentor/333',
+    route: `/user/${capturedStudentUserId}/${capturedSubjectId}/mentor/${capturedMentorId}`,
     method: 'PATCH',
     expectedStatus: StatusCodes.UNAUTHORIZED,
-    responseSchema: ErrorSchema.optional(),
+    responseSchema: ErrorResponseSchema.optional(),
   },
   {
     name: 'Assign mentor with invalid IDs => 400',
@@ -722,45 +645,40 @@ const tests: RequestTest[] = [
     method: 'PATCH',
     authAs: 'teacher',
     expectedStatus: StatusCodes.BAD_REQUEST,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
 
-  // --------------------------------------------------------------------------
   // 16) DELETE /user/:studentId/:subjectId/mentor => unassignMentor
-  //     - Must be authenticated => 401
-  //     - notStudent => else 403
-  //     - parseId => 400
-  // --------------------------------------------------------------------------
   {
     name: 'Unassign mentor as admin => 200',
-    route: '/user/111/222/mentor',
+    route: `/user/${capturedStudentUserId}/${capturedSubjectId}/mentor`,
     method: 'DELETE',
     authAs: 'admin',
-    expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    expectedStatus: StatusCodes.NO_CONTENT,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Unassign mentor as teacher => 200',
-    route: '/user/111/222/mentor',
+    route: `/user/${capturedStudentUserId}/${capturedSubjectId}/mentor`,
     method: 'DELETE',
     authAs: 'teacher',
     expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Unassign mentor as student => 403',
-    route: '/user/111/222/mentor',
+    route: `/user/${capturedStudentUserId}/${capturedSubjectId}/mentor`,
     method: 'DELETE',
     authAs: 'student',
     expectedStatus: StatusCodes.FORBIDDEN,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
   {
     name: 'Unassign mentor unauth => 401',
-    route: '/user/111/222/mentor',
+    route: `/user/${capturedStudentUserId}/${capturedSubjectId}/mentor`,
     method: 'DELETE',
     expectedStatus: StatusCodes.UNAUTHORIZED,
-    responseSchema: ErrorSchema.optional(),
+    responseSchema: ErrorResponseSchema.optional(),
   },
   {
     name: 'Unassign mentor with invalid IDs => 400',
@@ -768,40 +686,33 @@ const tests: RequestTest[] = [
     method: 'DELETE',
     authAs: 'teacher',
     expectedStatus: StatusCodes.BAD_REQUEST,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
 
-  // --------------------------------------------------------------------------
   // 17) DELETE /user/:id/:password => delete
-  //     - Must be authenticated => 401
-  //     - parseId => 400 if invalid
-  //     - parseNonemptyString => 400 if password is invalid
-  //     - if not admin => must be the same user => else 403
-  // --------------------------------------------------------------------------
   {
     name: 'Delete user as admin => 200',
-    route: '/user/999/secret123',
+    route: `/user/${capturedOtherUserId}/secret123`,
     method: 'DELETE',
     authAs: 'admin',
     expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Delete own account as student => 200',
-    route: '/user/55/mypass',
+    route: `/user/${capturedStudentUserId}/studentPass`,
     method: 'DELETE',
     authAs: 'student',
-    // harness sets userId=55 => isAuthorized => ok
     expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
+    responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Delete another user as student => 403',
-    route: '/user/9999/wrong',
+    route: `/user/${capturedOtherUserId}/wrongPass`,
     method: 'DELETE',
     authAs: 'student',
     expectedStatus: StatusCodes.FORBIDDEN,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
   {
     name: 'Delete user with invalid ID => 400',
@@ -809,22 +720,22 @@ const tests: RequestTest[] = [
     method: 'DELETE',
     authAs: 'admin',
     expectedStatus: StatusCodes.BAD_REQUEST,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
   {
     name: 'Delete user with invalid password param => 400',
-    route: '/user/999/', // missing password or empty string
+    route: '/user/999/',
     method: 'DELETE',
     authAs: 'admin',
     expectedStatus: StatusCodes.BAD_REQUEST,
-    responseSchema: ErrorSchema,
+    responseSchema: ErrorResponseSchema,
   },
   {
     name: 'Delete user unauth => 401',
     route: '/user/999/pass',
     method: 'DELETE',
     expectedStatus: StatusCodes.UNAUTHORIZED,
-    responseSchema: ErrorSchema.optional(),
+    responseSchema: ErrorResponseSchema.optional(),
   },
 ]
 

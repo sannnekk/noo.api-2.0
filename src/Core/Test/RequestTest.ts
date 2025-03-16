@@ -9,4 +9,5 @@ export interface RequestTest {
   authAs?: 'admin' | 'teacher' | 'mentor' | 'student'
   responseSchema?: ZodSchema
   expectedStatus: number
+  response?: (data: any) => void
 }

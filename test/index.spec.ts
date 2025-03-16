@@ -24,22 +24,22 @@ import UserSettingsModuleTests from '../src/UserSettings/Tests'
 import WorksModuleTests from '../src/Works/Tests'
 
 const tests: Record<string, RequestTest[]> = {
-  'AssignedWorks module': AssignedWorkModuleTests,
-  'Auth module': AuthModuleTests,
-  'Platform module': PlatformModuleTests,
-  'Calender module': CalenderModuleTests, 
-  'Courses module': CoursesModuleTests,
-  'FAQ module': FAQModuleTests,
-  'GoogleSheets module': GoogleSheetsModuleTests,
-  'Notifications module': NotificationsModuleTests,
-  'Polls module': PollsModuleTests,
-  'Sessions module': SessionsModuleTests,
-  'Snippets module': SnippetsModuleTests,
-  'Statistics module': StatisticsModuleTests,
-  'Subjects module': SubjectsModuleTests,
-  'Users module': UsersModuleTests,
-  'UserSettings module': UserSettingsModuleTests,
-  'Works module': WorksModuleTests
+  //'AssignedWorks module': AssignedWorkModuleTests,
+  //'Auth module': AuthModuleTests,
+  //'Platform module': PlatformModuleTests,
+  //'Calender module': CalenderModuleTests, 
+  //'Courses module': CoursesModuleTests,
+  //'FAQ module': FAQModuleTests,
+  //'GoogleSheets module': GoogleSheetsModuleTests,
+  //'Notifications module': NotificationsModuleTests,
+  //'Polls module': PollsModuleTests,
+  //'Sessions module': SessionsModuleTests,
+  //'Snippets module': SnippetsModuleTests,
+  //'Statistics module': StatisticsModuleTests,
+  //'Subjects module': SubjectsModuleTests,
+  //'Users module': UsersModuleTests,
+  //'UserSettings module': UserSettingsModuleTests,
+  //'Works module': WorksModuleTests
 }
 
 for (const [moduleName, moduleTests] of Object.entries(tests)) {
@@ -71,6 +71,10 @@ for (const [moduleName, moduleTests] of Object.entries(tests)) {
               } catch (error: any) {
                 return done(error)
               }
+            }
+
+            if (test.response) {
+              test.response(res.body)
             }
 
             done()

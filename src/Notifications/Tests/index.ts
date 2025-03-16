@@ -100,10 +100,10 @@ const tests: RequestTest[] = [
   // --------------------------------------------------------------------------
   {
     name: 'Mark a notification as read as an authenticated user (student)',
-    route: '/notification/123/mark-as-read',
+    route: '/notification/01HZHJSWPQ8JCB0FGSYRWAD6TZ/mark-as-read',
     method: 'PATCH',
     authAs: 'student',
-    expectedStatus: StatusCodes.OK,
+    expectedStatus: StatusCodes.NO_CONTENT,
     responseSchema: SuccessSchema,
   },
   {
@@ -131,7 +131,7 @@ const tests: RequestTest[] = [
     route: '/notification/mark-all-as-read',
     method: 'PATCH',
     authAs: 'student',
-    expectedStatus: StatusCodes.OK,
+    expectedStatus: StatusCodes.NO_CONTENT,
     responseSchema: SuccessSchema,
   },
   {
@@ -151,8 +151,21 @@ const tests: RequestTest[] = [
     name: 'Create a new notification as an authenticated user',
     route: '/notification',
     method: 'POST',
-    authAs: 'student', // or 'teacher' or 'admin' - any authenticated
-    expectedStatus: StatusCodes.OK,
+    authAs: 'student', // any authenticated user role
+    body: {
+      notification: {
+        title: 'Test Notification',
+        message: 'This is a test notification.',
+        link: null,
+        type: 'announcement', // valid value from NotificationTypeScheme: 'maintenance', 'new-feature', 'announcement', or 'other'
+        isBanner: false,
+      },
+      sendOptions: {
+        selector: 'role', // valid value: 'role', 'course', or 'all'
+        value: 'admin'
+      },
+    },
+    expectedStatus: StatusCodes.NO_CONTENT,
     responseSchema: SuccessSchema,
   },
   {

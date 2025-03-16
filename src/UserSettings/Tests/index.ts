@@ -53,7 +53,7 @@ const tests: RequestTest[] = [
     method: 'PATCH',
     authAs: 'teacher',
     body: {
-      notificationsEnabled: 'this-should-be-boolean', // example invalid
+      fontSize: 'mega-ultra-large'  // invalid value
     },
     expectedStatus: StatusCodes.BAD_REQUEST,
     responseSchema: ErrorSchema,

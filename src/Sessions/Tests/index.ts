@@ -40,7 +40,7 @@ const tests: RequestTest[] = [
     route: '/session',
     method: 'DELETE',
     authAs: 'teacher', // or 'student'/'admin'
-    expectedStatus: StatusCodes.OK,
+    expectedStatus: StatusCodes.NO_CONTENT,
     responseSchema: SuccessSchema,
   },
   {
@@ -59,7 +59,7 @@ const tests: RequestTest[] = [
   // --------------------------------------------------------------------------
   {
     name: 'Delete a specific session by ID (authenticated user) => 200',
-    route: '/session/999',
+    route: '/session/01J3S7ZQJ1T111Q89T0NC6NP3E',
     method: 'DELETE',
     authAs: 'admin',
     expectedStatus: StatusCodes.OK,

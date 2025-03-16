@@ -56,6 +56,18 @@ const tests: RequestTest[] = [
     route: '/google-docs/binding',
     method: 'POST',
     authAs: 'teacher',
+    body: {
+      name: 'Binding Example',
+      entityName: 'Example Entity',
+      entitySelector: {
+        prop: 'id',
+        value: '12345'
+      },
+      googleOAuthToken: 'valid-oauth-token',
+      googleCredentials: { clientId: 'abc', clientSecret: 'def' },
+      status: 'active',
+      frequency: 'daily' 
+    },
     expectedStatus: StatusCodes.OK,
     responseSchema: SuccessSchema,
   },
@@ -64,6 +76,18 @@ const tests: RequestTest[] = [
     route: '/google-docs/binding',
     method: 'POST',
     authAs: 'admin',
+    body: {
+      name: 'Binding Example 2',
+      entityName: 'Example Entity 2',
+      entitySelector: {
+        prop: 'id',
+        value: '12345'
+      },
+      googleOAuthToken: 'valid-oauth-token',
+      googleCredentials: { clientId: 'abc', clientSecret: 'def' },
+      status: 'active',
+      frequency: 'daily' 
+    },
     expectedStatus: StatusCodes.OK,
     responseSchema: SuccessSchema,
   },
@@ -101,7 +125,7 @@ const tests: RequestTest[] = [
   // --------------------------------------------------------------------------
   {
     name: 'Trigger a Google Docs binding as teacher => 200',
-    route: '/google-docs/binding/123/trigger',
+    route: '/google-docs/binding/01J5K5CYH597M920S9JX03JAT4/trigger',
     method: 'PATCH',
     authAs: 'teacher',
     expectedStatus: StatusCodes.OK,
@@ -109,10 +133,10 @@ const tests: RequestTest[] = [
   },
   {
     name: 'Trigger a Google Docs binding as admin => 200',
-    route: '/google-docs/binding/123/trigger',
+    route: '/google-docs/binding/01J5K5CYH597M920S9JX03JAT4/trigger',
     method: 'PATCH',
     authAs: 'admin',
-    expectedStatus: StatusCodes.OK,
+    expectedStatus: StatusCodes.NO_CONTENT,
     responseSchema: SuccessSchema,
   },
   {
@@ -146,18 +170,18 @@ const tests: RequestTest[] = [
   // --------------------------------------------------------------------------
   {
     name: 'Switch on/off a Google Docs binding as teacher => 200',
-    route: '/google-docs/binding/123/switch-on-off',
+    route: '/google-docs/binding/01J5K5CYH597M920S9JX03JAT4/switch-on-off',
     method: 'PATCH',
     authAs: 'teacher',
-    expectedStatus: StatusCodes.OK,
+    expectedStatus: StatusCodes.NO_CONTENT,
     responseSchema: SuccessSchema,
   },
   {
     name: 'Switch on/off a Google Docs binding as admin => 200',
-    route: '/google-docs/binding/123/switch-on-off',
+    route: '/google-docs/binding/01J5K5CYH597M920S9JX03JAT4/switch-on-off',
     method: 'PATCH',
     authAs: 'admin',
-    expectedStatus: StatusCodes.OK,
+    expectedStatus: StatusCodes.NO_CONTENT,
     responseSchema: SuccessSchema,
   },
   {

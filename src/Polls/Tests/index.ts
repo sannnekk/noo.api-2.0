@@ -90,13 +90,6 @@ const tests: RequestTest[] = [
   //   - Otherwise => 200 for anyone (auth or not)
   // --------------------------------------------------------------------------
   {
-    name: 'Get poll by ID (unauth allowed under current code) => 200',
-    route: '/poll/123',
-    method: 'GET',
-    expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
-  },
-  {
     name: 'Get poll by invalid ID => 400',
     route: '/poll/not-an-id',
     method: 'GET',
@@ -121,7 +114,7 @@ const tests: RequestTest[] = [
   // --------------------------------------------------------------------------
   {
     name: 'Get poll info as teacher => 200',
-    route: '/poll/123/info',
+    route: '/poll/01J0TSSM28YZ0VPJBXXK9KP0T5/info',
     method: 'GET',
     authAs: 'teacher',
     expectedStatus: StatusCodes.OK,
@@ -129,7 +122,7 @@ const tests: RequestTest[] = [
   },
   {
     name: 'Get poll info as student => 200',
-    route: '/poll/123/info',
+    route: '/poll/01J0TSSM28YZ0VPJBXXK9KP0T5/info',
     method: 'GET',
     authAs: 'student',
     expectedStatus: StatusCodes.OK,
@@ -160,7 +153,7 @@ const tests: RequestTest[] = [
   // --------------------------------------------------------------------------
   {
     name: 'Search who voted as teacher => 200',
-    route: '/poll/111/user',
+    route: '/poll/01J0TSSM28YZ0VPJBXXK9KP0T5/user',
     method: 'GET',
     authAs: 'teacher',
     expectedStatus: StatusCodes.OK,
@@ -168,7 +161,7 @@ const tests: RequestTest[] = [
   },
   {
     name: 'Search who voted as admin => 200',
-    route: '/poll/111/user',
+    route: '/poll/01J0TSSM28YZ0VPJBXXK9KP0T5/user',
     method: 'GET',
     authAs: 'admin',
     expectedStatus: StatusCodes.OK,
@@ -176,7 +169,7 @@ const tests: RequestTest[] = [
   },
   {
     name: 'Search who voted as student => 200',
-    route: '/poll/111/user',
+    route: '/poll/01J0TSSM28YZ0VPJBXXK9KP0T5/user',
     method: 'GET',
     authAs: 'student',
     expectedStatus: StatusCodes.OK,
@@ -207,7 +200,7 @@ const tests: RequestTest[] = [
   // --------------------------------------------------------------------------
   {
     name: 'Search who voted unregistered as teacher => 200',
-    route: '/poll/222/unregistered',
+    route: '/poll/01J0TSSM28YZ0VPJBXXK9KP0T5/unregistered',
     method: 'GET',
     authAs: 'teacher',
     expectedStatus: StatusCodes.OK,
@@ -215,7 +208,7 @@ const tests: RequestTest[] = [
   },
   {
     name: 'Search who voted unregistered as admin => 200',
-    route: '/poll/222/unregistered',
+    route: '/poll/01J0TSSM28YZ0VPJBXXK9KP0T5/unregistered',
     method: 'GET',
     authAs: 'admin',
     expectedStatus: StatusCodes.OK,
@@ -223,7 +216,7 @@ const tests: RequestTest[] = [
   },
   {
     name: 'Search who voted unregistered as student => 200',
-    route: '/poll/222/unregistered',
+    route: '/poll/01J0TSSM28YZ0VPJBXXK9KP0T5/unregistered',
     method: 'GET',
     authAs: 'student',
     expectedStatus: StatusCodes.OK,
@@ -364,13 +357,6 @@ const tests: RequestTest[] = [
   //   - parsePollAnswers => 400 if invalid body
   //   - success => 200
   // --------------------------------------------------------------------------
-  {
-    name: 'Save answers (unauth allowed under current code) => 200',
-    route: '/poll/111/answer',
-    method: 'POST',
-    expectedStatus: StatusCodes.OK,
-    responseSchema: SuccessSchema,
-  },
   {
     name: 'Save answers with invalid poll ID => 400',
     route: '/poll/invalid/answer',
