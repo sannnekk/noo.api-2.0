@@ -299,19 +299,19 @@ const tests: RequestTest[] = [
   // 9) PATCH /user/:id/password => updatePassword
   {
     name: 'Update password as admin => 200',
-    route: '/user/123/password',
+    route: '/user/01JD72RZ41E8M1Q043Y489ER76/password',
     method: 'PATCH',
     authAs: 'admin',
-    body: { oldPassword: 'old123', newPassword: 'new123' },
+    body: { oldPassword: 'Test1234', newPassword: 'New12345' },
     expectedStatus: StatusCodes.OK,
     responseSchema: EmptyResponseScheme,
   },
   {
     name: 'Update own password as student => 200',
-    route: '/user/55/password',
+    route: '/user/01JD72SVAPB8VH5CKDFHX1AY4G/password',
     method: 'PATCH',
     authAs: 'student',
-    body: { oldPassword: 'old', newPassword: 'new' },
+    body: { oldPassword: 'Test1234', newPassword: 'New12345' },
     expectedStatus: StatusCodes.OK,
     responseSchema: EmptyResponseScheme,
   },
@@ -409,7 +409,7 @@ const tests: RequestTest[] = [
   // 11) PATCH /user/:id/telegram => updateTelegram
   {
     name: 'Update telegram as admin => 200',
-    route: '/user/777/telegram',
+    route: '/user/01JD72SVAPB8VH5CKDFHX1AY4G/telegram',
     method: 'PATCH',
     authAs: 'admin',
     body: { telegramUsername: '@mytelegram' },
@@ -418,7 +418,7 @@ const tests: RequestTest[] = [
   },
   {
     name: 'Update telegram as teacher => 200',
-    route: '/user/777/telegram',
+    route: '/user/01JD72SVAPB8VH5CKDFHX1AY4G/telegram',
     method: 'PATCH',
     authAs: 'teacher',
     body: { telegramUsername: '@teachertelegram' },
@@ -427,7 +427,7 @@ const tests: RequestTest[] = [
   },
   {
     name: 'Update own telegram as student => 200',
-    route: '/user/55/telegram',
+    route: '/user/01JD72SVAPB8VH5CKDFHX1AY4G/telegram',
     method: 'PATCH',
     authAs: 'student',
     body: { telegramUsername: '@studenttelegram' },
@@ -473,7 +473,7 @@ const tests: RequestTest[] = [
   // 12) PATCH /user/:id/email => updateEmail
   {
     name: 'Update email as admin => 200',
-    route: '/user/888/email',
+    route: '/user/01JD72SVAPB8VH5CKDFHX1AY4G/email',
     method: 'PATCH',
     authAs: 'admin',
     body: { email: 'new@example.com' },
@@ -482,7 +482,7 @@ const tests: RequestTest[] = [
   },
   {
     name: 'Update own email as student => 200',
-    route: '/user/55/email',
+    route: '/user/01JD72SVAPB8VH5CKDFHX1AY4G/email',
     method: 'PATCH',
     authAs: 'student',
     body: { email: 'student@mail.com' },
@@ -528,7 +528,7 @@ const tests: RequestTest[] = [
   // 13) PATCH /user/:id/block => block
   {
     name: 'Block user as admin => 200',
-    route: '/user/999/block',
+    route: '/user/01HRD5P615SGVH9QHYWZNTW636/block',
     method: 'PATCH',
     authAs: 'admin',
     expectedStatus: StatusCodes.OK,
@@ -536,7 +536,7 @@ const tests: RequestTest[] = [
   },
   {
     name: 'Block user as teacher => 200',
-    route: '/user/999/block',
+    route: '/user/01HRD5P615SGVH9QHYWZNTW636/block',
     method: 'PATCH',
     authAs: 'teacher',
     expectedStatus: StatusCodes.OK,
@@ -544,7 +544,7 @@ const tests: RequestTest[] = [
   },
   {
     name: 'Block user as student => 403',
-    route: '/user/999/block',
+    route: '/user/01HRD5P615SGVH9QHYWZNTW636/block',
     method: 'PATCH',
     authAs: 'student',
     expectedStatus: StatusCodes.FORBIDDEN,
@@ -552,7 +552,7 @@ const tests: RequestTest[] = [
   },
   {
     name: 'Block user unauth => 401',
-    route: '/user/999/block',
+    route: '/user/01HRD5P615SGVH9QHYWZNTW636/block',
     method: 'PATCH',
     expectedStatus: StatusCodes.UNAUTHORIZED,
     responseSchema: ErrorResponseSchema.optional(),
@@ -569,7 +569,7 @@ const tests: RequestTest[] = [
   // 14) PATCH /user/:id/unblock => unblock
   {
     name: 'Unblock user as admin => 200',
-    route: '/user/999/unblock',
+    route: '/user/01HRD5P615SGVH9QHYWZNTW636/unblock',
     method: 'PATCH',
     authAs: 'admin',
     expectedStatus: StatusCodes.OK,
@@ -577,7 +577,7 @@ const tests: RequestTest[] = [
   },
   {
     name: 'Unblock user as teacher => 200',
-    route: '/user/999/unblock',
+    route: '/user/01HRD5P615SGVH9QHYWZNTW636/unblock',
     method: 'PATCH',
     authAs: 'teacher',
     expectedStatus: StatusCodes.OK,
@@ -585,7 +585,7 @@ const tests: RequestTest[] = [
   },
   {
     name: 'Unblock user as student => 403',
-    route: '/user/999/unblock',
+    route: '/user/01HRD5P615SGVH9QHYWZNTW636/unblock',
     method: 'PATCH',
     authAs: 'student',
     expectedStatus: StatusCodes.FORBIDDEN,
@@ -593,7 +593,7 @@ const tests: RequestTest[] = [
   },
   {
     name: 'Unblock user unauth => 401',
-    route: '/user/999/unblock',
+    route: '/user/01HRD5P615SGVH9QHYWZNTW636/unblock',
     method: 'PATCH',
     expectedStatus: StatusCodes.UNAUTHORIZED,
     responseSchema: ErrorResponseSchema.optional(),
@@ -692,7 +692,7 @@ const tests: RequestTest[] = [
   // 17) DELETE /user/:id/:password => delete
   {
     name: 'Delete user as admin => 200',
-    route: `/user/${capturedOtherUserId}/secret123`,
+    route: `/user/01JD72RZ41E8M1Q043Y489ER76/New12345`,
     method: 'DELETE',
     authAs: 'admin',
     expectedStatus: StatusCodes.OK,
@@ -700,7 +700,7 @@ const tests: RequestTest[] = [
   },
   {
     name: 'Delete own account as student => 200',
-    route: `/user/${capturedStudentUserId}/studentPass`,
+    route: `/user/01JD72SVAPB8VH5CKDFHX1AY4G/New12345`,
     method: 'DELETE',
     authAs: 'student',
     expectedStatus: StatusCodes.OK,
@@ -724,7 +724,7 @@ const tests: RequestTest[] = [
   },
   {
     name: 'Delete user with invalid password param => 400',
-    route: '/user/999/',
+    route: '/user/01JJQ7NC1XYJ4MKWXNHA1GQDN1/',
     method: 'DELETE',
     authAs: 'admin',
     expectedStatus: StatusCodes.BAD_REQUEST,
