@@ -14,6 +14,7 @@ import type { Poll } from '@modules/Polls/Data/Poll'
 import { CourseMaterialReactionModel } from './CourseMaterialReactionModel'
 import type { CourseMaterialReaction } from './CourseMaterialReaction'
 import { VideoModel } from '@modules/Video/Data/VideoModel'
+import type { Video } from '@modules/Video/Data/Video'
 
 @Entity('course_material', {
   orderBy: {
@@ -114,13 +115,9 @@ export class CourseMaterialModel extends Model implements CourseMaterial {
     (chapter: CourseChapter) => chapter.materials,
     {
       onDelete: 'CASCADE',
-      orphanedRowAction: 'delete',
     }
   )
   chapter!: CourseChapter
-
-  @RelationId((material: CourseMaterialModel) => material.chapter)
-  chapterId!: CourseChapter['id']
 
   @ManyToOne(() => WorkModel, (work) => work.materials)
   work!: WorkModel | null
@@ -141,7 +138,7 @@ export class CourseMaterialModel extends Model implements CourseMaterial {
   files!: MediaModel[]
 
   @OneToMany(() => VideoModel, (video) => video.courseMaterial)
-  videos!: VideoModel[]
+  videos!: Video[]
 
   @OneToMany(() => CourseMaterialReactionModel, (reaction) => reaction.material)
   reactions!: CourseMaterialReaction[]

@@ -42,7 +42,6 @@ let CourseMaterialModel = class CourseMaterialModel extends Model {
     isActive;
     activateAt;
     chapter;
-    chapterId;
     work;
     workId;
     poll;
@@ -139,14 +138,9 @@ __decorate([
 __decorate([
     ManyToOne(() => CourseChapterModel, (chapter) => chapter.materials, {
         onDelete: 'CASCADE',
-        orphanedRowAction: 'delete',
     }),
     __metadata("design:type", Object)
 ], CourseMaterialModel.prototype, "chapter", void 0);
-__decorate([
-    RelationId((material) => material.chapter),
-    __metadata("design:type", Object)
-], CourseMaterialModel.prototype, "chapterId", void 0);
 __decorate([
     ManyToOne(() => WorkModel, (work) => work.materials),
     __metadata("design:type", Object)

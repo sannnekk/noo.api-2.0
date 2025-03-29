@@ -47,6 +47,9 @@ import { VideoCommentModel } from '@modules/Video/Data/Relations/VideoCommentMod
 import { VideoComment } from '@modules/Video/Data/Relations/VideoComment'
 import { TableModel } from '@modules/Tables/Data/TableModel'
 import { Table } from '@modules/Tables/Data/Table'
+import { VideoSavingModel } from '@modules/Video/Data/Relations/VideoSavingModel'
+import { VideoReactionModel } from '@modules/Video/Data/Relations/VideoReactionModel'
+import { VideoReaction } from '@modules/Video/Data/Relations/VideoReaction'
 
 @Entity('user')
 export class UserModel extends SearchableModel implements User {
@@ -198,6 +201,12 @@ export class UserModel extends SearchableModel implements User {
 
   @OneToMany(() => VideoCommentModel, (comment) => comment.user)
   videoComments?: VideoComment[]
+
+  @OneToMany(() => VideoSavingModel, (videoSaving) => videoSaving.user)
+  savedVideos?: VideoSavingModel[]
+
+  @OneToMany(() => VideoReactionModel, (reaction) => reaction.user)
+  videoReactions?: VideoReaction[]
 
   @Column({
     name: 'telegram_id',

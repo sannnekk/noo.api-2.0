@@ -11,7 +11,7 @@ var CourseChapterModel_1;
 import { Model } from '../../../Core/Data/Model.js';
 import * as Transliteration from '../../../Core/Utils/transliteration.js';
 import * as ULID from '../../../Core/Data/Ulid.js';
-import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { CourseModel } from '../CourseModel.js';
 import { CourseMaterialModel } from './CourseMaterialModel.js';
 import { config } from '../../../config.js';
@@ -36,11 +36,9 @@ let CourseChapterModel = CourseChapterModel_1 = class CourseChapterModel extends
     order;
     isActive;
     course;
-    courseId;
     parentChapter;
     chapters;
     materials;
-    materialIds;
     sluggify(text) {
         return `${ULID.generate()}-${Transliteration.sluggify(text)}`;
     }
@@ -81,14 +79,9 @@ __decorate([
 __decorate([
     ManyToOne(() => CourseModel, (course) => course.chapters, {
         onDelete: 'CASCADE',
-        orphanedRowAction: 'delete',
     }),
     __metadata("design:type", Object)
 ], CourseChapterModel.prototype, "course", void 0);
-__decorate([
-    RelationId((chapter) => chapter.course),
-    __metadata("design:type", Object)
-], CourseChapterModel.prototype, "courseId", void 0);
 __decorate([
     ManyToOne(() => CourseChapterModel, (chapter) => chapter.chapters, {
         onDelete: 'CASCADE',
@@ -97,19 +90,16 @@ __decorate([
 ], CourseChapterModel.prototype, "parentChapter", void 0);
 __decorate([
     OneToMany(() => CourseChapterModel, (chapter) => chapter.parentChapter, {
-        cascade: true,
-        onDelete: 'CASCADE',
+        cascade: ['insert'],
     }),
     __metadata("design:type", Array)
 ], CourseChapterModel.prototype, "chapters", void 0);
 __decorate([
-    OneToMany(() => CourseMaterialModel, (material) => material.chapter, { cascade: true }),
+    OneToMany(() => CourseMaterialModel, (material) => material.chapter, {
+        cascade: ['insert'],
+    }),
     __metadata("design:type", Array)
 ], CourseChapterModel.prototype, "materials", void 0);
-__decorate([
-    RelationId((chapter) => chapter.materials),
-    __metadata("design:type", Array)
-], CourseChapterModel.prototype, "materialIds", void 0);
 CourseChapterModel = CourseChapterModel_1 = __decorate([
     Entity('course_chapter', {
         orderBy: {

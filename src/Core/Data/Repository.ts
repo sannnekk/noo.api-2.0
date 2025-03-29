@@ -287,6 +287,7 @@ export abstract class Repository<T extends BaseModel> {
       where: conditions,
       order: sort,
       relationLoadStrategy: findOneOptions.relationLoadStrategy,
+      loadEagerRelations: findOneOptions.useEagerRelations,
     }) as Promise<T | null>
   }
 

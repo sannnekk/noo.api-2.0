@@ -6,7 +6,6 @@ export interface CourseChapter {
   id: ULID.Ulid
   name: string
   slug: string
-  courseId?: string
   course?: Course
   chapters?: CourseChapter[]
   materials?: CourseMaterial[]

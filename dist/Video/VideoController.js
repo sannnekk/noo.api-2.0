@@ -34,12 +34,34 @@ let VideoController = class VideoController {
             return new ApiResponse(error, context);
         }
     }
+    async getSavedVideos(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            const pagination = this.videoValidator.parsePagination(context.query);
+            const { entities, meta } = await this.videoService.getSavedVideos(context.credentials.userId, pagination);
+            return new ApiResponse({ data: entities, meta });
+        }
+        catch (error) {
+            return new ApiResponse(error, context);
+        }
+    }
     async getVideo(context) {
         try {
             await Asserts.isAuthenticated(context);
             const videoId = this.videoValidator.parseId(context.params.id);
             const video = await this.videoService.getVideo(videoId, context.credentials.userId, context.credentials.role);
             return new ApiResponse({ data: video });
+        }
+        catch (error) {
+            return new ApiResponse(error, context);
+        }
+    }
+    async getAccessInfo(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            const videoId = this.videoValidator.parseId(context.params.id);
+            const accessInfo = await this.videoService.getVideoAccessInfo(videoId);
+            return new ApiResponse({ data: accessInfo });
         }
         catch (error) {
             return new ApiResponse(error, context);
@@ -81,14 +103,59 @@ let VideoController = class VideoController {
             return new ApiResponse(error, context);
         }
     }
+    async toggleReaction(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            const videoId = this.videoValidator.parseId(context.params.id);
+            const { reaction } = this.videoValidator.parseVideoReaction(context.body);
+            const newReactions = await this.videoService.toggleReaction(videoId, context.credentials.userId, reaction);
+            return new ApiResponse({ data: newReactions });
+        }
+        catch (error) {
+            return new ApiResponse(error, context);
+        }
+    }
     async updateVideo(context) {
         try {
             await Asserts.isAuthenticated(context);
             Asserts.notStudent(context);
             const videoId = this.videoValidator.parseId(context.params.id);
-            const video = this.videoValidator.parseVideo(context.body);
+            const video = this.videoValidator.parseVideoUpdate(context.body);
             await this.videoService.updateVideo(videoId, video, context.credentials.userId, context.credentials.role);
             return new ApiResponse({ data: video });
+        }
+        catch (error) {
+            return new ApiResponse(error, context);
+        }
+    }
+    async addToSaved(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            const videoId = this.videoValidator.parseId(context.params.id);
+            await this.videoService.addToSaved(videoId, context.credentials.userId);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error, context);
+        }
+    }
+    async removeFromSaved(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            const videoId = this.videoValidator.parseId(context.params.id);
+            await this.videoService.removeFromSaved(videoId, context.credentials.userId);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error, context);
+        }
+    }
+    async isSaved(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            const videoId = this.videoValidator.parseId(context.params.id);
+            const isSaved = await this.videoService.isSaved(videoId, context.credentials.userId);
+            return new ApiResponse({ data: isSaved });
         }
         catch (error) {
             return new ApiResponse(error, context);
@@ -161,11 +228,23 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], VideoController.prototype, "getVideos", null);
 __decorate([
+    Get('/saved'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], VideoController.prototype, "getSavedVideos", null);
+__decorate([
     Get('/:id'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], VideoController.prototype, "getVideo", null);
+__decorate([
+    Get('/:id/access-info'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], VideoController.prototype, "getAccessInfo", null);
 __decorate([
     Post(),
     __metadata("design:type", Function),
@@ -185,11 +264,35 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], VideoController.prototype, "publishVideo", null);
 __decorate([
+    Post('/:id/reaction'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], VideoController.prototype, "toggleReaction", null);
+__decorate([
     Patch('/:id'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], VideoController.prototype, "updateVideo", null);
+__decorate([
+    Patch('/:id/add-to-saved'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], VideoController.prototype, "addToSaved", null);
+__decorate([
+    Patch('/:id/remove-from-saved'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], VideoController.prototype, "removeFromSaved", null);
+__decorate([
+    Get('/:id/is-saved'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], VideoController.prototype, "isSaved", null);
 __decorate([
     Get('/:videoId/comment'),
     __metadata("design:type", Function),

@@ -45,6 +45,24 @@ export class VideoController {
     }
   }
 
+  @Get('/saved')
+  public async getSavedVideos(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+
+      const pagination = this.videoValidator.parsePagination(context.query)
+
+      const { entities, meta } = await this.videoService.getSavedVideos(
+        context.credentials!.userId,
+        pagination
+      )
+
+      return new ApiResponse({ data: entities, meta })
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
   @Get('/:id')
   public async getVideo(context: Context): Promise<ApiResponse> {
     try {
@@ -59,6 +77,21 @@ export class VideoController {
       )
 
       return new ApiResponse({ data: video })
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
+  @Get('/:id/access-info')
+  public async getAccessInfo(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+
+      const videoId = this.videoValidator.parseId(context.params.id)
+
+      const accessInfo = await this.videoService.getVideoAccessInfo(videoId)
+
+      return new ApiResponse({ data: accessInfo })
     } catch (error: any) {
       return new ApiResponse(error, context)
     }
@@ -124,6 +157,26 @@ export class VideoController {
     }
   }
 
+  @Post('/:id/reaction')
+  public async toggleReaction(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+
+      const videoId = this.videoValidator.parseId(context.params.id)
+      const { reaction } = this.videoValidator.parseVideoReaction(context.body)
+
+      const newReactions = await this.videoService.toggleReaction(
+        videoId,
+        context.credentials!.userId,
+        reaction
+      )
+
+      return new ApiResponse({ data: newReactions })
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
   @Patch('/:id')
   public async updateVideo(context: Context): Promise<ApiResponse> {
     try {
@@ -131,7 +184,7 @@ export class VideoController {
       Asserts.notStudent(context)
 
       const videoId = this.videoValidator.parseId(context.params.id)
-      const video = this.videoValidator.parseVideo(context.body)
+      const video = this.videoValidator.parseVideoUpdate(context.body)
 
       await this.videoService.updateVideo(
         videoId,
@@ -141,6 +194,57 @@ export class VideoController {
       )
 
       return new ApiResponse({ data: video })
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
+  @Patch('/:id/add-to-saved')
+  public async addToSaved(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+
+      const videoId = this.videoValidator.parseId(context.params.id)
+
+      await this.videoService.addToSaved(videoId, context.credentials!.userId)
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
+  @Patch('/:id/remove-from-saved')
+  public async removeFromSaved(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+
+      const videoId = this.videoValidator.parseId(context.params.id)
+
+      await this.videoService.removeFromSaved(
+        videoId,
+        context.credentials!.userId
+      )
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
+  @Get('/:id/is-saved')
+  public async isSaved(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+
+      const videoId = this.videoValidator.parseId(context.params.id)
+
+      const isSaved = await this.videoService.isSaved(
+        videoId,
+        context.credentials!.userId
+      )
+
+      return new ApiResponse({ data: isSaved })
     } catch (error: any) {
       return new ApiResponse(error, context)
     }

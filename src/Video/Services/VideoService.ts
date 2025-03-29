@@ -8,17 +8,38 @@ import { VideoAlreadyUploadedError } from '../Errors/VideoAlreadyUploadedError'
 import { Pagination } from '@modules/Core/Data/Pagination'
 import { UnauthorizedError } from '@modules/Core/Errors/UnauthorizedError'
 import { VideoAccessService } from './VideoAccessService'
+import { VideoSavingRepository } from '../Data/VideoSavingRepository'
+import { AlreadyExistError } from '@modules/Core/Errors/AlreadyExistError'
+import { VideoSavingModel } from '../Data/Relations/VideoSavingModel'
+import { VideoReactionRepository } from '../Data/VideoReactionRepository'
+import { VideoReaction } from '../Data/Relations/VideoReaction'
+import { VideoReactionModel } from '../Data/Relations/VideoReactionModel'
+import { VideoAccessInfo } from '../Types/VideoAccessInfo'
+import { UserRepository } from '@modules/Users/Data/UserRepository'
+import { CourseRepository } from '@modules/Courses/Data/CourseRepository'
 
 export class VideoService {
   private readonly videoRepository: VideoRepository
 
   private readonly videoAccessService: VideoAccessService
 
+  private readonly videoSavingRepository: VideoSavingRepository
+
+  private readonly videoReactionRepository: VideoReactionRepository
+
+  private readonly userRepository: UserRepository
+
+  private readonly courseRepository: CourseRepository
+
   private readonly videoUploadBus: VideoUploadBus
 
   public constructor() {
     this.videoRepository = new VideoRepository()
     this.videoAccessService = new VideoAccessService()
+    this.videoSavingRepository = new VideoSavingRepository()
+    this.videoReactionRepository = new VideoReactionRepository()
+    this.userRepository = new UserRepository()
+    this.courseRepository = new CourseRepository()
     this.videoUploadBus = new YandexVideoUploadBus({
       serviceAccountKey: process.env.YANDEX_CLOUD_VIDEO_SERVICE_ACCOUNT_KEY!,
       serviceAccountKeyId:
@@ -43,6 +64,16 @@ export class VideoService {
     )
 
     return this.videoRepository.getVideos(selector, pagination)
+  }
+
+  public async getSavedVideos(userId: User['id'], pagination: Pagination) {
+    return this.videoRepository.search(
+      {
+        savings: { user: { id: userId } },
+      },
+      pagination,
+      ['thumbnail', 'uploadedBy', 'uploadedBy.avatar.media']
+    )
   }
 
   public async getVideo(
@@ -71,7 +102,117 @@ export class VideoService {
       await this.videoRepository.update(video)
     }
 
+    video.reactionCounts = await this.videoReactionRepository.getVideoReactions(
+      video.id
+    )
+    video.myReaction = await this.videoReactionRepository.getUserReaction(
+      userId,
+      video.id
+    )
+
     return video
+  }
+
+  public async getVideoAccessInfo(
+    videoId: Video['id']
+  ): Promise<VideoAccessInfo> {
+    const video = await this.videoRepository.findOne({ id: videoId })
+
+    if (!video) {
+      throw new NotFoundError('Видео не найдено')
+    }
+
+    if (video.accessType === 'everyone') {
+      return {
+        type: 'everyone',
+        text: 'Доступно всем',
+      }
+    }
+
+    if (video.accessType === 'role') {
+      return {
+        type: 'role',
+        text:
+          'Доступно всем с ролью ' +
+          this.stringifyUserRole(video.accessValue as User['role']),
+      }
+    }
+
+    if (video.accessType === 'mentorId') {
+      const mentor = await this.userRepository.findOne({
+        id: video.accessValue,
+        role: 'mentor',
+      })
+
+      if (!mentor) {
+        throw new NotFoundError('Куратор не найден')
+      }
+
+      return {
+        type: 'mentorId',
+        text: `Доступно куратору ${mentor.name} и всем его ученикам`,
+        link: '/users/edit' + mentor.id,
+        user: mentor,
+      }
+    }
+
+    if (video.accessType === 'courseId') {
+      const course = await this.courseRepository.findOne({
+        id: video.accessValue,
+      })
+
+      if (!course) {
+        throw new NotFoundError('Курс не найден')
+      }
+
+      return {
+        type: 'courseId',
+        text: `Доступно участникам курса ${course.name}`,
+        link: '/courses/' + course.slug,
+        course,
+      }
+    }
+
+    throw new NotFoundError('Тип доступа не найден')
+  }
+
+  public async toggleReaction(
+    videoId: Video['id'],
+    userId: User['id'],
+    reaction: VideoReaction['reaction']
+  ) {
+    const video = await this.videoRepository.findOne({ id: videoId })
+
+    if (!video) {
+      throw new NotFoundError('Видео не найдено')
+    }
+
+    const existingReaction = await this.videoReactionRepository.findOne({
+      user: { id: userId },
+      video: { id: videoId },
+    })
+
+    if (existingReaction) {
+      if (existingReaction.reaction === reaction) {
+        await this.videoReactionRepository.delete(existingReaction.id)
+      } else {
+        existingReaction.reaction = reaction
+        await this.videoReactionRepository.update(existingReaction)
+      }
+    } else {
+      await this.videoReactionRepository.create(
+        new VideoReactionModel({
+          video: { id: videoId } as Video,
+          user: { id: userId } as User,
+          reaction,
+        })
+      )
+    }
+
+    const newReactions =
+      await this.videoReactionRepository.getVideoReactions(videoId)
+
+    return newReactions
   }
 
   public async createVideo(
@@ -181,6 +322,9 @@ export class VideoService {
 
     currentVideo.title = video.title || currentVideo.title
     currentVideo.description = video.description || currentVideo.description
+    currentVideo.thumbnail = video.thumbnail
+    currentVideo.chapters = video.chapters || currentVideo.chapters
+    currentVideo.publishedAt = video.publishedAt || currentVideo.publishedAt
 
     if (userRole !== 'mentor') {
       currentVideo.accessType = video.accessType || currentVideo.accessType
@@ -188,6 +332,55 @@ export class VideoService {
     }
 
     await this.videoRepository.update(currentVideo)
+  }
+
+  public async addToSaved(videoId: Video['id'], userId: User['id']) {
+    const existingSaving = await this.videoSavingRepository.findOne({
+      video: { id: videoId },
+      user: { id: userId },
+    })
+
+    if (existingSaving) {
+      throw new AlreadyExistError('Видео уже сохранено')
+    }
+
+    const video = await this.videoRepository.findOne({ id: videoId })
+
+    if (!video) {
+      throw new NotFoundError('Видео не найдено')
+    }
+
+    await this.videoSavingRepository.create(
+      new VideoSavingModel({
+        video: { id: videoId } as Video,
+        user: { id: userId } as User,
+      })
+    )
+  }
+
+  public async removeFromSaved(videoId: Video['id'], userId: User['id']) {
+    const existingSaving = await this.videoSavingRepository.findOne({
+      video: { id: videoId },
+      user: { id: userId },
+    })
+
+    if (!existingSaving) {
+      throw new NotFoundError('Видео не найдено')
+    }
+
+    await this.videoSavingRepository.delete(existingSaving.id)
+  }
+
+  public async isSaved(
+    videoId: Video['id'],
+    userId: User['id']
+  ): Promise<boolean> {
+    const existingSaving = await this.videoSavingRepository.findOne({
+      video: { id: videoId },
+      user: { id: userId },
+    })
+
+    return !!existingSaving
   }
 
   public async deleteVideo(
@@ -208,5 +401,20 @@ export class VideoService {
 
     await this.videoRepository.delete(id)
     await this.videoUploadBus.deleteVideo(video.uniqueIdentifier)
+  }
+
+  private stringifyUserRole(role: User['role']): string {
+    switch (role) {
+      case 'admin':
+        return 'Администратор'
+      case 'mentor':
+        return 'Куратор'
+      case 'student':
+        return 'Ученик'
+      case 'teacher':
+        return 'Учитель'
+      case 'assistant':
+        return 'Ассистент'
+    }
   }
 }

@@ -37,6 +37,8 @@ import { VideoChapterModel } from '@modules/Video/Data/Relations/VideoChapterMod
 import { VideoCommentModel } from '@modules/Video/Data/Relations/VideoCommentModel'
 import { TableModel } from '@modules/Tables/Data/TableModel'
 import { TableCellModel } from '@modules/Tables/Data/Relations/TableCellModel'
+import { VideoSavingModel } from '@modules/Video/Data/Relations/VideoSavingModel'
+import { VideoReactionModel } from '@modules/Video/Data/Relations/VideoReactionModel'
 
 export const CoreDataSource = new DataSource({
   type: 'mysql',
@@ -83,6 +85,8 @@ export const CoreDataSource = new DataSource({
     VideoModel,
     VideoChapterModel,
     VideoCommentModel,
+    VideoSavingModel,
+    VideoReactionModel,
     TableModel,
     TableCellModel,
   ],

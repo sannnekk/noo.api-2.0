@@ -187,6 +187,7 @@ export class Repository {
             where: conditions,
             order: sort,
             relationLoadStrategy: findOneOptions.relationLoadStrategy,
+            loadEagerRelations: findOneOptions.useEagerRelations,
         });
     }
     /**

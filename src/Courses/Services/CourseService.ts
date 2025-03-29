@@ -237,7 +237,7 @@ export class CourseService {
 
     const newCourse = new CourseModel({ ...foundCourse, ...course })
 
-    await this.courseRepository.update(newCourse)
+    await this.courseRepository.updateCourse(id, newCourse)
   }
 
   public async addStudents(

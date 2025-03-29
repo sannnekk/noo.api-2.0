@@ -14,6 +14,8 @@ import { MediaModel } from '../../Media/Data/MediaModel.js';
 import { CourseMaterialModel } from '../../Courses/Data/Relations/CourseMaterialModel.js';
 import { SearchableModel } from '../../Core/Data/SearchableModel.js';
 import { VideoCommentModel } from './Relations/VideoCommentModel.js';
+import { VideoSavingModel } from './Relations/VideoSavingModel.js';
+import { VideoReactionModel } from './Relations/VideoReactionModel.js';
 let VideoModel = class VideoModel extends SearchableModel {
     constructor(data) {
         super();
@@ -44,6 +46,8 @@ let VideoModel = class VideoModel extends SearchableModel {
     uploadedBy;
     thumbnail;
     courseMaterial;
+    savings;
+    reactions;
     addSearchToQuery(query, needle) {
         query.andWhere(new Brackets((qb) => {
             qb.where('LOWER(video__uploadedBy.name) LIKE LOWER(:needle)', {
@@ -180,6 +184,14 @@ __decorate([
     ManyToOne(() => CourseMaterialModel, (courseMaterial) => courseMaterial.videos),
     __metadata("design:type", Object)
 ], VideoModel.prototype, "courseMaterial", void 0);
+__decorate([
+    OneToMany(() => VideoSavingModel, (videoSaving) => videoSaving.video),
+    __metadata("design:type", Array)
+], VideoModel.prototype, "savings", void 0);
+__decorate([
+    OneToMany(() => VideoReactionModel, (videoReaction) => videoReaction.video),
+    __metadata("design:type", Array)
+], VideoModel.prototype, "reactions", void 0);
 VideoModel = __decorate([
     Entity('video'),
     __metadata("design:paramtypes", [Object])

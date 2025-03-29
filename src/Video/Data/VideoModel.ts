@@ -22,6 +22,10 @@ import { CourseMaterialModel } from '@modules/Courses/Data/Relations/CourseMater
 import { SearchableModel } from '@modules/Core/Data/SearchableModel'
 import { VideoCommentModel } from './Relations/VideoCommentModel'
 import { CourseMaterial } from '@modules/Courses/Data/Relations/CourseMaterial'
+import { VideoSavingModel } from './Relations/VideoSavingModel'
+import { VideoSaving } from './Relations/VideoSaving'
+import { VideoReactionModel } from './Relations/VideoReactionModel'
+import { VideoReaction } from './Relations/VideoReaction'
 
 @Entity('video')
 export class VideoModel extends SearchableModel implements Video {
@@ -152,6 +156,12 @@ export class VideoModel extends SearchableModel implements Video {
     (courseMaterial) => courseMaterial.videos
   )
   courseMaterial!: CourseMaterial
+
+  @OneToMany(() => VideoSavingModel, (videoSaving) => videoSaving.video)
+  savings?: VideoSaving[]
+
+  @OneToMany(() => VideoReactionModel, (videoReaction) => videoReaction.video)
+  reactions?: VideoReaction[]
 
   public addSearchToQuery(
     query: SelectQueryBuilder<BaseModel>,

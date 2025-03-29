@@ -96,7 +96,7 @@ export class CourseModel extends SearchableModel implements Course {
   description!: string
 
   @OneToMany(() => CourseChapterModel, (chapter) => chapter.course, {
-    cascade: true,
+    cascade: ['insert'],
   })
   chapters!: CourseChapter[]
 

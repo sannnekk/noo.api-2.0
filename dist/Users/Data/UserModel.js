@@ -28,6 +28,8 @@ import { UserAvatarModel } from './Relations/UserAvatarModel.js';
 import { VideoModel } from '../../Video/Data/VideoModel.js';
 import { VideoCommentModel } from '../../Video/Data/Relations/VideoCommentModel.js';
 import { TableModel } from '../../Tables/Data/TableModel.js';
+import { VideoSavingModel } from '../../Video/Data/Relations/VideoSavingModel.js';
+import { VideoReactionModel } from '../../Video/Data/Relations/VideoReactionModel.js';
 let UserModel = class UserModel extends SearchableModel {
     constructor(data) {
         super();
@@ -69,6 +71,8 @@ let UserModel = class UserModel extends SearchableModel {
     favouriteTasks;
     settings;
     videoComments;
+    savedVideos;
+    videoReactions;
     telegramId;
     telegramUsername;
     telegramNotificationsEnabled;
@@ -272,6 +276,14 @@ __decorate([
     OneToMany(() => VideoCommentModel, (comment) => comment.user),
     __metadata("design:type", Array)
 ], UserModel.prototype, "videoComments", void 0);
+__decorate([
+    OneToMany(() => VideoSavingModel, (videoSaving) => videoSaving.user),
+    __metadata("design:type", Array)
+], UserModel.prototype, "savedVideos", void 0);
+__decorate([
+    OneToMany(() => VideoReactionModel, (reaction) => reaction.user),
+    __metadata("design:type", Array)
+], UserModel.prototype, "videoReactions", void 0);
 __decorate([
     Column({
         name: 'telegram_id',

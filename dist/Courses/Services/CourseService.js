@@ -155,7 +155,7 @@ export class CourseService {
             throw new NotFoundError('Курс не найден');
         }
         const newCourse = new CourseModel({ ...foundCourse, ...course });
-        await this.courseRepository.update(newCourse);
+        await this.courseRepository.updateCourse(id, newCourse);
     }
     async addStudents(courseSlug, studentIds, assignerId) {
         const existingAssignments = await this.courseAssignmentRepository.findAll({

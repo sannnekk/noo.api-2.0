@@ -104,7 +104,7 @@ __decorate([
 ], CourseModel.prototype, "description", void 0);
 __decorate([
     OneToMany(() => CourseChapterModel, (chapter) => chapter.course, {
-        cascade: true,
+        cascade: ['insert'],
     }),
     __metadata("design:type", Array)
 ], CourseModel.prototype, "chapters", void 0);

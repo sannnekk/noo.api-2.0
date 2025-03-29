@@ -12,7 +12,6 @@ export interface CourseMaterial {
   description: string
   content: DeltaContentType
   order: number
-  chapterId: string
   chapter?: CourseChapter
   work: Work | null
   workId?: string

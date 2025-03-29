@@ -70,7 +70,12 @@ export class Context {
       return false
     }
 
-    const user = await this.userRepository.findOne({ username })
+    const user = await this.userRepository.findOne(
+      { username },
+      undefined,
+      undefined,
+      { useEagerRelations: false }
+    )
 
     if (!user) {
       return false

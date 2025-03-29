@@ -1,7 +1,7 @@
 import { Model } from '@modules/Core/Data/Model'
 import * as Transliteration from '@modules/Core/Utils/transliteration'
 import * as ULID from '@modules/Core/Data/Ulid'
-import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm'
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm'
 import { CourseChapter } from './CourseChapter'
 import { Course } from '../Course'
 import { CourseMaterial } from './CourseMaterial'
@@ -74,12 +74,8 @@ export class CourseChapterModel extends Model implements CourseChapter {
 
   @ManyToOne(() => CourseModel, (course: Course) => course.chapters, {
     onDelete: 'CASCADE',
-    orphanedRowAction: 'delete',
   })
   course?: Course
-
-  @RelationId((chapter: CourseChapterModel) => chapter.course)
-  courseId?: Course['id']
 
   @ManyToOne(
     () => CourseChapterModel,
@@ -91,20 +87,18 @@ export class CourseChapterModel extends Model implements CourseChapter {
   parentChapter?: CourseChapter
 
   @OneToMany(() => CourseChapterModel, (chapter) => chapter.parentChapter, {
-    cascade: true,
-    onDelete: 'CASCADE',
+    cascade: ['insert'],
   })
   chapters?: CourseChapter[]
 
   @OneToMany(
     () => CourseMaterialModel,
     (material: CourseMaterial) => material.chapter,
-    { cascade: true }
+    {
+      cascade: ['insert'],
+    }
   )
   materials?: CourseMaterial[]
-
-  @RelationId((chapter: CourseChapterModel) => chapter.materials)
-  materialIds!: string[]
 
   private sluggify(text: string): string {
     return `${ULID.generate()}-${Transliteration.sluggify(text)}`

@@ -36,6 +36,8 @@ import { VideoChapterModel } from '../../Video/Data/Relations/VideoChapterModel.
 import { VideoCommentModel } from '../../Video/Data/Relations/VideoCommentModel.js';
 import { TableModel } from '../../Tables/Data/TableModel.js';
 import { TableCellModel } from '../../Tables/Data/Relations/TableCellModel.js';
+import { VideoSavingModel } from '../../Video/Data/Relations/VideoSavingModel.js';
+import { VideoReactionModel } from '../../Video/Data/Relations/VideoReactionModel.js';
 export const CoreDataSource = new DataSource({
     type: 'mysql',
     host: process.env.DB_HOST,
@@ -81,6 +83,8 @@ export const CoreDataSource = new DataSource({
         VideoModel,
         VideoChapterModel,
         VideoCommentModel,
+        VideoSavingModel,
+        VideoReactionModel,
         TableModel,
         TableCellModel,
     ],

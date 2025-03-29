@@ -7,10 +7,21 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { Validator } from '../Core/Request/Validator.js';
 import { ErrorConverter } from '../Core/Request/ValidatorDecorator.js';
 import { VideoScheme } from './Schemes/VideoScheme.js';
+import { VideoUpdateScheme } from './Schemes/VideoUpdateScheme.js';
 import { VideoCommentScheme } from './Schemes/VideoCommentScheme.js';
+import { SupportedReactionScheme } from './Schemes/SupportedReactionScheme.js';
+import { z } from 'zod';
 let VideoValidator = class VideoValidator extends Validator {
     parseVideo(data) {
         return this.parse(data, VideoScheme);
+    }
+    parseVideoReaction(data) {
+        return this.parse(data, z.object({
+            reaction: SupportedReactionScheme,
+        }));
+    }
+    parseVideoUpdate(data) {
+        return this.parse(data, VideoUpdateScheme);
     }
     parseComment(data) {
         return this.parse(data, VideoCommentScheme);
