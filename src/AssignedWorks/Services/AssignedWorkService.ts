@@ -30,7 +30,7 @@ import type { CheckOptions } from '../DTO/CheckOptions'
 import type { SaveOptions } from '../DTO/SaveOptions'
 import Dates from '@modules/Core/Utils/date'
 import { AssignedWorkOptions } from '../AssignedWorkOptions'
-import type { FindOptionsWhere } from 'typeorm'
+import { IsNull, Not, type FindOptionsWhere } from 'typeorm'
 import { UserService } from '@modules/Users/Services/UserService'
 import type { AssignedWorkProgress } from '../Types/AssignedWorkProgress'
 import { NotificationService } from '@modules/Notifications/Services/NotificationService'
@@ -318,6 +318,7 @@ export class AssignedWorkService {
     const material = await this.materialRepository.findOne(
       {
         slug: materialSlug,
+        work: { id: Not(IsNull()) },
       },
       ['work']
     )

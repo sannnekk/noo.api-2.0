@@ -19,6 +19,7 @@ import { AssignedWorkCommentRepository } from '../Data/AssignedWorkCommentReposi
 import { AssignedWorkAnswerRepository } from '../Data/AssignedWorkAnswerRepository.js';
 import Dates from '../../Core/Utils/date.js';
 import { AssignedWorkOptions } from '../AssignedWorkOptions.js';
+import { IsNull, Not } from 'typeorm';
 import { UserService } from '../../Users/Services/UserService.js';
 import { NotificationService } from '../../Notifications/Services/NotificationService.js';
 import { CantDeleteMadeWorkError } from '../Errors/CantDeleteMadeWorkError.js';
@@ -200,6 +201,7 @@ export class AssignedWorkService {
     async getOrCreateWork(materialSlug, studentId) {
         const material = await this.materialRepository.findOne({
             slug: materialSlug,
+            work: { id: Not(IsNull()) },
         }, ['work']);
         if (!material) {
             throw new NotFoundError('Материал не найден');
