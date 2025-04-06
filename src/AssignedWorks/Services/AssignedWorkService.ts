@@ -890,16 +890,15 @@ export class AssignedWorkService {
       throw new UnauthorizedError()
     }
 
-    if (workAlreadyChecked(work) || work.checkStatus === 'in-progress') {
-      throw new WorkAlreadyCheckedError()
-    }
-
     if (!workAlreadyMade(work)) {
       throw new WorkIsNotSolvedYetError()
     }
 
     work.solveStatus = 'in-progress'
     work.solvedAt = null
+    work.checkStatus = 'not-checked'
+    work.checkedAt = null
+    work.score = null
 
     await this.assignedWorkRepository.update(work)
   }

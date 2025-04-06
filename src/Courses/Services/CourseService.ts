@@ -89,9 +89,11 @@ export class CourseService {
         'chapters.materials',
         'chapters.materials.work',
         'chapters.materials.files',
+        'chapters.materials.videos',
         'chapters.chapters.materials',
         'chapters.chapters.materials.work',
         'chapters.chapters.materials.files',
+        'chapters.chapters.materials.videos',
       ],
       /* {
         chapters: {

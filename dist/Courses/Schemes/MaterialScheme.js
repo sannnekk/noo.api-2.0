@@ -31,8 +31,7 @@ export const MaterialScheme = z.object({
         .array(z.object({
         id: z.string().ulid(),
     }))
-        .optional()
-        .default([]),
+        .optional(),
     isWorkAvailable: z.boolean().default(true),
     workSolveDeadline: z.date().nullable().optional(),
     workCheckDeadline: z.date().nullable().optional(),
