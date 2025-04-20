@@ -94,17 +94,18 @@ export class VideoService {
             };
         }
         if (video.accessType === 'courseId') {
-            const course = await this.courseRepository.findOne({
-                id: video.accessValue,
-            });
-            if (!course) {
+            const courseIds = video.accessValue.split(',');
+            const courses = await this.courseRepository.findAll(courseIds.map((id) => ({
+                id,
+            })));
+            if (!courses.length) {
                 throw new NotFoundError('Курс не найден');
             }
+            const courseNames = courses.map((course) => course.name).join(', ');
             return {
                 type: 'courseId',
-                text: `Доступно участникам курса ${course.name}`,
-                link: '/courses/' + course.slug,
-                course,
+                text: `Доступно участникам курсов: ${courseNames}`,
+                courses,
             };
         }
         throw new NotFoundError('Тип доступа не найден');

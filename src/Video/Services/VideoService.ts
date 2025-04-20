@@ -157,19 +157,23 @@ export class VideoService {
     }
 
     if (video.accessType === 'courseId') {
-      const course = await this.courseRepository.findOne({
-        id: video.accessValue,
-      })
+      const courseIds = (video.accessValue as string).split(',')
+      const courses = await this.courseRepository.findAll(
+        courseIds.map((id) => ({
+          id,
+        }))
+      )
 
-      if (!course) {
+      if (!courses.length) {
         throw new NotFoundError('Курс не найден')
       }
 
+      const courseNames = courses.map((course) => course.name).join(', ')
+
       return {
         type: 'courseId',
-        text: `Доступно участникам курса ${course.name}`,
-        link: '/courses/' + course.slug,
-        course,
+        text: `Доступно участникам курсов: ${courseNames}`,
+        courses,
       }
     }
 

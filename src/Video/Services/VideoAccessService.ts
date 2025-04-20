@@ -128,12 +128,13 @@ export class VideoAccessService {
     }
 
     if (video.accessType === 'courseId') {
+      // accessValue is <courseId> or <courseId1,courseId2,...>
       const courseAssignments = await this.courseAssignmentRepository.findAll({
         student: { id: userId },
       })
 
-      return courseAssignments.some(
-        (assignment) => assignment.courseId === video.accessValue
+      return courseAssignments.some((assignment) =>
+        video.accessValue?.includes(assignment.courseId)
       )
     }
 

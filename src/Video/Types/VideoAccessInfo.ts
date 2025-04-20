@@ -7,5 +7,5 @@ export interface VideoAccessInfo {
   text: string
   link?: string
   user?: User
-  course?: Course
+  courses?: Course[]
 }

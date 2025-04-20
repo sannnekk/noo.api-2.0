@@ -57,8 +57,8 @@ export class VideoRepository extends Repository {
             case 'courseId':
                 query.orWhere(new Brackets((qb) => {
                     qb.where("video.access_type = 'courseId'");
-                    qb.andWhere(`video.access_value = :courseId${postfix}`, {
-                        [`courseId${postfix}`]: selector.accessValue,
+                    qb.andWhere(`video.access_value LIKE(:courseId${postfix})`, {
+                        [`courseId${postfix}`]: `%${selector.accessValue}%`,
                     });
                 }));
                 break;
