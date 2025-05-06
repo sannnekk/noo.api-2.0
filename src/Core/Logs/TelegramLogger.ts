@@ -80,6 +80,16 @@ async function telegramLog(
       result = JSON.stringify(data)
     }
 
+    if ('query' in data) {
+      const query = (data.query as string).slice(0, 1000)
+      const code = (data as any).code || 'Unknwown error'
+      const sqlMessage = (data as any).sqlMessage
+        ? (data as any).sqlMessage.slice(0, 1000)
+        : 'Unknown sql...'
+
+      result = `Query: ${query}\n\nCode: ${code}\n\nSQL Message: ${sqlMessage}`
+    }
+
     data = result
   } else {
     data = String(data)

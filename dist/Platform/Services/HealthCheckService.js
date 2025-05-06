@@ -1,9 +1,8 @@
 export class HealthCheckService {
-    // TODO: Implement healthcheck
     async healthcheck() {
         return [
             {
-                label: 'Database',
+                label: 'Event loop',
                 status: 'ok',
             },
         ];

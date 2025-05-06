@@ -51,6 +51,14 @@ async function telegramLog(id, level, data, context) {
         if (result.length > 3750) {
             result = JSON.stringify(data);
         }
+        if ('query' in data) {
+            const query = data.query.slice(0, 1000);
+            const code = data.code || 'Unknwown error';
+            const sqlMessage = data.sqlMessage
+                ? data.sqlMessage.slice(0, 1000)
+                : 'Unknown sql...';
+            result = `Query: ${query}\n\nCode: ${code}\n\nSQL Message: ${sqlMessage}`;
+        }
         data = result;
     }
     else {

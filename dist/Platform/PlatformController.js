@@ -53,10 +53,9 @@ let PlatformController = class PlatformController {
             return new ApiResponse(error, context);
         }
     }
+    // keep without authentication for now, as it is used by kubelet to check if the server is up and running
     async healthcheck(context) {
         try {
-            await Asserts.isAuthenticated(context);
-            Asserts.teacherOrAdmin(context);
             const result = await this.platformService.healthcheck();
             return new ApiResponse({ data: result });
         }

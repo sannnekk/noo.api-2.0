@@ -4,11 +4,10 @@ export type HealthCheckResult = {
 }
 
 export class HealthCheckService {
-  // TODO: Implement healthcheck
   public async healthcheck(): Promise<HealthCheckResult[]> {
     return [
       {
-        label: 'Database',
+        label: 'Event loop',
         status: 'ok',
       },
     ]
