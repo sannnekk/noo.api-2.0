@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, RelationId, } from 'typeorm';
 import { Model } from '../../../Core/Data/Model.js';
 import * as ULID from '../../../Core/Data/Ulid.js';
 import * as Transliteration from '../../../Core/Utils/transliteration.js';
@@ -165,7 +165,8 @@ __decorate([
     __metadata("design:type", Array)
 ], CourseMaterialModel.prototype, "files", void 0);
 __decorate([
-    OneToMany(() => VideoModel, (video) => video.courseMaterial),
+    ManyToMany(() => VideoModel, (video) => video.courseMaterial),
+    JoinTable(),
     __metadata("design:type", Array)
 ], CourseMaterialModel.prototype, "videos", void 0);
 __decorate([

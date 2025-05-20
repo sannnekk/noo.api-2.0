@@ -138,7 +138,7 @@ let AssignedWorkController = class AssignedWorkController {
             return new ApiResponse(error, context);
         }
     }
-    async rechekAutomatically(context) {
+    async recheсkAutomatically(context) {
         try {
             await Asserts.isAuthenticated(context);
             Asserts.notStudent(context);
@@ -420,7 +420,7 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
-], AssignedWorkController.prototype, "rechekAutomatically", null);
+], AssignedWorkController.prototype, "reche\u0441kAutomatically", null);
 __decorate([
     Patch('/:id/save'),
     __metadata("design:type", Function),

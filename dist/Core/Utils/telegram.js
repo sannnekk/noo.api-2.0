@@ -5,10 +5,10 @@ export async function send(userTelegramId, message, token) {
             headers: {
                 'Content-Type': 'application/json',
             },
+            signal: AbortSignal.timeout(3000),
             body: JSON.stringify({
                 chat_id: userTelegramId,
                 text: message,
-                // set parse mode to the text where * is bold, _ is italic, etc.
                 parse_mode: 'html',
             }),
         });

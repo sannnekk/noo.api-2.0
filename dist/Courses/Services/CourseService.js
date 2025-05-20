@@ -211,7 +211,7 @@ export class CourseService {
     async assignWorkToMaterial(materialSlug, workId, solveDeadline, checkDeadline) {
         const material = await this.materialRepository.findOne({
             slug: materialSlug,
-        }, ['chapter.course']);
+        }, ['chapter.course', 'chapter.parentChapter.course']);
         const work = await this.workRepository.findOne({
             id: workId,
         });
@@ -221,7 +221,8 @@ export class CourseService {
         if (!material) {
             throw new NotFoundError('Материал не найден');
         }
-        if (material.chapter?.course?.subjectId !== work.subjectId) {
+        if (material.chapter?.course?.subjectId !== work.subjectId &&
+            material.chapter?.parentChapter?.course?.subjectId !== work.subjectId) {
             throw new WorkIsFromAnotherSubjectError();
         }
         material.work = { id: workId };
@@ -280,7 +281,18 @@ export class CourseService {
             return;
         }
         const materials = course
-            .chapters.map((chapter) => chapter.materials)
+            .chapters.map((chapter) => {
+            const foundMaterials = chapter.materials || [];
+            if (chapter.chapters?.length) {
+                return [
+                    ...foundMaterials,
+                    ...chapter.chapters
+                        .map((subChapter) => subChapter.materials)
+                        .flat(),
+                ];
+            }
+            return chapter.materials;
+        })
             .flat();
         const reactions = await this.materialReactionRepository.getMyReactions(userId, materials.filter(Boolean).map((material) => material.id));
         materials.forEach((material) => {

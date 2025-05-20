@@ -69,7 +69,7 @@ export class WorkService {
         }
         return this.courseMaterialRepository.search({
             work: { id: work.id },
-        }, pagination, ['chapter.course']);
+        }, pagination, ['chapter.course', 'chapter.parentChapter.course']);
     }
     async createWork(workDTO) {
         const work = new WorkModel(workDTO);

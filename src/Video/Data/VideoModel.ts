@@ -6,6 +6,7 @@ import {
   Column,
   Entity,
   JoinColumn,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   OneToOne,
@@ -151,7 +152,7 @@ export class VideoModel extends SearchableModel implements Video {
   @JoinColumn()
   thumbnail!: Media
 
-  @ManyToOne(
+  @ManyToMany(
     () => CourseMaterialModel,
     (courseMaterial) => courseMaterial.videos
   )

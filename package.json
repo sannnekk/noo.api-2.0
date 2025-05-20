@@ -1,6 +1,6 @@
 {
   "name": "noo.api",
-  "version": "3.5.6",
+  "version": "3.5.7",
   "description": "",
   "main": "src/main.ts",
   "type": "module",
@@ -39,7 +39,7 @@
     "jsonwebtoken": "^9.0.2",
     "module-alias": "^2.2.3",
     "multer": "^1.4.5-lts.1",
-    "mysql": "^2.18.1",
+    "mysql2": "^3.14.1",
     "node-jose": "^2.2.0",
     "nodemailer": "^6.9.11",
     "raw-body": "^2.5.2",

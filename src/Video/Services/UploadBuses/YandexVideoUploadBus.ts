@@ -42,6 +42,7 @@ export class YandexVideoUploadBus
       `https://video.api.cloud.yandex.net/video/v1/videos/${uniqueIdentifier}`,
       {
         method: 'GET',
+        signal: AbortSignal.timeout(3000),
         headers: {
           Authorization: `Bearer ${await this.getIAMToken()}`,
         },
@@ -67,6 +68,7 @@ export class YandexVideoUploadBus
       `https://video.api.cloud.yandex.net/video/v1/videos/${videoId}`,
       {
         method: 'DELETE',
+        signal: AbortSignal.timeout(5000),
         headers: {
           Authorization: `Bearer ${await this.getIAMToken()}`,
         },
@@ -91,6 +93,7 @@ export class YandexVideoUploadBus
         Authorization: `Bearer ${await this.getIAMToken()}`,
         'Content-Type': 'application/json',
       },
+      signal: AbortSignal.timeout(3000),
       body: JSON.stringify({
         channel_id: this.channelId,
         title: video.title,

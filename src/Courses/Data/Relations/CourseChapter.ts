@@ -7,6 +7,7 @@ export interface CourseChapter {
   name: string
   slug: string
   course?: Course
+  parentChapter?: CourseChapter
   chapters?: CourseChapter[]
   materials?: CourseMaterial[]
   materialIds?: string[]

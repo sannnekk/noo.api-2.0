@@ -63,13 +63,10 @@ let AssignedWorkModel = class AssignedWorkModel extends SearchableModel {
     mentorComment;
     _excludedTaskIds;
     get excludedTaskIds() {
-        if (this._excludedTaskIds) {
-            return JSON.parse(this._excludedTaskIds);
-        }
-        return [];
+        return this._excludedTaskIds || [];
     }
     set excludedTaskIds(value) {
-        this._excludedTaskIds = JSON.stringify(value);
+        this._excludedTaskIds = value;
     }
     addSearchToQuery(query, needle) {
         query.andWhere(new Brackets((qb) => {
@@ -319,7 +316,7 @@ __decorate([
         type: 'json',
         nullable: true,
     }),
-    __metadata("design:type", String)
+    __metadata("design:type", Array)
 ], AssignedWorkModel.prototype, "_excludedTaskIds", void 0);
 AssignedWorkModel = __decorate([
     Entity('assigned_work'),

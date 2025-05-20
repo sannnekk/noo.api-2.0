@@ -241,18 +241,14 @@ export class AssignedWorkModel extends SearchableModel implements AssignedWork {
     type: 'json',
     nullable: true,
   })
-  _excludedTaskIds?: string
+  _excludedTaskIds?: string[]
 
   get excludedTaskIds(): string[] {
-    if (this._excludedTaskIds) {
-      return JSON.parse(this._excludedTaskIds)
-    }
-
-    return []
+    return this._excludedTaskIds || []
   }
 
   set excludedTaskIds(value: string[]) {
-    this._excludedTaskIds = JSON.stringify(value)
+    this._excludedTaskIds = value
   }
 
   public addSearchToQuery(

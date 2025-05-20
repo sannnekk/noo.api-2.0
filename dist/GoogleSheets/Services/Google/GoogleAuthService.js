@@ -63,6 +63,7 @@ export class GoogleAuthService {
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                signal: AbortSignal.timeout(3000),
                 body: JSON.stringify(body),
             });
             return (await response.json());
@@ -91,6 +92,7 @@ export class GoogleAuthService {
                     //Authorization: `Basic ${basicAuthStr}`,
                     'Content-Type': 'application/json',
                 },
+                signal: AbortSignal.timeout(3000),
                 body: JSON.stringify(body),
             });
             return (await response.json());

@@ -21,11 +21,13 @@ export class HealthCheckService {
     ]
 
     try {
-      const userCount = await this.userRepository.count()
+      const user = await this.userRepository.findOne({
+        username: 'akjcbdytceuiocbjdcjsbskcdbc7689sidbjchsd',
+      })
 
       results.push({
-        label: 'Users',
-        status: userCount > 0 ? 'ok' : 'warning',
+        label: 'Database: User table check',
+        status: user === null ? 'ok' : 'warning',
       })
     } catch (error: any) {
       results.push({

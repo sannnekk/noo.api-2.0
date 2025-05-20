@@ -1,4 +1,12 @@
-import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm'
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  RelationId,
+} from 'typeorm'
 import { DeltaContentType } from '@modules/Core/Data/DeltaContentType'
 import { Model } from '@modules/Core/Data/Model'
 import * as ULID from '@modules/Core/Data/Ulid'
@@ -137,7 +145,8 @@ export class CourseMaterialModel extends Model implements CourseMaterial {
   })
   files!: MediaModel[]
 
-  @OneToMany(() => VideoModel, (video) => video.courseMaterial)
+  @ManyToMany(() => VideoModel, (video) => video.courseMaterial)
+  @JoinTable()
   videos!: Video[]
 
   @OneToMany(() => CourseMaterialReactionModel, (reaction) => reaction.material)

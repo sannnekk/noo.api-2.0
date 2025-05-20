@@ -1,4 +1,5 @@
 import { DataSource } from 'typeorm'
+import mysql2 from 'mysql2'
 
 // Models
 import { MediaModel } from '@modules/Media/Data/MediaModel'
@@ -42,6 +43,11 @@ import { VideoReactionModel } from '@modules/Video/Data/Relations/VideoReactionM
 
 export const CoreDataSource = new DataSource({
   type: 'mysql',
+  driver: mysql2,
+  extra: {
+    connectionLimit: 10,
+    waitForConnections: true,
+  },
   host: process.env.DB_HOST,
   port: Number(process.env.DB_PORT),
   username: process.env.DB_USER,

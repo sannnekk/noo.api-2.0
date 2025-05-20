@@ -8,7 +8,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { VideoChapterModel } from './Relations/VideoChapterModel.js';
-import { Brackets, Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, } from 'typeorm';
+import { Brackets, Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, } from 'typeorm';
 import { UserModel } from '../../Users/Data/UserModel.js';
 import { MediaModel } from '../../Media/Data/MediaModel.js';
 import { CourseMaterialModel } from '../../Courses/Data/Relations/CourseMaterialModel.js';
@@ -181,7 +181,7 @@ __decorate([
     __metadata("design:type", Object)
 ], VideoModel.prototype, "thumbnail", void 0);
 __decorate([
-    ManyToOne(() => CourseMaterialModel, (courseMaterial) => courseMaterial.videos),
+    ManyToMany(() => CourseMaterialModel, (courseMaterial) => courseMaterial.videos),
     __metadata("design:type", Object)
 ], VideoModel.prototype, "courseMaterial", void 0);
 __decorate([

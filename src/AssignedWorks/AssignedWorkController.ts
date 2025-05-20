@@ -208,7 +208,7 @@ export class AssignedWorkController {
   }
 
   @Patch('/:id/recheck-automatically')
-  public async rechekAutomatically(context: Context): Promise<ApiResponse> {
+  public async recheсkAutomatically(context: Context): Promise<ApiResponse> {
     try {
       await Asserts.isAuthenticated(context)
       Asserts.notStudent(context)

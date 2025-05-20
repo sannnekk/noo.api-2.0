@@ -22,6 +22,7 @@ export class YandexCloudService {
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                signal: AbortSignal.timeout(5000),
                 body: JSON.stringify(payload),
             });
             const data = await response.json();

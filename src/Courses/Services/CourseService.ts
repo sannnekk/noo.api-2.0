@@ -328,7 +328,7 @@ export class CourseService {
       {
         slug: materialSlug,
       },
-      ['chapter.course']
+      ['chapter.course', 'chapter.parentChapter.course']
     )
 
     const work = await this.workRepository.findOne({
@@ -343,7 +343,10 @@ export class CourseService {
       throw new NotFoundError('Материал не найден')
     }
 
-    if (material.chapter?.course?.subjectId !== work.subjectId) {
+    if (
+      material.chapter?.course?.subjectId !== work.subjectId &&
+      material.chapter?.parentChapter?.course?.subjectId !== work.subjectId
+    ) {
       throw new WorkIsFromAnotherSubjectError()
     }
 
@@ -427,7 +430,20 @@ export class CourseService {
     }
 
     const materials = course
-      .chapters!.map((chapter) => chapter.materials)
+      .chapters!.map((chapter) => {
+        const foundMaterials = chapter.materials || []
+
+        if (chapter.chapters?.length) {
+          return [
+            ...foundMaterials,
+            ...chapter.chapters
+              .map((subChapter) => subChapter.materials)
+              .flat(),
+          ]
+        }
+
+        return chapter.materials
+      })
       .flat()
 
     const reactions = await this.materialReactionRepository.getMyReactions(

@@ -113,7 +113,7 @@ export class WorkService {
         work: { id: work.id },
       },
       pagination,
-      ['chapter.course']
+      ['chapter.course', 'chapter.parentChapter.course']
     )
   }
 
