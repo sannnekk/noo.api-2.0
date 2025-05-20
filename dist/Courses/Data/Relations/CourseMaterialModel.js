@@ -38,6 +38,8 @@ let CourseMaterialModel = class CourseMaterialModel extends Model {
     workSolveDeadline;
     workCheckDeadline;
     isWorkAvailable;
+    isPinned;
+    titleColor;
     order;
     isActive;
     activateAt;
@@ -111,6 +113,22 @@ __decorate([
     }),
     __metadata("design:type", Boolean)
 ], CourseMaterialModel.prototype, "isWorkAvailable", void 0);
+__decorate([
+    Column({
+        name: 'is_pinned',
+        type: 'boolean',
+        default: false,
+    }),
+    __metadata("design:type", Boolean)
+], CourseMaterialModel.prototype, "isPinned", void 0);
+__decorate([
+    Column({
+        name: 'title_color',
+        type: 'varchar',
+        nullable: true,
+    }),
+    __metadata("design:type", String)
+], CourseMaterialModel.prototype, "titleColor", void 0);
 __decorate([
     Column({
         name: 'order',

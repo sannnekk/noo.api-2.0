@@ -33,6 +33,8 @@ export const MaterialScheme = z.object({
     }))
         .optional(),
     isWorkAvailable: z.boolean().default(true),
+    isPinned: z.boolean().default(false),
+    titleColor: z.string().nullable().optional(),
     workSolveDeadline: z.date().nullable().optional(),
     workCheckDeadline: z.date().nullable().optional(),
     activateAt: z.date().nullable().optional(),

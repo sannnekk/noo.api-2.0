@@ -11,3 +11,8 @@ CREATE TABLE
 -- delete the courseMaterialId column from the video table
 ALTER TABLE video
 DROP COLUMN courseMaterialId;
+
+-- Add titleColor and iSpinned columns to the course_material table
+ALTER TABLE course_material
+ADD COLUMN title_color VARCHAR(255) DEFAULT NULL,
+ADD COLUMN is_pinned TINYINT (1) DEFAULT 0;

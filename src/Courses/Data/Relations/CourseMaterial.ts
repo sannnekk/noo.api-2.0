@@ -16,6 +16,8 @@ export interface CourseMaterial {
   work: Work | null
   workId?: string
   isWorkAvailable: boolean
+  isPinned: boolean
+  titleColor: string
   workSolveDeadline: Date | null
   workCheckDeadline: Date | null
   files: Media[]

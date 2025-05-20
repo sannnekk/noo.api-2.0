@@ -98,6 +98,20 @@ export class CourseMaterialModel extends Model implements CourseMaterial {
   isWorkAvailable!: boolean
 
   @Column({
+    name: 'is_pinned',
+    type: 'boolean',
+    default: false,
+  })
+  isPinned!: boolean
+
+  @Column({
+    name: 'title_color',
+    type: 'varchar',
+    nullable: true,
+  })
+  titleColor!: string
+
+  @Column({
     name: 'order',
     type: 'int',
     default: 0,
