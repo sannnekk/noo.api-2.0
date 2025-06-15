@@ -42,7 +42,7 @@ async function telegramLog(id, level, data, context) {
         return;
     }
     const chatId = process.env.LOG_TELEGRAM_CHAT_ID;
-    const eleonorChatId = process.env.LOG_TELEGRAM_ELEONOR_CHAT_ID;
+    const mashaChatId = process.env.LOG_TELEGRAM_MASHA_CHAT_ID;
     if (!chatId) {
         return;
     }
@@ -74,11 +74,15 @@ async function telegramLog(id, level, data, context) {
         .replaceAll('"', '&quot;')
         .replaceAll('(', '(');
     const message = prepareMessage(level, id, data, context);
-    if (level === 'crm' && eleonorChatId) {
-        await send(eleonorChatId, message, token);
-    }
-    else if (level !== 'crm') {
+    try {
         await send(chatId, message, token);
+        if (mashaChatId) {
+            await send(mashaChatId, message, token);
+        }
+    }
+    catch (error) {
+        // eslint-disable-next-line no-console
+        console.log('Telegram log error:', error);
     }
 }
 export default telegramLog;

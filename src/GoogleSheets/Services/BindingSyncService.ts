@@ -148,6 +148,11 @@ export class BindingSyncService {
       })
     )
 
+    header.push({
+      title: 'Ссылка на ответы',
+      key: 'pollLink',
+    })
+
     const { entities: answers } = await this.pollAnswerRepository.find(
       {
         question: {
@@ -158,6 +163,14 @@ export class BindingSyncService {
       },
       undefined,
       new Pagination(1, 999999)
+    )
+
+    const userIds = answers.map((answer) => answer.userId).filter(Boolean)
+
+    const users = await this.userRepository.findAll(
+      userIds.map((id) => ({
+        id,
+      }))
     )
 
     // Record<userAuthIdentifier, Record<questionId, answerText>>
@@ -198,7 +211,14 @@ export class BindingSyncService {
             break
         }
 
+        const username = users.find(
+          (user) => user.id === answer.userId
+        )?.username
+
         acc[userAuthIdentifier][answer.questionId] = answerText
+        acc[userAuthIdentifier].pollLink = username
+          ? `https://noo-school.ru/polls/${poll.id}/results/${username}`
+          : '-'
 
         return acc
       },

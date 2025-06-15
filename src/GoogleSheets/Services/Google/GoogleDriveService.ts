@@ -17,7 +17,7 @@ export class GoogleDriveService {
     data: DataToSync,
     auth: OAuth2Client
   ): Promise<string[]> {
-    const documentId = filePath.at(-1)
+    const documentId = filePath?.at(-1)
 
     const props = {
       title: fileName,

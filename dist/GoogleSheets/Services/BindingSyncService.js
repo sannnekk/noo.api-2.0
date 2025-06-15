@@ -87,6 +87,10 @@ export class BindingSyncService {
             title: `${index + 1}. ${question.text}`,
             key: question.id,
         }));
+        header.push({
+            title: 'Ссылка на ответы',
+            key: 'pollLink',
+        });
         const { entities: answers } = await this.pollAnswerRepository.find({
             question: {
                 poll: {
@@ -94,6 +98,10 @@ export class BindingSyncService {
                 },
             },
         }, undefined, new Pagination(1, 999999));
+        const userIds = answers.map((answer) => answer.userId).filter(Boolean);
+        const users = await this.userRepository.findAll(userIds.map((id) => ({
+            id,
+        })));
         // Record<userAuthIdentifier, Record<questionId, answerText>>
         const data = answers.reduce((acc, answer) => {
             const userAuthIdentifier = answer.userAuthIdentifier || answer.userId || '-';
@@ -126,7 +134,11 @@ export class BindingSyncService {
                     answerText = answer.text || '-';
                     break;
             }
+            const username = users.find((user) => user.id === answer.userId)?.username;
             acc[userAuthIdentifier][answer.questionId] = answerText;
+            acc[userAuthIdentifier].pollLink = username
+                ? `https://noo-school.ru/polls/${poll.id}/results/${username}`
+                : '-';
             return acc;
         }, {});
         return {

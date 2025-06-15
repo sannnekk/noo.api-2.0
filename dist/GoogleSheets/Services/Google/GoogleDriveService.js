@@ -9,7 +9,7 @@ export class GoogleDriveService {
      * @param tokens tokens to auth into google
      */
     async syncFile(fileName, filePath, data, auth) {
-        const documentId = filePath.at(-1);
+        const documentId = filePath?.at(-1);
         const props = {
             title: fileName,
         };
