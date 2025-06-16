@@ -167,11 +167,11 @@ export class BindingSyncService {
 
     const userIds = answers.map((answer) => answer.userId).filter(Boolean)
 
-    const users = await this.userRepository.findAll(
-      userIds.map((id) => ({
-        id,
-      }))
-    )
+    // remove duplicates
+    const uniqueUserIds = Array.from(new Set(userIds))
+
+    const usernames =
+      await this.userRepository.getUsernamesFromIds(uniqueUserIds)
 
     // Record<userAuthIdentifier, Record<questionId, answerText>>
     const data = answers.reduce(
@@ -211,9 +211,7 @@ export class BindingSyncService {
             break
         }
 
-        const username = users.find(
-          (user) => user.id === answer.userId
-        )?.username
+        const username = usernames[userAuthIdentifier] || null
 
         acc[userAuthIdentifier][answer.questionId] = answerText
         acc[userAuthIdentifier].pollLink = username

@@ -45,6 +45,28 @@ export class UserRepository extends Repository<User> {
     return users.map((user) => user.id)
   }
 
+  public async getUsernamesFromIds(
+    ids: string[]
+  ): Promise<Record<string, string>> {
+    if (ids.length === 0) {
+      return {}
+    }
+
+    const users = await this.queryBuilder('user')
+      .select('user.username')
+      .addSelect('user.id')
+      .where('user.id IN (:...ids)', { ids })
+      .getMany()
+
+    return users.reduce(
+      (acc, user) => {
+        acc[user.id] = user.username
+        return acc
+      },
+      {} as Record<string, string>
+    )
+  }
+
   public async findIds(conditions?: FindOptionsWhere<User>): Promise<string[]> {
     return (
       await this.repository.find({ where: conditions, select: ['id'] })
