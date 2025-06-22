@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { PollQuestionTypeSceme } from './PollQuestionTypeScheme.js';
 export const PollQuestionScheme = z.object({
+    id: z.string().optional().nullable(),
     text: z
         .string()
         .min(2, { message: 'Вопрос не может быть менее 2 символов' })
