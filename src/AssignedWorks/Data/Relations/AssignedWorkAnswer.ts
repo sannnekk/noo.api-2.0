@@ -10,4 +10,5 @@ export interface AssignedWorkAnswer extends BaseModel {
   task?: WorkTask
   taskId: WorkTask['id']
   assignedWork?: AssignedWork
+  isSubmitted?: boolean | null
 }

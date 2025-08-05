@@ -29,6 +29,7 @@ let AssignedWorkAnswerModel = class AssignedWorkAnswerModel extends Model {
     slug;
     content;
     word;
+    isSubmitted;
     task;
     taskId;
     assignedWork;
@@ -63,6 +64,15 @@ __decorate([
     }),
     __metadata("design:type", Object)
 ], AssignedWorkAnswerModel.prototype, "word", void 0);
+__decorate([
+    Column({
+        name: 'is_submitted',
+        type: 'boolean',
+        nullable: true,
+        default: false,
+    }),
+    __metadata("design:type", Object)
+], AssignedWorkAnswerModel.prototype, "isSubmitted", void 0);
 __decorate([
     ManyToOne(() => WorkTaskModel, (task) => task.assignedWorkAnswers),
     __metadata("design:type", Object)

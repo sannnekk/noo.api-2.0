@@ -12,4 +12,5 @@ export const AssignedWorkAnswerScheme = z.object({
         .nullable()
         .optional(),
     taskId: z.string().ulid(),
+    isSubmitted: z.boolean().nullable().optional(),
 });

@@ -54,6 +54,14 @@ export class AssignedWorkAnswerModel
   })
   word?: string | undefined
 
+  @Column({
+    name: 'is_submitted',
+    type: 'boolean',
+    nullable: true,
+    default: false,
+  })
+  isSubmitted?: boolean | null
+
   @ManyToOne(() => WorkTaskModel, (task) => task.assignedWorkAnswers)
   task?: WorkTask | undefined
 
