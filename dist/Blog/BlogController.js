@@ -71,7 +71,7 @@ let BlogController = class BlogController {
     }
     async updatePost(context) {
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.teacherOrAdmin(context);
             this.blogValidator.parseId(context.params.id);
             const post = this.blogValidator.parseUpdateBlog(context.body);
@@ -84,7 +84,7 @@ let BlogController = class BlogController {
     }
     async deletePost(context) {
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.teacherOrAdmin(context);
             const postId = this.blogValidator.parseId(context.params.id);
             await this.blogService.delete(postId);

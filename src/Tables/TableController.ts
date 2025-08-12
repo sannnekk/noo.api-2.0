@@ -25,7 +25,7 @@ export class TableController {
   @Get()
   public async getTables(context: Context): Promise<ApiResponse> {
     try {
-      Asserts.isAuthenticated(context)
+      await Asserts.isAuthenticated(context)
       Asserts.mentor(context)
 
       const pagination = this.tableValidator.parsePagination(context.query)
@@ -44,7 +44,7 @@ export class TableController {
   @Get('/:id')
   public async getTableById(context: Context): Promise<ApiResponse> {
     try {
-      Asserts.isAuthenticated(context)
+      await Asserts.isAuthenticated(context)
       Asserts.mentor(context)
 
       const tableId = this.tableValidator.parseId(context.params.id)
@@ -63,7 +63,7 @@ export class TableController {
   @Post()
   public async createTable(context: Context): Promise<ApiResponse> {
     try {
-      Asserts.isAuthenticated(context)
+      await Asserts.isAuthenticated(context)
       Asserts.teacher(context)
 
       const tableData = this.tableValidator.parseTable(context.body)
@@ -82,7 +82,7 @@ export class TableController {
   @Patch('/:id')
   public async updateTable(context: Context): Promise<ApiResponse> {
     try {
-      Asserts.isAuthenticated(context)
+      await Asserts.isAuthenticated(context)
       Asserts.mentor(context)
 
       const tableId = this.tableValidator.parseId(context.params.id)
@@ -103,7 +103,7 @@ export class TableController {
   @Delete('/:id')
   public async deleteTable(context: Context): Promise<ApiResponse> {
     try {
-      Asserts.isAuthenticated(context)
+      await Asserts.isAuthenticated(context)
       Asserts.teacher(context)
 
       const tableId = this.tableValidator.parseId(context.params.id)

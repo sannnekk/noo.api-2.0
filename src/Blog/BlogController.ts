@@ -99,7 +99,7 @@ export class BlogController {
   @Patch('/:id')
   public async updatePost(context: Context): Promise<ApiResponse> {
     try {
-      Asserts.isAuthenticated(context)
+      await Asserts.isAuthenticated(context)
       Asserts.teacherOrAdmin(context)
       this.blogValidator.parseId(context.params.id)
       const post = this.blogValidator.parseUpdateBlog(context.body)
@@ -115,7 +115,7 @@ export class BlogController {
   @Delete('/:id')
   public async deletePost(context: Context): Promise<ApiResponse> {
     try {
-      Asserts.isAuthenticated(context)
+      await Asserts.isAuthenticated(context)
       Asserts.teacherOrAdmin(context)
       const postId = this.blogValidator.parseId(context.params.id)
 

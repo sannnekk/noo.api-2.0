@@ -22,7 +22,7 @@ let TableController = class TableController {
     }
     async getTables(context) {
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.mentor(context);
             const pagination = this.tableValidator.parsePagination(context.query);
             const { entities: tables, meta } = await this.tableService.getTables(context.credentials.userId, pagination);
@@ -34,7 +34,7 @@ let TableController = class TableController {
     }
     async getTableById(context) {
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.mentor(context);
             const tableId = this.tableValidator.parseId(context.params.id);
             const table = await this.tableService.getTable(tableId, context.credentials.userId);
@@ -46,7 +46,7 @@ let TableController = class TableController {
     }
     async createTable(context) {
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.teacher(context);
             const tableData = this.tableValidator.parseTable(context.body);
             const table = await this.tableService.createTable(tableData, context.credentials.userId);
@@ -58,7 +58,7 @@ let TableController = class TableController {
     }
     async updateTable(context) {
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.mentor(context);
             const tableId = this.tableValidator.parseId(context.params.id);
             const tableData = this.tableValidator.parseTable(context.body);
@@ -71,7 +71,7 @@ let TableController = class TableController {
     }
     async deleteTable(context) {
         try {
-            Asserts.isAuthenticated(context);
+            await Asserts.isAuthenticated(context);
             Asserts.teacher(context);
             const tableId = this.tableValidator.parseId(context.params.id);
             await this.tableService.deleteTable(tableId, context.credentials.userId);
