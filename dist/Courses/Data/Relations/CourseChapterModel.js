@@ -32,6 +32,8 @@ let CourseChapterModel = CourseChapterModel_1 = class CourseChapterModel extends
         }
     }
     name;
+    titleColor;
+    isPinned;
     slug;
     order;
     isActive;
@@ -52,6 +54,25 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], CourseChapterModel.prototype, "name", void 0);
+__decorate([
+    Column({
+        name: 'title_color',
+        type: 'varchar',
+        nullable: true,
+        default: null,
+        charset: config.database.charsets.withEmoji,
+        collation: config.database.collations.withEmoji,
+    }),
+    __metadata("design:type", Object)
+], CourseChapterModel.prototype, "titleColor", void 0);
+__decorate([
+    Column({
+        name: 'is_pinned',
+        type: 'boolean',
+        default: false,
+    }),
+    __metadata("design:type", Boolean)
+], CourseChapterModel.prototype, "isPinned", void 0);
 __decorate([
     Column({
         name: 'slug',

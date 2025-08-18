@@ -173,17 +173,20 @@ export class AssignedWorkService {
     workId: Work['id'],
     studentId: User['id']
   ): Promise<AssignedWorkProgress | null> {
-    const assignedWork = await this.assignedWorkRepository.findOne(
+    const assignedWorks = await this.assignedWorkRepository.search(
       {
         work: { id: workId },
         student: { id: studentId },
       },
+      new Pagination(1, 1, 'createdAt', 'DESC'),
       ['work']
     )
 
-    if (!assignedWork) {
+    if (assignedWorks.entities.length < 1) {
       return null
     }
+
+    const assignedWork = assignedWorks.entities[0]
 
     const progress: AssignedWorkProgress = {
       score: assignedWork.score || null,
@@ -333,12 +336,23 @@ export class AssignedWorkService {
       throw new NotFoundError('У этого материала нет работы')
     }
 
-    const assignedWork = await this.assignedWorkRepository.findOne({
+    /* const assignedWork = await this.assignedWorkRepository.findOne({
       work: { id: workId },
       student: { id: studentId },
-    })
+    }) */
 
-    if (assignedWork) {
+    const assignedWorks = await this.assignedWorkRepository.search(
+      {
+        work: { id: workId },
+        student: { id: studentId },
+      },
+      new Pagination(1, 1, 'createdAt', 'DESC'),
+      ['work']
+    )
+
+    if (assignedWorks.entities.length > 0) {
+      const assignedWork = assignedWorks.entities[0]
+
       switch (assignedWork.solveStatus) {
         case 'in-progress':
           return { link: `/assigned-works/${assignedWork.id}/solve` }

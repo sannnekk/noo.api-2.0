@@ -5,6 +5,7 @@ import { CourseMaterial } from './CourseMaterial'
 export interface CourseChapter {
   id: ULID.Ulid
   name: string
+  titleColor: string | null
   slug: string
   course?: Course
   parentChapter?: CourseChapter
@@ -13,6 +14,7 @@ export interface CourseChapter {
   materialIds?: string[]
   order: number
   isActive: boolean
+  isPinned: boolean
   createdAt: Date
   updatedAt: Date
 }

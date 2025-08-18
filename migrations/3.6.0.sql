@@ -1,0 +1,3 @@
+ALTER TABLE `course_chapter`
+ADD COLUMN `is_pinned` TINYINT(1) NOT NULL DEFAULT 0,
+ADD COLUMN title_color VARCHAR(255) DEFAULT NULL;

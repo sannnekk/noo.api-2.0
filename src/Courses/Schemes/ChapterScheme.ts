@@ -25,8 +25,10 @@ export const ChapterScheme = z
       .max(255, {
         message: 'Название главы не может быть длиннее 255 символов',
       }),
+    titleColor: z.string().max(255).nullable(),
     order: z.number(),
     isActive: z.boolean().optional(),
+    isPinned: z.boolean().optional(),
     chapters: z.lazy((): any => z.array(ChapterScheme)).optional(),
     materials: z.array(MaterialScheme),
   })

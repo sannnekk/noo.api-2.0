@@ -7,8 +7,8 @@ export const VideoCommentScheme = z.object({
     .min(1, {
       message: 'Комментарий не может быть пустым',
     })
-    .max(250, {
-      message: 'Комментарий не может иметь более 250 символов',
+    .max(512, {
+      message: 'Комментарий не может иметь более 512 символов',
     }),
   user: z
     .object({

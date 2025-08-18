@@ -324,13 +324,6 @@ export class CourseService {
     solveDeadline?: Date,
     checkDeadline?: Date
   ) {
-    const material = await this.materialRepository.findOne(
-      {
-        slug: materialSlug,
-      },
-      ['chapter.course', 'chapter.parentChapter.course']
-    )
-
     const work = await this.workRepository.findOne({
       id: workId,
     })
@@ -338,6 +331,30 @@ export class CourseService {
     if (!work) {
       throw new NotFoundError('Работа не найдена')
     }
+
+    const material = await this.materialRepository.findOne(
+      [
+        {
+          slug: materialSlug,
+          chapter: {
+            course: {
+              id: TypeORM.Not(TypeORM.IsNull()),
+            },
+          },
+        },
+        {
+          slug: materialSlug,
+          chapter: {
+            parentChapter: {
+              course: {
+                id: TypeORM.Not(TypeORM.IsNull()),
+              },
+            },
+          },
+        },
+      ],
+      ['chapter.course', 'chapter.parentChapter.course']
+    )
 
     if (!material) {
       throw new NotFoundError('Материал не найден')

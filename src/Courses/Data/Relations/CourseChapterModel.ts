@@ -52,6 +52,23 @@ export class CourseChapterModel extends Model implements CourseChapter {
   name!: string
 
   @Column({
+    name: 'title_color',
+    type: 'varchar',
+    nullable: true,
+    default: null,
+    charset: config.database.charsets.withEmoji,
+    collation: config.database.collations.withEmoji,
+  })
+  titleColor!: string | null
+
+  @Column({
+    name: 'is_pinned',
+    type: 'boolean',
+    default: false,
+  })
+  isPinned!: boolean
+
+  @Column({
     name: 'slug',
     type: 'varchar',
     charset: config.database.charsets.default,

@@ -1,4 +1,5 @@
 import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
+import { Pagination } from '../../Core/Data/Pagination.js';
 import { UnauthorizedError } from '../../Core/Errors/UnauthorizedError.js';
 import { UserRepository } from '../../Users/Data/UserRepository.js';
 import { WorkRepository } from '../../Works/Data/WorkRepository.js';
@@ -109,13 +110,14 @@ export class AssignedWorkService {
         return assignedWork;
     }
     async getProgressByWorkId(workId, studentId) {
-        const assignedWork = await this.assignedWorkRepository.findOne({
+        const assignedWorks = await this.assignedWorkRepository.search({
             work: { id: workId },
             student: { id: studentId },
-        }, ['work']);
-        if (!assignedWork) {
+        }, new Pagination(1, 1, 'createdAt', 'DESC'), ['work']);
+        if (assignedWorks.entities.length < 1) {
             return null;
         }
+        const assignedWork = assignedWorks.entities[0];
         const progress = {
             score: assignedWork.score || null,
             maxScore: assignedWork.maxScore,
@@ -210,11 +212,16 @@ export class AssignedWorkService {
         if (!workId) {
             throw new NotFoundError('У этого материала нет работы');
         }
-        const assignedWork = await this.assignedWorkRepository.findOne({
+        /* const assignedWork = await this.assignedWorkRepository.findOne({
+          work: { id: workId },
+          student: { id: studentId },
+        }) */
+        const assignedWorks = await this.assignedWorkRepository.search({
             work: { id: workId },
             student: { id: studentId },
-        });
-        if (assignedWork) {
+        }, new Pagination(1, 1, 'createdAt', 'DESC'), ['work']);
+        if (assignedWorks.entities.length > 0) {
+            const assignedWork = assignedWorks.entities[0];
             switch (assignedWork.solveStatus) {
                 case 'in-progress':
                     return { link: `/assigned-works/${assignedWork.id}/solve` };
