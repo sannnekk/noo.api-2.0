@@ -86,7 +86,7 @@ export class CourseController {
     try {
       await Asserts.isAuthenticated(context)
       Asserts.student(context)
-      const assignmentId = this.courseValidator.parseSlug(
+      const assignmentId = this.courseValidator.parseId(
         context.params.assignmentId
       )
 
@@ -103,7 +103,7 @@ export class CourseController {
     try {
       await Asserts.isAuthenticated(context)
       Asserts.student(context)
-      const assignmentId = this.courseValidator.parseSlug(
+      const assignmentId = this.courseValidator.parseId(
         context.params.assignmentId
       )
 
@@ -111,6 +111,40 @@ export class CourseController {
         assignmentId,
         context.credentials.userId
       )
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
+  @Patch('/:assignmentId/pin')
+  public async pin(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.student(context)
+      const assignmentId = this.courseValidator.parseId(
+        context.params.assignmentId
+      )
+
+      await this.courseService.pin(assignmentId, context.credentials.userId)
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
+  @Patch('/:assignmentId/unpin')
+  public async unpin(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.student(context)
+      const assignmentId = this.courseValidator.parseId(
+        context.params.assignmentId
+      )
+
+      await this.courseService.unpin(assignmentId, context.credentials.userId)
 
       return new ApiResponse()
     } catch (error: any) {

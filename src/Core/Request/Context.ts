@@ -123,15 +123,29 @@ export class Context {
     const ipAddress = req.ip || ''
     const browser = parseUserAgent(req.header('User-Agent') || '').browser || ''
     const os = parseUserAgent(req.header('User-Agent') || '').os || ''
-    const device = parseUserAgent(req.header('User-Agent') || '').device || ''
+    const [device, isApp = false] = req.headers['x-origin']
+      ? this.parseXOrigin(req.headers['x-origin'])
+      : [parseUserAgent(req.header('User-Agent') || '').device || '']
 
     return {
       userAgent,
       isMobile,
+      isApp,
       ipAddress,
       browser,
       os,
       device,
     }
+  }
+
+  private parseXOrigin(xOrigin: string | string[]): [string, boolean] {
+    let origin = ''
+
+    if (Array.isArray(xOrigin)) {
+      origin = xOrigin.join('')
+    }
+
+    const [os, isApp] = origin.split('/').map((part) => part.trim())
+    return [os, isApp === 'app']
   }
 }

@@ -20,6 +20,7 @@ let SessionModel = class SessionModel extends Model {
     }
     userAgent;
     isMobile;
+    isApp;
     browser;
     os;
     device;
@@ -44,6 +45,14 @@ __decorate([
     }),
     __metadata("design:type", Boolean)
 ], SessionModel.prototype, "isMobile", void 0);
+__decorate([
+    Column({
+        name: 'is_app',
+        type: 'boolean',
+        nullable: true,
+    }),
+    __metadata("design:type", Object)
+], SessionModel.prototype, "isApp", void 0);
 __decorate([
     Column({
         name: 'browser',

@@ -11,26 +11,30 @@ export class UserRepository extends Repository<User> {
   }
 
   public async usernameExists(username: string): Promise<boolean> {
-    return !!(await this.repository.findOne({
-      where: {
-        username,
-      } as any,
-    }))
+    return (
+      (await this.repository.findOne({
+        where: {
+          username,
+        } as any,
+      })) !== null
+    )
   }
 
   public async emailExists(email: string): Promise<boolean> {
-    return !!(await this.repository.findOne({
-      where: {
-        email,
-      } as any,
-    }))
+    return (
+      (await this.repository.findOne({
+        where: {
+          email,
+        } as any,
+      })) !== null
+    )
   }
 
   public async getIdsFromEmails(
     emails: string[],
     condition?: Partial<User>
   ): Promise<string[]> {
-    const query = await this.queryBuilder('user')
+    const query = this.queryBuilder('user')
       .select('user.id')
       .where('user.email IN (:...emails)', { emails })
 

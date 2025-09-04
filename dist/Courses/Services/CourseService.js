@@ -129,6 +129,28 @@ export class CourseService {
         assignment.isArchived = false;
         await this.courseAssignmentRepository.update(assignment);
     }
+    async unpin(assignmentId, userId) {
+        const assignment = await this.courseAssignmentRepository.findOne({
+            id: assignmentId,
+            student: { id: userId },
+        });
+        if (!assignment) {
+            throw new NotFoundError('Курс не найден');
+        }
+        assignment.isPinned = false;
+        await this.courseAssignmentRepository.update(assignment);
+    }
+    async pin(assignmentId, userId) {
+        const assignment = await this.courseAssignmentRepository.findOne({
+            id: assignmentId,
+            student: { id: userId },
+        });
+        if (!assignment) {
+            throw new NotFoundError('Курс не найден');
+        }
+        assignment.isPinned = true;
+        await this.courseAssignmentRepository.update(assignment);
+    }
     async toggleReaction(materialId, userId, reaction) {
         const material = await this.materialRepository.findOne({
             id: materialId,

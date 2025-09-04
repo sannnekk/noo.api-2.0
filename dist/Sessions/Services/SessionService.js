@@ -45,6 +45,7 @@ export class SessionService {
         session.user = { id: userId };
         session.userAgent = context.info.userAgent;
         session.isMobile = context.info.isMobile;
+        session.isApp = context.info.isApp;
         session.device = context.info.device || null;
         session.os = context.info.os || null;
         session.browser = context.info.browser || null;

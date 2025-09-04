@@ -28,6 +28,7 @@ let CourseAssignmentModel = class CourseAssignmentModel extends Model {
         }
     }
     isArchived;
+    isPinned;
     course;
     courseId;
     student;
@@ -39,6 +40,10 @@ __decorate([
     Column({ name: 'is_archived', type: 'boolean', default: false }),
     __metadata("design:type", Boolean)
 ], CourseAssignmentModel.prototype, "isArchived", void 0);
+__decorate([
+    Column({ name: 'is_pinned', type: 'boolean', default: false }),
+    __metadata("design:type", Boolean)
+], CourseAssignmentModel.prototype, "isPinned", void 0);
 __decorate([
     ManyToOne(() => CourseModel, (course) => course.studentAssignments, {
         onDelete: 'CASCADE',

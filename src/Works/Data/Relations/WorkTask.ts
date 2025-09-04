@@ -10,7 +10,7 @@ export interface WorkTask extends BaseModel {
   order: number
   content: DeltaContentType
   highestScore: number
-  type: 'word' | 'text' | 'essay' | 'final-essay'
+  type: 'word' | 'text' | 'essay' | 'final-essay' | 'dictation'
   workId?: Work['id']
   work?: Work
   assignedWorkId?: AssignedWork['id']

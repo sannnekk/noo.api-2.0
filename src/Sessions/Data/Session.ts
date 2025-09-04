@@ -4,6 +4,7 @@ import { User } from '@modules/Users/Data/User'
 export interface Session extends BaseModel {
   userAgent: string
   isMobile: boolean
+  isApp: boolean | null
   userId: User['id']
   user?: User
   browser?: string | null

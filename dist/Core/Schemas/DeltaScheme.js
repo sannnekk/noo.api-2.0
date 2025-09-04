@@ -15,6 +15,8 @@ const attributesSchema = z
     header: z.number().optional(),
     list: z.enum(['ordered', 'bullet']).optional(),
     align: z.enum(['left', 'center', 'right', 'justify']).optional(),
+    //'table-cell-line': z.any().optional(),
+    table: z.any().optional(),
     // custom attributes
     'image-comment': z.any().optional(),
     comment: z.any().optional(),

@@ -64,7 +64,7 @@ let CourseController = class CourseController {
         try {
             await Asserts.isAuthenticated(context);
             Asserts.student(context);
-            const assignmentId = this.courseValidator.parseSlug(context.params.assignmentId);
+            const assignmentId = this.courseValidator.parseId(context.params.assignmentId);
             await this.courseService.archive(assignmentId, context.credentials.userId);
             return new ApiResponse();
         }
@@ -76,8 +76,32 @@ let CourseController = class CourseController {
         try {
             await Asserts.isAuthenticated(context);
             Asserts.student(context);
-            const assignmentId = this.courseValidator.parseSlug(context.params.assignmentId);
+            const assignmentId = this.courseValidator.parseId(context.params.assignmentId);
             await this.courseService.unarchive(assignmentId, context.credentials.userId);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error, context);
+        }
+    }
+    async pin(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.student(context);
+            const assignmentId = this.courseValidator.parseId(context.params.assignmentId);
+            await this.courseService.pin(assignmentId, context.credentials.userId);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error, context);
+        }
+    }
+    async unpin(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.student(context);
+            const assignmentId = this.courseValidator.parseId(context.params.assignmentId);
+            await this.courseService.unpin(assignmentId, context.credentials.userId);
             return new ApiResponse();
         }
         catch (error) {
@@ -292,6 +316,18 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "unarchive", null);
+__decorate([
+    Patch('/:assignmentId/pin'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "pin", null);
+__decorate([
+    Patch('/:assignmentId/unpin'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "unpin", null);
 __decorate([
     Patch('/material/:materialId/react/:reaction'),
     __metadata("design:type", Function),

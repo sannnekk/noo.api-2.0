@@ -34,6 +34,13 @@ export class SessionModel extends Model implements Session {
   isMobile!: boolean
 
   @Column({
+    name: 'is_app',
+    type: 'boolean',
+    nullable: true,
+  })
+  isApp!: boolean | null
+
+  @Column({
     name: 'browser',
     type: 'varchar',
     nullable: true,

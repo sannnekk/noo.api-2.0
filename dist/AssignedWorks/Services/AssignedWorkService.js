@@ -99,6 +99,13 @@ export class AssignedWorkService {
                 assignedWork: { id: assignedWork.id },
             });
             assignedWork.answers = answers;
+            const comments = await this.commentRepository.findAll({
+                assignedWork: { id: assignedWork.id },
+            });
+            const submittedTaskIds = assignedWork.answers
+                .filter((answer) => answer.isSubmitted === true)
+                .map((answer) => answer.taskId);
+            assignedWork.comments = comments.filter((comment) => submittedTaskIds.includes(comment.taskId));
         }
         if ((role === 'mentor' && !workAlreadyChecked(assignedWork)) ||
             workAlreadyChecked(assignedWork)) {
@@ -267,8 +274,10 @@ export class AssignedWorkService {
             foundWork.solveStatus = 'made-in-deadline';
         }
         foundWork.solvedAt = Dates.now();
-        foundWork.answers = solveOptions.answers;
         foundWork.comments = this.taskService.automatedCheck(work.tasks, solveOptions.answers);
+        foundWork.answers = solveOptions.answers.map((a) => foundWork.comments.some((c) => c.taskId === a.taskId)
+            ? { ...a, isSubmitted: true }
+            : a);
         foundWork.studentComment = solveOptions.studentComment || null;
         if (work.tasks.every((task) => isAutomaticallyCheckable(task.type))) {
             foundWork.checkStatus = 'checked-automatically';
@@ -404,16 +413,17 @@ export class AssignedWorkService {
     }
     async saveComment(assignedWorkId, comment, userId) {
         const foundWork = await this.getAssignedWork(assignedWorkId);
-        if (!foundWork.mentors.some((mentor) => mentor.id === userId)) {
+        if (!foundWork.mentors.some((mentor) => mentor.id === userId) &&
+            foundWork.studentId !== userId) {
             throw new UnauthorizedError();
         }
-        if (!workAlreadyMade(foundWork)) {
-            throw new WorkIsNotSolvedYetError();
-        }
+        const isMentor = foundWork.mentors.some((mentor) => mentor.id === userId);
         if (workAlreadyChecked(foundWork)) {
             throw new WorkAlreadyCheckedError();
         }
-        await this.assignedWorkRepository.setCheckInProgress(foundWork.id);
+        if (isMentor) {
+            await this.assignedWorkRepository.setCheckInProgress(foundWork.id);
+        }
         if (comment.id) {
             await this.commentRepository.update(comment);
             return comment.id;

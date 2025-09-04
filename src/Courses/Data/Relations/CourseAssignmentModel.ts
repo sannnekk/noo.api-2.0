@@ -31,6 +31,9 @@ export class CourseAssignmentModel extends Model implements CourseAssignment {
   @Column({ name: 'is_archived', type: 'boolean', default: false })
   isArchived!: boolean
 
+  @Column({ name: 'is_pinned', type: 'boolean', default: false })
+  isPinned!: boolean
+
   @ManyToOne(() => CourseModel, (course) => course.studentAssignments, {
     onDelete: 'CASCADE',
   })

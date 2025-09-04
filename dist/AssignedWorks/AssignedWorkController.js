@@ -191,7 +191,7 @@ let AssignedWorkController = class AssignedWorkController {
     async saveComment(context) {
         try {
             await Asserts.isAuthenticated(context);
-            Asserts.notStudent(context);
+            //Asserts.notStudent(context)
             const assignedWorkId = this.assignedWorkValidator.parseId(context.params.id);
             const comment = this.assignedWorkValidator.parseComment(context.body);
             const commentId = await this.assignedWorkService.saveComment(assignedWorkId, comment, context.credentials.userId);

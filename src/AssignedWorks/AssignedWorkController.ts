@@ -295,7 +295,7 @@ export class AssignedWorkController {
   public async saveComment(context: Context): Promise<ApiResponse> {
     try {
       await Asserts.isAuthenticated(context)
-      Asserts.notStudent(context)
+      //Asserts.notStudent(context)
 
       const assignedWorkId = this.assignedWorkValidator.parseId(
         context.params.id
@@ -305,7 +305,7 @@ export class AssignedWorkController {
       const commentId = await this.assignedWorkService.saveComment(
         assignedWorkId,
         comment,
-        context.credentials.userId
+        context.credentials!.userId
       )
 
       return new ApiResponse({ data: commentId })

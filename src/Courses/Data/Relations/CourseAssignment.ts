@@ -10,4 +10,5 @@ export interface CourseAssignment extends BaseModel {
   assigner?: User
   assignerId: User['id']
   isArchived: boolean
+  isPinned: boolean
 }

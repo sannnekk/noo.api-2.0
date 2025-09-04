@@ -63,6 +63,7 @@ export class CalenderService {
     async delete(id, username) {
         const foundEvent = await this.calenderEventRepository.findOne({
             id,
+            type: 'event',
         });
         if (!foundEvent) {
             throw new NotFoundError('Событие не найдено');

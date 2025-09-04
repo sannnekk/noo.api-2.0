@@ -108,6 +108,7 @@ export class CalenderService {
   ): Promise<void> {
     const foundEvent = await this.calenderEventRepository.findOne({
       id,
+      type: 'event',
     })
 
     if (!foundEvent) {
