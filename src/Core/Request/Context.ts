@@ -123,8 +123,8 @@ export class Context {
     const ipAddress = req.ip || ''
     const browser = parseUserAgent(req.header('User-Agent') || '').browser || ''
     const os = parseUserAgent(req.header('User-Agent') || '').os || ''
-    const [device, isApp = false] = req.headers['x-origin']
-      ? this.parseXOrigin(req.headers['x-origin'])
+    const [device, isApp = false] = req.headers['X-Origin']
+      ? this.parseXOrigin(req.headers['X-Origin'])
       : [parseUserAgent(req.header('User-Agent') || '').device || '']
 
     return {

@@ -34,6 +34,13 @@ export class SessionRepository extends Repository {
         const count = await query.getRawOne();
         return parseInt(count.count, 10);
     }
+    async countAppUsers() {
+        return this.queryBuilder()
+            .select('COUNT(DISTINCT userId)', 'count')
+            .where('is_app = :isApp', { isApp: true })
+            .getRawOne()
+            .then((result) => parseInt(result.count, 10));
+    }
     async findLast(userId) {
         return this.queryBuilder()
             .where('userId = :userId', { userId })

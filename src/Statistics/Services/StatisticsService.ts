@@ -119,6 +119,20 @@ export class StatisticsService {
       user: { role: 'mentor' },
     })
 
+    const totalAppUsers = await this.sessionService.getAppUsersCount()
+
+    const onlineIOSAppUsers = await this.sessionService.getOnlineUsersCount({
+      isApp: true,
+      os: 'ios',
+    })
+
+    const onlineAndroidAppUsers = await this.sessionService.getOnlineUsersCount(
+      {
+        isApp: true,
+        os: 'android',
+      }
+    )
+
     const totalAssignedWorks = await assignedWorkRepositoryQueryBuilder
       .clone()
       .getCount()
@@ -272,6 +286,22 @@ export class StatisticsService {
                 {
                   name: 'Учеников',
                   value: studentActiveCount,
+                },
+              ],
+            },
+            {
+              name: 'Пользователи приложения',
+              description:
+                'Общее количество пользователей приложения iOS и Android',
+              value: totalAppUsers,
+              subEntries: [
+                {
+                  name: 'iOS-Онлайн',
+                  value: onlineIOSAppUsers,
+                },
+                {
+                  name: 'Android-Онлайн',
+                  value: onlineAndroidAppUsers,
                 },
               ],
             },

@@ -93,6 +93,10 @@ export class SessionService {
     return this.sessionRepository.countOnlineUsers(condition)
   }
 
+  public async getAppUsersCount() {
+    return this.sessionRepository.countAppUsers()
+  }
+
   public async getActiveUsersCount(
     condition?: FindOptionsWhere<Session>
   ): Promise<number> {
@@ -159,6 +163,7 @@ export class SessionService {
 
     session.userAgent = context.info.userAgent
     session.isMobile = context.info.isMobile
+    session.isApp = context.info.isApp
     session.device = context.info.device || null
     session.os = context.info.os || null
     session.browser = context.info.browser || null

@@ -56,6 +56,9 @@ export class SessionService {
     async getOnlineUsersCount(condition) {
         return this.sessionRepository.countOnlineUsers(condition);
     }
+    async getAppUsersCount() {
+        return this.sessionRepository.countAppUsers();
+    }
     async getActiveUsersCount(condition) {
         return this.sessionRepository.countActiveUsers(condition);
     }
@@ -102,6 +105,7 @@ export class SessionService {
         }
         session.userAgent = context.info.userAgent;
         session.isMobile = context.info.isMobile;
+        session.isApp = context.info.isApp;
         session.device = context.info.device || null;
         session.os = context.info.os || null;
         session.browser = context.info.browser || null;
