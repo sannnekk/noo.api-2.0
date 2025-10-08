@@ -85,11 +85,11 @@ export class StatisticsService {
         const totalAppUsers = await this.sessionService.getAppUsersCount();
         const onlineIOSAppUsers = await this.sessionService.getOnlineUsersCount({
             isApp: true,
-            os: 'ios',
+            device: 'ios',
         });
         const onlineAndroidAppUsers = await this.sessionService.getOnlineUsersCount({
             isApp: true,
-            os: 'android',
+            device: 'android',
         });
         const totalAssignedWorks = await assignedWorkRepositoryQueryBuilder
             .clone()

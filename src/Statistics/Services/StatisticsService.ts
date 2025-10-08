@@ -123,13 +123,13 @@ export class StatisticsService {
 
     const onlineIOSAppUsers = await this.sessionService.getOnlineUsersCount({
       isApp: true,
-      os: 'ios',
+      device: 'ios',
     })
 
     const onlineAndroidAppUsers = await this.sessionService.getOnlineUsersCount(
       {
         isApp: true,
-        os: 'android',
+        device: 'android',
       }
     )
 
