@@ -85,8 +85,8 @@ export class Context {
         const ipAddress = req.ip || '';
         const browser = parseUserAgent(req.header('User-Agent') || '').browser || '';
         const os = parseUserAgent(req.header('User-Agent') || '').os || '';
-        const [device, isApp = false] = req.headers['X-Origin']
-            ? this.parseXOrigin(req.headers['X-Origin'])
+        const [device, isApp = false] = req.header('X-Origin')
+            ? this.parseXOrigin(req.header('X-Origin'))
             : [parseUserAgent(req.header('User-Agent') || '').device || ''];
         return {
             userAgent,
@@ -99,11 +99,11 @@ export class Context {
         };
     }
     parseXOrigin(xOrigin) {
-        let origin = '';
-        if (Array.isArray(xOrigin)) {
-            origin = xOrigin.join('');
-        }
-        const [os, isApp] = origin.split('/').map((part) => part.trim());
+        const origin = Array.isArray(xOrigin) ? xOrigin : [xOrigin];
+        const [os, isApp] = origin
+            .join('')
+            .split('/')
+            .map((part) => part.trim());
         return [os, isApp === 'app'];
     }
 }
