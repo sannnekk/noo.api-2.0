@@ -843,7 +843,8 @@ export class AssignedWorkService {
   ) {
     const work = await this.getAssignedWork(id, ['mentors'])
 
-    const days: number = AssignedWorkOptions.deadlineShift
+    const studentDays: number = AssignedWorkOptions.studentDeadlineShift
+    const mentorDays: number = AssignedWorkOptions.mentorDeadlineShift
     const mentorAlsoDays: number = AssignedWorkOptions.mentorDeadlineAlsoShift
 
     if (role == 'student') {
@@ -863,7 +864,7 @@ export class AssignedWorkService {
         throw new WorkAlreadySolvedError()
       }
 
-      work.solveDeadlineAt = Dates.addDays(work.solveDeadlineAt, days)
+      work.solveDeadlineAt = Dates.addDays(work.solveDeadlineAt, studentDays)
       work.solveDeadlineShifted = true
 
       // also shift mentors deadline
@@ -895,7 +896,7 @@ export class AssignedWorkService {
         throw new WorkAlreadyCheckedError()
       }
 
-      work.checkDeadlineAt = Dates.addDays(work.checkDeadlineAt, days)
+      work.checkDeadlineAt = Dates.addDays(work.checkDeadlineAt, mentorDays)
       work.checkDeadlineShifted = true
 
       await this.calenderService.updateDeadlineFromWork(work, 'mentor-deadline')
