@@ -309,7 +309,6 @@ export class VideoService {
   ): Promise<void> {
     const currentVideo = await this.videoRepository.findOne({
       id: videoId,
-      uploadedBy: { id: userId },
     })
 
     if (!currentVideo) {

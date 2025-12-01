@@ -188,7 +188,6 @@ export class VideoService {
     async updateVideo(videoId, video, userId, userRole) {
         const currentVideo = await this.videoRepository.findOne({
             id: videoId,
-            uploadedBy: { id: userId },
         });
         if (!currentVideo) {
             throw new NotFoundError('Видео не найдено');
