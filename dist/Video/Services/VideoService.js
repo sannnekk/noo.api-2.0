@@ -181,8 +181,7 @@ export class VideoService {
         if (video.state !== 'uploaded') {
             throw new Error('Видео еще не загружено и не может быть опубликовано');
         }
-        video.state = 'published';
-        video.publishedAt = video.publishedAt || new Date();
+        video.publishedAt = video.publishedAt ?? new Date();
         await this.videoRepository.update(video);
     }
     async updateVideo(videoId, video, userId, userRole) {

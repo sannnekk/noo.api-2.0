@@ -295,8 +295,7 @@ export class VideoService {
       throw new Error('Видео еще не загружено и не может быть опубликовано')
     }
 
-    video.state = 'published'
-    video.publishedAt = video.publishedAt || new Date()
+    video.publishedAt = video.publishedAt ?? new Date()
 
     await this.videoRepository.update(video)
   }
