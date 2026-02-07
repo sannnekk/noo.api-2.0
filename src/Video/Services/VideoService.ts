@@ -17,6 +17,7 @@ import { VideoReactionModel } from '../Data/Relations/VideoReactionModel'
 import { VideoAccessInfo } from '../Types/VideoAccessInfo'
 import { UserRepository } from '@modules/Users/Data/UserRepository'
 import { CourseRepository } from '@modules/Courses/Data/CourseRepository'
+import { VideoNotYetUploadedError } from '../Errors/VideoNotYetUploadedError'
 
 export class VideoService {
   private readonly videoRepository: VideoRepository
@@ -292,7 +293,7 @@ export class VideoService {
     }
 
     if (video.state !== 'uploaded') {
-      throw new Error('Видео еще не загружено и не может быть опубликовано')
+      throw new VideoNotYetUploadedError()
     }
 
     video.publishedAt = video.publishedAt ?? new Date()

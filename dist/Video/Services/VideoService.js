@@ -11,6 +11,7 @@ import { VideoReactionRepository } from '../Data/VideoReactionRepository.js';
 import { VideoReactionModel } from '../Data/Relations/VideoReactionModel.js';
 import { UserRepository } from '../../Users/Data/UserRepository.js';
 import { CourseRepository } from '../../Courses/Data/CourseRepository.js';
+import { VideoNotYetUploadedError } from '../Errors/VideoNotYetUploadedError.js';
 export class VideoService {
     videoRepository;
     videoAccessService;
@@ -179,7 +180,7 @@ export class VideoService {
             throw new NotFoundError('Видео не найдено');
         }
         if (video.state !== 'uploaded') {
-            throw new Error('Видео еще не загружено и не может быть опубликовано');
+            throw new VideoNotYetUploadedError();
         }
         video.publishedAt = video.publishedAt ?? new Date();
         await this.videoRepository.update(video);
