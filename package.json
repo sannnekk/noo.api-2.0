@@ -1,6 +1,6 @@
 {
   "name": "noo.api",
-  "version": "3.6.2",
+  "version": "3.6.3",
   "description": "",
   "main": "src/main.ts",
   "type": "module",
@@ -17,10 +17,7 @@
     "type": "git",
     "url": "https://github.com.sannnekk/noo.api-2.0"
   },
-  "keywords": [
-    "noo",
-    "api"
-  ],
+  "keywords": ["noo", "api"],
   "author": "sannnekk",
   "license": "ISC",
   "dependencies": {

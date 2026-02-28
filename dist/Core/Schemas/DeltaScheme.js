@@ -20,6 +20,8 @@ const attributesSchema = z
     // custom attributes
     'image-comment': z.any().optional(),
     comment: z.any().optional(),
+    // Latex
+    formula: z.any().optional(),
     // allow only css var for color
     // color: z
     //   .string()
@@ -50,6 +52,7 @@ export const DeltaScheme = z.object({
                     .optional(),
                 //video: z.string().url('Ссылка на видео недействительна').optional(),
                 video: z.any().optional(),
+                formula: z.any().optional(),
             })
                 .transform((insert) => {
                 if (typeof insert.video !== 'string') {
