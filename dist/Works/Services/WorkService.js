@@ -6,6 +6,8 @@ import { CourseMaterialRepository } from '../../Courses/Data/CourseMaterialRepos
 import { WorkTaskRepository } from '../Data/WorkTaskRepository.js';
 import { AssignedWorkRepository } from '../../AssignedWorks/Data/AssignedWorkRepository.js';
 import { round } from '../../Core/Utils/math.js';
+import { WorkOptions } from '../WorkOptions.js';
+import { TooManyTasksError } from '../Errors/TooManyTasksError.js';
 export class WorkService {
     workRepository;
     workTaskRepository;
@@ -104,6 +106,39 @@ export class WorkService {
             isCheckOneByOneEnabled: task.isCheckOneByOneEnabled,
         }));
         this.workRepository.create(newWork);
+    }
+    async mergeWorks(id1, id2) {
+        const work1 = await this.workRepository.findOne({ id: id1 }, [
+            'tasks',
+            'subject',
+        ]);
+        const work2 = await this.workRepository.findOne({ id: id2 }, ['tasks']);
+        if (!work1 || !work2) {
+            throw new NotFoundError('Одна из работ не найдена');
+        }
+        if (work1.tasks.length + work2.tasks.length >
+            WorkOptions.maxWorkTaskCount) {
+            throw new TooManyTasksError();
+        }
+        const mergedWork = {
+            type: work1.type,
+            description: `${work1.description}\n\n${work2.description}`,
+            subject: { id: work1.subject.id },
+            name: `[слияние] ${work1.name} + ${work2.name}`,
+            tasks: [...work1.tasks, ...work2.tasks].map((task, index) => ({
+                order: index + 1,
+                content: task.content,
+                highestScore: task.highestScore,
+                type: task.type,
+                checkingStrategy: task.checkingStrategy,
+                rightAnswer: task.rightAnswer,
+                solveHint: task.solveHint,
+                checkHint: task.checkHint,
+                isAnswerVisibleBeforeCheck: task.isAnswerVisibleBeforeCheck,
+                isCheckOneByOneEnabled: task.isCheckOneByOneEnabled,
+            })),
+        };
+        await this.workRepository.create(mergedWork);
     }
     async updateWork(id, work) {
         const foundWork = await this.workRepository.findOne({ id });

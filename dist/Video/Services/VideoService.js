@@ -72,6 +72,12 @@ export class VideoService {
                 text: 'Доступно всем',
             };
         }
+        if (video.accessType === 'link') {
+            return {
+                type: 'link',
+                text: 'Доступно по ссылке',
+            };
+        }
         if (video.accessType === 'role') {
             return {
                 type: 'role',

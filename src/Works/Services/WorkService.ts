@@ -11,6 +11,8 @@ import { WorkStatisticsDTO } from '../DTO/WorkStatisticsDTO'
 import { WorkTaskRepository } from '../Data/WorkTaskRepository'
 import { AssignedWorkRepository } from '@modules/AssignedWorks/Data/AssignedWorkRepository'
 import { round } from '@modules/Core/Utils/math'
+import { WorkOptions } from '../WorkOptions'
+import { TooManyTasksError } from '../Errors/TooManyTasksError'
 
 export class WorkService {
   private readonly workRepository: WorkRepository
@@ -158,6 +160,49 @@ export class WorkService {
     )
 
     this.workRepository.create(newWork)
+  }
+
+  public async mergeWorks(id1: Work['id'], id2: Work['id']) {
+    const work1 = await this.workRepository.findOne({ id: id1 }, [
+      'tasks',
+      'subject',
+    ])
+    const work2 = await this.workRepository.findOne({ id: id2 }, ['tasks'])
+
+    if (!work1 || !work2) {
+      throw new NotFoundError('Одна из работ не найдена')
+    }
+
+    if (
+      work1.tasks.length + work2.tasks.length >
+      WorkOptions.maxWorkTaskCount
+    ) {
+      throw new TooManyTasksError()
+    }
+
+    const mergedWork: Work = {
+      type: work1.type,
+      description: `${work1.description}\n\n${work2.description}`,
+      subject: { id: work1.subject!.id } as Subject,
+      name: `[слияние] ${work1.name} + ${work2.name}`,
+      tasks: [...work1.tasks, ...work2.tasks].map(
+        (task, index) =>
+          ({
+            order: index + 1,
+            content: task.content,
+            highestScore: task.highestScore,
+            type: task.type,
+            checkingStrategy: task.checkingStrategy,
+            rightAnswer: task.rightAnswer,
+            solveHint: task.solveHint,
+            checkHint: task.checkHint,
+            isAnswerVisibleBeforeCheck: task.isAnswerVisibleBeforeCheck,
+            isCheckOneByOneEnabled: task.isCheckOneByOneEnabled,
+          }) as WorkTask
+      ),
+    } as Work
+
+    await this.workRepository.create(mergedWork)
   }
 
   public async updateWork(id: Work['id'], work: WorkDTO) {

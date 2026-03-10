@@ -138,6 +138,10 @@ export class VideoAccessService {
       )
     }
 
+    if (video.accessType === 'link') {
+      return true
+    }
+
     return false
   }
 

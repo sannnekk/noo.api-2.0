@@ -104,6 +104,19 @@ let WorkController = class WorkController {
             return new ApiResponse(error, context);
         }
     }
+    async mergeWorks(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.teacher(context);
+            const id1 = this.workValidator.parseId(context.params.id1);
+            const id2 = this.workValidator.parseId(context.params.id2);
+            await this.workService.mergeWorks(id1, id2);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error, context);
+        }
+    }
     async deleteWork(context) {
         try {
             await Asserts.isAuthenticated(context);
@@ -159,6 +172,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], WorkController.prototype, "updateWork", null);
+__decorate([
+    Patch('/:id1/:id2/merge'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], WorkController.prototype, "mergeWorks", null);
 __decorate([
     Delete('/:id'),
     __metadata("design:type", Function),

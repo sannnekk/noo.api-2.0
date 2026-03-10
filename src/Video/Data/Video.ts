@@ -22,7 +22,7 @@ export interface Video extends BaseModel {
   uploadedBy: User
   uploadUrl: string | null
   publishedAt: Date
-  accessType: 'everyone' | 'courseId' | 'mentorId' | 'role'
+  accessType: 'everyone' | 'courseId' | 'mentorId' | 'role' | 'link'
   accessValue: string | null
   savings?: VideoSaving[]
   reactionCounts?: Record<VideoReaction['reaction'], number>

@@ -130,6 +130,13 @@ export class VideoService {
       }
     }
 
+    if (video.accessType === 'link') {
+      return {
+        type: 'link',
+        text: 'Доступно по ссылке',
+      }
+    }
+
     if (video.accessType === 'role') {
       return {
         type: 'role',

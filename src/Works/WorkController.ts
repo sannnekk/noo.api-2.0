@@ -137,6 +137,23 @@ export class WorkController {
     }
   }
 
+  @Patch('/:id1/:id2/merge')
+  public async mergeWorks(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.teacher(context)
+
+      const id1 = this.workValidator.parseId(context.params.id1)
+      const id2 = this.workValidator.parseId(context.params.id2)
+
+      await this.workService.mergeWorks(id1, id2)
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
   @Delete('/:id')
   public async deleteWork(context: Context): Promise<ApiResponse> {
     try {

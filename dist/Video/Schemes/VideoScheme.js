@@ -20,6 +20,6 @@ export const VideoScheme = z.object({
     duration: z.number().int().min(0),
     chapters: z.array(VideoChapterScheme),
     publishedAt: z.date().nullable(),
-    accessType: z.enum(['everyone', 'courseId', 'mentorId', 'role']),
+    accessType: z.enum(['everyone', 'courseId', 'mentorId', 'role', 'link']),
     accessValue: z.string().nullable(),
 });

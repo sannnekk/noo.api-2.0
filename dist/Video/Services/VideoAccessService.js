@@ -78,6 +78,9 @@ export class VideoAccessService {
             });
             return courseAssignments.some((assignment) => video.accessValue?.includes(assignment.courseId));
         }
+        if (video.accessType === 'link') {
+            return true;
+        }
         return false;
     }
     canEditVideo(video, userId, userRole) {
