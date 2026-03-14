@@ -114,6 +114,12 @@ export class WorkModel extends SearchableModel implements Work {
   }
 
   private sluggify(text: string): string {
-    return `${ULID.generate()}-${Transliteration.sluggify(text)}`
+    const slug = `${ULID.generate()}-${Transliteration.sluggify(text)}`
+
+    if (slug.length > 255) {
+      return slug.slice(0, 255)
+    }
+
+    return slug
   }
 }
