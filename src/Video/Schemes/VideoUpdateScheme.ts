@@ -17,7 +17,9 @@ export const VideoUpdateScheme = z.object({
   description: DeltaScheme.nullable().optional(),
   thumbnail: MediaScheme.nullable().optional(),
   chapters: z.array(VideoChapterScheme).optional(),
-  accessType: z.enum(['everyone', 'courseId', 'mentorId', 'role']).optional(),
+  accessType: z
+    .enum(['everyone', 'courseId', 'mentorId', 'role', 'link'])
+    .optional(),
   accessValue: z.string().nullable().optional(),
   publishedAt: z.date().nullable().optional(),
 })
