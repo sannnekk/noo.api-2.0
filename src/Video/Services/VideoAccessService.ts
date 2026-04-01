@@ -27,6 +27,7 @@ export class VideoAccessService {
         { accessType: 'mentorId', accessValue: userId },
         { accessType: 'everyone', accessValue: null },
         { accessType: 'role', accessValue: 'mentor' },
+        { accessType: 'link', accessValue: null },
       ]
     }
 
@@ -102,7 +103,7 @@ export class VideoAccessService {
       const isForMentors =
         video.accessType === 'role' && video.accessValue === 'mentor'
 
-      return isOwnVideo || isForMentors
+      return isOwnVideo || isForMentors || video.accessType === 'link'
     }
 
     if (userRole === 'assistant') {
