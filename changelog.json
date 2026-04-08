@@ -1,5 +1,16 @@
 [
   {
+    "version": "3.6.5",
+    "date": "2026-04-07",
+    "authors": ["sannnekk"],
+    "changes": [
+      {
+        "type": "feat",
+        "description": "Слияние работ теперь работает с более чем одной работой (до 300 заданий)"
+      }
+    ]
+  },
+  {
     "version": "3.6.4",
     "date": "2026-03-11",
     "authors": ["sannnekk"],

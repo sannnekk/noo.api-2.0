@@ -109,8 +109,8 @@ let WorkController = class WorkController {
             await Asserts.isAuthenticated(context);
             Asserts.teacher(context);
             const id1 = this.workValidator.parseId(context.params.id1);
-            const id2 = this.workValidator.parseId(context.params.id2);
-            await this.workService.mergeWorks(id1, id2);
+            const { ids } = this.workValidator.parseMergeIds(context.body);
+            await this.workService.mergeWorks(id1, ids);
             return new ApiResponse();
         }
         catch (error) {
@@ -173,7 +173,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], WorkController.prototype, "updateWork", null);
 __decorate([
-    Patch('/:id1/:id2/merge'),
+    Patch('/:id1/merge'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)

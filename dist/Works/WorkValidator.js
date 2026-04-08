@@ -7,12 +7,16 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { ErrorConverter } from '../Core/Request/ValidatorDecorator.js';
 import { Validator } from '../Core/Request/Validator.js';
 import { WorkScheme } from './Schemes/WorkScheme.js';
+import { z } from 'zod';
 let WorkValidator = class WorkValidator extends Validator {
     parseCreation(data) {
         return this.parse(data, WorkScheme.omit({ id: true }));
     }
     parseUpdate(data) {
         return this.parse(data, WorkScheme);
+    }
+    parseMergeIds(data) {
+        return this.parse(data, z.object({ ids: z.array(z.string()) }));
     }
 };
 WorkValidator = __decorate([

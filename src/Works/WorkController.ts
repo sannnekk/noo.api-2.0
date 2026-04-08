@@ -137,16 +137,16 @@ export class WorkController {
     }
   }
 
-  @Patch('/:id1/:id2/merge')
+  @Patch('/:id1/merge')
   public async mergeWorks(context: Context): Promise<ApiResponse> {
     try {
       await Asserts.isAuthenticated(context)
       Asserts.teacher(context)
 
       const id1 = this.workValidator.parseId(context.params.id1)
-      const id2 = this.workValidator.parseId(context.params.id2)
+      const { ids } = this.workValidator.parseMergeIds(context.body)
 
-      await this.workService.mergeWorks(id1, id2)
+      await this.workService.mergeWorks(id1, ids)
 
       return new ApiResponse()
     } catch (error: any) {
