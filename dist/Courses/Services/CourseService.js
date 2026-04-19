@@ -42,11 +42,32 @@ export class CourseService {
         }, pagination);
     }
     async getStudentCourseAssignments(studentId, pagination) {
-        return this.courseAssignmentRepository.search({
+        let publicAssignments = [];
+        if (pagination.pageNumber === 1) {
+            const publicCourses = await this.courseRepository.findAll({
+                isPublic: true,
+            });
+            publicAssignments = publicCourses.map((course) => ({
+                id: `public-${course.id}`,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                course,
+                courseId: course.id,
+                studentId: studentId,
+                assignerId: studentId,
+                isArchived: false,
+                isPinned: true,
+            }));
+        }
+        const assignmentSearchResult = await this.courseAssignmentRepository.search({
             student: {
                 id: studentId,
             },
         }, pagination, ['course', 'course.images', 'assigner', 'course.subject']);
+        return {
+            entities: [...publicAssignments, ...assignmentSearchResult.entities],
+            meta: assignmentSearchResult.meta,
+        };
     }
     async getBySlug(slug, userId, role) {
         const course = await this.courseRepository.findOne({ slug }, [
@@ -80,7 +101,7 @@ export class CourseService {
         if ((course.chapters || []).length === 0) {
             throw new CourseIsEmptyError();
         }
-        if (role === 'student') {
+        if (role === 'student' && !course.isPublic) {
             const courseAssignment = await this.courseAssignmentRepository.findOne({
                 student: { id: userId },
                 course: { id: course.id },

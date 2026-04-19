@@ -40,6 +40,7 @@ let CourseModel = class CourseModel extends SearchableModel {
     name;
     authors;
     editors;
+    isPublic;
     studentAssignments;
     description;
     chapters;
@@ -89,6 +90,14 @@ __decorate([
     JoinTable(),
     __metadata("design:type", Array)
 ], CourseModel.prototype, "editors", void 0);
+__decorate([
+    Column({
+        name: 'is_public',
+        type: 'boolean',
+        default: false,
+    }),
+    __metadata("design:type", Boolean)
+], CourseModel.prototype, "isPublic", void 0);
 __decorate([
     OneToMany(() => CourseAssignmentModel, (assignment) => assignment.course),
     __metadata("design:type", Array)

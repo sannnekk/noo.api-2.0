@@ -49,6 +49,7 @@ let UserModel = class UserModel extends SearchableModel {
     name;
     email;
     newEmail;
+    phone;
     mentorAssignmentsAsMentor;
     mentorAssignmentsAsStudent;
     courses;
@@ -181,6 +182,16 @@ __decorate([
     }),
     __metadata("design:type", Object)
 ], UserModel.prototype, "newEmail", void 0);
+__decorate([
+    Column({
+        name: 'phone',
+        type: 'varchar',
+        nullable: true,
+        charset: config.database.charsets.default,
+        collation: config.database.collations.default,
+    }),
+    __metadata("design:type", Object)
+], UserModel.prototype, "phone", void 0);
 __decorate([
     OneToMany(() => MentorAssignmentModel, (assignment) => assignment.mentor),
     __metadata("design:type", Array)

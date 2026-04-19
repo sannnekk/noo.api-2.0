@@ -3,4 +3,6 @@ export interface RegisterDTO {
   username: string
   email: string
   password: string
+  phone: string
+  telegram: string
 }

@@ -9,6 +9,7 @@ export interface Course extends BaseModel {
   slug: string
   name: string
   images: Media[]
+  isPublic: boolean
   authors: User[]
   editors: User[]
   description: string

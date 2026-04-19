@@ -84,6 +84,13 @@ export class CourseModel extends SearchableModel implements Course {
   @JoinTable()
   editors!: User[]
 
+  @Column({
+    name: 'is_public',
+    type: 'boolean',
+    default: false,
+  })
+  isPublic!: boolean
+
   @OneToMany(() => CourseAssignmentModel, (assignment) => assignment.course)
   studentAssignments?: CourseAssignment[]
 

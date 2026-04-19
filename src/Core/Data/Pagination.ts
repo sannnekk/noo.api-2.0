@@ -53,6 +53,10 @@ export class Pagination {
     return (this.page - 1) * this.limit
   }
 
+  public get pageNumber(): number {
+    return this.page
+  }
+
   public get take(): number {
     return this.limit
   }

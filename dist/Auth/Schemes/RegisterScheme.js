@@ -14,4 +14,6 @@ export const RegistrationScheme = z.object({
     username: UsernameScheme,
     email: EmailScheme,
     password: PasswordScheme,
+    phone: z.string(),
+    telegram: z.string(),
 });

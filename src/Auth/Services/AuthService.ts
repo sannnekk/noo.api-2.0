@@ -38,7 +38,10 @@ export class AuthService {
 
   public async register(registerDTO: RegisterDTO): Promise<void> {
     // every user is a student at the moment of registration
-    const user = new UserModel(registerDTO)
+    const user = new UserModel({
+      ...registerDTO,
+      telegramUsername: registerDTO.telegram,
+    })
 
     user.role = 'student'
     user.verificationToken = await Hash.hash(Math.random().toString())

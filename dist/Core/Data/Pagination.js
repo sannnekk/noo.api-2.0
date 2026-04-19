@@ -23,6 +23,9 @@ export class Pagination {
     get offset() {
         return (this.page - 1) * this.limit;
     }
+    get pageNumber() {
+        return this.page;
+    }
     get take() {
         return this.limit;
     }

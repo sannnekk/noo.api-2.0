@@ -129,6 +129,15 @@ export class UserModel extends SearchableModel implements User {
   })
   newEmail!: string | null
 
+  @Column({
+    name: 'phone',
+    type: 'varchar',
+    nullable: true,
+    charset: config.database.charsets.default,
+    collation: config.database.collations.default,
+  })
+  phone!: string | null
+
   @OneToMany(() => MentorAssignmentModel, (assignment) => assignment.mentor)
   mentorAssignmentsAsMentor?: MentorAssignmentModel[]
 

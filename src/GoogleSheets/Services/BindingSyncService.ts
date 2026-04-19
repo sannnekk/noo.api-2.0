@@ -104,6 +104,10 @@ export class BindingSyncService {
         title: 'Telegram',
         key: 'telegramUsername',
       },
+      {
+        title: 'Номер телефона',
+        key: 'phone',
+      },
     ]
 
     const condition = this.prepareCondition(selector)

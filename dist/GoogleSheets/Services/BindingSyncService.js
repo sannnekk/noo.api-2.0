@@ -65,6 +65,10 @@ export class BindingSyncService {
                 title: 'Telegram',
                 key: 'telegramUsername',
             },
+            {
+                title: 'Номер телефона',
+                key: 'phone',
+            },
         ];
         const condition = this.prepareCondition(selector);
         const { entities: users } = await this.userRepository.find(condition, undefined, new Pagination(1, 999999));

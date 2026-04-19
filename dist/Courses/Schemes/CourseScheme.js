@@ -4,6 +4,7 @@ import { ChapterScheme } from './ChapterScheme.js';
 export const CourseScheme = z.object({
     id: z.string().ulid().optional(),
     slug: z.string().optional().nullable(),
+    isPublic: z.boolean().optional().default(false),
     name: z
         .string()
         .min(1, { message: 'Название курса слишком короткое' })

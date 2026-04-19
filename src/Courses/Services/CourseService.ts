@@ -21,6 +21,7 @@ import { CourseAssignmentRepository } from '../Data/CourseAssignmentRepository'
 import { CourseAssignmentModel } from '../Data/Relations/CourseAssignmentModel'
 import { CourseMaterialReactionRepository } from '../Data/CourseMaterialReactionRepository'
 import { UnauthorizedError } from '@modules/Core/Errors/UnauthorizedError'
+import { CourseAssignment } from '../Data/Relations/CourseAssignment'
 
 export class CourseService {
   private readonly courseRepository: CourseRepository
@@ -66,7 +67,27 @@ export class CourseService {
     studentId: User['id'],
     pagination: Pagination
   ) {
-    return this.courseAssignmentRepository.search(
+    let publicAssignments: CourseAssignment[] = []
+
+    if (pagination.pageNumber === 1) {
+      const publicCourses = await this.courseRepository.findAll({
+        isPublic: true,
+      })
+
+      publicAssignments = publicCourses.map((course) => ({
+        id: `public-${course.id}`,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        course,
+        courseId: course.id,
+        studentId: studentId,
+        assignerId: studentId,
+        isArchived: false,
+        isPinned: true,
+      }))
+    }
+
+    const assignmentSearchResult = await this.courseAssignmentRepository.search(
       {
         student: {
           id: studentId,
@@ -75,6 +96,11 @@ export class CourseService {
       pagination,
       ['course', 'course.images', 'assigner', 'course.subject']
     )
+
+    return {
+      entities: [...publicAssignments, ...assignmentSearchResult.entities],
+      meta: assignmentSearchResult.meta,
+    }
   }
 
   public async getBySlug(
@@ -120,7 +146,7 @@ export class CourseService {
       throw new CourseIsEmptyError()
     }
 
-    if (role === 'student') {
+    if (role === 'student' && !course.isPublic) {
       const courseAssignment = await this.courseAssignmentRepository.findOne({
         student: { id: userId },
         course: { id: course.id },
