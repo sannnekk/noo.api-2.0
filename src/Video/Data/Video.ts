@@ -13,7 +13,7 @@ export interface Video extends BaseModel {
   thumbnail: Media
   url: string | null
   sizeInBytes: number
-  serviceType: 'yandex'
+  serviceType: 'yandex' | 'kinescope'
   state: 'not-uploaded' | 'uploaded' | 'uploading' | 'failed' | 'published'
   uniqueIdentifier: string
   duration: number

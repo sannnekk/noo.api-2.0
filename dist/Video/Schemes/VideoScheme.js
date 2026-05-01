@@ -15,7 +15,7 @@ export const VideoScheme = z.object({
     description: DeltaScheme.nullable(),
     thumbnail: MediaScheme.nullable(),
     sizeInBytes: z.number().int().min(0),
-    serviceType: z.literal('yandex'),
+    serviceType: z.enum(['yandex', 'kinescope']),
     state: z.enum(['not-uploaded', 'uploaded', 'uploading', 'failed']),
     duration: z.number().int().min(0),
     chapters: z.array(VideoChapterScheme),

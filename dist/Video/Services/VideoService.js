@@ -1,6 +1,7 @@
 import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
 import { VideoRepository } from '../Data/VideoRepository.js';
 import { YandexVideoUploadBus } from './UploadBuses/YandexVideoUploadBus.js';
+import { KinescopeVideoUploadBus } from './UploadBuses/KinescopeVideoUploadBus.js';
 import { VideoAlreadyUploadedError } from '../Errors/VideoAlreadyUploadedError.js';
 import { UnauthorizedError } from '../../Core/Errors/UnauthorizedError.js';
 import { VideoAccessService } from './VideoAccessService.js';
@@ -19,7 +20,7 @@ export class VideoService {
     videoReactionRepository;
     userRepository;
     courseRepository;
-    videoUploadBus;
+    uploadBuses;
     constructor() {
         this.videoRepository = new VideoRepository();
         this.videoAccessService = new VideoAccessService();
@@ -27,12 +28,21 @@ export class VideoService {
         this.videoReactionRepository = new VideoReactionRepository();
         this.userRepository = new UserRepository();
         this.courseRepository = new CourseRepository();
-        this.videoUploadBus = new YandexVideoUploadBus({
-            serviceAccountKey: process.env.YANDEX_CLOUD_VIDEO_SERVICE_ACCOUNT_KEY,
-            serviceAccountKeyId: process.env.YANDEX_CLOUD_VIDEO_SERVICE_ACCOUNT_KEY_ID,
-            serviceAccountId: process.env.YANDEX_CLOUD_VIDEO_SERVICE_ACCOUNT_ID,
-            channelId: process.env.YANDEX_CLOUD_CHANNEL_ID,
-        });
+        this.uploadBuses = {
+            yandex: new YandexVideoUploadBus({
+                serviceAccountKey: process.env.YANDEX_CLOUD_VIDEO_SERVICE_ACCOUNT_KEY,
+                serviceAccountKeyId: process.env.YANDEX_CLOUD_VIDEO_SERVICE_ACCOUNT_KEY_ID,
+                serviceAccountId: process.env.YANDEX_CLOUD_VIDEO_SERVICE_ACCOUNT_ID,
+                channelId: process.env.YANDEX_CLOUD_CHANNEL_ID,
+            }),
+            kinescope: new KinescopeVideoUploadBus({
+                apiToken: process.env.KINESCOPE_API_TOKEN,
+                parentId: process.env.KINESCOPE_PARENT_ID,
+            }),
+        };
+    }
+    getUploadBus(serviceType) {
+        return this.uploadBuses[serviceType];
     }
     async getVideos(pagination, userId, userRole) {
         const selector = await this.videoAccessService.getVideoSelectorFromUser(userId, userRole);
@@ -54,7 +64,7 @@ export class VideoService {
             throw new NotFoundError('Видео не найдено');
         }
         if (video.duration === 0) {
-            video.duration = await this.videoUploadBus.getVideoDuration(video.uniqueIdentifier);
+            video.duration = await this.getUploadBus(video.serviceType).getVideoDuration(video.uniqueIdentifier);
             await this.videoRepository.update(video);
         }
         video.reactionCounts = await this.videoReactionRepository.getVideoReactions(video.id);
@@ -146,7 +156,7 @@ export class VideoService {
         return newReactions;
     }
     async createVideo(video, userId, userRole) {
-        const data = await this.videoUploadBus.getUploadUrl(video);
+        const data = await this.getUploadBus(video.serviceType).getUploadUrl(video);
         video.uniqueIdentifier = data.uniqueIdentifier;
         video.uploadUrl = data.uploadUrl;
         video.url = data.url;
@@ -176,7 +186,7 @@ export class VideoService {
         }
         video.state = 'uploaded';
         video.uploadUrl = null;
-        video.duration = await this.videoUploadBus.getVideoDuration(video.uniqueIdentifier);
+        video.duration = await this.getUploadBus(video.serviceType).getVideoDuration(video.uniqueIdentifier);
         await this.videoRepository.update(video);
     }
     async publishVideo(id, userId, userRole) {
@@ -258,7 +268,7 @@ export class VideoService {
             throw new NotFoundError('Видео не найдено');
         }
         await this.videoRepository.delete(id);
-        await this.videoUploadBus.deleteVideo(video.uniqueIdentifier);
+        await this.getUploadBus(video.serviceType).deleteVideo(video.uniqueIdentifier);
     }
     stringifyUserRole(role) {
         switch (role) {

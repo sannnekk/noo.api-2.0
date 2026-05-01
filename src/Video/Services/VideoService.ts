@@ -3,6 +3,7 @@ import { Video } from '../Data/Video'
 import { VideoRepository } from '../Data/VideoRepository'
 import { VideoUploadBus } from './UploadBuses/VideoUploadBus'
 import { YandexVideoUploadBus } from './UploadBuses/YandexVideoUploadBus'
+import { KinescopeVideoUploadBus } from './UploadBuses/KinescopeVideoUploadBus'
 import { User } from '@modules/Users/Data/User'
 import { VideoAlreadyUploadedError } from '../Errors/VideoAlreadyUploadedError'
 import { Pagination } from '@modules/Core/Data/Pagination'
@@ -32,7 +33,7 @@ export class VideoService {
 
   private readonly courseRepository: CourseRepository
 
-  private readonly videoUploadBus: VideoUploadBus
+  private readonly uploadBuses: Record<Video['serviceType'], VideoUploadBus>
 
   public constructor() {
     this.videoRepository = new VideoRepository()
@@ -41,13 +42,23 @@ export class VideoService {
     this.videoReactionRepository = new VideoReactionRepository()
     this.userRepository = new UserRepository()
     this.courseRepository = new CourseRepository()
-    this.videoUploadBus = new YandexVideoUploadBus({
-      serviceAccountKey: process.env.YANDEX_CLOUD_VIDEO_SERVICE_ACCOUNT_KEY!,
-      serviceAccountKeyId:
-        process.env.YANDEX_CLOUD_VIDEO_SERVICE_ACCOUNT_KEY_ID!,
-      serviceAccountId: process.env.YANDEX_CLOUD_VIDEO_SERVICE_ACCOUNT_ID!,
-      channelId: process.env.YANDEX_CLOUD_CHANNEL_ID!,
-    })
+    this.uploadBuses = {
+      yandex: new YandexVideoUploadBus({
+        serviceAccountKey: process.env.YANDEX_CLOUD_VIDEO_SERVICE_ACCOUNT_KEY!,
+        serviceAccountKeyId:
+          process.env.YANDEX_CLOUD_VIDEO_SERVICE_ACCOUNT_KEY_ID!,
+        serviceAccountId: process.env.YANDEX_CLOUD_VIDEO_SERVICE_ACCOUNT_ID!,
+        channelId: process.env.YANDEX_CLOUD_CHANNEL_ID!,
+      }),
+      kinescope: new KinescopeVideoUploadBus({
+        apiToken: process.env.KINESCOPE_API_TOKEN!,
+        parentId: process.env.KINESCOPE_PARENT_ID!,
+      }),
+    }
+  }
+
+  private getUploadBus(serviceType: Video['serviceType']): VideoUploadBus {
+    return this.uploadBuses[serviceType]
   }
 
   public async getVideos(
@@ -96,9 +107,9 @@ export class VideoService {
     }
 
     if (video.duration === 0) {
-      video.duration = await this.videoUploadBus.getVideoDuration(
-        video.uniqueIdentifier
-      )
+      video.duration = await this.getUploadBus(
+        video.serviceType
+      ).getVideoDuration(video.uniqueIdentifier)
 
       await this.videoRepository.update(video)
     }
@@ -232,7 +243,7 @@ export class VideoService {
     userId: User['id'],
     userRole: User['role']
   ) {
-    const data = await this.videoUploadBus.getUploadUrl(video)
+    const data = await this.getUploadBus(video.serviceType).getUploadUrl(video)
 
     video.uniqueIdentifier = data.uniqueIdentifier
     video.uploadUrl = data.uploadUrl
@@ -278,9 +289,9 @@ export class VideoService {
 
     video.state = 'uploaded'
     video.uploadUrl = null
-    video.duration = await this.videoUploadBus.getVideoDuration(
-      video.uniqueIdentifier
-    )
+    video.duration = await this.getUploadBus(
+      video.serviceType
+    ).getVideoDuration(video.uniqueIdentifier)
 
     await this.videoRepository.update(video)
   }
@@ -410,7 +421,9 @@ export class VideoService {
     }
 
     await this.videoRepository.delete(id)
-    await this.videoUploadBus.deleteVideo(video.uniqueIdentifier)
+    await this.getUploadBus(video.serviceType).deleteVideo(
+      video.uniqueIdentifier
+    )
   }
 
   private stringifyUserRole(role: User['role']): string {
