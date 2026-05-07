@@ -3,9 +3,9 @@ import { UserModel } from '../../Users/Data/UserModel.js';
 export class NotificationGenerator {
     welcomeNotification() {
         return new NotificationModel({
-            title: 'Добро пожаловать на НОО.Платформе!',
+            title: 'Добро пожаловать на НОО.Платформу!',
             message: `
-        Курсы откроются Вам в течение 12 часов после регистрации и выбора преподавателя через телеграм-бота. Подробнее об этом <a href="/help/article-01J9QDZNCM1KC6RPHB0KAVPB3F">здесь</a>.`,
+         Если вы купили платный курс, он откроется вам в течение 12 часов после регистрации и выбора преподавателя. Подробнее об этом <a href="/help/article-01J9QDZNCM1KC6RPHB0KAVPB3F">здесь</a>`,
             type: 'welcome',
             isBanner: true,
         });
