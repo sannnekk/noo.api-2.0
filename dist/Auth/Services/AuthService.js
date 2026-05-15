@@ -26,10 +26,7 @@ export class AuthService {
     }
     async register(registerDTO) {
         // every user is a student at the moment of registration
-        const user = new UserModel({
-            ...registerDTO,
-            telegramUsername: registerDTO.telegram,
-        });
+        const user = new UserModel(registerDTO);
         user.role = 'student';
         user.verificationToken = await Hash.hash(Math.random().toString());
         const usernameExists = await this.userRepository.usernameExists(user.username);
