@@ -14,5 +14,13 @@ export const RegistrationScheme = z.object({
     }),
   username: UsernameScheme,
   email: EmailScheme,
+  telegramUsername: z
+    .string()
+    .min(3, {
+      message: 'Telegram должен быть длиннее двух символов',
+    })
+    .max(255, {
+      message: 'Telegram должен быть короче 255 символов',
+    }),
   password: PasswordScheme,
 })
