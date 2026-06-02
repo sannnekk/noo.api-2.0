@@ -276,11 +276,15 @@ export class PollService {
 
     poll.votedCount += 1
 
-    this.pollRepository.update(poll)
-    this.pollAnswerRepository.createMany(answerModels)
+    // These writes MUST be awaited. Previously they were fire-and-forget, so a
+    // failed insert into the votedUsers join table was silently swallowed while
+    // the answers still persisted — that is how the join table drifted out of
+    // sync with poll_answer and the results page showed fewer voters than voted.
+    await this.pollRepository.update(poll)
+    await this.pollAnswerRepository.createMany(answerModels)
 
     if (isRegistered) {
-      this.pollRepository.addVotedUser(poll.id, userId)
+      await this.pollRepository.addVotedUser(poll.id, userId)
 
       this.notificationService.generateAndSend('poll.poll-answered', userId, {
         poll,
