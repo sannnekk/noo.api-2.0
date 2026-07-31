@@ -431,6 +431,18 @@ export class CourseService {
     await this.materialRepository.update(material)
   }
 
+  public async removeAllStudentsFromCourse(courseId: string) {
+    const course = await this.courseRepository.findOne({ id: courseId })
+
+    if (!course) {
+      throw new NotFoundError('Курс не найден')
+    }
+
+    await this.courseAssignmentRepository.deleteWhere({
+      course: { id: course.id },
+    })
+  }
+
   public async unassignWorkFromMaterial(materialSlug: string) {
     const material = await this.materialRepository.findOne({
       slug: materialSlug,

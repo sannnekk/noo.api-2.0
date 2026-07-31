@@ -291,6 +291,15 @@ export class CourseService {
         material.workCheckDeadline = checkDeadline || null;
         await this.materialRepository.update(material);
     }
+    async removeAllStudentsFromCourse(courseId) {
+        const course = await this.courseRepository.findOne({ id: courseId });
+        if (!course) {
+            throw new NotFoundError('Курс не найден');
+        }
+        await this.courseAssignmentRepository.deleteWhere({
+            course: { id: course.id },
+        });
+    }
     async unassignWorkFromMaterial(materialSlug) {
         const material = await this.materialRepository.findOne({
             slug: materialSlug,

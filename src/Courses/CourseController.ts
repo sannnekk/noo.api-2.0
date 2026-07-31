@@ -410,6 +410,22 @@ export class CourseController {
     }
   }
 
+  @Delete('/:courseId/remove-all-students/confirmed')
+  public async removeAllStudents(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+      Asserts.admin(context)
+
+      const courseId = this.courseValidator.parseId(context.params.courseId)
+
+      await this.courseService.removeAllStudentsFromCourse(courseId)
+
+      return new ApiResponse()
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
   @Delete('/:id')
   public async delete(context: Context): Promise<ApiResponse> {
     try {

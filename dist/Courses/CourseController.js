@@ -273,6 +273,18 @@ let CourseController = class CourseController {
             return new ApiResponse(error, context);
         }
     }
+    async removeAllStudents(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            Asserts.admin(context);
+            const courseId = this.courseValidator.parseId(context.params.courseId);
+            await this.courseService.removeAllStudentsFromCourse(courseId);
+            return new ApiResponse();
+        }
+        catch (error) {
+            return new ApiResponse(error, context);
+        }
+    }
     async delete(context) {
         try {
             await Asserts.isAuthenticated(context);
@@ -406,6 +418,12 @@ __decorate([
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "removeStudentsViaEmails", null);
+__decorate([
+    Delete('/:courseId/remove-all-students/confirmed'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "removeAllStudents", null);
 __decorate([
     Delete('/:id'),
     __metadata("design:type", Function),
