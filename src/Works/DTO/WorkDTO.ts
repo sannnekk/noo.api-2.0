@@ -14,6 +14,7 @@ export interface WorkDTO {
     highestScore: WorkTask['highestScore']
     type: WorkTask['type']
     rightAnswer?: WorkTask['rightAnswer']
+    tags?: WorkTask['tags']
     solveHint?: WorkTask['solveHint']
     checkHint?: WorkTask['checkHint']
     checkingStrategy?: WorkTask['checkingStrategy']

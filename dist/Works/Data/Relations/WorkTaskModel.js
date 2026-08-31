@@ -33,6 +33,7 @@ let WorkTaskModel = class WorkTaskModel extends Model {
     work;
     workId;
     rightAnswer;
+    tags;
     solveHint;
     checkHint;
     checkingStrategy;
@@ -105,6 +106,16 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], WorkTaskModel.prototype, "rightAnswer", void 0);
+__decorate([
+    Column({
+        name: 'tags',
+        type: 'simple-array',
+        nullable: true,
+        charset: config.database.charsets.withEmoji,
+        collation: config.database.collations.withEmoji,
+    }),
+    __metadata("design:type", Object)
+], WorkTaskModel.prototype, "tags", void 0);
 __decorate([
     Column({
         name: 'solve_hint',

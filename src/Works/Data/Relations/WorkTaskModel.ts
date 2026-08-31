@@ -83,6 +83,15 @@ export class WorkTaskModel extends Model implements WorkTask {
   rightAnswer?: string
 
   @Column({
+    name: 'tags',
+    type: 'simple-array',
+    nullable: true,
+    charset: config.database.charsets.withEmoji,
+    collation: config.database.collations.withEmoji,
+  })
+  tags?: string[] | null
+
+  @Column({
     name: 'solve_hint',
     type: 'json',
     nullable: true,

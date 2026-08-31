@@ -1,6 +1,7 @@
 import { DeltaScheme } from '../../Core/Schemas/DeltaScheme.js';
 import { z } from 'zod';
 import { CheckingStrategyScheme } from './CheckingStrategyScheme.js';
+import { TaskTagsScheme } from './TaskTagsScheme.js';
 import { TaskTypeScheme } from './TaskTypeScheme.js';
 export const TaskScheme = z.object({
     id: z.string().optional(),
@@ -14,6 +15,7 @@ export const TaskScheme = z.object({
         .default(1),
     type: TaskTypeScheme,
     rightAnswer: z.string().nullable().optional(),
+    tags: TaskTagsScheme.nullable().optional(),
     solveHint: DeltaScheme.nullable().optional(),
     checkHint: DeltaScheme.nullable().optional(),
     checkingStrategy: CheckingStrategyScheme.nullable().optional(),
