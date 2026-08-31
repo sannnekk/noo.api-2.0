@@ -1,6 +1,7 @@
 import { Repository } from '../../Core/Data/Repository.js';
 import { CourseModel } from './CourseModel.js';
 import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
+import { CourseAssignmentModel } from './Relations/CourseAssignmentModel.js';
 export class CourseRepository extends Repository {
     constructor() {
         super(CourseModel);
@@ -10,6 +11,20 @@ export class CourseRepository extends Repository {
     }
     async getEditors(courseId) {
         return this.queryBuilder().relation('editors').of(courseId).loadMany();
+    }
+    /**
+     * Get the ids of all public courses the student has no assignment for yet
+     *
+     * @param studentId The student to check the assignments of
+     */
+    async getUnassignedPublicCourseIds(studentId) {
+        const rows = await this.queryBuilder('course')
+            .select('course.id', 'id')
+            .leftJoin(CourseAssignmentModel, 'assignment', 'assignment.courseId = course.id AND assignment.studentId = :studentId', { studentId })
+            .where('course.isPublic = :isPublic', { isPublic: true })
+            .andWhere('assignment.id IS NULL')
+            .getRawMany();
+        return rows.map((row) => row.id);
     }
     async updateCourse(id, course) {
         const existingCourse = await this.findOne({ id });

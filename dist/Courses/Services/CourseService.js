@@ -14,6 +14,7 @@ import { CourseAssignmentRepository } from '../Data/CourseAssignmentRepository.j
 import { CourseAssignmentModel } from '../Data/Relations/CourseAssignmentModel.js';
 import { CourseMaterialReactionRepository } from '../Data/CourseMaterialReactionRepository.js';
 import { UnauthorizedError } from '../../Core/Errors/UnauthorizedError.js';
+import { AlreadyExistError } from '../../Core/Errors/AlreadyExistError.js';
 export class CourseService {
     courseRepository;
     courseAssignmentRepository;
@@ -42,32 +43,43 @@ export class CourseService {
         }, pagination);
     }
     async getStudentCourseAssignments(studentId, pagination) {
-        let publicAssignments = [];
-        if (pagination.pageNumber === 1) {
-            const publicCourses = await this.courseRepository.findAll({
-                isPublic: true,
-            });
-            publicAssignments = publicCourses.map((course) => ({
-                id: `public-${course.id}`,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                course,
-                courseId: course.id,
-                studentId: studentId,
-                assignerId: studentId,
-                isArchived: false,
-                isPinned: true,
-            }));
-        }
-        const assignmentSearchResult = await this.courseAssignmentRepository.search({
+        await this.assignPublicCourses(studentId);
+        return this.courseAssignmentRepository.search({
             student: {
                 id: studentId,
             },
         }, pagination, ['course', 'course.images', 'assigner', 'course.subject']);
-        return {
-            entities: [...publicAssignments, ...assignmentSearchResult.entities],
-            meta: assignmentSearchResult.meta,
-        };
+    }
+    /**
+     * Create the missing assignments to the public courses for a student.
+     * They are created lazily (on fetching the course list) to avoid
+     * generating an assignment for every student on every public course.
+     *
+     * Such assignments have no assigner, this is what marks them as automatic
+     *
+     * @param studentId The student to create the assignments for
+     */
+    async assignPublicCourses(studentId) {
+        const courseIds = await this.courseRepository.getUnassignedPublicCourseIds(studentId);
+        if (courseIds.length === 0) {
+            return;
+        }
+        const assignments = courseIds.map((courseId) => new CourseAssignmentModel({
+            student: { id: studentId },
+            course: { id: courseId },
+            isPinned: true,
+        }));
+        try {
+            await this.courseAssignmentRepository.createMany(assignments);
+        }
+        catch (error) {
+            // a parallel request could have created the same assignments already,
+            // in this case there is nothing left to do
+            const isDuplicate = error instanceof AlreadyExistError || error?.code === 'ER_DUP_ENTRY';
+            if (!isDuplicate) {
+                throw error;
+            }
+        }
     }
     async getBySlug(slug, userId, role) {
         const course = await this.courseRepository.findOne({ slug }, [
@@ -201,6 +213,11 @@ export class CourseService {
         }
         const newCourse = new CourseModel({ ...foundCourse, ...course });
         await this.courseRepository.updateCourse(id, newCourse);
+        // the course is not public anymore, so the assignments that were created
+        // automatically for every student have to be removed
+        if (foundCourse.isPublic && !newCourse.isPublic) {
+            await this.courseAssignmentRepository.deleteAutomaticFromCourse(id);
+        }
     }
     async addStudents(courseSlug, studentIds, assignerId) {
         const existingAssignments = await this.courseAssignmentRepository.findAll({
