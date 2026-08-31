@@ -7,6 +7,7 @@ import { CourseMaterial } from '../Data/Relations/CourseMaterial'
 export interface CourseUpdateDTO {
   id: Course['id']
   slug?: string
+  isPublic?: boolean
   name: string
   description: string
   chapters: CourseChapterUpdateDTO[]

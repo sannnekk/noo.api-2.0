@@ -21,7 +21,7 @@ import { CourseAssignmentRepository } from '../Data/CourseAssignmentRepository'
 import { CourseAssignmentModel } from '../Data/Relations/CourseAssignmentModel'
 import { CourseMaterialReactionRepository } from '../Data/CourseMaterialReactionRepository'
 import { UnauthorizedError } from '@modules/Core/Errors/UnauthorizedError'
-import { CourseAssignment } from '../Data/Relations/CourseAssignment'
+import { AlreadyExistError } from '@modules/Core/Errors/AlreadyExistError'
 
 export class CourseService {
   private readonly courseRepository: CourseRepository
@@ -67,27 +67,9 @@ export class CourseService {
     studentId: User['id'],
     pagination: Pagination
   ) {
-    let publicAssignments: CourseAssignment[] = []
+    await this.assignPublicCourses(studentId)
 
-    if (pagination.pageNumber === 1) {
-      const publicCourses = await this.courseRepository.findAll({
-        isPublic: true,
-      })
-
-      publicAssignments = publicCourses.map((course) => ({
-        id: `public-${course.id}`,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        course,
-        courseId: course.id,
-        studentId: studentId,
-        assignerId: studentId,
-        isArchived: false,
-        isPinned: true,
-      }))
-    }
-
-    const assignmentSearchResult = await this.courseAssignmentRepository.search(
+    return this.courseAssignmentRepository.search(
       {
         student: {
           id: studentId,
@@ -96,10 +78,45 @@ export class CourseService {
       pagination,
       ['course', 'course.images', 'assigner', 'course.subject']
     )
+  }
 
-    return {
-      entities: [...publicAssignments, ...assignmentSearchResult.entities],
-      meta: assignmentSearchResult.meta,
+  /**
+   * Create the missing assignments to the public courses for a student.
+   * They are created lazily (on fetching the course list) to avoid
+   * generating an assignment for every student on every public course.
+   *
+   * Such assignments have no assigner, this is what marks them as automatic
+   *
+   * @param studentId The student to create the assignments for
+   */
+  private async assignPublicCourses(studentId: User['id']): Promise<void> {
+    const courseIds =
+      await this.courseRepository.getUnassignedPublicCourseIds(studentId)
+
+    if (courseIds.length === 0) {
+      return
+    }
+
+    const assignments = courseIds.map(
+      (courseId) =>
+        new CourseAssignmentModel({
+          student: { id: studentId } as User,
+          course: { id: courseId } as Course,
+          isPinned: true,
+        })
+    )
+
+    try {
+      await this.courseAssignmentRepository.createMany(assignments)
+    } catch (error: any) {
+      // a parallel request could have created the same assignments already,
+      // in this case there is nothing left to do
+      const isDuplicate =
+        error instanceof AlreadyExistError || error?.code === 'ER_DUP_ENTRY'
+
+      if (!isDuplicate) {
+        throw error
+      }
     }
   }
 
@@ -296,6 +313,12 @@ export class CourseService {
     const newCourse = new CourseModel({ ...foundCourse, ...course })
 
     await this.courseRepository.updateCourse(id, newCourse)
+
+    // the course is not public anymore, so the assignments that were created
+    // automatically for every student have to be removed
+    if (foundCourse.isPublic && !newCourse.isPublic) {
+      await this.courseAssignmentRepository.deleteAutomaticFromCourse(id)
+    }
   }
 
   public async addStudents(

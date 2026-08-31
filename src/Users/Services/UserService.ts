@@ -310,25 +310,10 @@ export class UserService {
       throw new CantChangeRoleError()
     }
 
-    const mentorAssignment = await this.mentorAssignmentRepository.findOne({
-      student: { id: user.id },
-    })
-
-    if (mentorAssignment) {
-      throw new CantChangeRoleError(
-        'Нельзя изменить роль ученика, у которого есть куратор. Сначала открепите куратора.'
-      )
-    }
-
-    const courseAssignment = await this.courseAssignmentRepository.findOne({
-      student: { id: user.id },
-    })
-
-    if (courseAssignment) {
-      throw new CantChangeRoleError(
-        'Нельзя изменить роль ученика, который засписан хотя бы на один курс. Сначала открепите ученика со всех курсов.'
-      )
-    }
+    // the user is not a student anymore, so the mentor and the courses
+    // they were assigned to as a student are not relevant anymore
+    await this.mentorAssignmentRepository.deleteFromStudent(user.id)
+    await this.courseAssignmentRepository.deleteFromStudent(user.id)
 
     user.role = role
 

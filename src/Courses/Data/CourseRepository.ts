@@ -6,6 +6,7 @@ import { NotFoundError } from '@modules/Core/Errors/NotFoundError'
 import { EntityManager } from 'typeorm'
 import { CourseChapter } from './Relations/CourseChapter'
 import { CourseChapterModel } from './Relations/CourseChapterModel'
+import { CourseAssignmentModel } from './Relations/CourseAssignmentModel'
 
 export class CourseRepository extends Repository<Course> {
   constructor() {
@@ -18,6 +19,29 @@ export class CourseRepository extends Repository<Course> {
 
   public async getEditors(courseId: string): Promise<User[]> {
     return this.queryBuilder().relation('editors').of(courseId).loadMany()
+  }
+
+  /**
+   * Get the ids of all public courses the student has no assignment for yet
+   *
+   * @param studentId The student to check the assignments of
+   */
+  public async getUnassignedPublicCourseIds(
+    studentId: User['id']
+  ): Promise<Course['id'][]> {
+    const rows = await this.queryBuilder('course')
+      .select('course.id', 'id')
+      .leftJoin(
+        CourseAssignmentModel,
+        'assignment',
+        'assignment.courseId = course.id AND assignment.studentId = :studentId',
+        { studentId }
+      )
+      .where('course.isPublic = :isPublic', { isPublic: true })
+      .andWhere('assignment.id IS NULL')
+      .getRawMany<{ id: Course['id'] }>()
+
+    return rows.map((row) => row.id)
   }
 
   public async updateCourse(id: Course['id'], course: Course) {
