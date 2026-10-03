@@ -24,6 +24,17 @@ let NotificationsController = class NotificationsController {
         try {
             await Asserts.isAuthenticated(context);
             const pagination = this.notificationValidator.parsePagination(context.query);
+            const { entities, meta } = await this.notificationService.getAll(context.credentials.userId, pagination);
+            return new ApiResponse({ data: entities, meta });
+        }
+        catch (error) {
+            return new ApiResponse(error, context);
+        }
+    }
+    async getRead(context) {
+        try {
+            await Asserts.isAuthenticated(context);
+            const pagination = this.notificationValidator.parsePagination(context.query);
             const { entities, meta } = await this.notificationService.getRead(context.credentials.userId, pagination);
             return new ApiResponse({ data: entities, meta });
         }
@@ -99,11 +110,17 @@ let NotificationsController = class NotificationsController {
     }
 };
 __decorate([
-    Get('/read'),
+    Get('/all'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Context]),
     __metadata("design:returntype", Promise)
 ], NotificationsController.prototype, "getAll", null);
+__decorate([
+    Get('/read'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Context]),
+    __metadata("design:returntype", Promise)
+], NotificationsController.prototype, "getRead", null);
 __decorate([
     Get('/unread'),
     __metadata("design:type", Function),

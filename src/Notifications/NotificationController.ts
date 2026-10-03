@@ -22,8 +22,28 @@ export class NotificationsController {
     this.notificationService = new NotificationService()
   }
 
-  @Get('/read')
+  @Get('/all')
   public async getAll(context: Context): Promise<ApiResponse> {
+    try {
+      await Asserts.isAuthenticated(context)
+
+      const pagination = this.notificationValidator.parsePagination(
+        context.query
+      )
+
+      const { entities, meta } = await this.notificationService.getAll(
+        context.credentials!.userId,
+        pagination
+      )
+
+      return new ApiResponse({ data: entities, meta })
+    } catch (error: any) {
+      return new ApiResponse(error, context)
+    }
+  }
+
+  @Get('/read')
+  public async getRead(context: Context): Promise<ApiResponse> {
     try {
       await Asserts.isAuthenticated(context)
 
