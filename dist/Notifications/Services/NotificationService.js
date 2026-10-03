@@ -3,6 +3,7 @@ import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
 import { UserRepository } from '../../Users/Data/UserRepository.js';
 import { NotificationGenerator, } from './NotificationGenerator.js';
 import { TelegramBus } from './NotificationBuses/TelegramBus.js';
+import { WebPushBus } from './NotificationBuses/WebPushBus.js';
 export class NotificationService {
     notificationRepository;
     userRepository;
@@ -14,6 +15,7 @@ export class NotificationService {
         this.generator = new NotificationGenerator();
         // add buses
         this.buses.push(new TelegramBus());
+        this.buses.push(new WebPushBus());
     }
     async getAll(userId, pagination) {
         return this.notificationRepository.search({ user: { id: userId } }, pagination);

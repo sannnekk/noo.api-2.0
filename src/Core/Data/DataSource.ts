@@ -29,6 +29,7 @@ import { SnippetModel } from '@modules/Snippets/Data/SnippetModel'
 import { config } from '@modules/config'
 import { FAQCategoryModel } from '@modules/FAQ/Data/Relations/FAQCategoryModel'
 import { NotificationModel } from '@modules/Notifications/Data/NotificationModel'
+import { PushSubscriptionModel } from '@modules/Notifications/Data/PushSubscriptionModel'
 import { CourseAssignmentModel } from '@modules/Courses/Data/Relations/CourseAssignmentModel'
 import { CourseMaterialReactionModel } from '@modules/Courses/Data/Relations/CourseMaterialReactionModel'
 import { UserSettingsModel } from '@modules/UserSettings/Data/UserSettingsModel'
@@ -87,6 +88,7 @@ export const CoreDataSource = new DataSource({
     GoogleSheetsBindingModel,
     SnippetModel,
     NotificationModel,
+    PushSubscriptionModel,
     FavouriteTaskModel,
     VideoModel,
     VideoChapterModel,

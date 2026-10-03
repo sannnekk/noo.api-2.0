@@ -25,6 +25,7 @@ import './Subjects/SubjectController.js';
 import './Snippets/SnippetsController.js';
 import './FAQ/FAQController.js';
 import './Notifications/NotificationController.js';
+import './Notifications/PushSubscriptionController.js';
 import './UserSettings/UserSettingsController.js';
 import './Video/VideoController.js';
 import './Tables/TableController.js';
