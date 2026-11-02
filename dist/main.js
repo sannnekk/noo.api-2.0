@@ -29,6 +29,7 @@ import './Notifications/PushSubscriptionController.js';
 import './UserSettings/UserSettingsController.js';
 import './Video/VideoController.js';
 import './Tables/TableController.js';
+import './Shpuntik/ShpuntikController.js';
 log('info', 'Container created', 'A new container created');
 await CoreDataSource.initialize();
 const app = express();

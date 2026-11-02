@@ -7,7 +7,7 @@ export function isDeltaEmpty(
     return true
   }
 
-  for (let op of delta.ops) {
+  for (const op of delta.ops) {
     if (op?.insert instanceof Object) {
       return false
     }

@@ -14,6 +14,7 @@ export class TelegramBus extends NotificationBus {
         return notifications
             .map((notification) => {
             return {
+                id: notification.id,
                 allowed: notification.user.telegramNotificationsEnabled,
                 chatId: notification.user?.telegramId,
                 text: this.formatMessage(notification),

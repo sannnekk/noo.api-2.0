@@ -2,8 +2,8 @@ import { NotificationRepository } from '../Data/NotificationRepostiory.js';
 import { NotFoundError } from '../../Core/Errors/NotFoundError.js';
 import { UserRepository } from '../../Users/Data/UserRepository.js';
 import { NotificationGenerator, } from './NotificationGenerator.js';
-import { TelegramBus } from './NotificationBuses/TelegramBus.js';
 import { WebPushBus } from './NotificationBuses/WebPushBus.js';
+import { ProxyTelegramBus } from './NotificationBuses/ProxyTelegramBus.js';
 export class NotificationService {
     notificationRepository;
     userRepository;
@@ -14,8 +14,10 @@ export class NotificationService {
         this.userRepository = new UserRepository();
         this.generator = new NotificationGenerator();
         // add buses
-        this.buses.push(new TelegramBus());
+        // Telegram bus is off due to blockage by Yandex
+        // this.buses.push(new TelegramBus())
         this.buses.push(new WebPushBus());
+        this.buses.push(new ProxyTelegramBus());
     }
     async getAll(userId, pagination) {
         return this.notificationRepository.search({ user: { id: userId } }, pagination);

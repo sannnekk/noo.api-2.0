@@ -5,6 +5,7 @@ import { log } from '@modules/Core/Logs/Logger'
 
 export class ProxyTelegramBus extends NotificationBus {
   private PROXY_TOKEN: string
+
   private PROXY_URL = 'https://bot.noocurator.ru/api/platform/events'
 
   public constructor() {
