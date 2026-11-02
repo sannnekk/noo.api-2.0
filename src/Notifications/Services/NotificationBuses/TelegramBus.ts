@@ -2,7 +2,8 @@ import { NotificationBus } from './NotificationBus'
 import type { Notification } from '../../Data/Notification'
 import { send } from '@modules/Core/Utils/telegram'
 
-type TelegramMessage = {
+export type TelegramMessage = {
+  id: string
   allowed: boolean
   chatId: string
   text: string
@@ -22,10 +23,11 @@ export class TelegramBus extends NotificationBus {
     return this.send(messages)
   }
 
-  private prepareMessages(notifications: Notification[]) {
+  private prepareMessages(notifications: Notification[]): TelegramMessage[] {
     return notifications
       .map((notification) => {
         return {
+          id: notification.id,
           allowed: notification.user.telegramNotificationsEnabled,
           chatId: notification.user?.telegramId,
           text: this.formatMessage(notification),

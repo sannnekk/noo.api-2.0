@@ -13,9 +13,9 @@ import { AssignedWork } from '@modules/AssignedWorks/Data/AssignedWork'
 import { Poll } from '@modules/Polls/Data/Poll'
 import { Session } from '@modules/Sessions/Data/Session'
 import { Subject } from '@modules/Subjects/Data/Subject'
-import { TelegramBus } from './NotificationBuses/TelegramBus'
 import { WebPushBus } from './NotificationBuses/WebPushBus'
 import { NotificationBus } from './NotificationBuses/NotificationBus'
+import { ProxyTelegramBus } from './NotificationBuses/ProxyTelegramBus'
 
 export type NotificationPayload = {
   assignedWork?: AssignedWork
@@ -42,8 +42,11 @@ export class NotificationService {
     this.generator = new NotificationGenerator()
 
     // add buses
-    this.buses.push(new TelegramBus())
+
+    // Telegram bus is off due to blockage by Yandex
+    // this.buses.push(new TelegramBus())
     this.buses.push(new WebPushBus())
+    this.buses.push(new ProxyTelegramBus())
   }
 
   public async getAll(userId: User['id'], pagination: Pagination) {

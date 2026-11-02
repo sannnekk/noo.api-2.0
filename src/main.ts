@@ -33,6 +33,7 @@ import '@modules/Notifications/PushSubscriptionController'
 import '@modules/UserSettings/UserSettingsController'
 import '@modules/Video/VideoController'
 import '@modules/Tables/TableController'
+import '@modules/Shpuntik/ShpuntikController'
 
 log('info', 'Container created', 'A new container created')
 
